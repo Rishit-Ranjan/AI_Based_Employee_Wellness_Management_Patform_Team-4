@@ -650,8 +650,9 @@ export default function UserDashboard({
 
           {/* Logo & Brand Title */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shadow-md shadow-blue-500/20">
-              <Activity className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center">
+              {/* Admin Dashboard's icon structure */}
+              <div className="w-4 h-4 bg-white rounded-sm rotate-45"></div>
             </div>
             <div className="hidden sm:block">
               <span className="font-display font-bold text-base tracking-tight block text-slate-900 dark:text-slate-50 leading-none">
