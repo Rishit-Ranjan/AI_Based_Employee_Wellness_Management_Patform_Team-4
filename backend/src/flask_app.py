@@ -880,22 +880,60 @@ DEFAULT_REC_MEDIA = {
 
 import random
 
+# Track which videos have been reported as unavailable (runtime-only, resets on server restart)
+_UNAVAILABLE_VIDEOS = set()
+
+def _resolve_media_category(category):
+    """Normalize a category string to a key in RECOMMENDATION_MEDIA."""
+    if category in RECOMMENDATION_MEDIA:
+        return category
+    for key in RECOMMENDATION_MEDIA:
+        if key.lower() in category.lower() or category.lower() in key.lower():
+            return key
+    return 'Lifestyle'
+
+def _get_alternative_video(category, unavailable_url=None, risk_label='Low'):
+    """
+    Smart fallback: given a category and (optionally) the URL that failed,
+    return an alternative video URL that has NOT been marked unavailable.
+    Prioritization:
+      - High risk → first available video (most impactful)
+      - Medium risk → middle video
+      - Low risk → last video (least intensive)
+    Falls back to the default media if all videos for category are exhausted.
+    """
+    if unavailable_url:
+        _UNAVAILABLE_VIDEOS.add(unavailable_url)
+    
+    category_key = _resolve_media_category(category)
+    media = RECOMMENDATION_MEDIA.get(category_key, DEFAULT_REC_MEDIA)
+    
+    # Get available videos (not marked unavailable)
+    available_videos = [v for v in media['videos'] if v not in _UNAVAILABLE_VIDEOS]
+    
+    # If all videos exhausted, reset the unavailable set for this category (full refresh)
+    if not available_videos:
+        _UNAVAILABLE_VIDEOS.difference_update(media['videos'])
+        available_videos = list(media['videos'])
+    
+    # Choose based on risk label
+    if risk_label == 'High':
+        index = 0
+    elif risk_label == 'Medium':
+        index = len(available_videos) // 2
+    else:  # Low
+        index = len(available_videos) - 1
+    
+    index = min(index, len(available_videos) - 1)
+    return available_videos[index] if available_videos else DEFAULT_REC_MEDIA['videos'][0]
+
+
 def _add_media_to_recommendations(recommendations):
     """Attach image and video URLs to each recommendation based on category and severity."""
     enriched = []
     for rec in recommendations:
         category = rec.get('category', 'Lifestyle')
-        # Normalize category key for lookup
-        category_key = category
-        if category_key not in RECOMMENDATION_MEDIA:
-            # Try to match by partial name
-            for key in RECOMMENDATION_MEDIA:
-                if key.lower() in category.lower() or category.lower() in key.lower():
-                    category_key = key
-                    break
-            else:
-                category_key = 'Lifestyle'
-        
+        category_key = _resolve_media_category(category)
         media = RECOMMENDATION_MEDIA.get(category_key, DEFAULT_REC_MEDIA)
         
         # Pick video based on severity/score for variety
@@ -910,6 +948,29 @@ def _add_media_to_recommendations(recommendations):
         }
         enriched.append(enriched_rec)
     return enriched
+
+# --- Video Fallback Endpoint (for when a video is unavailable) ---
+@app.route('/api/wellness/recommendation-media/fallback', methods=['POST'])
+@jwt_required(locations=["cookies"])
+def get_fallback_video():
+    """
+    When the frontend detects a YouTube video is unavailable (removed/privated),
+    it reports the failed URL here and receives an alternative video URL.
+    The alternative is selected intelligently based on the user's risk profile.
+    """
+    data = request.get_json() or {}
+    category = data.get('category', 'Lifestyle')
+    unavailable_url = data.get('unavailableUrl')
+    risk_label = data.get('riskLabel', 'Low')
+    
+    alternative_url = _get_alternative_video(category, unavailable_url, risk_label)
+    
+    return jsonify({
+        'alternativeUrl': alternative_url,
+        'category': category,
+        'note': 'Alternative video selected based on availability and risk profile.'
+    }), 200
+
 
 # --- Wellness Recommendations Endpoint ---
 @app.route('/api/wellness/recommendations', methods=['GET'])

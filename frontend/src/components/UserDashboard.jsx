@@ -77,7 +77,7 @@ export function RecommendationModule({ recommendations, loading = false, onPlayV
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   {rec.videoUrl && (
                     <button 
-                      onClick={() => onPlayVideo(rec.videoUrl)}
+                      onClick={() => onPlayVideo(rec.videoUrl, rec.category, rec.severity)}
                       className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-3 bg-white/20 backdrop-blur-sm rounded-full text-white hover:bg-white/40 transition-all"
                     >
                       <PlayCircle className="w-8 h-8" />
@@ -643,8 +643,15 @@ export default function UserDashboard({
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const [playingVideoUrl, setPlayingVideoUrl] = useState(null);
+  const [playingVideo, setPlayingVideo] = useState(null); // { url, category, severity }
   const userRecommendations = recommendations.find(rec => rec.employeeId === user?.employeeId)?.recommendations || [];
+
+  // Handler: opens video modal with metadata for auto-fallback
+  const handlePlayVideo = useCallback((videoUrl, category, severity) => {
+    if (videoUrl) {
+      setPlayingVideo({ url: videoUrl, category, severity });
+    }
+  }, []);
 
   // Greeting helper
   const getGreeting = () => {
@@ -680,7 +687,14 @@ export default function UserDashboard({
       
       {/* Video Player Modal */}
       <AnimatePresence>
-        {playingVideoUrl && <VideoPlayerModal videoUrl={playingVideoUrl} onClose={() => setPlayingVideoUrl(null)} />}
+        {playingVideo && (
+          <VideoPlayerModal 
+            videoUrl={playingVideo.url} 
+            category={playingVideo.category}
+            riskLabel={playingVideo.severity}
+            onClose={() => setPlayingVideo(null)} 
+          />
+        )}
       </AnimatePresence>
       
       {/* 1. Header with Page Icon, Greeting, Date & Dark Mode Toggle */}
@@ -995,7 +1009,7 @@ export default function UserDashboard({
             )}
 
             {activeTab === 3 && (
-              <RecommendationModule recommendations={userRecommendations} loading={loading} onPlayVideo={setPlayingVideoUrl} />
+              <RecommendationModule recommendations={userRecommendations} loading={loading} onPlayVideo={handlePlayVideo} />
             )}
 
             {activeTab === 8 && (
