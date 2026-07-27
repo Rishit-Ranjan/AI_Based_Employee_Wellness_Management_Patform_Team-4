@@ -3,12 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   User, Lightbulb, Bot, X, LogOut, UploadCloud,
   Dumbbell, Apple, Brain, Clock, HeartPulse, Sparkles, Check, ShieldAlert, AlertCircle, Smile, Send,
-  CalendarCheck, Siren, Receipt, ShieldCheck, Target, FileDown, Utensils, Bell,
+  CalendarCheck, Siren, Receipt, ShieldCheck, Target, FileDown, Utensils, Bell, ExternalLink, PlayCircle,
   Mic, MicOff, Volume2, Sun, Moon, Activity, Trash2, Menu, ChevronLeft, ChevronRight, Calendar
 } from 'lucide-react';
 import ProfileEditModal from './ProfileEditModal';
 import { CheckupSchedulerModule, EmergencySOSModule, ExpenseTrackerModule } from './ExtraWellnessModules';
 import InsuranceModule from './InsuranceModule';
+import VideoPlayerModal from './VideoPlayerModal';
 import DietPlanModule from './DietPlanModule';
 import GoalsModule from './GoalsModule';
 import ReportsModule from './ReportsModule';
@@ -26,7 +27,13 @@ export function UserProfileModule(props) {
 // ==========================================
 // MODULE 3: PERSONALIZED RECOMMENDATIONS
 // ==========================================
-export function RecommendationModule({ recommendations, loading = false }) {
+export function RecommendationModule({ recommendations, loading = false, onPlayVideo }) {
+  const getSeverityStyles = (severity) => {
+    if (severity === 'High') return { iconColor: 'text-red-500 dark:text-red-400', borderColor: 'border-red-200 dark:border-red-800', bgColor: 'bg-red-50 dark:bg-red-950/60' };
+    if (severity === 'Medium') return { iconColor: 'text-amber-500 dark:text-amber-400', borderColor: 'border-amber-200 dark:border-amber-800', bgColor: 'bg-amber-50 dark:bg-amber-950/60' };
+    return { iconColor: 'text-blue-600 dark:text-blue-400', borderColor: 'border-blue-100 dark:border-blue-800', bgColor: 'bg-blue-50 dark:bg-blue-950/60' };
+  };
+
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-pulse">
@@ -57,24 +64,60 @@ export function RecommendationModule({ recommendations, loading = false }) {
         recommendations.map((rec) => {
           const Icon = rec.category === 'Fitness' ? Dumbbell :
                        rec.category === 'Diet' ? Apple :
-                       rec.category === 'Mental Wellness' ? Brain : Clock;
+                       rec.category === 'Mental Wellness' ? Brain :
+                       rec.category === 'Yoga' ? HeartPulse : Clock;
+          
+          const { iconColor, borderColor, bgColor } = getSeverityStyles(rec.severity);
 
           return (
-            <div key={rec.id} className="bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl p-6 flex flex-col justify-between space-y-4 hover:shadow-xl transition-all duration-300 shadow-sm">
+            <div key={rec.id} className="bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl flex flex-col justify-between hover:shadow-xl transition-all duration-300 shadow-sm overflow-hidden">
+              {rec.imageUrl && (
+                <div className="relative h-40">
+                  <img src={rec.imageUrl} alt={rec.title} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  {rec.videoUrl && (
+                    <button 
+                      onClick={() => onPlayVideo(rec.videoUrl)}
+                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-3 bg-white/20 backdrop-blur-sm rounded-full text-white hover:bg-white/40 transition-all"
+                    >
+                      <PlayCircle className="w-8 h-8" />
+                    </button>
+                  )}
+                </div>
+              )}
+
+              <div className="p-5 flex flex-col flex-grow space-y-4">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="p-2.5 bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800 rounded-xl text-blue-600 dark:text-blue-400">
+                  <div className={`p-2.5 ${bgColor} border ${borderColor} rounded-xl ${iconColor}`}>
                     <Icon className="w-5 h-5" />
                   </div>
-                  <span className="px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-[10px] font-bold uppercase rounded-lg font-mono">
+                  <span className={`px-2.5 py-0.5 ${bgColor} border ${borderColor} ${iconColor} text-[10px] font-bold uppercase rounded-lg font-mono`}>
                     {rec.category}
                   </span>
                 </div>
 
                 <div>
                   <h4 className="font-display font-semibold text-base text-slate-900 dark:text-slate-100">{rec.title}</h4>
-                  <p className="text-slate-500 dark:text-slate-400 text-xs mt-1.5 leading-relaxed font-light">{rec.description}</p>
+                  <p className="text-slate-500 dark:text-slate-400 text-xs mt-1.5 leading-relaxed font-light">
+                    {rec.description}
+                  </p>
                 </div>
+              </div>
+
+              <div className="flex-grow" />
+
+              <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700/60">
+                <div className="flex items-center gap-1.5">
+                  <span className={`w-2 h-2 rounded-full ${rec.severity === 'High' ? 'bg-red-500' : rec.severity === 'Medium' ? 'bg-amber-500' : 'bg-blue-500'}`} />
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase font-mono">{rec.severity} Severity</span>
+                </div>
+                {rec.videoUrl && (
+                  <a href={rec.videoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-500 transition-colors">
+                    <ExternalLink className="w-4 h-4" />
+                    Watch on YouTube
+                  </a>
+                )}
               </div>
 
               {rec.reasons && rec.reasons.length > 0 && (
@@ -87,6 +130,7 @@ export function RecommendationModule({ recommendations, loading = false }) {
                   </ul>
                 </div>
               )}
+              </div>
             </div>
           );
         })
@@ -599,6 +643,7 @@ export default function UserDashboard({
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  const [playingVideoUrl, setPlayingVideoUrl] = useState(null);
   const userRecommendations = recommendations.find(rec => rec.employeeId === user?.employeeId)?.recommendations || [];
 
   // Greeting helper
@@ -632,6 +677,11 @@ export default function UserDashboard({
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col font-sans transition-colors duration-300">
+      
+      {/* Video Player Modal */}
+      <AnimatePresence>
+        {playingVideoUrl && <VideoPlayerModal videoUrl={playingVideoUrl} onClose={() => setPlayingVideoUrl(null)} />}
+      </AnimatePresence>
       
       {/* 1. Header with Page Icon, Greeting, Date & Dark Mode Toggle */}
       <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 px-4 md:px-8 py-3.5 flex items-center justify-between transition-colors">
@@ -945,7 +995,7 @@ export default function UserDashboard({
             )}
 
             {activeTab === 3 && (
-              <RecommendationModule recommendations={userRecommendations} loading={loading} />
+              <RecommendationModule recommendations={userRecommendations} loading={loading} onPlayVideo={setPlayingVideoUrl} />
             )}
 
             {activeTab === 8 && (

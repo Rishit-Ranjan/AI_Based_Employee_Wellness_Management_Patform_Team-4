@@ -802,6 +802,113 @@ def get_wellness_risks_old():
         app.logger.exception(f"An unexpected error occurred during risk prediction: {e}")
         return jsonify({'detail': 'Internal Server Error'}), 500
 
+# --- Media Library for Recommendations ---
+RECOMMENDATION_MEDIA = {
+    'Fitness': {
+        'image': 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&h=300&fit=crop',
+        'videos': [
+            'https://www.youtube.com/watch?v=ml6cT4J3S5I',
+            'https://www.youtube.com/watch?v=2MoGxae-zyo',
+            'https://www.youtube.com/watch?v=3L4xLjsTjyM',
+        ]
+    },
+    'Diet': {
+        'image': 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&h=300&fit=crop',
+        'videos': [
+            'https://www.youtube.com/watch?v=6R1x2hA7j0E',
+            'https://www.youtube.com/watch?v=XYh6Yr6sGcA',
+            'https://www.youtube.com/watch?v=1V8g3y3vG9s',
+        ]
+    },
+    'Mental Wellness': {
+        'image': 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&h=300&fit=crop',
+        'videos': [
+            'https://www.youtube.com/watch?v=inpok4MKVLM',
+            'https://www.youtube.com/watch?v=ZToicYbHMgU',
+            'https://www.youtube.com/watch?v=O-6f5wV1xV4',
+        ]
+    },
+    'Yoga': {
+        'image': 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&h=300&fit=crop',
+        'videos': [
+            'https://www.youtube.com/watch?v=7Xr3Fq3qOXA',
+            'https://www.youtube.com/watch?v=4pKly2JojMw',
+            'https://www.youtube.com/watch?v=9XwPcJhXjJ4',
+        ]
+    },
+    'Lifestyle': {
+        'image': 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&h=300&fit=crop',
+        'videos': [
+            'https://www.youtube.com/watch?v=iLWzJ8Ow7FE',
+            'https://www.youtube.com/watch?v=pUAN2jP6E9g',
+            'https://www.youtube.com/watch?v=WjQnzB3UO5s',
+        ]
+    },
+    'Sleep': {
+        'image': 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=600&h=300&fit=crop',
+        'videos': [
+            'https://www.youtube.com/watch?v=iLWzJ8Ow7FE',
+            'https://www.youtube.com/watch?v=pUAN2jP6E9g',
+        ]
+    },
+    'Stress': {
+        'image': 'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=600&h=300&fit=crop',
+        'videos': [
+            'https://www.youtube.com/watch?v=inpok4MKVLM',
+            'https://www.youtube.com/watch?v=ZToicYbHMgU',
+        ]
+    },
+    'Nutrition': {
+        'image': 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=600&h=300&fit=crop',
+        'videos': [
+            'https://www.youtube.com/watch?v=6R1x2hA7j0E',
+            'https://www.youtube.com/watch?v=XYh6Yr6sGcA',
+        ]
+    },
+}
+
+# Default media fallback for unknown categories
+DEFAULT_REC_MEDIA = {
+    'image': 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&h=300&fit=crop',
+    'videos': [
+        'https://www.youtube.com/watch?v=inpok4MKVLM',
+        'https://www.youtube.com/watch?v=ZToicYbHMgU',
+    ]
+}
+
+import random
+
+def _add_media_to_recommendations(recommendations):
+    """Attach image and video URLs to each recommendation based on category and severity."""
+    enriched = []
+    for rec in recommendations:
+        category = rec.get('category', 'Lifestyle')
+        # Normalize category key for lookup
+        category_key = category
+        if category_key not in RECOMMENDATION_MEDIA:
+            # Try to match by partial name
+            for key in RECOMMENDATION_MEDIA:
+                if key.lower() in category.lower() or category.lower() in key.lower():
+                    category_key = key
+                    break
+            else:
+                category_key = 'Lifestyle'
+        
+        media = RECOMMENDATION_MEDIA.get(category_key, DEFAULT_REC_MEDIA)
+        
+        # Pick video based on severity/score for variety
+        score = rec.get('score', 5) if isinstance(rec.get('score'), (int, float)) else 5
+        video_index = min(int(score) % len(media['videos']), len(media['videos']) - 1)
+        
+        enriched_rec = {
+            **rec,
+            'id': rec.get('recommendation_id', rec.get('id', str(random.randint(1000, 9999)))),
+            'imageUrl': media['image'],
+            'videoUrl': media['videos'][video_index],
+        }
+        enriched.append(enriched_rec)
+    return enriched
+
 # --- Wellness Recommendations Endpoint ---
 @app.route('/api/wellness/recommendations', methods=['GET'])
 @jwt_required(locations=["cookies"])
@@ -899,11 +1006,17 @@ def get_recommendations():
 
                     top_recs = top_recs[:3]
 
+                # Enrich recommendations with media (images & videos) and severity
+                enriched_recs = _add_media_to_recommendations(top_recs)
+                # Add severity to each recommendation based on risk profile
+                for rec in enriched_recs:
+                    rec['severity'] = risk_label
+
                 all_recommendations.append({
                     "employeeId": record.get("employeeId"),
                     "employeeName": record.get("employeeName"),
                     "riskProfile": {"riskType": risk_label},
-                    "recommendations": top_recs
+                    "recommendations": enriched_recs
                 })
 
             except Exception as e:
