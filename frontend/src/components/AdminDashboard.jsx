@@ -42,6 +42,7 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
   const [alcoholUse, setAlcoholUse] = useState(false);
   const [glucoseLevel, setGlucoseLevel] = useState('');
 
+  const [successMessage, setSuccessMessage] = useState('');
   const [error, setError] = useState(''); // State for form errors
   const actionMenuRef = useRef(null);
 
@@ -180,7 +181,8 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
         lastUpdated: new Date().toISOString().split('T')[0]
       };
       await onUpdateRecord(updatedRec);
-      alert('Health record updated successfully!'); // User feedback
+      setSuccessMessage('Health record updated successfully!');
+      setTimeout(() => setSuccessMessage(''), 3000);
     } else {
       // Add new record
       const [empId, empName] = selectedEmployee.split('|');
@@ -210,7 +212,8 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
         lastUpdated: new Date().toISOString().split('T')[0]
       };
       await onAddRecord(newRec);
-      alert('Health record added successfully!'); // User feedback
+      setSuccessMessage('Health record added successfully!');
+      setTimeout(() => setSuccessMessage(''), 3000);
     }
 
     setIsAddOpen(false);
@@ -275,6 +278,13 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs flex items-start gap-2.5 font-medium animate-shake">
           <ShieldAlert className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
           <span>{error}</span>
+        </div>
+      )}
+      
+      {successMessage && (
+        <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-700 text-xs flex items-start gap-2.5 font-medium animate-fadeIn">
+          <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+          <span>{successMessage}</span>
         </div>
       )}
 
