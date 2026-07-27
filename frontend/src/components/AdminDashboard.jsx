@@ -20,7 +20,6 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
   const [editingRecord, setEditingRecord] = useState(null); // Track which record is being edited
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const [openActionMenu, setOpenActionMenu] = useState(null); // Track which action menu is open
-  const [error, setError] = useState(''); // State for form errors
   
   // Form states (using selectedEmployee to hold "employeeId|employeeName")
   const [selectedEmployee, setSelectedEmployee] = useState('');
@@ -43,6 +42,7 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
   const [alcoholUse, setAlcoholUse] = useState(false);
   const [glucoseLevel, setGlucoseLevel] = useState('');
 
+  const [error, setError] = useState(''); // State for form errors
   const actionMenuRef = useRef(null);
 
   // Close menu when clicking outside
@@ -50,15 +50,12 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
     const handleClickOutside = (event) => {
       // Close menu if clicked outside of it and not on the toggle button itself
       if (actionMenuRef.current && !actionMenuRef.current.contains(event.target) &&
-          !event.target.closest(`[data-record-id="${openActionMenu}"]`)) {
-        setOpenActionMenu(null);
+          !event.target.closest(`[data-menu-button-for="${openActionMenu}"]`)) {
         setOpenActionMenu(null);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
 
@@ -89,13 +86,8 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
 
   const handleMenuToggle = (e, recordId) => {
     // Toggle the menu for the clicked record. If it's already open, close it.
-    // If another menu is open, this will close it first due to the state update.
     setOpenActionMenu(openActionMenu === recordId ? null : recordId);
-
-    e.stopPropagation(); // Prevent click from bubbling up to document
-    const rect = e.currentTarget.getBoundingClientRect();
-    // Set position for the fixed dropdown
-    setMenuPosition({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX - 100 });
+    // No need to calculate position anymore as it will be relative to the button's parent
   };
   const openAddModal = () => {
     setEditingRecord(null); // Ensure we're in add mode
@@ -507,11 +499,27 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
                 <div className="absolute top-3 right-3">
                   <button
                     onClick={(e) => handleMenuToggle(e, record.id)}
-                    className="p-1.5 text-slate-400 hover:text-slate-600 rounded-md transition-colors"
-                    data-record-id={record.id}
+                    className="p-1.5 text-slate-400 hover:text-slate-600 rounded-md transition-colors z-10"
+                    data-menu-button-for={record.id}
                   >
                     <MoreHorizontal className="w-4 h-4" />
                   </button>
+                  {openActionMenu === record.id && (
+                    <div ref={actionMenuRef} className="absolute top-full right-0 mt-1 w-32 bg-white rounded-md shadow-lg border border-slate-200 z-20">
+                      <button
+                        onClick={() => { openEditModal(record); setOpenActionMenu(null); }}
+                        className="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-slate-100 flex items-center gap-2"
+                      >
+                        <Edit className="w-3.5 h-3.5" /> Edit
+                      </button>
+                      <button
+                        onClick={() => { if (window.confirm(`Are you sure?`)) { onDeleteRecord(record.employeeId); } setOpenActionMenu(null); }}
+                        className="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" /> Delete
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-3">
@@ -588,29 +596,6 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
           </>
         )}
       </div>
-
-      {openActionMenu && (
-        <div
-          ref={actionMenuRef}
-          style={{ top: `${menuPosition.top}px`, left: `${menuPosition.left}px` }}
-          className="fixed w-32 bg-white rounded-md shadow-lg border border-slate-200 z-50"
-        >
-          <div className="py-1">
-            <button
-              onClick={() => { openEditModal(records.find(r => r.id === openActionMenu)); setOpenActionMenu(null); }}
-              className="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-slate-100 flex items-center gap-2"
-            >
-              <Edit className="w-3.5 h-3.5" /> Edit
-            </button>
-            <button
-              onClick={() => { if (window.confirm(`Are you sure?`)) { onDeleteRecord(records.find(r => r.id === openActionMenu).employeeId); } setOpenActionMenu(null); }}
-              className="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2"
-            >
-              <Trash2 className="w-3.5 h-3.5" /> Delete
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
