@@ -625,6 +625,13 @@ What would you like to explore today? I'm here to support your wellness journey!
         # Adjust timing based on preferences or defaults
         wake_time = (preferences or {}).get('wake_time', '6:30 AM')
         work_start = (preferences or {}).get('work_start', '9:00 AM')
+
+        # Initialize the routine dictionary with keys for each period
+        routine_data = {
+            'morning': [],
+            'afternoon': [],
+            'evening': []
+        }
         
         # Generate personalized routine blocks
         routine = []
@@ -636,7 +643,7 @@ What would you like to explore today? I'm here to support your wellness journey!
             'description': 'Drink 500ml water with lemon. 5 min gentle stretching.',
             'duration': '15 min',
             'type': 'wellness'
-        })
+        }) # This is a temporary list, will be sorted later
         
         routine.append({
             'time': self._add_time(wake_time, 30),
@@ -745,9 +752,24 @@ What would you like to explore today? I'm here to support your wellness journey!
             'duration': f'{sleep_hours}h',
             'type': 'sleep'
         })
+
+        # Distribute activities into morning, afternoon, evening based on time
+        for activity in routine:
+            time_str = activity['time']
+            hour = int(time_str.split(':')[0])
+            is_pm = 'PM' in time_str.upper()
+
+            if not is_pm and hour < 12:
+                routine_data['morning'].append(activity['description'])
+            elif (is_pm and hour < 6) or (not is_pm and hour == 12):
+                routine_data['afternoon'].append(activity['description'])
+            else:
+                routine_data['evening'].append(activity['description'])
         
         return {
-            'routine': routine,
+            'morning': routine_data['morning'],
+            'afternoon': routine_data['afternoon'],
+            'evening': routine_data['evening'],
             'total_activities': len(routine),
             'generated_for': employee_id,
             'generated_at': datetime.now(timezone.utc).isoformat(),
