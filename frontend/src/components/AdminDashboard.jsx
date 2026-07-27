@@ -1028,7 +1028,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
     return (
       <div className="space-y-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[...Array(4)].map((_, i) => (
+          {[...new Array(4)].map((_, i) => (
             <div key={i} className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-3 animate-pulse">
               <div className="h-3 bg-slate-200 rounded w-24"></div>
               <div className="h-8 bg-slate-300 rounded w-16"></div>
