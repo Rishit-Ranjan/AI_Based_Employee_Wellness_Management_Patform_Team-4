@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Trash2, Edit, MoreHorizontal, Activity, TrendingUp, Lightbulb, Smile, BarChart3, LogOut,
   Search, Plus, X, ShieldAlert, AlertCircle, Check, Sparkles, Dumbbell, Apple, Brain, Clock,
-  ShieldCheck, Bell, Siren, Receipt, Zap, Target, Users, LineChart
+  ShieldCheck, Bell, Siren, Zap, Target, Users, LineChart
 } from 'lucide-react';
 import AdminInsuranceModule from './AdminInsuranceModule';
 import AdminNotificationCenter from './AdminNotificationCenter';
@@ -853,7 +853,7 @@ export function RecommendationModule({ recommendations = [], loading }) {
       </div>
       {loading ? (
         <div className="space-y-6">
-          {[...Array(3)].map((_, i) => (
+          {[...new Array(3)].map((_, i) => (
             <div key={i} className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm animate-pulse">
               <div className="flex justify-between items-start pb-4 border-b border-slate-100 mb-4">
                 <div>
