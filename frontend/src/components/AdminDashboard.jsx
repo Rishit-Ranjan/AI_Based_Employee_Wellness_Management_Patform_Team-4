@@ -1695,7 +1695,8 @@ export default function AdminDashboard({ user,
     { id: 3, label: 'Personalized Recommender', icon: Lightbulb, desc: 'Fitness, diet & wellness routines' },
     { id: 4, label: 'Sentiment & Mental Health', icon: Smile, desc: 'Anonymized stress tracker' },
     { id: 5, label: 'Performance & AI Analytics', icon: BarChart3, desc: 'KPIs, burnout trends & predictions' },
-    { id: 6, label: 'Insurance Management', icon: ShieldCheck, desc: 'Policies & claims oversight' }
+    { id: 6, label: 'Insurance Management', icon: ShieldCheck, desc: 'Policies & claims oversight' },
+    { id: 7, label: 'Checkups, SOS & Expenses', icon: Siren, desc: 'Appointments, alerts, claims' }
   ];
 
   // Greeting helper
@@ -1993,7 +1994,8 @@ export default function AdminDashboard({ user,
                 {activeTab === 3 && 'Wellness Recommendation System'}
                 {activeTab === 4 && 'Mental Health & Sentiment Analytics'}
                 {activeTab === 5 && 'Performance & AI Analytics'}
-                {activeTab === 6 && 'Checkups, SOS & Expenses'}
+                {activeTab === 6 && 'Insurance Management'}
+                {activeTab === 7 && 'Checkups, SOS & Expenses'}
                 {activeTab === 10 && 'System Settings'}
               </h1>
               <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 max-w-2xl font-light">
@@ -2002,7 +2004,8 @@ export default function AdminDashboard({ user,
                 {activeTab === 3 && 'Tailored, evidence-based fitness routines, diet schedules, and mental wellbeing recommendations.'}
                 {activeTab === 4 && 'NLP-driven individual stress analytics collected through fully anonymized feedback pulse-checks.'}
                 {activeTab === 5 && 'High-level dashboard for KPIs, burnout trends, and AI-driven wellness predictions.'}
-                {activeTab === 6 && 'Oversee employee checkup scheduling, SOS alerts, and expense claims.'}
+                {activeTab === 6 && 'Manage employee insurance policies, claims, and coverage oversight.'}
+                {activeTab === 7 && 'Oversee employee checkup scheduling, SOS alerts, and expense claims.'}
                 {activeTab === 10 && 'Manage application-wide settings and configurations.'}
               </p>
             </div>
@@ -2038,6 +2041,14 @@ export default function AdminDashboard({ user,
 
             {activeTab === 6 && (
               <AdminInsuranceModule allUsers={allUsers} />
+            )}
+
+            {activeTab === 7 && (
+              <div className="space-y-8">
+                <AdminCheckupsModule />
+                <AdminSosMonitor />
+                <AdminExpensesModule />
+              </div>
             )}
 
             {activeTab === 10 && (
