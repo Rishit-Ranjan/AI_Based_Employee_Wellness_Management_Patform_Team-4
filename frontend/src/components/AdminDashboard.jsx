@@ -1583,6 +1583,7 @@ export default function AdminDashboard({ user,
   const [activeTab, setActiveTab] = useState(1);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isNotifCenterOpen, setIsNotifCenterOpen] = useState(false);
 
   // Find the logged-in admin's department from their health record.
   // This is used to filter the sentiment module to only show the admin's own department.
@@ -1605,9 +1606,7 @@ export default function AdminDashboard({ user,
     { id: 3, label: 'Personalized Recommender', icon: Lightbulb, desc: 'Fitness, diet & wellness routines' },
     { id: 4, label: 'Sentiment & Mental Health', icon: Smile, desc: 'Anonymized stress tracker' },
     { id: 5, label: 'Performance & AI Analytics', icon: BarChart3, desc: 'KPIs, burnout trends & predictions' },
-    { id: 6, label: 'Insurance Management', icon: ShieldCheck, desc: 'Policies & claims oversight' },
-    { id: 7, label: 'Notification Center', icon: Bell, desc: 'Send & manage notifications' },
-    { id: 8, label: 'Checkups, SOS & Expenses', icon: Siren, desc: 'Appointments, alerts, claims' }
+    { id: 6, label: 'Insurance Management', icon: ShieldCheck, desc: 'Policies & claims oversight' }
   ];
 
   // Greeting helper
@@ -1629,6 +1628,20 @@ export default function AdminDashboard({ user,
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col font-sans transition-colors duration-300">
+      
+      {isNotifCenterOpen && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-fadeIn" onClick={() => setIsNotifCenterOpen(false)}>
+          <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-3xl shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="p-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50 dark:bg-slate-900">
+              <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2"><Bell className="w-5 h-5 text-slate-400" /> Notification Center</h3>
+              <button onClick={() => setIsNotifCenterOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="p-6 overflow-y-auto">
+              <AdminNotificationCenter allUsers={allUsers} />
+            </div>
+          </div>
+        </div>
+      )}
       
       {isProfileModalOpen && (
         <ProfileEditModal
@@ -1700,7 +1713,7 @@ export default function AdminDashboard({ user,
           <ThemeToggle />
 
           {/* Notification Bell */}
-          <NotificationBell isAdmin={true} />
+          <NotificationBell isAdmin={true} onAdminClick={() => setIsNotifCenterOpen(true)} />
 
           <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block" />
 
@@ -1891,9 +1904,7 @@ export default function AdminDashboard({ user,
                 {activeTab === 3 && 'Wellness Recommendation System'}
                 {activeTab === 4 && 'Mental Health & Sentiment Analytics'}
                 {activeTab === 5 && 'Performance & AI Analytics'}
-                {activeTab === 6 && 'Insurance Management'}
-                {activeTab === 7 && 'Notification Center'}
-                {activeTab === 8 && 'Checkups, SOS & Expenses'}
+                {activeTab === 6 && 'Checkups, SOS & Expenses'}
                 {activeTab === 10 && 'System Settings'}
               </h1>
               <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 max-w-2xl font-light">
@@ -1902,9 +1913,7 @@ export default function AdminDashboard({ user,
                 {activeTab === 3 && 'Tailored, evidence-based fitness routines, diet schedules, and mental wellbeing recommendations.'}
                 {activeTab === 4 && 'NLP-driven departmental stress analytics collected through fully anonymized feedback pulse-checks.'}
                 {activeTab === 5 && 'High-level dashboard for KPIs, burnout trends, and AI-driven wellness predictions.'}
-                {activeTab === 6 && 'Manage employee insurance policies, claims, and coverage oversight.'}
-                {activeTab === 7 && 'Send broadcast notifications to all employees or specific departments.'}
-                {activeTab === 8 && 'Oversee employee checkup scheduling, SOS alerts, and expense claims.'}
+                {activeTab === 6 && 'Oversee employee checkup scheduling, SOS alerts, and expense claims.'}
                 {activeTab === 10 && 'Manage application-wide settings and configurations.'}
               </p>
             </div>
@@ -1939,19 +1948,7 @@ export default function AdminDashboard({ user,
             )}
 
             {activeTab === 6 && (
-              <AdminInsuranceModule />
-            )}
-
-            {activeTab === 7 && (
-              <AdminNotificationCenter />
-            )}
-
-            {activeTab === 8 && (
-              <div className="space-y-8">
-                <AdminCheckupsModule />
-                <AdminSosMonitor />
-                <AdminExpensesModule />
-              </div>
+              <AdminInsuranceModule allUsers={allUsers} />
             )}
 
             {activeTab === 10 && (
