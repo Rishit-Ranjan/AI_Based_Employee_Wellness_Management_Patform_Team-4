@@ -380,9 +380,6 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
   const [routine, setRoutine] = useState(null);
   const [loadingInsights, setLoadingInsights] = useState(false);
   const [loadingRoutine, setLoadingRoutine] = useState(false);
-  const [coachMessage, setCoachMessage] = useState('');
-  const [coachResponse, setCoachResponse] = useState('');
-  const [coachLoading, setCoachLoading] = useState(false);
 
   useEffect(() => {
     const loadInsights = async () => {
@@ -411,22 +408,6 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
       setRoutine(null);
     } finally {
       setLoadingRoutine(false);
-    }
-  };
-
-  const handleAskCoach = async (e) => {
-    e.preventDefault();
-    if (!coachMessage.trim()) return;
-    setCoachLoading(true);
-    setCoachResponse('');
-    try {
-      const data = await sendAiChatMessage(user.employeeId, coachMessage);
-setCoachResponse(data.response || data.reply || data.message || 'Based on your health profile, I recommend maintaining a balanced routine with adequate sleep and regular exercise.');
-    } catch (err) {
-      console.error('AI Coach query failed:', err);
-      setCoachResponse("I'm having trouble connecting to the wellness service. Please try again shortly.");
-    } finally {
-      setCoachLoading(false);
     }
   };
 
@@ -575,37 +556,6 @@ setCoachResponse(data.response || data.reply || data.message || 'Based on your h
         ) : (
           <div className="text-center py-8 text-slate-400 dark:text-slate-500 font-mono text-xs">
             Click "Generate New Routine" for an AI-customized daily routine.
-          </div>
-        )}
-      </div>
-
-      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm">
-        <div className="flex items-center gap-2 mb-4">
-          <Brain className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-          <h3 className="font-display font-semibold text-slate-900 dark:text-slate-100">Ask Your AI Coach</h3>
-        </div>
-
-        <form onSubmit={handleAskCoach} className="flex gap-3">
-          <input
-            type="text"
-            value={coachMessage}
-            onChange={(e) => setCoachMessage(e.target.value)}
-            placeholder="Ask anything about health, diet, exercise, or stress..."
-            className="flex-1 px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none"
-          />
-          <button
-            type="submit"
-            disabled={coachLoading || !coachMessage.trim()}
-            className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-2 shadow-sm"
-          >
-            <Send className="w-3.5 h-3.5" />
-            Ask
-          </button>
-        </form>
-
-        {coachResponse && (
-          <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800 rounded-xl text-xs text-slate-700 dark:text-slate-200">
-            {coachResponse}
           </div>
         )}
       </div>
