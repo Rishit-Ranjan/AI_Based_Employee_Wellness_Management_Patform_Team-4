@@ -419,6 +419,7 @@ export default function PersonalWellnessProfile({
               icon={HeartPulse}
               badge="Section 02"
               badgeColor="emerald"
+              className="relative"
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -468,15 +469,17 @@ export default function PersonalWellnessProfile({
                 <div>
                   <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
                     Blood Pressure (Sys/Dia){' '}
-                    <span
+                    <span 
                       ref={bpInfoRef}
-                      className="relative inline-block ml-1 text-slate-400 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer"
+                      className="inline-block ml-1 text-slate-400 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer"
                       onClick={() => setShowBpInfoPopup(!showBpInfoPopup)}
                     >
-                      <Info className="w-3.5 h-3.5 inline" />
+                      <Info className="w-3.5 h-3.5 inline cursor-pointer" />
                       {showBpInfoPopup && (
-                        <div className="absolute z-30 w-64 p-3 top-6 right-0 bg-slate-900 text-white dark:bg-slate-800 border border-slate-700 rounded-xl shadow-2xl text-[11px] font-normal animate-fadeIn">
-                          Systolic (top number) measures heart contraction; Diastolic (bottom number) measures resting pressure. Normal is ~120/80 mmHg.
+                        <div className="absolute z-30 w-64 p-3 top-2 mt-2 right-0 bg-slate-900 text-white dark:bg-slate-800 border border-slate-700 rounded-xl shadow-2xl text-[11px] font-normal animate-fadeIn space-y-1">
+                          <div><strong>Systolic</strong> (top number) measures heart contraction;</div>
+                          <div><strong>Diastolic</strong> (bottom number) measures resting pressure.</div>
+                          <div>Normal is ~120/80 mmHg.</div>
                         </div>
                       )}
                     </span>
