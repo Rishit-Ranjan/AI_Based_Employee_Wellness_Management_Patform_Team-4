@@ -1556,7 +1556,7 @@ export default function AdminDashboard({ user,
         />
       )}
       {/* Platform Header */}
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 px-4 md:px-8 py-3.5 flex items-center justify-between transition-colors">
+      <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-700 px-4 md:px-8 py-3.5 flex items-center justify-between transition-colors">
         
         {/* Left: Mobile Menu Toggle & App Logo / Greeting */}
         <div className="flex items-center gap-3 md:gap-5">
@@ -1660,7 +1660,7 @@ export default function AdminDashboard({ user,
 
         {/* Navigation Sidebar */}
         <aside
-          className={`hidden lg:flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-800/80 transition-all duration-300 shrink-0 p-4 justify-between ${
+          className={`hidden lg:flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-700 transition-all duration-300 shrink-0 p-4 justify-between ${
             isSidebarCollapsed ? 'w-20' : 'w-72'
           }`}
         >
@@ -1794,7 +1794,7 @@ export default function AdminDashboard({ user,
         {/* Module Content Stage */}
         <main className="flex-1 p-4 md:p-8 overflow-y-auto">
           {/* Active module display card header */}
-          <div className="mb-6 pb-4 border-b border-slate-200/80 dark:border-slate-800/80 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="mb-6 pb-4 border-b border-slate-200/80 dark:border-slate-700 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800/60 rounded-md text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest font-mono mb-2">
                 {activeTab <= 5 ? `Core Module ${activeTab} of 5` : `Extension Module ${activeTab}`}
