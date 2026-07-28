@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Trash2, Edit, MoreHorizontal, Activity, TrendingUp, Lightbulb, Smile, BarChart3, LogOut,
   Search, Plus, X, ShieldAlert, AlertCircle, Check, Sparkles, Dumbbell, Apple, Brain, Clock, ChevronLeft, ChevronRight,
-  ShieldCheck, Bell, Receipt, Siren, Zap, Target, Users, LineChart
+  ShieldCheck, Bell, Receipt, Siren, Zap, Target, Users, LineChart, Cog
 } from 'lucide-react';
 import AdminInsuranceModule from './AdminInsuranceModule';
 import AdminNotificationCenter from './AdminNotificationCenter';
@@ -1495,6 +1495,18 @@ export default function AdminDashboard({ user,
   const [activeTab, setActiveTab] = useState(1);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
+  const adminNavTabs = [
+    { id: 1, label: 'Health Data Manager', icon: Activity, desc: 'BMI, medical, habits database' },
+    { id: 2, label: 'Wellness Risk Prediction', icon: TrendingUp, desc: 'AI burnout & vitals risk scores' },
+    { id: 3, label: 'Personalized Recommender', icon: Lightbulb, desc: 'Fitness, diets, wellness schedules' },
+    { id: 4, label: 'Sentiment & Mental Health', icon: Smile, desc: 'Anonymized stress tracker' },
+    { id: 5, label: 'Performance Analytics', icon: BarChart3, desc: 'Absenteeism & wellness KPIs' },
+    { id: 6, label: 'Insurance Management', icon: ShieldCheck, desc: 'Policies & claims oversight' },
+    { id: 7, label: 'Notification Center', icon: Bell, desc: 'Send & manage notifications' },
+    { id: 8, label: 'Checkups, SOS & Expenses', icon: Siren, desc: 'Appointments, alerts, claims' },
+    { id: 9, label: 'AI Analytics', icon: Zap, desc: 'Burnout trends & wellness predictions' }
+  ];
+
   // Find the logged-in admin's department from their health record.
   // This is used to filter the sentiment module to only show the admin's own department.
   const adminRecord = healthRecords.find(r => r.employeeId === user.employeeId);
@@ -1511,7 +1523,7 @@ export default function AdminDashboard({ user,
   }, [sentimentList, adminDepartment]);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col font-sans transition-colors duration-300">
       
       {isProfileModalOpen && (
         <ProfileEditModal
@@ -1525,19 +1537,28 @@ export default function AdminDashboard({ user,
         />
       )}
       {/* Platform Header */}
-      <header className="bg-white border-b border-slate-200 text-slate-800 px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 shadow-xs">
+      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 shadow-xs">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full bg-slate-900 dark:bg-slate-800 border-2 border-transparent dark:border-slate-700 flex items-center justify-center">
             <div className="w-4 h-4 bg-white rounded-sm rotate-45"></div>
           </div>
           <div>
-            <span className="font-display font-bold text-lg tracking-tight block text-slate-900 leading-tight">Employee Wellness Management Analytics</span>
-            <span className="text-[10px] text-slate-400 font-bold tracking-widest uppercase font-mono">Wellness Intelligence</span>
+            <span className="font-display font-bold text-lg tracking-tight block text-slate-900 dark:text-slate-50 leading-tight">Employee Wellness Management Analytics</span>
+            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold tracking-widest uppercase font-mono">Wellness Intelligence</span>
           </div>
         </div>
 
         {/* User Info & Actions */}
         <div className="flex items-center md:justify-end gap-4">
+          {/* System Settings Button */}
+          <button
+            onClick={() => setActiveTab(10)}
+            className="p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700 text-slate-500 dark:text-slate-400 rounded-xl transition-all duration-200 cursor-pointer shadow-sm"
+            title="System Settings"
+          >
+            <Cog className="w-4 h-4" />
+          </button>
+
           {/* Dark Mode Toggle */}
           <ThemeToggle />
 
@@ -1548,9 +1569,9 @@ export default function AdminDashboard({ user,
 
           <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setIsProfileModalOpen(true)}>
             <div className="hidden sm:block text-right">
-              <span className="block text-sm font-semibold text-slate-850 leading-tight">{user.name}</span>
-              <span className="block text-[10px] text-slate-400 font-mono mt-0.5">{user.adminId}</span>
-              <span className="inline-block mt-1 px-2 py-0.5 bg-slate-100 border border-slate-200 text-slate-600 text-[9px] font-mono font-bold rounded uppercase tracking-widest leading-none">
+              <span className="block text-sm font-semibold text-slate-800 dark:text-slate-100 leading-tight">{user.name}</span>
+              <span className="block text-[10px] text-slate-400 dark:text-slate-500 font-mono mt-0.5">{user.adminId}</span>
+              <span className="inline-block mt-1 px-2 py-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[9px] font-mono font-bold rounded uppercase tracking-widest leading-none">
                 Administrator
               </span>
             </div>
@@ -1559,10 +1580,10 @@ export default function AdminDashboard({ user,
                 src={user.avatarUrl}
                 alt={user.name}
                 referrerPolicy="no-referrer"
-                className="w-9 h-9 rounded-full border border-slate-200 shadow-md object-cover"
+                className="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-700 shadow-md object-cover"
               />
             ) : (
-              <div className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-sm text-slate-700">
+              <div className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center font-bold text-sm text-slate-700 dark:text-slate-200">
                 {user.name.substring(0, 2).toUpperCase()}
               </div>
             )}
@@ -1570,7 +1591,7 @@ export default function AdminDashboard({ user,
 
           <button
             onClick={onLogout}
-            className="flex items-center gap-2 px-3.5 py-1.5 bg-slate-50 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg text-xs font-semibold text-slate-500 hover:text-rose-600 transition-all cursor-pointer"
+            className="flex items-center gap-2 px-3.5 py-1.5 bg-slate-50 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-slate-200 dark:border-slate-700 hover:border-rose-200 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-all cursor-pointer rounded-lg"
           >
             <LogOut className="w-4 h-4" />
             Logout
@@ -1605,17 +1626,7 @@ export default function AdminDashboard({ user,
             </div>
 
             <nav className="space-y-1.5">
-              {[
-                { id: 1, label: 'Health Data Manager', icon: Activity, desc: 'BMI, medical, habits database' },
-                { id: 2, label: 'Wellness Risk Prediction', icon: TrendingUp, desc: 'AI burnout & vitals risk scores' },
-                { id: 3, label: 'Personalized Recommender', icon: Lightbulb, desc: 'Fitness, diets, wellness schedules' },
-                { id: 4, label: 'Sentiment & Mental Health', icon: Smile, desc: 'Anonymized stress tracker' },
-                { id: 5, label: 'Performance Analytics', icon: BarChart3, desc: 'Absenteeism & wellness KPIs' },
-                { id: 6, label: 'Insurance Management', icon: ShieldCheck, desc: 'Policies & claims oversight' },
-                { id: 7, label: 'Notification Center', icon: Bell, desc: 'Send & manage notifications' },
-                { id: 8, label: 'Checkups, SOS & Expenses', icon: Siren, desc: 'Appointments, alerts, claims' },
-                { id: 9, label: 'AI Analytics', icon: Zap, desc: 'Burnout trends & wellness predictions' },
-              ].map((tab) => {
+              {adminNavTabs.map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.id;
                 return (
@@ -1625,11 +1636,11 @@ export default function AdminDashboard({ user,
                     title={tab.label}
                     className={`w-full text-left p-3.5 rounded-lg flex items-start gap-3.5 transition-all cursor-pointer border ${
                       isActive
-                        ? 'bg-indigo-50 border-indigo-100 text-indigo-900 font-semibold'
-                        : 'hover:bg-slate-50 border-transparent text-slate-500'
+                        ? 'bg-indigo-50 dark:bg-indigo-950/30 border-indigo-100 dark:border-indigo-800 text-indigo-900 dark:text-indigo-200 font-semibold'
+                        : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 border-transparent text-slate-500 dark:text-slate-400'
                     }`}
                   >
-                    <Icon className={`w-5 h-5 shrink-0 mt-0.5 ${isActive ? 'text-indigo-600' : 'text-slate-400'}`} />
+                    <Icon className={`w-5 h-5 shrink-0 mt-0.5 ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}`} />
                     {!isSidebarCollapsed && (
                       <div className="truncate">
                         <div className="text-xs font-bold">{tab.label}</div>
@@ -1661,14 +1672,14 @@ export default function AdminDashboard({ user,
         </aside>
 
         {/* Module Content Stage */}
-        <main className="flex-1 p-6 md:p-8 overflow-y-auto">
+        <main className="flex-1 p-6 md:p-8 overflow-y-auto bg-slate-50 dark:bg-slate-900">
           {/* Active module display card header */}
-          <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
+          <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-700 pb-6">
             <div>
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-indigo-50 border border-indigo-100 rounded-md text-[10px] font-bold text-indigo-700 uppercase tracking-wide mb-3">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-800 rounded-md text-[10px] font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wide mb-3">
                 {activeTab <= 5 ? `Core Module ${activeTab} of 5` : `Extension Module ${activeTab}`}
               </div>
-              <h1 className="font-display text-3xl font-light text-slate-900 tracking-tight">
+              <h1 className="font-display text-3xl font-light text-slate-900 dark:text-slate-50 tracking-tight">
                 {activeTab === 1 && 'Employee Health Data Management'}
                 {activeTab === 2 && 'Wellness Risk Prediction'}
                 {activeTab === 3 && 'Wellness Recommendation System'}
@@ -1678,8 +1689,9 @@ export default function AdminDashboard({ user,
                 {activeTab === 7 && 'Notification Center'}
                 {activeTab === 8 && 'Checkups, SOS & Expenses'}
                 {activeTab === 9 && 'AI Analytics & Burnout Trend'}
+                {activeTab === 10 && 'System Settings'}
               </h1>
-              <p className="text-slate-500 text-sm mt-2 max-w-2xl font-light">
+              <p className="text-slate-500 dark:text-slate-400 text-sm mt-2 max-w-2xl font-light">
                 {activeTab === 1 && 'Database logs for tracking key metrics including BMI, medical stats, sleep, and lifestyle routines.'}
                 {activeTab === 2 && 'Machine learning assessments predicting health risks, cardiovascular issues, or stress burnout.'}
                 {activeTab === 3 && 'Tailored, evidence-based fitness routines, diet schedules, and mental wellbeing recommendations.'}
@@ -1689,6 +1701,7 @@ export default function AdminDashboard({ user,
                 {activeTab === 7 && 'Send broadcast notifications to all employees or specific departments.'}
                 {activeTab === 8 && 'Oversee employee checkup scheduling, SOS alerts, and expense claims.'}
                 {activeTab === 9 && 'AI-driven burnout risk trends, department wellness score predictions, and automated wellness report summaries.'}
+                {activeTab === 10 && 'Manage application-wide settings and configurations.'}
               </p>
             </div>
           </div>
@@ -1739,6 +1752,13 @@ export default function AdminDashboard({ user,
 
             {activeTab === 9 && (
               <AiAnalyticsModule healthRecords={healthRecords} risks={risks} />
+            )}
+
+            {activeTab === 10 && (
+              <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm">
+                <h3 className="font-display font-semibold text-slate-900 dark:text-slate-100">System Settings</h3>
+                <p className="text-slate-500 dark:text-slate-400 text-sm mt-2">This section is under development. Here you will be able to configure various application settings.</p>
+              </div>
             )}
           </div>
         </main>
