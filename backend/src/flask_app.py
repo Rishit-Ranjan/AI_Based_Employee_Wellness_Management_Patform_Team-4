@@ -1583,70 +1583,26 @@ def delete_goal(goal_id):
     goals_collection.delete_one({'_id': ObjectId(goal_id)})
     return '', 204
 
-# --- Personalized Diet Plan API (rule-based generator) ---
-DIET_LIBRARY = {
-    'Vegetarian': {
-        'breakfast': ['Vegetable poha', 'Milk', 'Fresh fruit'],
-        'lunch': ['Rice', 'Dal', 'Mixed vegetable curry', 'Salad'],
-        'dinner': ['Roti', 'Paneer/vegetable sabzi', 'Curd'],
-        'snacks': ['Roasted chana', 'Buttermilk'],
-        'calories': 2000, 'protein': '65g',
-    },
-    'Vegan': {
-        'breakfast': ['Oats with almond milk', 'Banana', 'Chia seeds'],
-        'lunch': ['Brown rice', 'Chickpea curry', 'Steamed greens'],
-        'dinner': ['Millet roti', 'Tofu vegetable stir-fry'],
-        'snacks': ['Mixed nuts', 'Fruit bowl'],
-        'calories': 1900, 'protein': '60g',
-    },
-    'Non-Veg': {
-        'breakfast': ['Egg whites', 'Whole wheat toast', 'Fresh fruit'],
-        'lunch': ['Rice', 'Grilled chicken', 'Dal', 'Salad'],
-        'dinner': ['Roti', 'Fish curry', 'Sauteed vegetables'],
-        'snacks': ['Boiled eggs', 'Greek yogurt'],
-        'calories': 2100, 'protein': '90g',
-    },
-    'Diabetic': {
-        'breakfast': ['Vegetable oats', 'Sugar-free milk'],
-        'lunch': ['Multigrain roti', 'Dal', 'Bitter gourd sabzi', 'Salad'],
-        'dinner': ['Millet khichdi', 'Steamed vegetables'],
-        'snacks': ['Roasted makhana', 'Cucumber slices'],
-        'calories': 1700, 'protein': '55g',
-    },
-    'Weight Loss': {
-        'breakfast': ['Vegetable smoothie', 'Boiled egg whites'],
-        'lunch': ['Quinoa', 'Grilled vegetables', 'Dal'],
-        'dinner': ['Clear soup', 'Grilled paneer/tofu', 'Salad'],
-        'snacks': ['Green tea', 'Handful of nuts'],
-        'calories': 1500, 'protein': '70g',
-    },
-    'Weight Gain': {
-        'breakfast': ['Peanut butter toast', 'Banana milkshake'],
-        'lunch': ['Rice', 'Rajma/chicken curry', 'Ghee', 'Salad'],
-        'dinner': ['Roti', 'Paneer/meat curry', 'Sweet potato'],
-        'snacks': ['Dry fruit trail mix', 'Protein shake'],
-        'calories': 2600, 'protein': '100g',
-    },
-}
-
 # diet plans POST endpoint
 @app.route('/api/diet-plan', methods=['POST'])
 @jwt_required(locations=["cookies"])
 def generate_diet_plan():
+    """Generates a personalized diet plan using the AI service."""
+    jwt_payload = get_jwt()
+    user_info = jwt_payload.get("user_info", {})
+    employee_id = user_info.get('employeeId')
+    
     data = request.get_json() or {}
-    diet_type = data.get('dietType', 'Vegetarian')
-    plan = DIET_LIBRARY.get(diet_type, DIET_LIBRARY['Vegetarian'])
-    return jsonify({
-        'dietType': diet_type,
-        'breakfast': plan['breakfast'],
-        'lunch': plan['lunch'],
-        'dinner': plan['dinner'],
-        'snacks': plan['snacks'],
-        'calories': plan['calories'],
-        'protein': plan['protein'],
-        'waterIntakeLitres': 3,
-        'generatedAt': datetime.now(timezone.utc).isoformat(),
-    }), 200
+    preferences = {
+        'dietType': data.get('dietType', 'Balanced')
+    }
+
+    try:
+        plan = ai_wellness_service.generate_diet_plan(employee_id, preferences)
+        return jsonify(plan), 200
+    except Exception as e:
+        app.logger.exception(f"AI Diet Plan generation error for {employee_id}: {e}")
+        return jsonify({'detail': 'AI service unavailable for diet planning.'}), 500
 
 # --- Achievements API (computed from daily habits + goals, not a separate collection) ---
 @app.route('/api/achievements/<employee_id>', methods=['GET'])

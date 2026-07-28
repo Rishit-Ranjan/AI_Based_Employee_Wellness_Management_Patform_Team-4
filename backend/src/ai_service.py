@@ -780,6 +780,74 @@ What would you like to explore today? I'm here to support your wellness journey!
             'focus_areas': self._get_focus_areas(health)
         }
     
+    def generate_diet_plan(self, employee_id: str, preferences: Dict = None) -> Dict[str, Any]:
+        """Generates a personalized diet plan using AI."""
+        context = {}
+        if self.db is not None and employee_id:
+            context = self._get_context_from_db(employee_id)
+        
+        health = context.get('health', {})
+        prefs = preferences or {}
+        diet_type = prefs.get('dietType', 'Balanced')
+        
+        context_str = json.dumps(context, default=str) if context else "No specific health data available."
+
+        prompt = f"""You are an expert AI Nutritionist for a corporate wellness platform.
+You have access to this employee's health data: {context_str}
+
+User's diet preference: {diet_type}
+
+Generate a one-day meal plan for this employee. The plan should be simple, practical for a working professional, and aligned with Indian cuisine unless specified otherwise.
+
+The output must be a valid JSON object with the following structure, and nothing else. Do not include markdown formatting like ```json.
+{{
+  "dietType": "{diet_type}",
+  "breakfast": ["Item 1", "Item 2"],
+  "lunch": ["Item 1", "Item 2", "Item 3"],
+  "dinner": ["Item 1", "Item 2"],
+  "snacks": ["Item 1", "Item 2"],
+  "calories": "Approximate total calories (e.g., '1800-2000 kcal')",
+  "protein": "Approximate total protein (e.g., '70-80g')",
+  "waterIntakeLitres": 3,
+  "notes": "A brief, encouraging note about the plan."
+}}
+
+Focus on whole foods. Be specific with meal items.
+{AI_POLICY_GUARDRAIL}
+"""
+        
+        llm_response_str = self._generate_llm_response(prompt, context_str, employee_id)
+        
+        if llm_response_str:
+            try:
+                plan = self._parse_json_from_llm(llm_response_str)
+                plan['generatedAt'] = datetime.now(timezone.utc).isoformat()
+                return plan
+            except json.JSONDecodeError:
+                print("AI service returned invalid JSON for diet plan. Falling back to rule-based.")
+
+        # Fallback to a simple rule-based plan if LLM fails
+        return {
+            'dietType': diet_type,
+            'breakfast': ['Oats with milk and fruit', 'Handful of nuts'],
+            'lunch': ['Roti/Rice', 'Dal (Lentil soup)', 'Mixed vegetable curry', 'Salad'],
+            'dinner': ['Quinoa with grilled vegetables', 'Curd/Yogurt'],
+            'snacks': ['Apple', 'Buttermilk'],
+            'calories': '1800-2000 kcal',
+            'protein': '60-70g',
+            'waterIntakeLitres': 3,
+            'notes': 'This is a general healthy plan. For a more personalized AI plan, please try again later.',
+            'generatedAt': datetime.now(timezone.utc).isoformat(),
+        }
+
+    def _parse_json_from_llm(self, llm_output: str) -> Dict:
+        """Extracts a JSON object from a string that might contain markdown code fences."""
+        # Find the start and end of the JSON block
+        start = llm_output.find('{')
+        end = llm_output.rfind('}') + 1
+        json_str = llm_output[start:end]
+        return json.loads(json_str)
+
     def _get_focus_areas(self, health: Dict) -> List[str]:
         """Determine areas the user should focus on."""
         focus = []
@@ -867,3 +935,8 @@ def get_ai_service(db=None, risk_model=None, recommendation_engine=None):
     if _ai_service_instance is None:
         _ai_service_instance = AIWellnessService(db, risk_model, recommendation_engine)
     return _ai_service_instance
+
+def get_ai_diet_plan(employee_id: str, preferences: Dict = None) -> Dict[str, Any]:
+    """Convenience function to generate a diet plan."""
+    service = get_ai_service()
+    return service.generate_diet_plan(employee_id, preferences)
