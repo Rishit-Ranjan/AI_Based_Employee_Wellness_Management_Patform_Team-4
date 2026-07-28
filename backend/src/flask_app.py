@@ -912,10 +912,15 @@ def _get_alternative_video(category, unavailable_url=None, risk_label='Low'):
     available_videos = [v for v in media['videos'] if v not in _UNAVAILABLE_VIDEOS]
     
     # If all videos exhausted, reset the unavailable set for this category (full refresh)
+    # and try again, but make sure not to return the same failing URL.
     if not available_videos:
         _UNAVAILABLE_VIDEOS.difference_update(media['videos'])
-        available_videos = list(media['videos'])
-    
+        available_videos = [v for v in media['videos'] if v != unavailable_url]
+        # If all videos are the same as the failing one, we have no choice but to try it again.
+        if not available_videos:
+            available_videos = list(media['videos'])
+
+
     # Choose based on risk label
     if risk_label == 'High':
         index = 0
@@ -1022,7 +1027,7 @@ def get_recommendations():
                             "recommendation_id": "REC002",
                             "title": "Guided Meditation Routine",
                             "category": "Mental Wellness",
-                            "description": "10-15 minutes of guided meditation and breathing exercises daily.",
+                            "description": "Practice 10-15 minutes of guided meditation. Focus on the 4-7-8 breathing technique to calm your nervous system and reduce cortisol levels. This can significantly improve focus and reduce feelings of being overwhelmed.",
                             "score": 9.0,
                             "reasons": ["Stress score is very high"]
                         })
@@ -1031,7 +1036,7 @@ def get_recommendations():
                             "recommendation_id": "REC006",
                             "title": "Desk Yoga and Stretching",
                             "category": "Yoga",
-                            "description": "Short guided desk yoga sessions to reduce stiffness and stress.",
+                            "description": "Incorporate short, guided desk yoga sessions. Focus on neck rolls, shoulder shrugs, and spinal twists to alleviate physical tension from prolonged sitting and reduce mental fatigue.",
                             "score": 6.0,
                             "reasons": ["Stress score is moderately elevated"]
                         })
@@ -1041,7 +1046,7 @@ def get_recommendations():
                             "recommendation_id": "REC003",
                             "title": "Sleep Hygiene Program",
                             "category": "Lifestyle",
-                            "description": "Consistent bedtime, reduced screen time, and sleep-friendly habits.",
+                            "description": "Establish a consistent bedtime and wake-up time, even on weekends. Avoid screens 60 minutes before bed to allow for natural melatonin production. A cool, dark room is essential for deep, restorative sleep.",
                             "score": 8.5,
                             "reasons": ["Sleep hours are below healthy range"]
                         })
@@ -1051,7 +1056,7 @@ def get_recommendations():
                             "recommendation_id": "REC001",
                             "title": "Brisk Walking Plan",
                             "category": "Fitness",
-                            "description": "30-minute brisk walking, 5 days a week, with gradual progression.",
+                            "description": "Start with a 30-minute brisk walk, 3-5 days a week. This low-impact cardio exercise helps improve cardiovascular health, aids in weight management, and boosts mood by releasing endorphins.",
                             "score": 7.0,
                             "reasons": ["Exercise frequency is low"]
                         })
