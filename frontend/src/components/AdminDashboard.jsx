@@ -9,6 +9,7 @@ import { AdminCheckupsModule, AdminSosMonitor, AdminExpensesModule } from './Adm
 import NotificationBell from './NotificationBell';
 import ProfileEditModal from './ProfileEditModal';
 import { fetchBurnoutTrend } from '../services/api';
+import ThemeToggle from './wellness/ThemeToggle';
 
 // ==========================================
 // MODULE 1: EMPLOYEE HEALTH DATA MANAGEMENT
@@ -1537,6 +1538,14 @@ export default function AdminDashboard({ user,
 
         {/* User Info & Actions */}
         <div className="flex items-center md:justify-end gap-4">
+          {/* Dark Mode Toggle */}
+          <ThemeToggle />
+
+          {/* Notification Bell */}
+          <NotificationBell isAdmin={true} />
+
+          <div className="h-8 w-px bg-slate-200 hidden sm:block" />
+
           <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setIsProfileModalOpen(true)}>
             <div className="hidden sm:block text-right">
               <span className="block text-sm font-semibold text-slate-850 leading-tight">{user.name}</span>
@@ -1558,10 +1567,6 @@ export default function AdminDashboard({ user,
               </div>
             )}
           </div>
-
-          <NotificationBell isAdmin={true} />
-
-          <div className="h-8 w-px bg-slate-200 hidden sm:block" />
 
           <button
             onClick={onLogout}
