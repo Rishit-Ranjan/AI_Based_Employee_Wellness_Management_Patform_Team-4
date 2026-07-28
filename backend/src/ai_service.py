@@ -8,6 +8,7 @@ import json
 import random
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, List, Any
+from .ai_policy import AI_POLICY_GUARDRAIL
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -192,7 +193,8 @@ class AIWellnessService:
 You have access to this employee's health data: {context}
 
 Provide concise, actionable wellness advice. Be supportive and evidence-based.
-Keep responses under 150 words. Focus on practical tips the employee can implement immediately."""},
+Keep responses under 150 words. Focus on practical tips the employee can implement immediately.
+{AI_POLICY_GUARDRAIL}"""},
                         {"role": "user", "content": message}
                     ],
                     max_tokens=300,
@@ -213,7 +215,8 @@ Keep responses under 150 words. Focus on practical tips the employee can impleme
 
 User message: {message}
 
-As an AI Wellness Coach, provide a helpful, concise response (max 150 words) with practical wellness advice.""",
+As an AI Wellness Coach, provide a helpful, concise response (max 150 words) with practical wellness advice.
+{AI_POLICY_GUARDRAIL}""",
                         "stream": False,
                         "max_tokens": 300
                     },
@@ -233,7 +236,8 @@ User message: {message}
 
 Provide concise, actionable wellness advice. Be supportive, empathetic, and evidence-based.
 Keep responses under 150 words. Focus on practical tips the employee can implement immediately.
-Use emojis sparingly but effectively to make the response engaging."""
+Use emojis sparingly but effectively to make the response engaging.
+{AI_POLICY_GUARDRAIL}"""
                 
                 # Iterate through a list of models to handle deprecations and availability
                 model_candidates = ["gemini-3.5-flash"]
