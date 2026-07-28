@@ -943,74 +943,7 @@ export function RecommendationModule({ recommendations = [], loading }) {
 export function SentimentModule({ sentimentList = [], healthRecords = [] }) {
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {sentimentList.map((sent) => (
-          <div key={sent.department} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 space-y-5 shadow-sm animate-fadeIn">
-            <div className="flex justify-between items-center pb-3 border-b border-slate-100 dark:border-slate-700">
-              <h4 className="font-display font-semibold text-slate-800 dark:text-slate-100">{sent.department} Department Sentiment</h4>
-              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold font-mono">Pulse Count</span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 items-center">
-              <div className="space-y-2.5">
-                <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-                  <span className="flex items-center gap-1.5"><Smile className="w-4 h-4 text-emerald-500" /> Positive</span>
-                  <span className="font-mono font-bold text-emerald-600">{sent.sentimentDistribution.positive}%</span>
-                </div>
-                <div className="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
-                  <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${sent.sentimentDistribution.positive}%` }} />
-                </div>
-
-                <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-                  <span className="flex items-center gap-1.5"><Smile className="w-4 h-4 text-slate-400" /> Neutral</span>
-                  <span className="font-mono font-bold text-slate-500 dark:text-slate-400">{sent.sentimentDistribution.neutral}%</span>
-                </div>
-                <div className="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
-                  <div className="bg-slate-400 h-full rounded-full" style={{ width: `${sent.sentimentDistribution.neutral}%` }} />
-                </div>
-
-                <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-                  <span className="flex items-center gap-1.5"><ShieldAlert className="w-4 h-4 text-rose-500" /> Stress distress</span>
-                  <span className="font-mono font-bold text-rose-600">{sent.sentimentDistribution.negative}%</span>
-                </div>
-                <div className="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
-                  <div className="bg-rose-500 h-full rounded-full" style={{ width: `${sent.sentimentDistribution.negative}%` }} />
-                </div>
-              </div>
-
-              <div className="p-4 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 rounded-xl flex flex-col items-center justify-center text-center">
-                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1 font-mono">Stress index</span>
-                <span className={`text-4xl font-display font-bold ${
-                  sent.averageStressScore >= 7 ? 'text-rose-600' : sent.averageStressScore >= 5 ? 'text-amber-600' : 'text-emerald-600'
-                }`}>{sent.averageStressScore}</span>
-                <span className="text-[9px] text-slate-400 dark:text-slate-500 font-mono mt-1">Scale 1-10</span>
-
-                <span className={`mt-3 px-2.5 py-0.5 text-[9px] font-bold rounded-md ${
-                  sent.averageStressScore >= 7
-                    ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-100 dark:border-rose-800'
-                    : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800'
-                }`}>
-                  {sent.averageStressScore >= 7 ? 'Needs Review' : 'Optimal Zone'}
-                </span>
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <span className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest font-mono">Logged Feedback Issues</span>
-              <ul className="space-y-1">
-                {sent.keyIssues.map((issue, idx) => (
-                  <li key={idx} className="text-xs text-slate-500 dark:text-slate-400 font-light flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 bg-slate-300 dark:bg-slate-600 rounded-full shrink-0" />
-                    {issue}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-8">
+      <div>
         <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2 mb-4">
           <Users className="w-5 h-5 text-slate-400" /> Individual Employee Sentiment
         </h3>
@@ -1022,6 +955,9 @@ export function SentimentModule({ sentimentList = [], healthRecords = [] }) {
             if (stressLevel === 'High') stressColor = 'text-red-600';
             if (stressLevel === 'Low') stressColor = 'text-emerald-600';
 
+            const sleepHours = record.sleepHoursPerNight || 0;
+            const exerciseHours = record.exerciseHoursPerWeek || 0;
+
             return (
               <div key={record.employeeId} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 space-y-3 shadow-sm animate-fadeIn">
                 <div className="flex items-center justify-between">
@@ -1029,27 +965,56 @@ export function SentimentModule({ sentimentList = [], healthRecords = [] }) {
                     <h5 className="font-semibold text-sm text-slate-800 dark:text-slate-100">{record.employeeName}</h5>
                     <p className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">{record.employeeId} - {record.department}</p>
                   </div>
-                  <div className={`text-2xl font-display font-bold ${stressColor}`}>{stressScore}
-                    <span className="text-xs text-slate-400">/10</span>
+                  <div className={`px-2 py-0.5 rounded text-xs font-bold ${
+                    stressLevel === 'High' ? 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300' :
+                    stressLevel === 'Medium' ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300' :
+                    'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300'
+                  }`}>{stressLevel}</div>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-2 text-center border-t border-b border-slate-100 dark:border-slate-700 py-2">
+                  <div>
+                    <div className="text-lg font-bold font-display text-slate-800 dark:text-slate-100">{stressScore}<span className="text-xs text-slate-400">/10</span></div>
+                    <div className="text-[9px] text-slate-400 dark:text-slate-500 font-mono uppercase">Stress</div>
+                  </div>
+                  <div>
+                    <div className="text-lg font-bold font-display text-slate-800 dark:text-slate-100">{sleepHours}<span className="text-xs text-slate-400">h</span></div>
+                    <div className="text-[9px] text-slate-400 dark:text-slate-500 font-mono uppercase">Sleep</div>
+                  </div>
+                  <div>
+                    <div className="text-lg font-bold font-display text-slate-800 dark:text-slate-100">{exerciseHours}<span className="text-xs text-slate-400">h/wk</span></div>
+                    <div className="text-[9px] text-slate-400 dark:text-slate-500 font-mono uppercase">Exercise</div>
                   </div>
                 </div>
-                <div className="space-y-1.5">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-slate-500 dark:text-slate-400">Stress Level</span>
-                    <span className={`font-bold font-mono ${stressColor}`}>{stressLevel}</span>
-                  </div>
-                  <div className="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full ${
-                        stressLevel === 'High' ? 'bg-red-500' : stressLevel === 'Medium' ? 'bg-amber-500' : 'bg-emerald-500'
-                      }`}
-                      style={{ width: `${stressScore * 10}%` }}
-                    />
-                  </div>
+
+                <div className="flex justify-between text-xs items-center">
+                  <span className="text-slate-500 dark:text-slate-400">Latest Mood: <span className="font-bold text-slate-700 dark:text-slate-200">{record.latestMood || 'Neutral'}</span></span>
+                  <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
+                    record.healthAssessment === 'Needs Attention' ? 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300' :
+                    record.healthAssessment === 'Fair' ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300' :
+                    'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300'
+                  }`}>{record.healthAssessment || 'Fair'}</span>
                 </div>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-light pt-2 border-t border-slate-100 dark:border-slate-700">
-                  Assessment: <span className="font-medium">{record.healthAssessment || 'Fair'}</span>
-                </p>
+
+                <div className="pt-3 border-t border-slate-100 dark:border-slate-700">
+                  <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono">Recent Feedback</p>
+                  <ul className="space-y-1 mt-1.5">
+                    {(record.feedbackLogs || []).length > 0 ? record.feedbackLogs.map((log, idx) => (
+                      <li key={idx} className="text-xs text-slate-500 dark:text-slate-400 font-light flex items-start gap-2">
+                        <span className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${
+                          log.sentiment === 'Positive' ? 'bg-emerald-500' :
+                          log.sentiment === 'Negative' ? 'bg-rose-500' :
+                          'bg-slate-400'
+                        }`} />
+                        <span>{log.feedbackText}</span>
+                      </li>
+                    )) : (
+                      <li className="text-[11px] text-slate-400 dark:text-slate-500 font-light">
+                        No recent feedback logs.
+                      </li>
+                    )}
+                  </ul>
+                </div>
               </div>
             );
           })}
@@ -1063,7 +1028,7 @@ export function SentimentModule({ sentimentList = [], healthRecords = [] }) {
 // MODULE 5: PERFORMANCE & KPI DASHBOARD
 // MERGED WITH AI ANALYTICS
 // ==========================================
-export function PerformanceDashboard({ kpis, records, performanceData, loadingPerformance, performanceError, risks }) {
+export function PerformanceDashboard({ kpis, records, performanceData, loadingPerformance, performanceError, risks, sentimentList }) {
   const [burnoutData, setBurnoutData] = useState(null);
   const [loadingBurnout, setLoadingBurnout] = useState(false);
   const [selectedDept, setSelectedDept] = useState('');
@@ -1303,6 +1268,83 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
     </div>
   );
 
+  const renderDepartmentSentiment = () => (
+    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 space-y-5">
+      <div className="flex items-center gap-2">
+        <Smile className="w-5 h-5 text-emerald-500" />
+        <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100">Department Sentiment & Mental Health</h3>
+      </div>
+      <p className="text-xs text-slate-400 dark:text-slate-400">Anonymized sentiment distribution and stress index from pulse feedback.</p>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {sentimentList.map((sent) => (
+          <div key={sent.department} className="bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 rounded-xl p-5 space-y-4">
+            <div className="flex justify-between items-center">
+              <h4 className="font-semibold text-slate-800 dark:text-slate-100">{sent.department}</h4>
+              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold font-mono">Pulse Count: {sent.recentFeedbackCount}</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 items-center">
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                  <span className="flex items-center gap-1.5"><Smile className="w-4 h-4 text-emerald-500" /> Positive</span>
+                  <span className="font-mono font-bold text-emerald-600">{sent.sentimentDistribution.positive}%</span>
+                </div>
+                <div className="w-full bg-slate-200 dark:bg-slate-600 h-1.5 rounded-full overflow-hidden">
+                  <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${sent.sentimentDistribution.positive}%` }} />
+                </div>
+
+                <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                  <span className="flex items-center gap-1.5"><Smile className="w-4 h-4 text-slate-400" /> Neutral</span>
+                  <span className="font-mono font-bold text-slate-500 dark:text-slate-400">{sent.sentimentDistribution.neutral}%</span>
+                </div>
+                <div className="w-full bg-slate-200 dark:bg-slate-600 h-1.5 rounded-full overflow-hidden">
+                  <div className="bg-slate-400 h-full rounded-full" style={{ width: `${sent.sentimentDistribution.neutral}%` }} />
+                </div>
+
+                <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                  <span className="flex items-center gap-1.5"><ShieldAlert className="w-4 h-4 text-rose-500" /> Negative</span>
+                  <span className="font-mono font-bold text-rose-600">{sent.sentimentDistribution.negative}%</span>
+                </div>
+                <div className="w-full bg-slate-200 dark:bg-slate-600 h-1.5 rounded-full overflow-hidden">
+                  <div className="bg-rose-500 h-full rounded-full" style={{ width: `${sent.sentimentDistribution.negative}%` }} />
+                </div>
+              </div>
+
+              <div className="p-4 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-600 rounded-xl flex flex-col items-center justify-center text-center">
+                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1 font-mono">Stress Index</span>
+                <span className={`text-4xl font-display font-bold ${
+                  sent.averageStressScore >= 7 ? 'text-rose-600' : sent.averageStressScore >= 5 ? 'text-amber-600' : 'text-emerald-600'
+                }`}>{sent.averageStressScore}</span>
+                <span className="text-[9px] text-slate-400 dark:text-slate-500 font-mono mt-1">/ 10</span>
+              </div>
+            </div>
+
+            {sent.keyIssues && sent.keyIssues.length > 0 && (
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-600">
+                <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono">Recent Feedback Logs</p>
+                <ul className="space-y-1 mt-1.5">
+                  {sent.keyIssues.map((issue, idx) => (
+                    <li key={idx} className="text-xs text-slate-500 dark:text-slate-400 font-light flex items-start gap-2">
+                      <span className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${
+                        issue.sentiment === 'Positive' ? 'bg-emerald-500' :
+                        issue.sentiment === 'Negative' ? 'bg-rose-500' :
+                        'bg-slate-400'
+                      }`} />
+                      <span>
+                        {issue.feedbackText}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
   const renderAiSummary = () => (
     <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 border border-indigo-100 dark:border-indigo-800/50 rounded-xl p-6 space-y-3">
       <div className="flex items-center gap-2">
@@ -1510,6 +1552,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
       </div>
 
       {renderDepartmentWellness()}
+      {renderDepartmentSentiment()}
       {renderAiSummary()}
     </div>
   );
@@ -1957,7 +2000,7 @@ export default function AdminDashboard({ user,
                 {activeTab === 1 && 'Database logs for tracking key metrics including BMI, medical stats, sleep, and lifestyle routines.'}
                 {activeTab === 2 && 'Machine learning assessments predicting health risks, cardiovascular issues, or stress burnout.'}
                 {activeTab === 3 && 'Tailored, evidence-based fitness routines, diet schedules, and mental wellbeing recommendations.'}
-                {activeTab === 4 && 'NLP-driven departmental stress analytics collected through fully anonymized feedback pulse-checks.'}
+                {activeTab === 4 && 'NLP-driven individual stress analytics collected through fully anonymized feedback pulse-checks.'}
                 {activeTab === 5 && 'High-level dashboard for KPIs, burnout trends, and AI-driven wellness predictions.'}
                 {activeTab === 6 && 'Oversee employee checkup scheduling, SOS alerts, and expense claims.'}
                 {activeTab === 10 && 'Manage application-wide settings and configurations.'}
@@ -1990,7 +2033,7 @@ export default function AdminDashboard({ user,
             )}
 
             {activeTab === 5 && (
-              <PerformanceDashboard kpis={kpis} records={healthRecords} performanceData={performanceData} loadingPerformance={loadingPerformance} performanceError={performanceError} risks={risks} />
+              <PerformanceDashboard kpis={kpis} records={healthRecords} performanceData={performanceData} loadingPerformance={loadingPerformance} performanceError={performanceError} risks={risks} sentimentList={sentimentList} />
             )}
 
             {activeTab === 6 && (

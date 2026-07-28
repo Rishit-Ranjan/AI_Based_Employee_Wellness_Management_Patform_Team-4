@@ -213,6 +213,9 @@ export const fetchAlternativeVideo = async (category, unavailableUrl, riskLabel 
 // New function to fetch sentiment data
 export const fetchSentiments = () => request('/wellness/sentiments');
 
+// New function to fetch all individual sentiment pulses (admin)
+export const fetchAllSentimentPulses = () => request('/wellness/sentiment-pulse/all');
+
 /**
  * Fetches real-time performance analytics KPIs from the backend.
  * Admin-only endpoint that computes metrics from MongoDB collections.
@@ -381,4 +384,3 @@ export default {
   fetchHealthHistory, downloadHealthReportPdf,
   fetchPerformanceAnalytics,
 };
-

@@ -178,6 +178,19 @@ export default function App() {
                 }
                 setHealthRecords(loadedHR);
 
+                // Fetch all sentiment pulses and attach them to the corresponding health records
+                if (currentUser.role === 'admin') {
+                    const allPulses = await api.fetchAllSentimentPulses();
+                    const recordsWithFeedback = loadedHR.map(record => {
+                        const feedbackLogs = allPulses
+                            .filter(pulse => pulse.employeeId === record.employeeId)
+                            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                            .slice(0, 3); // Get latest 3
+                        return { ...record, feedbackLogs };
+                    });
+                    setHealthRecords(recordsWithFeedback);
+                }
+
                 // 2. Daily Habits for the current user
                 if (!userEmpId) {
                   console.warn("Missing employeeId for current user", currentUser);

@@ -2360,6 +2360,28 @@ def add_sentiment_pulse():
         app.logger.exception(f"Failed to record sentiment pulse: {e}")
         return jsonify({'detail': 'Internal Server Error'}), 500
 
+# --- Get All Sentiment Pulses (Admin Only) ---
+@app.route('/api/wellness/sentiment-pulse/all', methods=['GET'])
+@jwt_required(locations=["cookies"])
+def get_all_sentiment_pulses():
+    """ Fetches all individual sentiment pulses. Admin-only. """
+    jwt_payload = get_jwt()
+    user_info = jwt_payload.get("user_info", {})
+    if user_info.get('role', '').lower() != 'admin':
+        return jsonify({'detail': 'Forbidden'}), 403
+
+    try:
+        pulses_cursor = sentiment_pulses_collection.find({})
+        pulses = []
+        for pulse in pulses_cursor:
+            pulse['id'] = str(pulse['_id'])
+            del pulse['_id']
+            pulses.append(pulse)
+        return jsonify(pulses), 200
+    except Exception as e:
+        app.logger.exception(f"Failed to fetch all sentiment pulses: {e}")
+        return jsonify({'detail': 'Internal Server Error'}), 500
+
 # --- Main Entry Point ---
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 8000))
