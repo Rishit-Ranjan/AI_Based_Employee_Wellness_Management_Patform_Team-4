@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Trash2, Edit, MoreHorizontal, Activity, TrendingUp, Lightbulb, Smile, BarChart3, LogOut, UploadCloud,
-  Search, Plus, X, ShieldAlert, AlertCircle, Check, Sparkles, Dumbbell, Apple, Brain, Clock,
+import { Trash2, Edit, MoreHorizontal, Activity, TrendingUp, Lightbulb, Smile, BarChart3, LogOut,
+  Search, Plus, X, ShieldAlert, AlertCircle, Check, Sparkles, Dumbbell, Apple, Brain, Clock, ChevronLeft, ChevronRight,
   ShieldCheck, Bell, Receipt, Siren, Zap, Target, Users, LineChart
 } from 'lucide-react';
 import AdminInsuranceModule from './AdminInsuranceModule';
@@ -1490,8 +1490,9 @@ export default function AdminDashboard({ user,
   performanceData,
   loadingPerformance,
   performanceError
- }) {
+}) {
   const [activeTab, setActiveTab] = useState(1);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   // Find the logged-in admin's department from their health record.
   // This is used to filter the sentiment module to only show the admin's own department.
@@ -1576,59 +1577,82 @@ export default function AdminDashboard({ user,
       <div className="flex-1 flex flex-col lg:flex-row">
 
         {/* Navigation Sidebar */}
-        <aside className="w-full lg:w-72 bg-white border-b lg:border-b-0 lg:border-r border-slate-200 p-5 space-y-5 shrink-0">
-          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-3">
-            Wellness Modules
-          </div>
+        <aside
+          className={`hidden lg:flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-800/80 transition-all duration-300 shrink-0 p-4 justify-between ${
+            isSidebarCollapsed ? 'w-20' : 'w-72'
+          }`}
+        >
+          <div className="space-y-4">
+            <div className="flex items-center justify-between px-2 py-1">
+              {!isSidebarCollapsed && (
+                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest font-mono">
+                  Admin Modules
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer mx-auto"
+                title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+              >
+                {isSidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+              </button>
+            </div>
 
-          <nav className="space-y-1">
-            {[
-              { id: 1, label: 'Health Data Manager', icon: Activity, desc: 'BMI, medical, habits database' },
-              { id: 2, label: 'Wellness Risk Prediction', icon: TrendingUp, desc: 'AI burnout & vitals risk scores' },
-              { id: 3, label: 'Personalized Recommender', icon: Lightbulb, desc: 'Fitness, diets, wellness schedules' },
-              { id: 4, label: 'Sentiment & Mental Health', icon: Smile, desc: 'Anonymized stress tracker' },
-              { id: 5, label: 'Performance Analytics', icon: BarChart3, desc: 'Absenteeism & wellness KPIs' },
-              { id: 6, label: 'Insurance Management', icon: ShieldCheck, desc: 'Policies & claims oversight' },
-              { id: 7, label: 'Notification Center', icon: Bell, desc: 'Send & manage notifications' },
-              { id: 8, label: 'Checkups, SOS & Expenses', icon: Siren, desc: 'Appointments, alerts, claims' },
-              { id: 9, label: 'AI Analytics', icon: Zap, desc: 'Burnout trends & wellness predictions' },
-            ].map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`w-full text-left p-3.5 rounded-lg flex items-start gap-3.5 transition-all cursor-pointer border ${
-                    isActive
-                      ? 'bg-indigo-50 border-indigo-100 text-indigo-900 font-semibold'
-                      : 'hover:bg-slate-50 border-transparent text-slate-500'
-                  }`}
-                >
-                  <Icon className={`w-5 h-5 shrink-0 mt-0.5 ${isActive ? 'text-indigo-600' : 'text-slate-400'}`} />
-                  <div>
-                    <div className="text-xs font-bold">{tab.label}</div>
-                    <div className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">{tab.desc}</div>
-                  </div>
-                </button>
-              );
-            })}
-          </nav>
+            <nav className="space-y-1.5">
+              {[
+                { id: 1, label: 'Health Data Manager', icon: Activity, desc: 'BMI, medical, habits database' },
+                { id: 2, label: 'Wellness Risk Prediction', icon: TrendingUp, desc: 'AI burnout & vitals risk scores' },
+                { id: 3, label: 'Personalized Recommender', icon: Lightbulb, desc: 'Fitness, diets, wellness schedules' },
+                { id: 4, label: 'Sentiment & Mental Health', icon: Smile, desc: 'Anonymized stress tracker' },
+                { id: 5, label: 'Performance Analytics', icon: BarChart3, desc: 'Absenteeism & wellness KPIs' },
+                { id: 6, label: 'Insurance Management', icon: ShieldCheck, desc: 'Policies & claims oversight' },
+                { id: 7, label: 'Notification Center', icon: Bell, desc: 'Send & manage notifications' },
+                { id: 8, label: 'Checkups, SOS & Expenses', icon: Siren, desc: 'Appointments, alerts, claims' },
+                { id: 9, label: 'AI Analytics', icon: Zap, desc: 'Burnout trends & wellness predictions' },
+              ].map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    title={tab.label}
+                    className={`w-full text-left p-3.5 rounded-lg flex items-start gap-3.5 transition-all cursor-pointer border ${
+                      isActive
+                        ? 'bg-indigo-50 border-indigo-100 text-indigo-900 font-semibold'
+                        : 'hover:bg-slate-50 border-transparent text-slate-500'
+                    }`}
+                  >
+                    <Icon className={`w-5 h-5 shrink-0 mt-0.5 ${isActive ? 'text-indigo-600' : 'text-slate-400'}`} />
+                    {!isSidebarCollapsed && (
+                      <div className="truncate">
+                        <div className="text-xs font-bold">{tab.label}</div>
+                        <div className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">
+                          {tab.desc}
+                        </div>
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
 
           {/* Quick Stats sidebar widget */}
-          <div className="pt-6 border-t border-slate-100 hidden lg:block">
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4.5 relative overflow-hidden">
-              <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 font-mono">Health Index</div>
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-3xl font-display font-light text-slate-800">88%</span>
-                <span className="text-[10px] text-emerald-600 font-semibold font-mono">↑ 4%</span>
+          {!isSidebarCollapsed && (
+            <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3.5 border border-slate-200/60 dark:border-slate-700/60">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono block mb-1">System Vitals</span>
+                <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                  Analytics Active
+                </div>
+                <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full mt-2 overflow-hidden">
+                  <div className="bg-emerald-500 h-full rounded-full" style={{ width: '92%' }} />
+                </div>
               </div>
-              <div className="w-full bg-slate-200 h-1 rounded-full mt-3 overflow-hidden">
-                <div className="bg-indigo-600 h-full rounded-full" style={{ width: '88%' }} />
-              </div>
-              <p className="text-[10px] text-slate-400 mt-2.5 leading-relaxed font-sans">Synced in real-time with health records.</p>
             </div>
-          </div>
+          )}
         </aside>
 
         {/* Module Content Stage */}

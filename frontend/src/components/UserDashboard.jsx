@@ -845,18 +845,17 @@ export default function UserDashboard({
                     key={tab.id}
                     type="button"
                     onClick={() => setActiveTab(tab.id)}
-                    title={tab.label}
-                    className={`w-full text-left p-3 rounded-xl flex items-center gap-3.5 transition-all duration-200 cursor-pointer ${
+                    className={`w-full text-left p-3.5 rounded-lg flex items-start gap-3.5 transition-all cursor-pointer border ${
                       isActive
-                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25 font-semibold'
-                        : 'hover:bg-slate-100 dark:hover:bg-slate-800/80 text-slate-600 dark:text-slate-300'
+                        ? 'bg-indigo-50 border-indigo-100 text-indigo-900 font-semibold'
+                        : 'hover:bg-slate-50 border-transparent text-slate-500'
                     }`}
                   >
-                    <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-white' : 'text-slate-400 dark:text-slate-400'}`} />
+                    <Icon className={`w-5 h-5 shrink-0 mt-0.5 ${isActive ? 'text-indigo-600' : 'text-slate-400'}`} />
                     {!isSidebarCollapsed && (
                       <div className="truncate">
-                        <div className="text-xs font-bold truncate">{tab.label}</div>
-                        <div className={`text-[10px] mt-0.5 truncate ${isActive ? 'text-blue-100 font-normal' : 'text-slate-400 dark:text-slate-500'}`}>
+                        <div className="text-xs font-bold">{tab.label}</div>
+                        <div className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">
                           {tab.desc}
                         </div>
                       </div>
@@ -926,14 +925,14 @@ export default function UserDashboard({
                             setActiveTab(tab.id);
                             setIsMobileMenuOpen(false);
                           }}
-                          className={`w-full text-left p-3 rounded-xl flex items-center gap-3.5 transition-all ${
+                          className={`w-full text-left p-3.5 rounded-lg flex items-start gap-3.5 transition-all cursor-pointer border ${
                             isActive
-                              ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-md'
-                              : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                              ? 'bg-indigo-50 border-indigo-100 text-indigo-900 font-semibold'
+                              : 'hover:bg-slate-50 border-transparent text-slate-500'
                           }`}
                         >
-                          <Icon className="w-5 h-5 shrink-0" />
-                          <div>
+                          <Icon className={`w-5 h-5 shrink-0 mt-0.5 ${isActive ? 'text-indigo-600' : 'text-slate-400'}`} />
+                          <div className="truncate">
                             <div className="text-xs font-bold">{tab.label}</div>
                           </div>
                         </button>
