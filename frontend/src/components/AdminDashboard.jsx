@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Edit, MoreHorizontal, Activity, TrendingUp, Lightbulb, Smile, BarChart3, LogOut,
   Search, Plus, X, ShieldAlert, AlertCircle, Check, Sparkles, Dumbbell, Apple, Brain, Clock, ChevronLeft, ChevronRight, Menu, Calendar,
-  ShieldCheck, Bell, Receipt, Siren, Zap, Target, Users, LineChart, Cog
+  ShieldCheck, Bell, Receipt, Siren, Zap, Target, Users, LineChart, Cog, Save
 } from 'lucide-react';
 import AdminInsuranceModule from './AdminInsuranceModule';
 import AdminNotificationCenter from './AdminNotificationCenter';
@@ -1471,6 +1471,94 @@ export function AiAnalyticsModule({ healthRecords, risks }) {
 }
 
 // ==========================================
+// MODULE 10: SYSTEM SETTINGS
+// ==========================================
+function SystemSettingsModule() {
+  const [settings, setSettings] = useState({
+    llmProvider: 'ollama',
+    ollamaModel: 'phi3:3.8b',
+    highRiskThreshold: 70,
+    mediumRiskThreshold: 45,
+    enableEmailNotifications: true,
+    dataRetentionDays: 365,
+    anonymizeSentiment: true,
+  });
+
+  const handleSettingChange = (key, value) => {
+    setSettings(prev => ({ ...prev, [key]: value }));
+  };
+
+  const SettingCard = ({ title, description, children }) => (
+    <div className="bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-sm">
+      <h4 className="font-semibold text-slate-800 dark:text-slate-100">{title}</h4>
+      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-4 font-light">{description}</p>
+      <div className="space-y-4">{children}</div>
+    </div>
+  );
+
+  const SettingRow = ({ label, children }) => (
+    <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-700/50 pt-3">
+      <label className="text-xs font-medium text-slate-600 dark:text-slate-300">{label}</label>
+      {children}
+    </div>
+  );
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <SettingCard title="AI & Analytics" description="Configure the behavior of AI-powered features.">
+          <SettingRow label="LLM Provider">
+            <select value={settings.llmProvider} onChange={(e) => handleSettingChange('llmProvider', e.target.value)} className="px-3 py-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200 outline-none">
+              <option value="ollama">Ollama (Local)</option>
+              <option value="openai">OpenAI</option>
+              <option value="gemini">Google Gemini</option>
+            </select>
+          </SettingRow>
+          <SettingRow label="Ollama Model Name">
+            <input type="text" value={settings.ollamaModel} onChange={(e) => handleSettingChange('ollamaModel', e.target.value)} className="w-40 px-3 py-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200 outline-none" />
+          </SettingRow>
+        </SettingCard>
+
+        <SettingCard title="Risk Thresholds" description="Define the score boundaries for wellness risk categories.">
+          <SettingRow label="High Risk Threshold (%)">
+            <input type="number" value={settings.highRiskThreshold} onChange={(e) => handleSettingChange('highRiskThreshold', e.target.value)} className="w-24 px-3 py-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200 outline-none" />
+          </SettingRow>
+          <SettingRow label="Medium Risk Threshold (%)">
+            <input type="number" value={settings.mediumRiskThreshold} onChange={(e) => handleSettingChange('mediumRiskThreshold', e.target.value)} className="w-24 px-3 py-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200 outline-none" />
+          </SettingRow>
+        </SettingCard>
+
+        <SettingCard title="Notifications" description="Manage how the system communicates with users.">
+          <SettingRow label="Enable Email Notifications">
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" checked={settings.enableEmailNotifications} onChange={(e) => handleSettingChange('enableEmailNotifications', e.target.checked)} className="sr-only peer" />
+              <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-slate-600 peer-checked:bg-blue-600"></div>
+            </label>
+          </SettingRow>
+        </SettingCard>
+
+        <SettingCard title="Data & Privacy" description="Manage data retention and user privacy settings.">
+          <SettingRow label="Data Retention (Days)">
+            <input type="number" value={settings.dataRetentionDays} onChange={(e) => handleSettingChange('dataRetentionDays', e.target.value)} className="w-24 px-3 py-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200 outline-none" />
+          </SettingRow>
+          <SettingRow label="Anonymize Sentiment Data">
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" checked={settings.anonymizeSentiment} onChange={(e) => handleSettingChange('anonymizeSentiment', e.target.checked)} className="sr-only peer" />
+              <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-slate-600 peer-checked:bg-blue-600"></div>
+            </label>
+          </SettingRow>
+        </SettingCard>
+      </div>
+      <div className="flex justify-end">
+        <button className="px-6 py-2.5 bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-all shadow-sm flex items-center gap-2">
+          <Save className="w-3.5 h-3.5" /> Save All Settings
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ==========================================
 // CORE COMPONENT: ADMIN DASHBOARD
 // ==========================================
 export default function AdminDashboard({ user,
@@ -1875,10 +1963,7 @@ export default function AdminDashboard({ user,
             )}
 
             {activeTab === 10 && (
-              <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm">
-                <h3 className="font-display font-semibold text-slate-900 dark:text-slate-100">System Settings</h3>
-                <p className="text-slate-500 dark:text-slate-400 text-sm mt-2">This section is under development. Here you will be able to configure various application settings.</p>
-              </div>
+              <SystemSettingsModule />
             )}
           </div>
         </main>
