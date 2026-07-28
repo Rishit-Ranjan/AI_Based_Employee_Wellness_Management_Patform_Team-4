@@ -120,12 +120,12 @@ export default function PersonalWellnessProfile({
   const [showSyncSuccess, setShowSyncSuccess] = useState(false);
   const [error, setError] = useState('');
 
-  const [waterCups, setWaterCups] = useState(existingDailyHabit?.waterCups || 4);
-  const [stepsCount, setStepsCount] = useState(existingDailyHabit?.stepsCount || 6500);
+  const [waterCups, setWaterCups] = useState(existingDailyHabit?.waterCups || 0);
+  const [stepsCount, setStepsCount] = useState(existingDailyHabit?.stepsCount || 0);
   const [mood, setMood] = useState(existingMentalHealthLog?.mood || 'Calm');
   const [streakDays, setStreakDays] = useState(existingMentalHealthLog?.streakDays || 5);
 
-  const [pulseStress, setPulseStress] = useState(5);
+  const [pulseStress, setPulseStress] = useState(1);
   const [pulseFeedback, setPulseFeedback] = useState('');
   const [pulseSubmitted, setPulseSubmitted] = useState(false);
 
