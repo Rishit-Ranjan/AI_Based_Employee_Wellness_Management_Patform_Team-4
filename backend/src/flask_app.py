@@ -1675,14 +1675,22 @@ def download_health_report(employee_id):
     y -= 10 * mm
 
     rows = [
-        ('Wellness Score', record.get('wellnessScore', record.get('healthAssessment', 'N/A'))),
+        ('Health Assessment', record.get('healthAssessment', 'N/A')),
+        ('Age', record.get('age', 'N/A')),
+        ('Gender', record.get('gender', 'N/A')),
+        ('Department', record.get('department', 'N/A')),
+        ('---', '---'), # Divider
         ('BMI', record.get('bmi', 'N/A')),
         ('Blood Pressure', record.get('bloodPressure', 'N/A')),
+        ('Glucose Level', record.get('glucoseLevel', 'N/A')),
+        ('---', '---'), # Divider
         ('Stress Level', record.get('stressLevel', 'N/A')),
+        ('Stress Score (1-10)', record.get('stressScore', 'N/A')),
         ('Sleep (hrs/night)', habit.get('sleepHours', record.get('sleepHoursPerNight', 'N/A'))),
-        ('Exercise', habit.get('exerciseMinutes', record.get('exerciseHoursPerWeek', 'N/A'))),
+        ('Exercise (hrs/wk)', habit.get('exerciseMinutes', record.get('exerciseHoursPerWeek', 'N/A'))),
         ('Mood (latest)', mental_log.get('mood', 'N/A')),
-        ('Health Assessment', record.get('healthAssessment', 'N/A')),
+        ('Smoker', 'Yes' if record.get('smoker') else 'No'),
+        ('Alcohol Use', 'Yes' if record.get('alcoholUse') else 'No'),
     ]
 
     c.setFont('Helvetica', 11)
@@ -1690,7 +1698,11 @@ def download_health_report(employee_id):
         c.setFont('Helvetica-Bold', 11)
         c.drawString(20 * mm, y, f"{label}:")
         c.setFont('Helvetica', 11)
-        c.drawString(75 * mm, y, str(value))
+        if label == '---':
+            c.line(20 * mm, y - 2 * mm, 190 * mm, y - 2 * mm)
+        else:
+            c.drawString(75 * mm, y, str(value))
+
         y -= 8 * mm
 
     y -= 5 * mm
