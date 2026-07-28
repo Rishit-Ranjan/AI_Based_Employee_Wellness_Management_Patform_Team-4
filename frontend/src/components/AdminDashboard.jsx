@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Edit, MoreHorizontal, Activity, TrendingUp, Lightbulb, Smile, BarChart3, LogOut,
-  Search, Plus, X, ShieldAlert, AlertCircle, Check, Sparkles, Dumbbell, Apple, Brain, Clock, ChevronLeft, ChevronRight,
+  Search, Plus, X, ShieldAlert, AlertCircle, Check, Sparkles, Dumbbell, Apple, Brain, Clock, ChevronLeft, ChevronRight, Menu, Calendar,
   ShieldCheck, Bell, Receipt, Siren, Zap, Target, Users, LineChart, Cog
 } from 'lucide-react';
 import AdminInsuranceModule from './AdminInsuranceModule';
@@ -1494,18 +1495,7 @@ export default function AdminDashboard({ user,
 }) {
   const [activeTab, setActiveTab] = useState(1);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-
-  const adminNavTabs = [
-    { id: 1, label: 'Health Data Manager', icon: Activity, desc: 'BMI, medical, habits database' },
-    { id: 2, label: 'Wellness Risk Prediction', icon: TrendingUp, desc: 'AI burnout & vitals risk scores' },
-    { id: 3, label: 'Personalized Recommender', icon: Lightbulb, desc: 'Fitness, diets, wellness schedules' },
-    { id: 4, label: 'Sentiment & Mental Health', icon: Smile, desc: 'Anonymized stress tracker' },
-    { id: 5, label: 'Performance Analytics', icon: BarChart3, desc: 'Absenteeism & wellness KPIs' },
-    { id: 6, label: 'Insurance Management', icon: ShieldCheck, desc: 'Policies & claims oversight' },
-    { id: 7, label: 'Notification Center', icon: Bell, desc: 'Send & manage notifications' },
-    { id: 8, label: 'Checkups, SOS & Expenses', icon: Siren, desc: 'Appointments, alerts, claims' },
-    { id: 9, label: 'AI Analytics', icon: Zap, desc: 'Burnout trends & wellness predictions' }
-  ];
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Find the logged-in admin's department from their health record.
   // This is used to filter the sentiment module to only show the admin's own department.
@@ -1522,6 +1512,35 @@ export default function AdminDashboard({ user,
     return sentimentList;
   }, [sentimentList, adminDepartment]);
 
+  const adminNavTabs = [
+    { id: 1, label: 'Health Data Manager', icon: Activity, desc: 'BMI, medical, habits database' },
+    { id: 2, label: 'Wellness Risk Prediction', icon: TrendingUp, desc: 'AI burnout & vitals risk scores' },
+    { id: 3, label: 'Personalized Recommender', icon: Lightbulb, desc: 'Fitness, diets, wellness schedules' },
+    { id: 4, label: 'Sentiment & Mental Health', icon: Smile, desc: 'Anonymized stress tracker' },
+    { id: 5, label: 'Performance Analytics', icon: BarChart3, desc: 'Absenteeism & wellness KPIs' },
+    { id: 6, label: 'Insurance Management', icon: ShieldCheck, desc: 'Policies & claims oversight' },
+    { id: 7, label: 'Notification Center', icon: Bell, desc: 'Send & manage notifications' },
+    { id: 8, label: 'Checkups, SOS & Expenses', icon: Siren, desc: 'Appointments, alerts, claims' },
+    { id: 9, label: 'AI Analytics', icon: Zap, desc: 'Burnout trends & wellness predictions' }
+  ];
+
+  // Greeting helper
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 18) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+
+  const currentDateFormatted = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
+
+  const firstName = user?.name ? user.name.split(' ')[0] : 'Admin';
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col font-sans transition-colors duration-300">
       
@@ -1537,19 +1556,51 @@ export default function AdminDashboard({ user,
         />
       )}
       {/* Platform Header */}
-      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 shadow-xs">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-slate-900 dark:bg-slate-800 border-2 border-transparent dark:border-slate-700 flex items-center justify-center">
-            <div className="w-4 h-4 bg-white rounded-sm rotate-45"></div>
+      <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 px-4 md:px-8 py-3.5 flex items-center justify-between transition-colors">
+        
+        {/* Left: Mobile Menu Toggle & App Logo / Greeting */}
+        <div className="flex items-center gap-3 md:gap-5">
+          {/* Mobile Hamburger Toggle */}
+          <button
+            type="button"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="lg:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+            aria-label="Toggle menu"
+          >
+            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+
+          {/* Logo & Brand Title */}
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center">
+              <div className="w-4 h-4 bg-white rounded-sm rotate-45"></div>
+            </div>
+            <div className="hidden sm:block">
+              <span className="font-display font-bold text-base tracking-tight block text-slate-900 dark:text-slate-50 leading-none">
+                Admin Dashboard
+              </span>
+              <span className="text-[10px] text-slate-400 dark:text-slate-400 font-mono uppercase tracking-widest font-semibold mt-1 block">
+                Wellness Intelligence
+              </span>
+            </div>
           </div>
-          <div>
-            <span className="font-display font-bold text-lg tracking-tight block text-slate-900 dark:text-slate-50 leading-tight">Employee Wellness Management Analytics</span>
-            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold tracking-widest uppercase font-mono">Wellness Intelligence</span>
+
+          <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden md:block" />
+
+          {/* User Greeting & Date Header */}
+          <div className="hidden md:block">
+            <h2 className="font-display font-semibold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
+              {getGreeting()}, {firstName} 👋
+            </h2>
+            <p className="text-[11px] text-slate-400 dark:text-slate-400 font-mono flex items-center gap-1 mt-0.5">
+              <Calendar className="w-3 h-3 text-blue-500" />
+              {currentDateFormatted}
+            </p>
           </div>
         </div>
 
         {/* User Info & Actions */}
-        <div className="flex items-center md:justify-end gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
           {/* System Settings Button */}
           <button
             onClick={() => setActiveTab(10)}
@@ -1565,12 +1616,16 @@ export default function AdminDashboard({ user,
           {/* Notification Bell */}
           <NotificationBell isAdmin={true} />
 
-          <div className="h-8 w-px bg-slate-200 hidden sm:block" />
+          <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block" />
 
-          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setIsProfileModalOpen(true)}>
+          <div
+            className="flex items-center gap-3 cursor-pointer group p-1 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-all"
+            onClick={() => setIsProfileModalOpen(true)}
+            title="Edit Profile"
+          >
             <div className="hidden sm:block text-right">
-              <span className="block text-sm font-semibold text-slate-800 dark:text-slate-100 leading-tight">{user.name}</span>
-              <span className="block text-[10px] text-slate-400 dark:text-slate-500 font-mono mt-0.5">{user.adminId}</span>
+              <span className="block text-xs font-bold text-slate-800 dark:text-slate-100 leading-tight group-hover:text-blue-600 transition-colors">{user.name}</span>
+              <span className="block text-[10px] text-slate-400 font-mono">{user.adminId}</span>
               <span className="inline-block mt-1 px-2 py-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[9px] font-mono font-bold rounded uppercase tracking-widest leading-none">
                 Administrator
               </span>
@@ -1580,27 +1635,28 @@ export default function AdminDashboard({ user,
                 src={user.avatarUrl}
                 alt={user.name}
                 referrerPolicy="no-referrer"
-                className="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-700 shadow-md object-cover"
+                className="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-700 shadow-md object-cover" // Kept as per previous request
               />
             ) : (
-              <div className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center font-bold text-sm text-slate-700 dark:text-slate-200">
-                {user.name.substring(0, 2).toUpperCase()}
+              <div className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center font-bold text-sm text-slate-700 dark:text-slate-200"> 
+                {user.name ? user.name.substring(0, 2).toUpperCase() : 'AD'}
               </div>
             )}
           </div>
 
           <button
             onClick={onLogout}
-            className="flex items-center gap-2 px-3.5 py-1.5 bg-slate-50 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-slate-200 dark:border-slate-700 hover:border-rose-200 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-all cursor-pointer rounded-lg"
+            className="flex items-center gap-2 px-3 py-2 bg-slate-100 hover:bg-rose-50 dark:bg-slate-800 dark:hover:bg-rose-950/40 border border-slate-200/80 dark:border-slate-700 text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 rounded-xl transition-all duration-200 cursor-pointer shadow-sm text-xs font-semibold"
+            title="Log Out"
           >
             <LogOut className="w-4 h-4" />
-            Logout
+            <span className="hidden sm:inline">Logout</span>
           </button>
         </div>
       </header>
 
       {/* Main Workspace Layout */}
-      <div className="flex-1 flex flex-col lg:flex-row">
+      <div className="flex-1 flex overflow-hidden">
 
         {/* Navigation Sidebar */}
         <aside
@@ -1636,11 +1692,11 @@ export default function AdminDashboard({ user,
                     title={tab.label}
                     className={`w-full text-left p-3.5 rounded-lg flex items-start gap-3.5 transition-all cursor-pointer border ${
                       isActive
-                        ? 'bg-indigo-50 dark:bg-indigo-950/30 border-indigo-100 dark:border-indigo-800 text-indigo-900 dark:text-indigo-200 font-semibold'
-                        : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 border-transparent text-slate-500 dark:text-slate-400'
+                        ? 'bg-indigo-50 border-indigo-100 text-indigo-900 font-semibold'
+                        : 'hover:bg-slate-50 border-transparent text-slate-500'
                     }`}
                   >
-                    <Icon className={`w-5 h-5 shrink-0 mt-0.5 ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}`} />
+                    <Icon className={`w-5 h-5 shrink-0 mt-0.5 ${isActive ? 'text-indigo-600' : 'text-slate-400'}`} />
                     {!isSidebarCollapsed && (
                       <div className="truncate">
                         <div className="text-xs font-bold">{tab.label}</div>
@@ -1671,15 +1727,79 @@ export default function AdminDashboard({ user,
           )}
         </aside>
 
+        {/* Mobile Drawer Overlay */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="lg:hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <motion.aside
+                initial={{ x: '-100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '-100%' }}
+                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                className="w-72 bg-white dark:bg-slate-900 h-full p-5 space-y-4 shadow-2xl flex flex-col justify-between"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-100">
+                      Admin Modules
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="p-1 text-slate-400 hover:text-slate-700"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <nav className="space-y-1.5">
+                    {adminNavTabs.map((tab) => {
+                      const Icon = tab.icon;
+                      const isActive = activeTab === tab.id;
+                      return (
+                        <button
+                          key={tab.id}
+                          type="button"
+                          onClick={() => {
+                            setActiveTab(tab.id);
+                            setIsMobileMenuOpen(false);
+                          }}
+                          className={`w-full text-left p-3.5 rounded-lg flex items-start gap-3.5 transition-all cursor-pointer border ${
+                            isActive
+                              ? 'bg-indigo-50 border-indigo-100 text-indigo-900 font-semibold'
+                              : 'hover:bg-slate-50 border-transparent text-slate-500'
+                          }`}
+                        >
+                          <Icon className={`w-5 h-5 shrink-0 mt-0.5 ${isActive ? 'text-indigo-600' : 'text-slate-400'}`} />
+                          <div className="truncate">
+                            <div className="text-xs font-bold">{tab.label}</div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </nav>
+                </div>
+              </motion.aside>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Module Content Stage */}
-        <main className="flex-1 p-6 md:p-8 overflow-y-auto bg-slate-50 dark:bg-slate-900">
+        <main className="flex-1 p-4 md:p-8 overflow-y-auto">
           {/* Active module display card header */}
-          <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-700 pb-6">
+          <div className="mb-6 pb-4 border-b border-slate-200/80 dark:border-slate-800/80 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-800 rounded-md text-[10px] font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wide mb-3">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800/60 rounded-md text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest font-mono mb-2">
                 {activeTab <= 5 ? `Core Module ${activeTab} of 5` : `Extension Module ${activeTab}`}
               </div>
-              <h1 className="font-display text-3xl font-light text-slate-900 dark:text-slate-50 tracking-tight">
+              <h1 className="font-display text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-50 tracking-tight">
                 {activeTab === 1 && 'Employee Health Data Management'}
                 {activeTab === 2 && 'Wellness Risk Prediction'}
                 {activeTab === 3 && 'Wellness Recommendation System'}
@@ -1691,7 +1811,7 @@ export default function AdminDashboard({ user,
                 {activeTab === 9 && 'AI Analytics & Burnout Trend'}
                 {activeTab === 10 && 'System Settings'}
               </h1>
-              <p className="text-slate-500 dark:text-slate-400 text-sm mt-2 max-w-2xl font-light">
+              <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 max-w-2xl font-light">
                 {activeTab === 1 && 'Database logs for tracking key metrics including BMI, medical stats, sleep, and lifestyle routines.'}
                 {activeTab === 2 && 'Machine learning assessments predicting health risks, cardiovascular issues, or stress burnout.'}
                 {activeTab === 3 && 'Tailored, evidence-based fitness routines, diet schedules, and mental wellbeing recommendations.'}
