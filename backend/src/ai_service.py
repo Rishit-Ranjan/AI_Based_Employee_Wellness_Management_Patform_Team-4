@@ -8,7 +8,7 @@ import json
 import random
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, List, Any
-from .ai_policy import AI_POLICY_GUARDRAIL
+from ai_policy import AI_POLICY_GUARDRAIL
 from dotenv import load_dotenv
 load_dotenv()
 
