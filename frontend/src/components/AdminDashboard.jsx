@@ -940,12 +940,12 @@ export function RecommendationModule({ recommendations = [], loading }) {
 // ==========================================
 // MODULE 4: MENTAL HEALTH & SENTIMENT
 // ==========================================
-export function SentimentModule({ sentimentList = [] }) {
+export function SentimentModule({ sentimentList = [], healthRecords = [] }) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {sentimentList.map((sent) => (
-          <div key={sent.department} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 space-y-5 shadow-sm">
+          <div key={sent.department} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 space-y-5 shadow-sm animate-fadeIn">
             <div className="flex justify-between items-center pb-3 border-b border-slate-100 dark:border-slate-700">
               <h4 className="font-display font-semibold text-slate-800 dark:text-slate-100">{sent.department} Department Sentiment</h4>
               <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold font-mono">Pulse Count</span>
@@ -1008,6 +1008,52 @@ export function SentimentModule({ sentimentList = [] }) {
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="mt-8">
+        <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2 mb-4">
+          <Users className="w-5 h-5 text-slate-400" /> Individual Employee Sentiment
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {healthRecords.map((record) => {
+            const stressScore = record.stressScore || 5;
+            const stressLevel = record.stressLevel || 'Medium';
+            let stressColor = 'text-amber-600';
+            if (stressLevel === 'High') stressColor = 'text-red-600';
+            if (stressLevel === 'Low') stressColor = 'text-emerald-600';
+
+            return (
+              <div key={record.employeeId} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 space-y-3 shadow-sm animate-fadeIn">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h5 className="font-semibold text-sm text-slate-800 dark:text-slate-100">{record.employeeName}</h5>
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">{record.employeeId} - {record.department}</p>
+                  </div>
+                  <div className={`text-2xl font-display font-bold ${stressColor}`}>{stressScore}
+                    <span className="text-xs text-slate-400">/10</span>
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-slate-500 dark:text-slate-400">Stress Level</span>
+                    <span className={`font-bold font-mono ${stressColor}`}>{stressLevel}</span>
+                  </div>
+                  <div className="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${
+                        stressLevel === 'High' ? 'bg-red-500' : stressLevel === 'Medium' ? 'bg-amber-500' : 'bg-emerald-500'
+                      }`}
+                      style={{ width: `${stressScore * 10}%` }}
+                    />
+                  </div>
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-light pt-2 border-t border-slate-100 dark:border-slate-700">
+                  Assessment: <span className="font-medium">{record.healthAssessment || 'Fair'}</span>
+                </p>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -1940,7 +1986,7 @@ export default function AdminDashboard({ user,
             )}
 
             {activeTab === 4 && (
-              <SentimentModule sentimentList={filteredSentimentList} />
+              <SentimentModule sentimentList={filteredSentimentList} healthRecords={healthRecords} />
             )}
 
             {activeTab === 5 && (
