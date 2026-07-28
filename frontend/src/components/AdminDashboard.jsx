@@ -1015,16 +1015,60 @@ export function SentimentModule({ sentimentList = [] }) {
 
 // ==========================================
 // MODULE 5: PERFORMANCE & KPI DASHBOARD
+// MERGED WITH AI ANALYTICS
 // ==========================================
-export function PerformanceDashboard({ kpis, records, performanceData, loadingPerformance, performanceError  }) {
-  // Use backend data if available, otherwise fall back to frontend-derived KPIs
-  const displayKpis = performanceData ? {
-    participationRate: performanceData.kpis?.participationRate ?? kpis.participationRate,
-    absenteeismRate: performanceData.kpis?.absenteeismRate ?? kpis.absenteeismRate,
-    overallHealthRiskScore: performanceData.kpis?.overallHealthRiskScore ?? kpis.overallHealthRiskScore,
-    programEffectiveness: performanceData.kpis?.programEffectiveness ?? kpis.programEffectiveness,
-    productivityTrend: performanceData.productivityTrend ?? kpis.productivityTrend,
-  } : kpis;
+export function PerformanceDashboard({ kpis, records, performanceData, loadingPerformance, performanceError, risks }) {
+  const [burnoutData, setBurnoutData] = useState(null);
+  const [loadingBurnout, setLoadingBurnout] = useState(false);
+  const [selectedDept, setSelectedDept] = useState('');
+  const [burnoutError, setBurnoutError] = useState('');
+
+  // Logic from AiAnalyticsModule
+  const departmentWellness = useMemo(() => {
+    const deptMap = {};
+    records.forEach(r => {
+      const dept = r.department || 'Unknown';
+      if (!deptMap[dept]) {
+        deptMap[dept] = { total: 0, stressSum: 0, bmiSum: 0, sleepSum: 0, exerciseSum: 0, riskHigh: 0 };
+      }
+      deptMap[dept].total += 1;
+      deptMap[dept].stressSum += (r.stressScore || 5);
+      deptMap[dept].bmiSum += (r.bmi || 24);
+      deptMap[dept].sleepSum += (r.sleepHoursPerNight || 7);
+      deptMap[dept].exerciseSum += (r.exerciseHoursPerWeek || 3);
+      const empRisk = (risks || []).find(risk => risk.employeeId === r.employeeId);
+      if (empRisk && empRisk.riskScore >= 70) {
+        deptMap[dept].riskHigh += 1;
+      }
+    });
+    return Object.entries(deptMap).map(([dept, data]) => ({
+      department: dept,
+      employeeCount: data.total,
+      avgStressScore: Number((data.stressSum / data.total).toFixed(1)),
+      avgBmi: Number((data.bmiSum / data.total).toFixed(1)),
+      avgSleep: Number((data.sleepSum / data.total).toFixed(1)),
+      avgExercise: Number((data.exerciseSum / data.total).toFixed(1)),
+      highRiskCount: data.riskHigh,
+      wellnessScore: Math.round(100 - ((data.stressSum / data.total) * 3 + (data.riskHigh / data.total) * 20))
+    }));
+  }, [records, risks]);
+
+  useEffect(() => {
+    const loadBurnout = async () => {
+      setLoadingBurnout(true);
+      setBurnoutError('');
+      try {
+        const data = await fetchBurnoutTrend(selectedDept || undefined);
+        setBurnoutData(data);
+      } catch (err) {
+        setBurnoutData(null);
+        setBurnoutError('Could not fetch AI burnout trend. Using local data.');
+      } finally {
+        setLoadingBurnout(false);
+      }
+    };
+    loadBurnout();
+  }, [selectedDept]);
 
   if (loadingPerformance) {
     return (
@@ -1042,6 +1086,203 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
     );
   }
 
+  // Use backend data if available, otherwise fall back to frontend-derived KPIs
+  const displayKpis = performanceData ? {
+    participationRate: performanceData.kpis?.participationRate ?? kpis.participationRate,
+    absenteeismRate: performanceData.kpis?.absenteeismRate ?? kpis.absenteeismRate,
+    overallHealthRiskScore: performanceData.kpis?.overallHealthRiskScore ?? kpis.overallHealthRiskScore,
+    programEffectiveness: performanceData.kpis?.programEffectiveness ?? kpis.programEffectiveness,
+    productivityTrend: performanceData.productivityTrend ?? kpis.productivityTrend,
+  } : kpis;
+
+  const renderBurnoutTrend = () => (
+    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 space-y-5">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100">AI Burnout Risk Trend</h3>
+          <p className="text-xs text-slate-400 dark:text-slate-400 mt-1">Real-time burnout prediction across the organization</p>
+        </div>
+        <select
+          value={selectedDept}
+          onChange={(e) => setSelectedDept(e.target.value)}
+          className="px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200 outline-none cursor-pointer"
+        >
+          <option value="">All Departments</option>
+          <option value="Engineering">Engineering</option>
+          <option value="Sales">Sales</option>
+          <option value="Marketing">Marketing</option>
+          <option value="Product">Product</option>
+          <option value="Operations">Operations</option>
+        </select>
+      </div>
+
+      {loadingBurnout ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full" />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {/* Burnout probability cards */}
+          <div className="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-xl p-5">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[10px] font-bold text-rose-700 dark:text-rose-300 uppercase tracking-wider">High Burnout Risk</span>
+              <Zap className="w-4 h-4 text-rose-500" />
+            </div>
+            <div className="text-3xl font-display font-bold text-rose-700 dark:text-rose-400">
+              {burnoutData?.highBurnoutCount ?? departmentWellness.reduce((sum, d) => sum + d.highRiskCount, 0)}
+            </div>
+            <div className="text-[10px] text-rose-500 dark:text-rose-500 mt-1 font-mono">Employees at critical level</div>
+            <div className="w-full bg-rose-200 dark:bg-rose-800 h-1.5 rounded-full mt-3 overflow-hidden">
+              <div
+                className="bg-rose-500 h-full rounded-full"
+                style={{ width: `${Math.min(100, ((burnoutData?.highBurnoutCount ?? departmentWellness.reduce((sum, d) => sum + d.highRiskCount, 0)) / Math.max(records.length, 1)) * 100)}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl p-5">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider">Moderate Risk</span>
+              <Target className="w-4 h-4 text-amber-500" />
+            </div>
+            <div className="text-3xl font-display font-bold text-amber-700 dark:text-amber-400">
+              {burnoutData?.moderateBurnoutCount ?? risks.filter(r => r.riskScore >= 45 && r.riskScore < 70).length}
+            </div>
+            <div className="text-[10px] text-amber-500 dark:text-amber-500 mt-1 font-mono">Needs intervention</div>
+            <div className="w-full bg-amber-200 dark:bg-amber-800 h-1.5 rounded-full mt-3 overflow-hidden">
+              <div
+                className="bg-amber-500 h-full rounded-full"
+                style={{ width: `${Math.min(100, ((burnoutData?.moderateBurnoutCount ?? risks.filter(r => r.riskScore >= 45 && r.riskScore < 70).length) / Math.max(records.length, 1)) * 100)}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl p-5">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">Low Risk</span>
+              <Users className="w-4 h-4 text-emerald-500" />
+            </div>
+            <div className="text-3xl font-display font-bold text-emerald-700 dark:text-emerald-400">
+              {burnoutData?.lowBurnoutCount ?? risks.filter(r => r.riskScore < 45).length}
+            </div>
+            <div className="text-[10px] text-emerald-500 dark:text-emerald-500 mt-1 font-mono">Healthy baseline</div>
+            <div className="w-full bg-emerald-200 dark:bg-emerald-800 h-1.5 rounded-full mt-3 overflow-hidden">
+              <div
+                className="bg-emerald-500 h-full rounded-full"
+                style={{ width: `${Math.min(100, ((burnoutData?.lowBurnoutCount ?? risks.filter(r => r.riskScore < 45).length) / Math.max(records.length, 1)) * 100)}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {burnoutError && (
+        <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-lg text-xs text-amber-700 dark:text-amber-300 flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          <span>{burnoutError}</span>
+        </div>
+      )}
+    </div>
+  );
+
+  const renderDepartmentWellness = () => (
+    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 space-y-5">
+      <div className="flex items-center gap-2">
+        <LineChart className="w-5 h-5 text-indigo-500" />
+        <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100">Department Wellness Score Predictions</h3>
+      </div>
+      <p className="text-xs text-slate-400 dark:text-slate-400">AI-predicted wellness scores based on aggregated health metrics per department</p>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {departmentWellness.length === 0 ? (
+          <div className="col-span-full bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 rounded-xl p-8 text-center font-mono text-xs text-slate-400 dark:text-slate-500">
+            No health records available for prediction.
+          </div>
+        ) : (
+          departmentWellness.map((dept) => (
+            <div key={dept.department} className="bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 rounded-xl p-5 space-y-4">
+              <div className="flex items-center justify-between">
+                <h4 className="font-semibold text-slate-800 dark:text-slate-100">{dept.department}</h4>
+                <span className="px-2 py-0.5 bg-white dark:bg-slate-600 border border-slate-200 dark:border-slate-500 rounded text-[9px] font-bold text-slate-500 dark:text-slate-300 font-mono">
+                  {dept.employeeCount} employees
+                </span>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs">
+                  <span className="text-slate-500 dark:text-slate-400">Wellness Score</span>
+                  <span className={`font-bold font-mono ${
+                    dept.wellnessScore >= 70 ? 'text-emerald-600' : dept.wellnessScore >= 50 ? 'text-amber-600' : 'text-red-600'
+                  }`}>{dept.wellnessScore}%</span>
+                </div>
+                <div className="w-full bg-slate-200 dark:bg-slate-600 h-2 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full ${
+                      dept.wellnessScore >= 70 ? 'bg-emerald-500' : dept.wellnessScore >= 50 ? 'bg-amber-500' : 'bg-red-500'
+                    }`}
+                    style={{ width: `${dept.wellnessScore}%` }}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 text-[10px]">
+                <div className="bg-white dark:bg-slate-800 rounded-lg p-2.5 border border-slate-100 dark:border-slate-600">
+                  <span className="block text-slate-400 dark:text-slate-500 font-mono">Avg Stress</span>
+                  <span className="font-bold text-slate-700 dark:text-slate-200">{dept.avgStressScore}/10</span>
+                </div>
+                <div className="bg-white dark:bg-slate-800 rounded-lg p-2.5 border border-slate-100 dark:border-slate-600">
+                  <span className="block text-slate-400 dark:text-slate-500 font-mono">Avg BMI</span>
+                  <span className="font-bold text-slate-700 dark:text-slate-200">{dept.avgBmi}</span>
+                </div>
+                <div className="bg-white dark:bg-slate-800 rounded-lg p-2.5 border border-slate-100 dark:border-slate-600">
+                  <span className="block text-slate-400 dark:text-slate-500 font-mono">Avg Sleep</span>
+                  <span className="font-bold text-slate-700 dark:text-slate-200">{dept.avgSleep}h</span>
+                </div>
+                <div className="bg-white dark:bg-slate-800 rounded-lg p-2.5 border border-slate-100 dark:border-slate-600">
+                  <span className="block text-slate-400 dark:text-slate-500 font-mono">Avg Exercise</span>
+                  <span className="font-bold text-slate-700 dark:text-slate-200">{dept.avgExercise}h/wk</span>
+                </div>
+              </div>
+
+              {dept.highRiskCount > 0 && (
+                <div className="p-2.5 bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-800 rounded-lg flex items-center gap-2">
+                  <ShieldAlert className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                  <span className="text-[10px] text-red-700 dark:text-red-300 font-medium">{dept.highRiskCount} employee(s) at high risk</span>
+                </div>
+              )}
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+
+  const renderAiSummary = () => (
+    <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 border border-indigo-100 dark:border-indigo-800/50 rounded-xl p-6 space-y-3">
+      <div className="flex items-center gap-2">
+        <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+        <h3 className="font-display font-semibold text-indigo-900 dark:text-indigo-200">AI Wellness Report Summary</h3>
+      </div>
+      <p className="text-sm text-indigo-700 dark:text-indigo-300 leading-relaxed font-light">
+        Based on current health records and risk predictions, the organization shows {
+          departmentWellness.reduce((sum, d) => sum + d.wellnessScore, 0) / Math.max(departmentWellness.length, 1) >= 70
+            ? 'strong overall wellness with low burnout indicators.'
+            : departmentWellness.reduce((sum, d) => sum + d.wellnessScore, 0) / Math.max(departmentWellness.length, 1) >= 50
+            ? 'moderate wellness levels — targeted interventions recommended for high-stress departments.'
+            : 'elevated risk levels — immediate wellness program interventions are strongly advised.'
+        } {
+          departmentWellness.filter(d => d.highRiskCount > 0).length > 0
+            ? `${departmentWellness.filter(d => d.highRiskCount > 0).length} department(s) have employees requiring urgent attention.`
+            : 'All departments maintain healthy risk profiles.'
+        }
+      </p>
+      <div className="flex items-center gap-2 text-[10px] text-indigo-500 dark:text-indigo-400 font-mono">
+        <Check className="w-3 h-3" />
+        <span>AI-generated report based on {records.length} health records across {departmentWellness.length} departments</span>
+      </div>
+    </div>
+  );
+
   if (performanceError) {
     return (
       <div className="space-y-8">
@@ -1055,7 +1296,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
         </div>
         {/* Fallback: render with frontend kpis */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 space-y-3">
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 space-y-3 animate-pulse">
             <div className="flex justify-between items-center text-slate-400 dark:text-slate-500">
               <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Participation Rate</span>
               <Activity className="w-4 h-4 text-indigo-500" />
@@ -1069,7 +1310,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 space-y-3">
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 space-y-3 animate-pulse">
             <div className="flex justify-between items-center text-slate-400 dark:text-slate-500">
               <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Absenteeism Rate</span>
               <TrendingUp className="w-4 h-4 text-rose-500" />
@@ -1083,7 +1324,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 space-y-3">
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 space-y-3 animate-pulse">
             <div className="flex justify-between items-center text-slate-400 dark:text-slate-500">
               <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Workforce Risk</span>
               <ShieldAlert className="w-4 h-4 text-amber-500" />
@@ -1097,7 +1338,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 space-y-3">
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 space-y-3 animate-pulse">
             <div className="flex justify-between items-center text-slate-400 dark:text-slate-500">
               <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Effectiveness</span>
               <Smile className="w-4 h-4 text-emerald-500" />
@@ -1111,7 +1352,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
             </div>
           </div>
         </div>
-
+        
         <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
           <h4 className="font-display font-semibold text-slate-800 dark:text-slate-100">Health Vitals Scatter Overview</h4>
           <p className="text-slate-400 dark:text-slate-400 text-xs font-light">Real-time clustering of employee metrics (Sleep vs. Exercise hours per week).</p>
@@ -1135,6 +1376,10 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
 
   return (
     <div className="space-y-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* KPI Cards */}
+      </div>
+      {renderBurnoutTrend()}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 space-y-3">
           <div className="flex justify-between items-center text-slate-400 dark:text-slate-500">
@@ -1217,255 +1462,9 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
           ))}
         </div>
       </div>
-    </div>
-  );
-}
 
-// ==========================================
-// MODULE 9: AI ANALYTICS & BURNOUT TREND
-// ==========================================
-export function AiAnalyticsModule({ healthRecords, risks }) {
-  const [burnoutData, setBurnoutData] = useState(null);
-  const [loadingBurnout, setLoadingBurnout] = useState(false);
-  const [selectedDept, setSelectedDept] = useState('');
-  const [error, setError] = useState('');
-
-  // Derive department wellness predictions from health records
-  const departmentWellness = useMemo(() => {
-    const deptMap = {};
-    healthRecords.forEach(r => {
-      const dept = r.department || 'Unknown';
-      if (!deptMap[dept]) {
-        deptMap[dept] = { total: 0, stressSum: 0, bmiSum: 0, sleepSum: 0, exerciseSum: 0, riskHigh: 0 };
-      }
-      deptMap[dept].total += 1;
-      deptMap[dept].stressSum += (r.stressScore || 5);
-      deptMap[dept].bmiSum += (r.bmi || 24);
-      deptMap[dept].sleepSum += (r.sleepHoursPerNight || 7);
-      deptMap[dept].exerciseSum += (r.exerciseHoursPerWeek || 3);
-      // Check if this employee has a high risk
-      const empRisk = (risks || []).find(risk => risk.employeeId === r.employeeId);
-      if (empRisk && empRisk.riskScore >= 70) {
-        deptMap[dept].riskHigh += 1;
-      }
-    });
-    return Object.entries(deptMap).map(([dept, data]) => ({
-      department: dept,
-      employeeCount: data.total,
-      avgStressScore: Number((data.stressSum / data.total).toFixed(1)),
-      avgBmi: Number((data.bmiSum / data.total).toFixed(1)),
-      avgSleep: Number((data.sleepSum / data.total).toFixed(1)),
-      avgExercise: Number((data.exerciseSum / data.total).toFixed(1)),
-      highRiskCount: data.riskHigh,
-      wellnessScore: Math.round(100 - ((data.stressSum / data.total) * 3 + (data.riskHigh / data.total) * 20))
-    }));
-  }, [healthRecords, risks]);
-
-  // Fetch burnout trend from backend
-  useEffect(() => {
-    const loadBurnout = async () => {
-      setLoadingBurnout(true);
-      setError('');
-      try {
-        const data = await fetchBurnoutTrend(selectedDept || undefined);
-        setBurnoutData(data);
-      } catch (err) {
-        // Fallback: generate from local data
-        setBurnoutData(null);
-        setError('Could not fetch AI burnout trend. Using local data.');
-      } finally {
-        setLoadingBurnout(false);
-      }
-    };
-    loadBurnout();
-  }, [selectedDept]);
-
-  return (
-    <div className="space-y-8">
-      {/* Burnout Trend Visualization */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 space-y-5">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100">AI Burnout Risk Trend</h3>
-            <p className="text-xs text-slate-400 dark:text-slate-400 mt-1">Real-time burnout prediction across the organization</p>
-          </div>
-          <select
-            value={selectedDept}
-            onChange={(e) => setSelectedDept(e.target.value)}
-            className="px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200 outline-none cursor-pointer"
-          >
-            <option value="">All Departments</option>
-            <option value="Engineering">Engineering</option>
-            <option value="Sales">Sales</option>
-            <option value="Marketing">Marketing</option>
-            <option value="Product">Product</option>
-            <option value="Operations">Operations</option>
-          </select>
-        </div>
-
-        {loadingBurnout ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full" />
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {/* Burnout probability cards */}
-            <div className="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-xl p-5">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[10px] font-bold text-rose-700 dark:text-rose-300 uppercase tracking-wider">High Burnout Risk</span>
-                <Zap className="w-4 h-4 text-rose-500" />
-              </div>
-              <div className="text-3xl font-display font-bold text-rose-700 dark:text-rose-400">
-                {burnoutData?.highBurnoutCount ?? departmentWellness.reduce((sum, d) => sum + d.highRiskCount, 0)}
-              </div>
-              <div className="text-[10px] text-rose-500 dark:text-rose-500 mt-1 font-mono">Employees at critical level</div>
-              <div className="w-full bg-rose-200 dark:bg-rose-800 h-1.5 rounded-full mt-3 overflow-hidden">
-                <div
-                  className="bg-rose-500 h-full rounded-full"
-                  style={{ width: `${Math.min(100, ((burnoutData?.highBurnoutCount ?? departmentWellness.reduce((sum, d) => sum + d.highRiskCount, 0)) / Math.max(healthRecords.length, 1)) * 100)}%` }}
-                />
-              </div>
-            </div>
-
-            <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl p-5">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider">Moderate Risk</span>
-                <Target className="w-4 h-4 text-amber-500" />
-              </div>
-              <div className="text-3xl font-display font-bold text-amber-700 dark:text-amber-400">
-                {burnoutData?.moderateBurnoutCount ?? risks.filter(r => r.riskScore >= 45 && r.riskScore < 70).length}
-              </div>
-              <div className="text-[10px] text-amber-500 dark:text-amber-500 mt-1 font-mono">Needs intervention</div>
-              <div className="w-full bg-amber-200 dark:bg-amber-800 h-1.5 rounded-full mt-3 overflow-hidden">
-                <div
-                  className="bg-amber-500 h-full rounded-full"
-                  style={{ width: `${Math.min(100, ((burnoutData?.moderateBurnoutCount ?? risks.filter(r => r.riskScore >= 45 && r.riskScore < 70).length) / Math.max(healthRecords.length, 1)) * 100)}%` }}
-                />
-              </div>
-            </div>
-
-            <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl p-5">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">Low Risk</span>
-                <Users className="w-4 h-4 text-emerald-500" />
-              </div>
-              <div className="text-3xl font-display font-bold text-emerald-700 dark:text-emerald-400">
-                {burnoutData?.lowBurnoutCount ?? risks.filter(r => r.riskScore < 45).length}
-              </div>
-              <div className="text-[10px] text-emerald-500 dark:text-emerald-500 mt-1 font-mono">Healthy baseline</div>
-              <div className="w-full bg-emerald-200 dark:bg-emerald-800 h-1.5 rounded-full mt-3 overflow-hidden">
-                <div
-                  className="bg-emerald-500 h-full rounded-full"
-                  style={{ width: `${Math.min(100, ((burnoutData?.lowBurnoutCount ?? risks.filter(r => r.riskScore < 45).length) / Math.max(healthRecords.length, 1)) * 100)}%` }}
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {error && (
-          <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-lg text-xs text-amber-700 dark:text-amber-300 flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>{error}</span>
-          </div>
-        )}
-      </div>
-
-      {/* Department Wellness Score Predictions */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 space-y-5">
-        <div className="flex items-center gap-2">
-          <LineChart className="w-5 h-5 text-indigo-500" />
-          <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100">Department Wellness Score Predictions</h3>
-        </div>
-        <p className="text-xs text-slate-400 dark:text-slate-400">AI-predicted wellness scores based on aggregated health metrics per department</p>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {departmentWellness.length === 0 ? (
-            <div className="col-span-full bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 rounded-xl p-8 text-center font-mono text-xs text-slate-400 dark:text-slate-500">
-              No health records available for prediction.
-            </div>
-          ) : (
-            departmentWellness.map((dept) => (
-              <div key={dept.department} className="bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 rounded-xl p-5 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-semibold text-slate-800 dark:text-slate-100">{dept.department}</h4>
-                  <span className="px-2 py-0.5 bg-white dark:bg-slate-600 border border-slate-200 dark:border-slate-500 rounded text-[9px] font-bold text-slate-500 dark:text-slate-300 font-mono">
-                    {dept.employeeCount} employees
-                  </span>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-slate-500 dark:text-slate-400">Wellness Score</span>
-                    <span className={`font-bold font-mono ${
-                      dept.wellnessScore >= 70 ? 'text-emerald-600' : dept.wellnessScore >= 50 ? 'text-amber-600' : 'text-red-600'
-                    }`}>{dept.wellnessScore}%</span>
-                  </div>
-                  <div className="w-full bg-slate-200 dark:bg-slate-600 h-2 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full ${
-                        dept.wellnessScore >= 70 ? 'bg-emerald-500' : dept.wellnessScore >= 50 ? 'bg-amber-500' : 'bg-red-500'
-                      }`}
-                      style={{ width: `${dept.wellnessScore}%` }}
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 text-[10px]">
-                  <div className="bg-white dark:bg-slate-800 rounded-lg p-2.5 border border-slate-100 dark:border-slate-600">
-                    <span className="block text-slate-400 dark:text-slate-500 font-mono">Avg Stress</span>
-                    <span className="font-bold text-slate-700 dark:text-slate-200">{dept.avgStressScore}/10</span>
-                  </div>
-                  <div className="bg-white dark:bg-slate-800 rounded-lg p-2.5 border border-slate-100 dark:border-slate-600">
-                    <span className="block text-slate-400 dark:text-slate-500 font-mono">Avg BMI</span>
-                    <span className="font-bold text-slate-700 dark:text-slate-200">{dept.avgBmi}</span>
-                  </div>
-                  <div className="bg-white dark:bg-slate-800 rounded-lg p-2.5 border border-slate-100 dark:border-slate-600">
-                    <span className="block text-slate-400 dark:text-slate-500 font-mono">Avg Sleep</span>
-                    <span className="font-bold text-slate-700 dark:text-slate-200">{dept.avgSleep}h</span>
-                  </div>
-                  <div className="bg-white dark:bg-slate-800 rounded-lg p-2.5 border border-slate-100 dark:border-slate-600">
-                    <span className="block text-slate-400 dark:text-slate-500 font-mono">Avg Exercise</span>
-                    <span className="font-bold text-slate-700 dark:text-slate-200">{dept.avgExercise}h/wk</span>
-                  </div>
-                </div>
-
-                {dept.highRiskCount > 0 && (
-                  <div className="p-2.5 bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-800 rounded-lg flex items-center gap-2">
-                    <ShieldAlert className="w-3.5 h-3.5 text-red-500 shrink-0" />
-                    <span className="text-[10px] text-red-700 dark:text-red-300 font-medium">{dept.highRiskCount} employee(s) at high risk</span>
-                  </div>
-                )}
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-
-      {/* AI-Generated Wellness Report Summary */}
-      <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 border border-indigo-100 dark:border-indigo-800/50 rounded-xl p-6 space-y-3">
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-          <h3 className="font-display font-semibold text-indigo-900 dark:text-indigo-200">AI Wellness Report Summary</h3>
-        </div>
-        <p className="text-sm text-indigo-700 dark:text-indigo-300 leading-relaxed font-light">
-          Based on current health records and risk predictions, the organization shows {
-            departmentWellness.reduce((sum, d) => sum + d.wellnessScore, 0) / Math.max(departmentWellness.length, 1) >= 70
-              ? 'strong overall wellness with low burnout indicators.'
-              : departmentWellness.reduce((sum, d) => sum + d.wellnessScore, 0) / Math.max(departmentWellness.length, 1) >= 50
-              ? 'moderate wellness levels — targeted interventions recommended for high-stress departments.'
-              : 'elevated risk levels — immediate wellness program interventions are strongly advised.'
-          } {
-            departmentWellness.filter(d => d.highRiskCount > 0).length > 0
-              ? `${departmentWellness.filter(d => d.highRiskCount > 0).length} department(s) have employees requiring urgent attention.`
-              : 'All departments maintain healthy risk profiles.'
-          }
-        </p>
-        <div className="flex items-center gap-2 text-[10px] text-indigo-500 dark:text-indigo-400 font-mono">
-          <Check className="w-3 h-3" />
-          <span>AI-generated report based on {healthRecords.length} health records across {departmentWellness.length} departments</span>
-        </div>
-      </div>
+      {renderDepartmentWellness()}
+      {renderAiSummary()}
     </div>
   );
 }
@@ -1603,13 +1602,12 @@ export default function AdminDashboard({ user,
   const adminNavTabs = [
     { id: 1, label: 'Health Data Manager', icon: Activity, desc: 'BMI, medical, habits database' },
     { id: 2, label: 'Wellness Risk Prediction', icon: TrendingUp, desc: 'AI burnout & vitals risk scores' },
-    { id: 3, label: 'Personalized Recommender', icon: Lightbulb, desc: 'Fitness, diets, wellness schedules' },
+    { id: 3, label: 'Personalized Recommender', icon: Lightbulb, desc: 'Fitness, diet & wellness routines' },
     { id: 4, label: 'Sentiment & Mental Health', icon: Smile, desc: 'Anonymized stress tracker' },
-    { id: 5, label: 'Performance Analytics', icon: BarChart3, desc: 'Absenteeism & wellness KPIs' },
+    { id: 5, label: 'Performance & AI Analytics', icon: BarChart3, desc: 'KPIs, burnout trends & predictions' },
     { id: 6, label: 'Insurance Management', icon: ShieldCheck, desc: 'Policies & claims oversight' },
     { id: 7, label: 'Notification Center', icon: Bell, desc: 'Send & manage notifications' },
-    { id: 8, label: 'Checkups, SOS & Expenses', icon: Siren, desc: 'Appointments, alerts, claims' },
-    { id: 9, label: 'AI Analytics', icon: Zap, desc: 'Burnout trends & wellness predictions' }
+    { id: 8, label: 'Checkups, SOS & Expenses', icon: Siren, desc: 'Appointments, alerts, claims' }
   ];
 
   // Greeting helper
@@ -1892,11 +1890,10 @@ export default function AdminDashboard({ user,
                 {activeTab === 2 && 'Wellness Risk Prediction'}
                 {activeTab === 3 && 'Wellness Recommendation System'}
                 {activeTab === 4 && 'Mental Health & Sentiment Analytics'}
-                {activeTab === 5 && 'Wellness Performance Dashboard & Analytics'}
+                {activeTab === 5 && 'Performance & AI Analytics'}
                 {activeTab === 6 && 'Insurance Management'}
                 {activeTab === 7 && 'Notification Center'}
                 {activeTab === 8 && 'Checkups, SOS & Expenses'}
-                {activeTab === 9 && 'AI Analytics & Burnout Trend'}
                 {activeTab === 10 && 'System Settings'}
               </h1>
               <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 max-w-2xl font-light">
@@ -1904,11 +1901,10 @@ export default function AdminDashboard({ user,
                 {activeTab === 2 && 'Machine learning assessments predicting health risks, cardiovascular issues, or stress burnout.'}
                 {activeTab === 3 && 'Tailored, evidence-based fitness routines, diet schedules, and mental wellbeing recommendations.'}
                 {activeTab === 4 && 'NLP-driven departmental stress analytics collected through fully anonymized feedback pulse-checks.'}
-                {activeTab === 5 && 'High-level HR dashboard displaying team participation rates, absenteeism counters, and program efficacy.'}
+                {activeTab === 5 && 'High-level dashboard for KPIs, burnout trends, and AI-driven wellness predictions.'}
                 {activeTab === 6 && 'Manage employee insurance policies, claims, and coverage oversight.'}
                 {activeTab === 7 && 'Send broadcast notifications to all employees or specific departments.'}
                 {activeTab === 8 && 'Oversee employee checkup scheduling, SOS alerts, and expense claims.'}
-                {activeTab === 9 && 'AI-driven burnout risk trends, department wellness score predictions, and automated wellness report summaries.'}
                 {activeTab === 10 && 'Manage application-wide settings and configurations.'}
               </p>
             </div>
@@ -1939,7 +1935,7 @@ export default function AdminDashboard({ user,
             )}
 
             {activeTab === 5 && (
-              <PerformanceDashboard kpis={kpis} records={healthRecords} performanceData={performanceData} loadingPerformance={loadingPerformance} performanceError={performanceError} />
+              <PerformanceDashboard kpis={kpis} records={healthRecords} performanceData={performanceData} loadingPerformance={loadingPerformance} performanceError={performanceError} risks={risks} />
             )}
 
             {activeTab === 6 && (
@@ -1956,10 +1952,6 @@ export default function AdminDashboard({ user,
                 <AdminSosMonitor />
                 <AdminExpensesModule />
               </div>
-            )}
-
-            {activeTab === 9 && (
-              <AiAnalyticsModule healthRecords={healthRecords} risks={risks} />
             )}
 
             {activeTab === 10 && (
