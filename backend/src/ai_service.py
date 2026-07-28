@@ -614,14 +614,14 @@ What would you like to explore today? I'm here to support your wellness journey!
     def generate_daily_routine(self, employee_id: str, preferences: Dict = None) -> Dict[str, Any]:
         """Generate a personalized daily wellness routine."""
         context = {}
-        if self.db and employee_id:
+        if self.db is not None and employee_id:
             context = self._get_context_from_db(employee_id)
         
         health = context.get('health', {})
         habits = context.get('habits', {})
         
         # Extract health metrics
-        sleep_hours = health.get('sleep_hours', 7)
+        sleep_hours = float(health.get('sleep_hours', 7) or 7)
         stress_level = health.get('stress_level', 'Medium')
         exercise_hours = health.get('exercise_hours', 0)
         bmi = health.get('bmi', 24)
