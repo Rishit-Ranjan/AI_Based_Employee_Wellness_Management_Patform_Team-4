@@ -265,6 +265,14 @@ export default function PersonalWellnessProfile({
     if (onAddSentimentPulse) {
       const result = await onAddSentimentPulse(user.employeeId, dept, pulseStress, pulseFeedback);
       setLastPulseSentiment(result.sentiment);
+
+      // Also update the main health record's stress score
+      if (existingRecord && onUpdateRecord) {
+        onUpdateRecord({
+          ...existingRecord,
+          stressScore: pulseStress,
+        });
+      }
     }
     const updatedLog = {
       ...(existingMentalHealthLog || {}),

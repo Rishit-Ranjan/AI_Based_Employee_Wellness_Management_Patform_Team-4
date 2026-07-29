@@ -949,7 +949,7 @@ export function SentimentModule({ sentimentList = [], healthRecords = [] }) {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {healthRecords.map((record) => {
-            const stressScore = record.stressScore ?? 1;
+            const stressScore = record.stressScore;
             const stressLevel = record.stressLevel || 'Medium';
             let stressColor = 'text-amber-600';
             if (stressLevel === 'High') stressColor = 'text-red-600';
