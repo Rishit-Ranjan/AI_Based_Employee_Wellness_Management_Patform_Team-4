@@ -184,8 +184,7 @@ export default function App() {
                     const recordsWithFeedback = loadedHR.map(record => {
                         const feedbackLogs = allPulses
                             .filter(pulse => pulse.employeeId === record.employeeId)
-                            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                            .slice(0, 3); // Get latest 3
+                            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                         return { ...record, feedbackLogs };
                     });
                     setHealthRecords(recordsWithFeedback);

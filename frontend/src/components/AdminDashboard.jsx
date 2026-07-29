@@ -957,6 +957,20 @@ export function SentimentModule({ sentimentList = [], healthRecords = [] }) {
 
             const sleepHours = record.sleepHoursPerNight || 0;
             const exerciseHours = record.exerciseHoursPerWeek || 0;
+            
+            const feedbackLogs = record.feedbackLogs || [];
+            const totalLogs = feedbackLogs.length;
+            const positiveCount = feedbackLogs.filter(log => log.sentiment === 'Positive').length;
+            const neutralCount = feedbackLogs.filter(log => log.sentiment === 'Neutral').length;
+            const negativeCount = feedbackLogs.filter(log => log.sentiment === 'Negative').length;
+
+            const sentimentDistribution = {
+              positive: totalLogs > 0 ? Math.round((positiveCount / totalLogs) * 100) : 0,
+              neutral: totalLogs > 0 ? Math.round((neutralCount / totalLogs) * 100) : 0,
+              negative: totalLogs > 0 ? Math.round((negativeCount / totalLogs) * 100) : 0,
+            };
+
+            const recentFeedback = feedbackLogs.slice(0, 3);
 
             return (
               <div key={record.employeeId} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 space-y-3 shadow-sm animate-fadeIn">
@@ -996,10 +1010,36 @@ export function SentimentModule({ sentimentList = [], healthRecords = [] }) {
                   }`}>{record.healthAssessment || 'Fair'}</span>
                 </div>
 
+                <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-700">
+                  <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                    <span className="flex items-center gap-1.5"><Smile className="w-3.5 h-3.5 text-emerald-500" /> Positive</span>
+                    <span className="font-mono font-bold text-emerald-600">{sentimentDistribution.positive}%</span>
+                  </div>
+                  <div className="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                    <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${sentimentDistribution.positive}%` }} />
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                    <span className="flex items-center gap-1.5"><Smile className="w-3.5 h-3.5 text-slate-400" /> Neutral</span>
+                    <span className="font-mono font-bold text-slate-500 dark:text-slate-400">{sentimentDistribution.neutral}%</span>
+                  </div>
+                  <div className="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                    <div className="bg-slate-400 h-full rounded-full" style={{ width: `${sentimentDistribution.neutral}%` }} />
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                    <span className="flex items-center gap-1.5"><ShieldAlert className="w-3.5 h-3.5 text-rose-500" /> Negative</span>
+                    <span className="font-mono font-bold text-rose-600">{sentimentDistribution.negative}%</span>
+                  </div>
+                  <div className="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                    <div className="bg-rose-500 h-full rounded-full" style={{ width: `${sentimentDistribution.negative}%` }} />
+                  </div>
+                </div>
+
                 <div className="pt-3 border-t border-slate-100 dark:border-slate-700">
                   <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono">Recent Feedback</p>
                   <ul className="space-y-1 mt-1.5">
-                    {(record.feedbackLogs || []).length > 0 ? record.feedbackLogs.map((log, idx) => (
+                    {recentFeedback.length > 0 ? recentFeedback.map((log, idx) => (
                       <li key={idx} className="text-xs text-slate-500 dark:text-slate-400 font-light flex items-start gap-2">
                         <span className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${
                           log.sentiment === 'Positive' ? 'bg-emerald-500' :
