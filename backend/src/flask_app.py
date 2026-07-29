@@ -2354,7 +2354,10 @@ def add_sentiment_pulse():
 
         sentiment_pulses_collection.insert_one(pulse_doc)
 
-        return jsonify({'detail': 'Sentiment pulse recorded successfully.'}), 201
+        return jsonify({
+            'detail': 'Sentiment pulse recorded successfully.',
+            'sentiment': sentiment
+        }), 201
 
     except Exception as e:
         app.logger.exception(f"Failed to record sentiment pulse: {e}")

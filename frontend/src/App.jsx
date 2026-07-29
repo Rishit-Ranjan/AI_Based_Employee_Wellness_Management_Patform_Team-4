@@ -343,7 +343,7 @@ const loadSecondaryData = async () => {
     const handleUpdateSentimentPulse = async (deptName, stressScore, feedbackText) => {
       try {
         // 1. Call the backend endpoint to record the pulse. This writes to MongoDB.
-        await api.submitSentimentPulse(deptName, stressScore, feedbackText);
+        const result = await api.submitSentimentPulse(deptName, stressScore, feedbackText);
   
         // 2. For immediate UI feedback, re-fetch the aggregated sentiment data.
         // This is more reliable than trying to replicate the aggregation logic on the client.
@@ -351,8 +351,10 @@ const loadSecondaryData = async () => {
             const loadedSentiments = await api.fetchSentiments();
             setSentimentList(loadedSentiments || []);
         }
+        return result; // Return the result which contains the sentiment
       } catch (error) {
         console.error("Failed to submit sentiment pulse:", error);
+        throw error; // re-throw to be caught in the component
       }
     };
 

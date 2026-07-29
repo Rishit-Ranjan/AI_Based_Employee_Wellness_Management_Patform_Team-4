@@ -128,6 +128,7 @@ export default function PersonalWellnessProfile({
   const [pulseStress, setPulseStress] = useState(1);
   const [pulseFeedback, setPulseFeedback] = useState('');
   const [pulseSubmitted, setPulseSubmitted] = useState(false);
+  const [lastPulseSentiment, setLastPulseSentiment] = useState(null);
 
   const [showBpInfoPopup, setShowBpInfoPopup] = useState(false);
   const bpInfoRef = useRef(null);
@@ -259,10 +260,11 @@ export default function PersonalWellnessProfile({
     }
   };
 
-  const handlePulseSubmit = (e) => {
+  const handlePulseSubmit = async (e) => {
     e.preventDefault();
     if (onAddSentimentPulse) {
-      onAddSentimentPulse(dept, pulseStress, pulseFeedback);
+      const result = await onAddSentimentPulse(dept, pulseStress, pulseFeedback);
+      setLastPulseSentiment(result.sentiment);
     }
     const updatedLog = {
       ...(existingMentalHealthLog || {}),
@@ -278,7 +280,10 @@ export default function PersonalWellnessProfile({
     }
     setPulseSubmitted(true);
     setPulseFeedback('');
-    setTimeout(() => setPulseSubmitted(false), 4000);
+    setTimeout(() => {
+      setPulseSubmitted(false);
+      setLastPulseSentiment(null);
+    }, 5000);
   };
 
   const myRiskProfile = risks.find((r) => r.employeeId === user.employeeId);
@@ -892,7 +897,13 @@ export default function PersonalWellnessProfile({
         {pulseSubmitted && (
           <div className="mt-4 p-3 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
             <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-            Thank you! Your feedback has been securely added to aggregated metrics.
+            <span>Thank you! Your feedback has been securely added to aggregated metrics.</span>
+            {lastPulseSentiment && (
+              <span className={`ml-auto px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                lastPulseSentiment === 'Positive' ? 'bg-emerald-100 text-emerald-800' :
+                lastPulseSentiment === 'Negative' ? 'bg-rose-100 text-rose-800' : 'bg-slate-200 text-slate-700'
+              }`}>Sentiment: {lastPulseSentiment}</span>
+            )}
           </div>
         )}
       </ProfileCard>
