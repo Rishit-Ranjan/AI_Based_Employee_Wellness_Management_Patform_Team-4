@@ -345,11 +345,19 @@ const loadSecondaryData = async () => {
         // 1. Call the backend endpoint to record the pulse. This writes to MongoDB.
         const result = await api.submitSentimentPulse(deptName, stressScore, feedbackText);
   
-        // 2. For immediate UI feedback, re-fetch the aggregated sentiment data.
-        // This is more reliable than trying to replicate the aggregation logic on the client.
+        // 2. For immediate UI feedback on the admin dashboard, re-fetch all data.
         if (currentUser?.role === 'admin') {
-            const loadedSentiments = await api.fetchSentiments();
-            setSentimentList(loadedSentiments || []);
+            // Re-fetch aggregated sentiments for the department-level card
+            api.fetchSentiments().then(sentiments => setSentimentList(sentiments || []));
+
+            // Re-fetch all individual pulses and re-attach them to health records for the individual cards
+            const allPulses = await api.fetchAllSentimentPulses();
+            setHealthRecords(prevRecords => {
+                return prevRecords.map(record => {
+                    const feedbackLogs = allPulses.filter(pulse => pulse.employeeId === record.employeeId).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                    return { ...record, feedbackLogs };
+                });
+            });
         }
         return result; // Return the result which contains the sentiment
       } catch (error) {

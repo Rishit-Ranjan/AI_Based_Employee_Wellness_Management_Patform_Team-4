@@ -986,19 +986,9 @@ export function SentimentModule({ sentimentList = [], healthRecords = [] }) {
                   }`}>{stressLevel}</div>
                 </div>
                 
-                <div className="grid grid-cols-3 gap-2 text-center border-t border-b border-slate-100 dark:border-slate-700 py-2">
-                  <div>
-                    <div className="text-lg font-bold font-display text-slate-800 dark:text-slate-100">{stressScore}<span className="text-xs text-slate-400">/10</span></div>
-                    <div className="text-[9px] text-slate-400 dark:text-slate-500 font-mono uppercase">Stress</div>
-                  </div>
-                  <div>
-                    <div className="text-lg font-bold font-display text-slate-800 dark:text-slate-100">{sleepHours}<span className="text-xs text-slate-400">h</span></div>
-                    <div className="text-[9px] text-slate-400 dark:text-slate-500 font-mono uppercase">Sleep</div>
-                  </div>
-                  <div>
-                    <div className="text-lg font-bold font-display text-slate-800 dark:text-slate-100">{exerciseHours}<span className="text-xs text-slate-400">h/wk</span></div>
-                    <div className="text-[9px] text-slate-400 dark:text-slate-500 font-mono uppercase">Exercise</div>
-                  </div>
+                <div className="text-center border-t border-b border-slate-100 dark:border-slate-700 py-2">
+                  <div className="text-2xl font-bold font-display text-slate-800 dark:text-slate-100">{stressScore}<span className="text-xs text-slate-400">/10</span></div>
+                  <div className="text-[9px] text-slate-400 dark:text-slate-500 font-mono uppercase">Stress Score</div>
                 </div>
 
                 <div className="flex justify-between text-xs items-center">
