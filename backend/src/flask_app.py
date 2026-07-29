@@ -1645,95 +1645,133 @@ def get_achievements(employee_id):
 @jwt_required(locations=["cookies"])
 def download_health_report(employee_id):
     jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
+    user_info = jwt_payload.get("user_info", {})
     if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
         return jsonify({'detail': 'Forbidden'}), 403
 
+    # Import ReportLab components
     from flask import Response
     from io import BytesIO
     from reportlab.lib.pagesizes import A4
     from reportlab.lib.units import mm
     from reportlab.lib import colors
-    from reportlab.pdfgen import canvas
+    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.enums import TA_LEFT, TA_CENTER
+    from datetime import datetime, timezone
 
+    # Fetch data
     record = health_records_collection.find_one({'employeeId': employee_id}) or {}
     user_doc = users_collection.find_one({'employeeId': employee_id}) or {}
-    habit = daily_habits_collection.find_one({'employeeId': employee_id}) or {}
-    mental_log = mental_health_logs_collection.find_one({'employeeId': employee_id}, sort=[('date', -1)]) or {}
 
+    # Setup PDF document
     buffer = BytesIO()
-    c = canvas.Canvas(buffer, pagesize=A4)
-    width, height = A4
-    y = height - 25 * mm
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=20*mm, leftMargin=20*mm, topMargin=25*mm, bottomMargin=25*mm)
+    styles = getSampleStyleSheet()
 
-    c.setFont('Helvetica-Bold', 18)
-    c.drawString(20 * mm, y, 'Employee Wellness Health Report')
-    y -= 8 * mm
-    c.setFont('Helvetica', 10)
-    c.setFillColor(colors.grey)
-    c.drawString(20 * mm, y, f"Generated: {datetime.now(timezone.utc).strftime('%d %b %Y, %H:%M UTC')}")
-    c.setFillColor(colors.black)
-    y -= 12 * mm
+    # Custom styles
+    # Define custom styles only if they don't already exist to prevent errors on hot-reload
+    if 'Title' not in styles:
+        styles.add(ParagraphStyle(name='Title', fontName='Helvetica-Bold', fontSize=18, spaceAfter=6))
+    if 'Subtitle' not in styles:
+        styles.add(ParagraphStyle(name='Subtitle', fontName='Helvetica', fontSize=10, textColor=colors.grey, spaceAfter=12))
+    if 'UserName' not in styles:
+        styles.add(ParagraphStyle(name='UserName', fontName='Helvetica-Bold', fontSize=14, spaceAfter=12))
+    if 'SectionTitle' not in styles:
+        styles.add(ParagraphStyle(name='SectionTitle', fontName='Helvetica-Bold', fontSize=12, spaceBefore=10, spaceAfter=6, textColor=colors.HexColor("#1e3a8a")))
+    if 'Recommendation' not in styles:
+        styles.add(ParagraphStyle(name='Recommendation', fontName='Helvetica', fontSize=10, leading=14))
+    if 'Footer' not in styles:
+        styles.add(ParagraphStyle(name='Footer', fontName='Helvetica-Oblique', fontSize=9, textColor=colors.grey, alignment=TA_CENTER))
 
-    c.setFont('Helvetica-Bold', 12)
-    c.drawString(20 * mm, y, f"{user_doc.get('name', employee_id)}  ({employee_id})")
-    y -= 10 * mm
+    # Helper for color-coding
+    def get_assessment_cell(text):
+        color_map = {
+            'Excellent': colors.HexColor("#10b981"),
+            'Good': colors.HexColor("#6366f1"),
+            'Fair': colors.HexColor("#f59e0b"),
+            'Needs Attention': colors.HexColor("#ef4444"),
+        }
+        style = ParagraphStyle(name='Assessment', parent=styles['Normal'], textColor=colors.white, alignment=TA_CENTER)
+        p = Paragraph(text, style)
+        return p, color_map.get(text, colors.lightgrey)
 
-    rows = [
-        ('Health Assessment', record.get('healthAssessment', 'N/A')),
-        ('Age', record.get('age', 'N/A')),
-        ('Gender', record.get('gender', 'N/A')),
-        ('Department', record.get('department', 'N/A')),
-        ('---', '---'), # Divider
-        ('BMI', record.get('bmi', 'N/A')),
-        ('Blood Pressure', record.get('bloodPressure', 'N/A')),
-        ('Glucose Level', record.get('glucoseLevel', 'N/A')),
-        ('---', '---'), # Divider
-        ('Stress Level', record.get('stressLevel', 'N/A')),
-        ('Stress Score (1-10)', record.get('stressScore', 'N/A')),
-        ('Sleep (hrs/night)', habit.get('sleepHours', record.get('sleepHoursPerNight', 'N/A'))),
-        ('Exercise (hrs/wk)', habit.get('exerciseMinutes', record.get('exerciseHoursPerWeek', 'N/A'))),
-        ('Mood (latest)', mental_log.get('mood', 'N/A')),
-        ('Smoker', 'Yes' if record.get('smoker') else 'No'),
-        ('Alcohol Use', 'Yes' if record.get('alcoholUse') else 'No'),
+    # Build story
+    story = []
+
+    # Header
+    story.append(Paragraph('Employee Wellness Health Report', styles['Title']))
+    story.append(Paragraph(f"Generated: {datetime.now(timezone.utc).strftime('%d %b %Y, %H:%M UTC')}", styles['Subtitle']))
+    story.append(Paragraph(f"{user_doc.get('name', employee_id)} ({employee_id})", styles['UserName']))
+
+    # --- Vitals Table ---
+    story.append(Paragraph("Key Health Vitals", styles['SectionTitle']))
+
+    assessment_text = record.get('healthAssessment', 'N/A')
+    assessment_p, assessment_bg = get_assessment_cell(assessment_text)
+
+    vitals_data = [
+        ['Health Assessment', assessment_p],
+        ['Age', record.get('age', 'N/A')],
+        ['Gender', record.get('gender', 'N/A')],
+        ['Department', record.get('department', 'N/A')],
+        ['BMI', record.get('bmi', 'N/A')],
+        ['Blood Pressure', record.get('bloodPressure', 'N/A')],
+        ['Glucose Level (mg/dL)', record.get('glucoseLevel', 'N/A')],
     ]
 
-    c.setFont('Helvetica', 11)
-    for label, value in rows:
-        c.setFont('Helvetica-Bold', 11)
-        c.drawString(20 * mm, y, f"{label}:")
-        c.setFont('Helvetica', 11)
-        if label == '---':
-            c.line(20 * mm, y - 2 * mm, 190 * mm, y - 2 * mm)
-        else:
-            c.drawString(75 * mm, y, str(value))
+    vitals_table = Table(vitals_data, colWidths=[50*mm, 120*mm])
+    vitals_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (0, 0), colors.HexColor("#e0e7ff")),
+        ('BACKGROUND', (1, 0), (1, 0), assessment_bg),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor("#d1d5db")),
+        ('BOX', (0,0), (-1,-1), 1, colors.black),
+    ]))
+    story.append(vitals_table)
+    story.append(Spacer(1, 8*mm))
 
-        y -= 8 * mm
+    # --- Lifestyle Table ---
+    story.append(Paragraph("Lifestyle & Mental Health", styles['SectionTitle']))
+    
+    lifestyle_data = [
+        ['Stress Level', record.get('stressLevel', 'N/A')],
+        ['Stress Score (1-10)', record.get('stressScore', 'N/A')],
+        ['Sleep (hrs/night)', record.get('sleepHoursPerNight', 'N/A')],
+        ['Exercise (hrs/wk)', record.get('exerciseHoursPerWeek', 'N/A')],
+        ['Smoker', 'Yes' if record.get('smoker') else 'No'],
+        ['Alcohol Use', 'Yes' if record.get('alcoholUse') else 'No'],
+    ]
 
-    y -= 5 * mm
-    c.setFont('Helvetica-Bold', 12)
-    c.drawString(20 * mm, y, 'Recommendation')
-    y -= 7 * mm
-    c.setFont('Helvetica', 10)
-    assessment = record.get('healthAssessment', 'Good')
+    lifestyle_table = Table(lifestyle_data, colWidths=[50*mm, 120*mm])
+    lifestyle_table.setStyle(TableStyle([
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor("#d1d5db")),
+        ('BOX', (0,0), (-1,-1), 1, colors.black),
+    ]))
+    story.append(lifestyle_table)
+    story.append(Spacer(1, 8*mm))
+
+    # --- Recommendation Section ---
+    story.append(Paragraph("AI-Generated Recommendation", styles['SectionTitle']))
+    
     tips = {
         'Excellent': 'Keep up the great habits — maintain your sleep, exercise, and stress routines.',
         'Good': 'You are doing well. Consider small improvements to sleep or exercise consistency.',
         'Fair': 'Some metrics need attention — prioritize sleep and stress management this month.',
         'Needs Attention': 'Please consult your wellness advisor and schedule a health check-up soon.',
     }
-    for line in (tips.get(assessment, tips['Good'])).split('. '):
-        if line.strip():
-            c.drawString(20 * mm, y, f"- {line.strip().rstrip('.')}.")
-            y -= 6 * mm
+    recommendation_text = tips.get(assessment_text, tips['Good'])
+    story.append(Paragraph(recommendation_text, styles['Recommendation']))
+    story.append(Spacer(1, 20*mm))
 
-    y -= 10 * mm
-    c.setFont('Helvetica-Oblique', 9)
-    c.setFillColor(colors.grey)
-    c.drawString(20 * mm, y, 'Digitally generated — Employee Wellness Management Analytics platform.')
+    # --- Footer ---
+    story.append(Paragraph('Digitally generated — Employee Wellness Management Analytics platform.', styles['Footer']))
 
-    c.showPage()
-    c.save()
+    # Build the PDF
+    doc.build(story)
     buffer.seek(0)
 
     return Response(
