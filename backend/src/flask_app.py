@@ -2322,14 +2322,14 @@ def add_sentiment_pulse():
     Receives a sentiment pulse from a user and stores it
     in the sentiment_pulses MongoDB collection.
     """
-    data = request.get_json()
+    data = request.get_json() or {}
     if not data or 'department' not in data or 'stressScore' not in data:
         return jsonify({'detail': 'Missing department or stressScore'}), 400
     
     try:
         feedback_text = data.get('feedbackText', '')
         stress_score = float(data['stressScore'])
-        employee_id = data.get('employeeId')
+        employee_id = data.get('employeeId') # Added employeeId
 
         # Use VADER for sentiment analysis if text is provided, otherwise fallback to stress score
         if feedback_text and sia:
@@ -2349,7 +2349,7 @@ def add_sentiment_pulse():
 
         # Create the document to be inserted into MongoDB
         pulse_doc = {
-            "employeeId": employee_id,
+            "employeeId": employee_id, # Added employeeId
             "department": data['department'],
             "stressScore": stress_score,
             "feedbackText": feedback_text,
