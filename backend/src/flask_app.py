@@ -2149,13 +2149,16 @@ def get_sentiments():
         # Fetch the 3 most recent non-empty feedback texts for each department
         key_issues_pipeline = [
             { '$match': { 'feedbackText': { '$ne': '' } } },
-            { '$sort': { 'createdAt': -1 } },
+            { '$sort': { 'createdAt': -1 } }, # Sort by date descending
             { '$group': {
                 '_id': '$department',
-                'recent_issues': { '$push': '$feedbackText' }
+                'recent_issues': { 
+                    '$push': { 'feedbackText': '$feedbackText', 'sentiment': '$sentiment' } 
+                }
             }},
             { '$project': {
                 'department': '$_id',
+                # The feedback is already sorted by date, so we just take the first 3
                 'keyIssues': { '$slice': ['$recent_issues', 3] },
                 '_id': 0
             }}
@@ -2316,16 +2319,17 @@ def get_performance_analytics():
 @jwt_required(locations=["cookies"])
 def add_sentiment_pulse():
     """
-    Receives an anonymized sentiment pulse from a user and stores it
+    Receives a sentiment pulse from a user and stores it
     in the sentiment_pulses MongoDB collection.
     """
     data = request.get_json()
     if not data or 'department' not in data or 'stressScore' not in data:
         return jsonify({'detail': 'Missing department or stressScore'}), 400
-
+    
     try:
         feedback_text = data.get('feedbackText', '')
         stress_score = float(data['stressScore'])
+        employee_id = data.get('employeeId')
 
         # Use VADER for sentiment analysis if text is provided, otherwise fallback to stress score
         if feedback_text and sia:
@@ -2345,6 +2349,7 @@ def add_sentiment_pulse():
 
         # Create the document to be inserted into MongoDB
         pulse_doc = {
+            "employeeId": employee_id,
             "department": data['department'],
             "stressScore": stress_score,
             "feedbackText": feedback_text,

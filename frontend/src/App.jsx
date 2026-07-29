@@ -178,16 +178,14 @@ export default function App() {
                 }
                 setHealthRecords(loadedHR);
 
-                // Fetch all sentiment pulses and attach them to the corresponding health records
+                // If admin, immediately fetch all pulses and attach them to the records.
+                // This ensures the data is available for all subsequent renders.
                 if (currentUser.role === 'admin') {
                     const allPulses = await api.fetchAllSentimentPulses();
-                    const recordsWithFeedback = loadedHR.map(record => {
-                        const feedbackLogs = allPulses
-                            .filter(pulse => pulse.employeeId === record.employeeId)
-                            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                        return { ...record, feedbackLogs };
-                    });
-                    setHealthRecords(recordsWithFeedback);
+                    setHealthRecords(prevRecords => prevRecords.map(record => ({
+                        ...record,
+                        feedbackLogs: allPulses.filter(p => p.employeeId === record.employeeId).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                    })));
                 }
 
                 // 2. Daily Habits for the current user
@@ -268,6 +266,7 @@ const loadSecondaryData = async () => {
                     } finally {
                         setLoadingPerformance(false);
                     }
+
                 }
             } catch (error) {
                 console.error("Failed to load secondary wellness data (risks, recs):", error);
@@ -340,10 +339,10 @@ const loadSecondaryData = async () => {
     };
 
     // Update department sentiment pulse based on new feedback and persist changes
-    const handleUpdateSentimentPulse = async (deptName, stressScore, feedbackText) => {
+    const handleUpdateSentimentPulse = async (employeeId, deptName, stressScore, feedbackText) => {
       try {
         // 1. Call the backend endpoint to record the pulse. This writes to MongoDB.
-        const result = await api.submitSentimentPulse(deptName, stressScore, feedbackText);
+        const result = await api.submitSentimentPulse(employeeId, deptName, stressScore, feedbackText);
   
         // 2. For immediate UI feedback on the admin dashboard, re-fetch all data.
         if (currentUser?.role === 'admin') {

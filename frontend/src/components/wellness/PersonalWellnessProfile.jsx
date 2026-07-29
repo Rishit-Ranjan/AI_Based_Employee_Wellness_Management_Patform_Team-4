@@ -263,7 +263,7 @@ export default function PersonalWellnessProfile({
   const handlePulseSubmit = async (e) => {
     e.preventDefault();
     if (onAddSentimentPulse) {
-      const result = await onAddSentimentPulse(dept, pulseStress, pulseFeedback);
+      const result = await onAddSentimentPulse(user.employeeId, dept, pulseStress, pulseFeedback);
       setLastPulseSentiment(result.sentiment);
     }
     const updatedLog = {

@@ -230,10 +230,10 @@ export const fetchPerformanceAnalytics = () => request('/wellness/performance');
  * @param {string} feedbackText Optional feedback text.
  * @returns {Promise<Object>} A promise that resolves on successful submission.
  */
-export const submitSentimentPulse = (department, stressScore, feedbackText) => {
+export const submitSentimentPulse = (employeeId, department, stressScore, feedbackText) => {
   return request('/wellness/sentiment-pulse', {
     method: 'POST',
-    body: JSON.stringify({ department, stressScore, feedbackText }),
+    body: JSON.stringify({ employeeId, department, stressScore, feedbackText }),
   });
 };
 

@@ -1302,7 +1302,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 space-y-5">
       <div className="flex items-center gap-2">
         <Smile className="w-5 h-5 text-emerald-500" />
-        <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100">Department Sentiment & Mental Health</h3>
+        <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100">Department Sentiment & Mental Health Analytics</h3>
       </div>
       <p className="text-xs text-slate-400 dark:text-slate-400">Anonymized sentiment distribution and stress index from pulse feedback.</p>
 
@@ -1355,15 +1355,13 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
                 <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono">Recent Feedback Logs</p>
                 <ul className="space-y-1 mt-1.5">
                   {sent.keyIssues.map((issue, idx) => (
-                    <li key={idx} className="text-xs text-slate-500 dark:text-slate-400 font-light flex items-start gap-2">
+                    <li key={idx} className="text-xs text-slate-500 dark:text-slate-400 font-light flex items-start gap-1.5">
                       <span className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${
                         issue.sentiment === 'Positive' ? 'bg-emerald-500' :
                         issue.sentiment === 'Negative' ? 'bg-rose-500' :
                         'bg-slate-400'
                       }`} />
-                      <span>
-                        {issue.feedbackText}
-                      </span>
+                      <span>{issue.feedbackText}</span>
                     </li>
                   ))}
                 </ul>
