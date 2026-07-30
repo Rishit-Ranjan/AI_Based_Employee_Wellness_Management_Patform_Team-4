@@ -1016,8 +1016,19 @@ def get_recommendations():
     if risk_model is None:
         return jsonify({"detail": "Risk prediction model is not available."}), 503
 
+    jwt_payload = get_jwt()
+    user_info = jwt_payload.get("user_info", {})
+    is_admin = user_info.get('role') == 'admin'
+    employee_id = user_info.get('employeeId')
+
     try:
-        health_records = list(health_records_collection.find({}))
+        # If the user is an admin, fetch all records.
+        # If the user is an employee, fetch only their own record.
+        if is_admin:
+            health_records = list(health_records_collection.find({}))
+        else:
+            health_records = list(health_records_collection.find({'employeeId': employee_id}))
+
         if not health_records:
             return jsonify([]), 200
 
@@ -1141,7 +1152,11 @@ def get_recommendations():
             except Exception as e:
                 app.logger.error(f"Failed to generate recommendations for {record.get('employeeId')}: {e}")
 
-        return jsonify(all_recommendations), 200
+        # For a non-admin user, return just their recommendations directly, not nested in an array.
+        if not is_admin and all_recommendations:
+            return jsonify(all_recommendations[0].get('recommendations', [])), 200
+        else:
+            return jsonify(all_recommendations), 200
 
     except Exception as e:
         app.logger.exception(f"An unexpected error occurred while generating recommendations: {e}")
