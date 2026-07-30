@@ -35,10 +35,6 @@ class AIWellnessService:
         self.risk_model = risk_model
         self.recommendation_engine = recommendation_engine
         
-        # LLM configuration
-        self.llm_provider = os.getenv('AI_LLM_PROVIDER', 'gemini')  # 'ollama', 'gemini', 'none'
-        self.ollama_base_url = os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')
-        self.ollama_model = os.getenv('OLLAMA_MODEL', 'llama3.2')
         self.gemini_api_key = os.getenv('GEMINI_API_KEY') or os.getenv('GOOGLE_API_KEY', '')
         
         # Initialize Gemini if available
@@ -46,10 +42,10 @@ class AIWellnessService:
             try:
                 # NEW SYNTAX: Create a Client for the new google.genai SDK
                 self.gemini_client = genai.Client(api_key=self.gemini_api_key)
+                print("Gemini client initialized successfully.")
             except Exception as e:
                 print(f"Gemini initialization error: {e}")
                 self.gemini_client = None
-        
         self.recommendation_cache = {} # Cache for recommendations
         self.risk_prediction_cache = {} # Cache for risk predictions
         self.performance_analytics_cache = {} # Cache for performance analytics
@@ -174,17 +170,28 @@ class AIWellnessService:
         
         return context
     
-    def _generate_llm_response(self, message: str, context: str, employee_id: str) -> Optional[str]:
+    def _get_current_llm_config(self) -> Dict[str, Any]:
+        """Fetch the current LLM configuration from the database."""
+        if self.db:
+            settings = self.db['system_settings'].find_one({'_id': 'system_config'})
+            if settings:
+                return {
+                    'provider': settings.get('llmProvider', 'gemini'),
+                    'ollama_model': settings.get('ollamaModel', 'phi3:3.8b')
+                }
+        # Fallback to environment variables if DB is not available or settings not found
+        return {
+            'provider': os.getenv('AI_LLM_PROVIDER', 'gemini'),
+            'ollama_model': os.getenv('OLLAMA_MODEL', 'phi3:3.8b')
+        }
+
+    def _generate_llm_response(self, message: str, context: str, employee_id: str, llm_config: Dict) -> Optional[str]:
         """Try to get response from LLM provider."""
         
         # Try Ollama (local)
-        if self.llm_provider == 'ollama' and OLLAMA_AVAILABLE:
+        if llm_config['provider'] == 'ollama' and OLLAMA_AVAILABLE:
             try:
-                response = http_requests.post(
-                    f"{self.ollama_base_url}/api/generate",
-                    json={
-                        "model": self.ollama_model,
-                        "prompt": f"""Context (Employee Health Data): {context}
+                prompt = f"""Context (Employee Health Data): {context}
 
 User message: {message}
 
@@ -195,13 +202,22 @@ As an AI Wellness Coach, provide a helpful, concise response (max 150 words) wit
                     },
                     timeout=10
                 )
+                response = http_requests.post(
+                    f"{os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')}/api/generate",
+                    json={
+                        "model": llm_config['ollama_model'],
+                        "prompt": prompt,
+                        "stream": False
+                    },
+                    timeout=10
+                )
                 if response.status_code == 200:
                     return response.json().get('response', '')
             except Exception as e:
                 print(f"Ollama API error: {e}")
         
         # Try Google Gemini
-        if self.llm_provider == 'gemini' and hasattr(self, 'gemini_client') and self.gemini_client:
+        if llm_config['provider'] == 'gemini' and hasattr(self, 'gemini_client') and self.gemini_client:
                 prompt = f"""You are an expert AI Wellness Coach for a corporate wellness platform called "Employee Wellness Management Analytics". 
 You have access to this employee's health data: {context}
 
@@ -337,13 +353,14 @@ What would you like to explore today? I'm here to support your wellness journey!
         
         context_str = json.dumps(context, default=str) if context else "No specific health data available."
         
+        # Get the current LLM configuration from settings
+        llm_config = self._get_current_llm_config()
+        
         # Detect intent
         intent = self._detect_intent(message)
         
         # Try LLM first
-        llm_response = None
-        if self.llm_provider != 'none':
-            llm_response = self._generate_llm_response(message, context_str, employee_id)
+        llm_response = self._generate_llm_response(message, context_str, employee_id, llm_config)
         
         # Fall back to rule-based
         response_text = llm_response or self._generate_rule_response(message, intent)

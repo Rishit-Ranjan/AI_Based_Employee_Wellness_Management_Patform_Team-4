@@ -1626,8 +1626,17 @@ function SystemSettingsModule() {
 
   const SettingCard = ({ title, description, children }) => (
     <div className="bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-sm">
+      <div className="flex justify-between items-start">
+        <div>
       <h4 className="font-semibold text-slate-800 dark:text-slate-100">{title}</h4>
       <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-4 font-light">{description}</p>
+        </div>
+        {title === "AI & Analytics" && (
+          <span className="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-[10px] font-mono font-bold rounded-md uppercase tracking-wider">
+            Active: {settings.llmProvider}
+          </span>
+        )}
+      </div>
       <div className="space-y-4">{children}</div>
     </div>
   );
