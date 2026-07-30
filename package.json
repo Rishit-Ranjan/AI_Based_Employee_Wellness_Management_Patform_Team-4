@@ -6,9 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev:frontend": "cd frontend && npm run dev -- --host",
-    "dev:frontend:wait": "wait-on http://127.0.0.1:8000 && npm run dev:frontend",
     "dev:backend": "cd backend/src && python run_flask.py",
-    "dev": "concurrently -k -n BACKEND,FRONTEND -c cyan,green \"npm:dev:backend\" \"npm:dev:frontend:wait\""
+    "dev": "concurrently -k -n BACKEND,FRONTEND -c cyan,green \"npm:dev:backend\" \"npm:dev:frontend\""
   },
   "devDependencies": {
     "concurrently": "^9.0.0",
