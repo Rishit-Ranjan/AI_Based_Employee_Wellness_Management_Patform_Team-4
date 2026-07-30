@@ -34,6 +34,7 @@ export default function App() {
     const [recommendations, setRecommendations] = useState([]);
     const [allUsers, setAllUsers] = useState([]);
     const [sentimentList, setSentimentList] = useState([]);
+    const [loadingRecommendations, setLoadingRecommendations] = useState(true);
     const [performanceData, setPerformanceData] = useState(null); // New state for backend performance analytics
     const [loadingPerformance, setLoadingPerformance] = useState(false); // Loading state for performance data
     const [performanceError, setPerformanceError] = useState(null); // Error state for performance data
@@ -191,6 +192,7 @@ export default function App() {
             // --- Stage 3: Load slower, AI-driven data in the background ---
             try {
                 if (currentUser.role === 'admin') {
+                    setLoadingRecommendations(true);
                     setLoadingPerformance(true);
                     setPerformanceError(null);
                     const [recsData, sentimentsData, perfData] = await Promise.all([
@@ -203,22 +205,27 @@ export default function App() {
                     setPerformanceData(perfData);
                     setLoadingPerformance(false);
                 } else {
+                    setLoadingRecommendations(true);
                     const [habits, mentalLogs, recsData] = await Promise.all([
                         api.fetchDailyHabits(userEmpId, options),
                         api.fetchMentalHealthLogs(userEmpId, options),
                         api.fetchRecommendations(options)
                     ]);
-                    if (!habits) habits = await api.addDailyHabit({ employeeId: userEmpId });
-                    if (!mentalLogs) mentalLogs = await api.addMentalHealthLog({ employeeId: userEmpId });
-                    setDailyHabits(habits ? [habits] : []);
-                    setMentalHealthLogs(mentalLogs ? [mentalLogs] : []);
+                    const loadedHabits = habits || await api.addDailyHabit({ employeeId: userEmpId });
+                    const loadedMentalLogs = mentalLogs || await api.addMentalHealthLog({ employeeId: userEmpId });
+                    setDailyHabits(loadedHabits ? [loadedHabits] : []);
+                    setMentalHealthLogs(loadedMentalLogs ? [loadedMentalLogs] : []);
                     setRecommendations(recsData || []);
+                }
+                if (currentUser.role !== 'admin') {
                 }
             } catch (error) {
                 console.error("Failed to load secondary wellness data:", error);
                 setPerformanceError(error.message || 'Failed to load data');
             }
         };
+
+        setLoadingRecommendations(false);
 
         // On initial load for a user, force a refresh. Subsequent renders will use the cache.
         loadAllData(true);
@@ -403,7 +410,7 @@ export default function App() {
                     setIsProfileModalOpen={setIsProfileModalOpen}
                     onUpdateAvatar={handleUpdateAvatar}
                     onUserUpdate={setCurrentUser}
-                    loading={loadingWellnessData}
+                    loading={loadingWellnessData || loadingRecommendations}
                 />)
             )}
         </div>

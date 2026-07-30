@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   User, Lightbulb, Bot, X, LogOut, UploadCloud,
@@ -643,7 +643,7 @@ export default function UserDashboard({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const [playingVideo, setPlayingVideo] = useState(null); // { url, category, severity }
-  const userRecommendations = recommendations.find(rec => rec.employeeId === user?.employeeId)?.recommendations || [];
+  const userRecommendations = useMemo(() => (recommendations || []).find(rec => rec.employeeId === user?.employeeId)?.recommendations || [], [recommendations, user]);
 
   // Handler: opens video modal with metadata for auto-fallback
   const handlePlayVideo = useCallback((videoUrl, category, severity) => {
