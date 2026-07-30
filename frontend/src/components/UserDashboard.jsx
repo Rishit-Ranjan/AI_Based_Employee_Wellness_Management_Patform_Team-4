@@ -263,6 +263,7 @@ export function ChatbotModule({ user, isFloating = false }) {
         id: (Date.now() + 1).toString(),
         sender: 'bot',
         text: botText,
+        model: data.model, // Store the model name
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
@@ -275,6 +276,7 @@ export function ChatbotModule({ user, isFloating = false }) {
         id: (Date.now() + 1).toString(),
         sender: 'bot',
         text: "I am having trouble connecting to the backend right now. Please try again shortly.",
+        model: 'System Error',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages((prev) => [...prev, fallbackMsg]);
@@ -324,8 +326,11 @@ export function ChatbotModule({ user, isFloating = false }) {
               }`}
             >
               <p>{m.text}</p>
-              <span className={`block text-[9px] mt-1 font-mono text-right ${m.sender === 'user' ? 'text-blue-100' : 'text-slate-400'}`}>
-                {m.timestamp}
+              <span className={`flex items-center justify-end gap-2 text-[9px] mt-1.5 font-mono ${m.sender === 'user' ? 'text-blue-100' : 'text-slate-400'}`}>
+                {m.sender === 'bot' && m.model && (
+                  <span className="px-1.5 py-0.5 bg-black/10 dark:bg-black/20 rounded-sm">{m.model}</span>
+                )}
+                <span>{m.timestamp}</span>
               </span>
             </div>
           </div>
