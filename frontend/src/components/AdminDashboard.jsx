@@ -1658,8 +1658,7 @@ function SystemSettingsModule() {
         <SettingCard title="AI & Analytics" description="Configure the behavior of AI-powered features.">
           <SettingRow label="LLM Provider">
             <select value={settings.llmProvider} onChange={(e) => handleSettingChange('llmProvider', e.target.value)} className="px-3 py-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200 outline-none">
-              <option value="ollama">Ollama (Local)</option>
-              <option value="openai">OpenAI</option>
+              <option value="ollama">Ollama (Local)</option> 
               <option value="gemini">Google Gemini</option>
             </select>
           </SettingRow>
