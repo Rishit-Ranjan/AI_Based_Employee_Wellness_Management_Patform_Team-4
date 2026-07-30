@@ -13,8 +13,8 @@ async function request(path, opts = {}) {
       return await attemptRequest(path, { forceRefresh, ...fetchOptions });
     } catch (err) {
       // Only retry on network errors (like ECONNREFUSED)
-      if (err.message.includes('Failed to fetch') || err.message.includes('ECONNREFUSED')) {
-        if (i < retries - 1) {
+      if (err.message.includes('Failed to fetch') || err.status === 504) {
+        if (i < retries - 1) { // Ensure we don't retry on the last attempt
           console.log(`[API] Request failed, retrying in ${1000 * (i + 1)}ms... (${i + 1}/${retries - 1})`);
           await sleep(1000 * (i + 1)); // Exponential backoff
           continue;
