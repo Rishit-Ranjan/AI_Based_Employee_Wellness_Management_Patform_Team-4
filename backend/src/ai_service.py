@@ -38,7 +38,7 @@ class AIWellnessService:
         self.gemini_api_key = os.getenv('GEMINI_API_KEY') or os.getenv('GOOGLE_API_KEY', '')
         
         # Initialize Gemini if available
-        if self.llm_provider == 'gemini' and self.gemini_api_key and GEMINI_AVAILABLE:
+        if self.gemini_api_key and GEMINI_AVAILABLE:
             try:
                 # NEW SYNTAX: Create a Client for the new google.genai SDK
                 self.gemini_client = genai.Client(api_key=self.gemini_api_key)
@@ -196,12 +196,8 @@ class AIWellnessService:
 User message: {message}
 
 As an AI Wellness Coach, provide a helpful, concise response (max 150 words) with practical wellness advice.
-{AI_POLICY_GUARDRAIL}""",
-                        "stream": False,
-                        "max_tokens": 300
-                    },
-                    timeout=10
-                )
+
+{AI_POLICY_GUARDRAIL}"""
                 response = http_requests.post(
                     f"{os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')}/api/generate",
                     json={
