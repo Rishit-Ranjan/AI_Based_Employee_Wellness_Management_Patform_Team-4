@@ -156,6 +156,7 @@ export function ChatbotModule({ user, isFloating = false }) {
   const [isTyping, setIsTyping] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isSpeechEnabled, setIsSpeechEnabled] = useState(true);
+  const [selectedModel, setSelectedModel] = useState('gemini');
   const [isVoiceInput, setIsVoiceInput] = useState(false);
   const scrollRef = useRef(null);
   const recognitionRef = useRef(null);
@@ -212,11 +213,26 @@ export function ChatbotModule({ user, isFloating = false }) {
   }, [isSpeechEnabled]);
 
   useEffect(() => {
-    const greeting = `Hello ${user.name}! I am your AI Wellness Chatbot Assistant. Ask me anything about exercise schedules, diet rules, stress management, or how to reduce workplace burnout!`;
-    setMessages([
-      { id: '1', sender: 'bot', text: greeting, timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
-    ]);
-  }, [user]);
+    // Load messages from localStorage on mount
+    const savedMessages = localStorage.getItem(`chat_messages_${user.employeeId}`);
+    if (savedMessages && JSON.parse(savedMessages).length > 0) {
+      setMessages(JSON.parse(savedMessages));
+    } else {
+      // If no saved messages, set the initial greeting
+      const greeting = `Hello ${user.name}! I am your AI Wellness Chatbot Assistant. Ask me anything about exercise schedules, diet rules, stress management, or how to reduce workplace burnout!`;
+      setMessages([
+        { id: '1', sender: 'bot', text: greeting, model: 'System Message', timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
+      ]);
+    }
+  }, [user.employeeId, user.name]);
+
+  useEffect(() => {
+    // Save messages to localStorage whenever they change
+    // Only save if there's more than just the initial greeting
+    if (messages.length > 1) {
+      localStorage.setItem(`chat_messages_${user.employeeId}`, JSON.stringify(messages));
+    }
+  }, [messages, user.employeeId]);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -256,7 +272,7 @@ export function ChatbotModule({ user, isFloating = false }) {
     setIsTyping(true);
 
     try {
-      const data = await sendAiChatMessage(user.employeeId, text.trim());
+      const data = await sendAiChatMessage(user.employeeId, text.trim(), selectedModel);
       const botText = data.response || data.reply || data.message || "I'm here to support your health & wellness journey.";
 
       const botMsg = {
@@ -289,6 +305,16 @@ export function ChatbotModule({ user, isFloating = false }) {
     handleSendWithText(inputText);
   };
 
+  const handleClearChat = () => {
+    // Clear from localStorage
+    localStorage.removeItem(`chat_messages_${user.employeeId}`);
+    // Reset state to initial greeting
+    const greeting = `Hello ${user.name}! I am your AI Wellness Chatbot Assistant. Ask me anything about exercise schedules, diet rules, stress management, or how to reduce workplace burnout!`;
+    setMessages([
+      { id: '1', sender: 'bot', text: greeting, model: 'System Message', timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
+    ]);
+  };
+
   return (
     <div className={`flex flex-col h-full bg-white dark:bg-slate-800 ${isFloating ? '' : 'border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm'}`}>
       <div className="p-3.5 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
@@ -300,16 +326,26 @@ export function ChatbotModule({ user, isFloating = false }) {
             AI Assistant
           </span>
         </div>
-        <button
-          type="button"
-          onClick={() => setIsSpeechEnabled(!isSpeechEnabled)}
-          className={`p-1.5 rounded-lg border text-xs transition-all cursor-pointer ${
-            isSpeechEnabled ? 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-950/60 dark:text-blue-400 dark:border-blue-800' : 'bg-slate-100 text-slate-400 border-slate-200 dark:bg-slate-800 dark:border-slate-700'
-          }`}
-          title={isSpeechEnabled ? "Voice Output Active" : "Voice Output Muted"}
-        >
-          <Volume2 className="w-3.5 h-3.5" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleClearChat}
+            className="p-1.5 rounded-lg border text-slate-400 hover:text-red-500 dark:hover:text-red-400 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-red-200 dark:hover:border-red-700 transition-all"
+            title="Clear Chat History"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsSpeechEnabled(!isSpeechEnabled)}
+            className={`p-1.5 rounded-lg border text-xs transition-all cursor-pointer ${
+              isSpeechEnabled ? 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-950/60 dark:text-blue-400 dark:border-blue-800' : 'bg-slate-100 text-slate-400 border-slate-200 dark:bg-slate-800 dark:border-slate-700'
+            }`}
+            title={isSpeechEnabled ? "Voice Output Active" : "Voice Output Muted"}
+          >
+            <Volume2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
 
       <div className="flex-1 p-4 overflow-y-auto space-y-3.5">
@@ -338,19 +374,27 @@ export function ChatbotModule({ user, isFloating = false }) {
         {isTyping && (
           <div className="flex justify-start">
             <div className="bg-slate-100 dark:bg-slate-700 p-3 rounded-2xl rounded-bl-none text-xs text-slate-400 animate-pulse font-mono">
-              AI Coach is thinking...
+              AI Assistant is thinking...
             </div>
           </div>
         )}
         <div ref={scrollRef} />
       </div>
 
-      <form onSubmit={handleSend} className="p-3 border-t border-slate-200 dark:border-slate-700 flex items-center gap-2 bg-slate-50 dark:bg-slate-900">
+      <form onSubmit={handleSend} className="p-2.5 border-t border-slate-200 dark:border-slate-700 flex items-center gap-2 bg-slate-50 dark:bg-slate-900">
+        <select
+          value={selectedModel}
+          onChange={(e) => setSelectedModel(e.target.value)}
+          className="px-2 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-[10px] font-semibold text-slate-600 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500/20"
+        >
+          <option value="gemini">Gemini</option>
+          <option value="ollama">Ollama</option>
+        </select>
         <input
           type="text"
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
-          placeholder={isListening ? "Listening..." : "Ask your AI coach..."}
+          placeholder={isListening ? "Listening..." : "Ask your AI assistant..."}
           className="flex-1 px-3.5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500/20"
         />
         <button
@@ -378,7 +422,7 @@ export function ChatbotModule({ user, isFloating = false }) {
 }
 
 // ==========================================
-// MODULE 14: AI WELLNESS COACH DASHBOARD
+// MODULE 14: AI WELLNESS ASSISTANT DASHBOARD
 // ==========================================
 export function WellnessCoachDashboard({ user, healthRecords = [] }) {
   const [insights, setInsights] = useState(null);
@@ -628,7 +672,7 @@ export default function UserDashboard({
   const navTabs = [
     { id: 7, label: 'My Wellness Profile', icon: User, desc: 'Health vitals & personalized trackers' },
     { id: 3, label: 'Personalized Recommender', icon: Lightbulb, desc: 'Fitness, diet & wellness routines' },
-    { id: 14, label: 'AI Wellness Coach', icon: Brain, desc: 'Daily AI insights & routine engine' },
+    { id: 14, label: 'AI Wellness Assistant', icon: Brain, desc: 'Daily AI insights & routine engine' },
     { id: 8, label: 'My Insurance', icon: ShieldCheck, desc: 'Coverage details & file claims' },
     { id: 9, label: 'Diet Plans', icon: Utensils, desc: 'AI-generated meal schedules' },
     { id: 10, label: 'My Goals', icon: Target, desc: 'Track achievements & badges' },
@@ -925,7 +969,7 @@ export default function UserDashboard({
               <h1 className="font-display text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-50 tracking-tight">
                 {activeTab === 7 && 'My Personal Wellness Profile'}
                 {activeTab === 3 && 'Personalized Wellness Recommender'}
-                {activeTab === 14 && 'AI Wellness Coach'}
+                {activeTab === 14 && 'AI Wellness Assistant'}
                 {activeTab === 8 && 'Insurance Coverage & Claims'}
                 {activeTab === 9 && 'AI Meal & Diet Plans'}
                 {activeTab === 10 && 'My Goals & Achievements'}

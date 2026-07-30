@@ -199,19 +199,30 @@ As an AI Wellness Assistant, provide a helpful, concise response (max 150 words)
 
 {AI_POLICY_GUARDRAIL}"""
                 model_name = llm_config['ollama_model']
+                ollama_base_url = os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')
                 response = http_requests.post(
-                    f"{os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')}/api/generate",
+                    f"{ollama_base_url}/api/generate",
                     json={
                         "model": model_name,
                         "prompt": prompt,
                         "stream": False
                     },
-                    timeout=10
+                    timeout=20
                 )
                 if response.status_code == 200:
                     return response.json().get('response', ''), model_name
-            except Exception as e:
-                print(f"Ollama API error: {e}")
+                else:
+                    error_msg = f"Ollama API returned status {response.status_code}: {response.text}"
+                    print(f"Ollama API error: {error_msg}")
+                    return f"Ollama model failed to respond. Please ensure the Ollama server is running and the '{model_name}' model is downloaded.", "Ollama Error"
+            except http_requests.exceptions.ConnectionError as e:
+                error_msg = f"Could not connect to Ollama server at {ollama_base_url}. Is Ollama running?"
+                print(f"Ollama API error: {error_msg} - {e}")
+                return f"Ollama model failed: {error_msg}", "Ollama Error"
+            except http_requests.exceptions.Timeout as e:
+                error_msg = f"Ollama API request timed out after 30 seconds."
+                print(f"Ollama API error: {error_msg}")
+                return f"Ollama model failed: {error_msg}. The model may be taking too long to respond.", "Ollama Error"
         
         # Try Google Gemini
         if llm_config['provider'] == 'gemini' and hasattr(self, 'gemini_client') and self.gemini_client:
@@ -340,7 +351,7 @@ What would you like to explore today? I'm here to support your wellness journey!
         
         return responses.get(intent, responses['general'])
     
-    def chat(self, message: str, employee_id: str = None) -> Dict[str, Any]:
+    def chat(self, message: str, employee_id: str = None, model_override: str = None) -> Dict[str, Any]:
         """Main chat handler - tries LLM first, falls back to rule-based."""
         
         # Get health context if employee_id is provided
@@ -352,6 +363,9 @@ What would you like to explore today? I'm here to support your wellness journey!
         
         # Get the current LLM configuration from settings
         llm_config = self._get_current_llm_config()
+        # Allow user to override the model from the frontend
+        if model_override and model_override in ['gemini', 'ollama']:
+            llm_config['provider'] = model_override
         
         # Detect intent
         intent = self._detect_intent(message)

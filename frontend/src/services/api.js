@@ -390,9 +390,9 @@ export const downloadHealthReportPdf = async (employeeId) => {
 // --- Performance Analytics API ---
 
 // --- AI Wellness Service API ---
-export const sendAiChatMessage = (employeeId, message) => request('/ai/chat', {
+export const sendAiChatMessage = (employeeId, message, model) => request('/ai/chat', {
   method: 'POST',
-  body: JSON.stringify({ employeeId, message }),
+  body: JSON.stringify({ employeeId, message, model }),
 });
 
 export const fetchAiInsights = (employeeId, options) => request(`/ai/insights/${employeeId}`, { method: 'GET', ...options });

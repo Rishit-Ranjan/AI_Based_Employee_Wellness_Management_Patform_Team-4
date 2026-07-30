@@ -1,3 +1,11 @@
+"""
+Main Flask application for the Employee Wellness Management Analytics platform.
+
+This file sets up the Flask server, configures JWT, CORS, and database connections.
+It defines all API endpoints for authentication, wellness data management,
+AI services, and other platform features.
+License: MIT License. See LICENSE file for details.
+"""
 from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS 
 from werkzeug.utils import secure_filename
@@ -1905,13 +1913,14 @@ def ai_chat():
     user_info = jwt_payload.get("user_info")
     data = request.get_json() or {}
     message = data.get('message', '')
+    model_override = data.get('model') # 'gemini' or ollama
     employee_id = data.get('employeeId') or user_info.get('employeeId')
     
     if not message:
         return jsonify({'detail': 'Message is required'}), 400
     
     try:
-        result = ai_wellness_service.chat(message, employee_id)
+        result = ai_wellness_service.chat(message, employee_id, model_override)
         return jsonify(result), 200
     except Exception as e:
         app.logger.exception(f"AI Chat error: {e}")
