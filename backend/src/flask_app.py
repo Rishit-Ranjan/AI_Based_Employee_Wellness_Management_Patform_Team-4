@@ -1269,8 +1269,8 @@ def add_mental_health_log():
         return jsonify({'detail': 'Forbidden: You can only add your own mental health logs.'}), 403
 
     # For simplicity, prevent adding multiple logs for the same employee on the same day
-    today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
-    if mental_health_logs_collection.find_one({'employeeId': new_log['employeeId'], 'date': {'$gte': today_start.isoformat()}}):
+    today_start_dt = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    if mental_health_logs_collection.find_one({'employeeId': new_log['employeeId'], 'date': {'$gte': today_start_dt}}):
         return jsonify({'detail': 'Mental health log already exists for this employee today. Please update instead.'}), 409
 
     try:

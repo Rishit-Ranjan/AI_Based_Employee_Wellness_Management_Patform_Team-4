@@ -643,7 +643,20 @@ export default function UserDashboard({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const [playingVideo, setPlayingVideo] = useState(null); // { url, category, severity }
-  const userRecommendations = useMemo(() => (recommendations || []).find(rec => rec.employeeId === user?.employeeId)?.recommendations || [], [recommendations, user]);
+  const userRecommendations = useMemo(() => {
+    const recs = recommendations || [];
+    
+    // 1. If there is no data at all, return empty
+    if (recs.length === 0) return [];
+    
+    // 2. If the data is nested by employeeId (Admin/Group fetch)
+    if (recs[0]?.employeeId) {
+        return recs.find(rec => rec.employeeId === user?.employeeId)?.recommendations || [];
+    }
+    
+    // 3. If the backend already returns a flat array of recommendations for this user
+    return recs;
+  }, [recommendations, user]);
 
   // Handler: opens video modal with metadata for auto-fallback
   const handlePlayVideo = useCallback((videoUrl, category, severity) => {
