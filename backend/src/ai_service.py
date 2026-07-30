@@ -226,7 +226,7 @@ Use emojis sparingly but effectively to make the response engaging.
 {AI_POLICY_GUARDRAIL}"""
                 
                 # Iterate through a list of models to handle deprecations and availability
-                model_candidates = ["gemini-1.5-flash", "gemini-pro"]
+                model_candidates = ["gemini-3.5-flash", "gemini-pro"]
                 for model in model_candidates:
                     try:
                         gemini_response = self.gemini_client.models.generate_content(
