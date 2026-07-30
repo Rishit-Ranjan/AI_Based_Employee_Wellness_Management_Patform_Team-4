@@ -172,7 +172,7 @@ class AIWellnessService:
     
     def _get_current_llm_config(self) -> Dict[str, Any]:
         """Fetch the current LLM configuration from the database."""
-        if self.db:
+        if self.db is not None:
             settings = self.db['system_settings'].find_one({'_id': 'system_config'})
             if settings:
                 return {
