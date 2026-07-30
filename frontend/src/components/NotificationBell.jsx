@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Bell, X, Check } from 'lucide-react';
+import { Bell, X, Check, Send } from 'lucide-react';
 import { fetchNotifications, markNotificationRead } from '../services/api';
+import AdminNotificationCenter from './AdminNotificationCenter';
 
-export default function NotificationBell({ isAdmin = false }) {
+export default function NotificationBell({ isAdmin = false, onAdminClick }) {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
@@ -27,18 +28,18 @@ export default function NotificationBell({ isAdmin = false }) {
   return (
     <div className="relative">
       <button
-        onClick={() => setOpen(!open)}
+        onClick={() => (isAdmin ? onAdminClick() : setOpen(!open))}
         className="relative p-2 rounded-lg hover:bg-slate-100 border border-slate-200 bg-white cursor-pointer transition-all"
       >
         <Bell className="w-4 h-4 text-slate-500" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+          <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center animate-pulse">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
       </button>
 
-      {open && (
+      {open && !isAdmin && (
         <div className="absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-xl z-50">
           <div className="p-3 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white">
             <span className="text-xs font-bold text-slate-700">Notifications</span>

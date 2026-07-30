@@ -1,0 +1,16 @@
+pandas
+numpy
+pymongo
+bcrypt
+PyJWT
+python-dotenv
+dnspython
+scikit-learn
+xgboost
+flask
+flask-cors
+requests
+joblib
+matplotlib
+seaborn
+flask-jwt-extended

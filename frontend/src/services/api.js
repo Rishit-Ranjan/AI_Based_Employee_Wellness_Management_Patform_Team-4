@@ -1,6 +1,31 @@
 const API_BASE = '/api'; // Use Vite proxy in development
 
+// Simple in-memory cache for GET requests
+const apiCache = new Map();
+
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 async function request(path, opts = {}) {
+  const { forceRefresh, retries = 3, ...fetchOptions } = opts;
+
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await attemptRequest(path, { forceRefresh, ...fetchOptions });
+    } catch (err) {
+      // Only retry on network errors (like ECONNREFUSED)
+      if (err.message.includes('Failed to fetch') || err.message.includes('ECONNREFUSED')) {
+        if (i < retries - 1) {
+          console.log(`[API] Request failed, retrying in ${1000 * (i + 1)}ms... (${i + 1}/${retries - 1})`);
+          await sleep(1000 * (i + 1)); // Exponential backoff
+          continue;
+        }
+      }
+      throw err; // Re-throw other errors or if retries are exhausted
+    }
+  }
+}
+async function attemptRequest(path, opts = {}) {
+  const { forceRefresh, ...fetchOptions } = opts;
   const headers = { ...opts.headers };
 
   // Only set Content-Type if it's not explicitly set to null (for FormData)
@@ -10,9 +35,19 @@ async function request(path, opts = {}) {
     delete headers['Content-Type']; // Remove it completely for FormData
   }
 
+  // Use cache for GET requests unless forceRefresh is true
+  if (fetchOptions.method === 'GET' || !fetchOptions.method) {
+    if (!forceRefresh && apiCache.has(path)) {
+      return Promise.resolve(apiCache.get(path));
+    }
+  } else {
+    // Clear cache on any non-GET request (mutation)
+    apiCache.clear();
+  }
+
   const res = await fetch(API_BASE + path, {
     credentials: 'include',
-    ...opts, // Spread the original options
+    ...fetchOptions, // Use the modified options
     headers, // Use the modified headers
   });
 
@@ -48,7 +83,12 @@ async function request(path, opts = {}) {
   }
 
   try {
-    return await res.json();
+    const data = await res.json();
+    // Cache the successful GET response
+    if (fetchOptions.method === 'GET' || !fetchOptions.method) {
+      apiCache.set(path, data);
+    }
+    return data;
   } catch {
     return { success: true };
   }
@@ -115,7 +155,7 @@ export const uploadAvatar = (file) => {
  * Fetches all health records from the backend.
  * @returns {Promise<Array<Object>>} A promise that resolves to the list of health records.
  */
-export const fetchHealthRecords = () => request('/wellness/health-records');
+export const fetchHealthRecords = (options) => request('/wellness/health-records', { method: 'GET', ...options });
 
 /**
  * Adds a new health record via the backend.
@@ -148,10 +188,10 @@ export const deleteHealthRecord = (employeeId) => request(`/wellness/health-reco
  * Fetches all wellness risk predictions from the backend.
  * @returns {Promise<Array<Object>>} A promise that resolves to the list of risk profiles.
  */
-export const fetchRisks  = () => request('/wellness/risks');
+export const fetchRisks  = (options) => request('/wellness/risks', { method: 'GET', ...options });
 
 // --- Daily Habits API ---
-export const fetchDailyHabits = (employeeId) => request(`/wellness/daily-habits/${employeeId}`);
+export const fetchDailyHabits = (employeeId, options) => request(`/wellness/daily-habits/${employeeId}`, { method: 'GET', ...options });
 export const addDailyHabit = (habitData) => request('/wellness/daily-habits', {
   method: 'POST',
   body: JSON.stringify(habitData),
@@ -162,7 +202,7 @@ export const updateDailyHabit = (habitData) => request(`/wellness/daily-habits/$
 });
 
 // --- Mental Health Logs API ---
-export const fetchMentalHealthLogs = (employeeId) => request(`/wellness/mental-health-logs/${employeeId}`);
+export const fetchMentalHealthLogs = (employeeId, options) => request(`/wellness/mental-health-logs/${employeeId}`, { method: 'GET', ...options });
 export const addMentalHealthLog = (logData) => request('/wellness/mental-health-logs', {
   method: 'POST',
   body: JSON.stringify(logData),
@@ -191,13 +231,37 @@ const saveToStorage = (key, data) => {
     }
 };
 
-export const fetchRecommendations = async () => {
-  const response= await request('/wellness/recommendations');
+export const fetchRecommendations = async (options) => {
+  const response= await request('/wellness/recommendations', { method: 'GET', ...options });
   return response;
 }
 
+/**
+ * Requests an alternative video URL when a recommended video is unavailable.
+ * @param {string} category - The recommendation category (e.g., 'Fitness', 'Mental Wellness')
+ * @param {string} unavailableUrl - The YouTube URL that failed
+ * @param {string} riskLabel - The user's risk level ('High', 'Medium', 'Low')
+ * @returns {Promise<{alternativeUrl: string, category: string, note: string}>}
+ */
+export const fetchAlternativeVideo = async (category, unavailableUrl, riskLabel = 'Low') => {
+  return request('/wellness/recommendation-media/fallback', {
+    method: 'POST',
+    body: JSON.stringify({ category, unavailableUrl, riskLabel }),
+  });
+};
+
 // New function to fetch sentiment data
-export const fetchSentiments = () => request('/wellness/sentiments');
+export const fetchSentiments = (options) => request('/wellness/sentiments', { method: 'GET', ...options });
+
+// New function to fetch all individual sentiment pulses (admin)
+export const fetchAllSentimentPulses = (options) => request('/wellness/sentiment-pulse/all', { method: 'GET', ...options });
+
+/**
+ * Fetches real-time performance analytics KPIs from the backend.
+ * Admin-only endpoint that computes metrics from MongoDB collections.
+ * @returns {Promise<Object>} A promise resolving to { kpis, departmentDetails, burnoutTrend }
+ */
+export const fetchPerformanceAnalytics = (options) => request('/wellness/performance', { method: 'GET', ...options });
 
 /**
  * Submits an anonymized department pulse check.
@@ -206,10 +270,12 @@ export const fetchSentiments = () => request('/wellness/sentiments');
  * @param {string} feedbackText Optional feedback text.
  * @returns {Promise<Object>} A promise that resolves on successful submission.
  */
-export const submitSentimentPulse = (department, stressScore, feedbackText) => request('/wellness/sentiment-pulse', {
+export const submitSentimentPulse = (employeeId, department, stressScore, feedbackText) => {
+  return request('/wellness/sentiment-pulse', {
     method: 'POST',
-    body: JSON.stringify({ department, stressScore, feedbackText }),
-});
+    body: JSON.stringify({ employeeId, department, stressScore, feedbackText }),
+  });
+};
 
 export const saveSentiments = (sentimentsData) => saveToStorage('wellness_sentiments', sentimentsData);
 
@@ -224,7 +290,7 @@ export const changePassword = (currentPassword, newPassword) => request('/auth/c
 });
 
 // --- Check-ups ---
-export const fetchCheckups = (isAdmin = false) => request(`/checkups${isAdmin ? '?all=true' : ''}`);
+export const fetchCheckups = (isAdmin = false, options) => request(`/checkups${isAdmin ? '?all=true' : ''}`, { method: 'GET', ...options });
 export const bookCheckup = (data) => request('/checkups', {
   method: 'POST',
   body: JSON.stringify(data),
@@ -240,11 +306,11 @@ export const triggerSos = (message) => request('/sos', {
   method: 'POST',
   body: JSON.stringify({ message }),
 });
-export const fetchSosAlerts = () => request('/sos');
+export const fetchSosAlerts = (options) => request('/sos', { method: 'GET', ...options });
 export const resolveSos = (id) => request(`/sos/${id}/resolve`, { method: 'PUT' });
 
 // --- Health Expenses ---
-export const fetchExpenses = (isAdmin = false) => request(`/expenses${isAdmin ? '?all=true' : ''}`);
+export const fetchExpenses = (isAdmin = false, options) => request(`/expenses${isAdmin ? '?all=true' : ''}`, { method: 'GET', ...options });
 export const addExpense = (data) => request('/expenses', {
   method: 'POST',
   body: JSON.stringify(data),
@@ -256,12 +322,12 @@ export const updateExpense = (id, status) => request(`/expenses/${id}`, {
 });
 
 // --- Insurance ---
-export const fetchAllInsurance = () => request('/insurance');
+export const fetchAllInsurance = (options) => request('/insurance', { method: 'GET', ...options });
 export const saveInsurance = (data) => request('/insurance', {
   method: 'POST',
   body: JSON.stringify(data),
 });
-export const fetchInsurance = (employeeId) => request(`/insurance/${employeeId}`);
+export const fetchInsurance = (employeeId, options) => request(`/insurance/${employeeId}`, { method: 'GET', ...options });
 export const updateInsuranceClaim = (employeeId, claimId, status) => request(`/insurance/${employeeId}/claims/${claimId}`, {
   method: 'PUT',
   body: JSON.stringify({ status }),
@@ -272,7 +338,7 @@ export const fileInsuranceClaim = (employeeId, data) => request(`/insurance/${em
 });
 
 // --- Notifications ---
-export const fetchNotifications = (isAdmin = false) => request(`/notifications${isAdmin ? '?all=true' : ''}`);
+export const fetchNotifications = (isAdmin = false, options) => request(`/notifications${isAdmin ? '?all=true' : ''}`, { method: 'GET', ...options });
 export const sendNotification = (data) => request('/notifications', {
   method: 'POST',
   body: JSON.stringify(data),
@@ -287,7 +353,7 @@ export const generateDietPlan = (dietType) => request('/diet-plan', {
 });
 
 // --- Goals & Achievements ---
-export const fetchGoals = (employeeId) => request(`/goals/${employeeId}`);
+export const fetchGoals = (employeeId, options) => request(`/goals/${employeeId}`, { method: 'GET', ...options });
 export const createGoal = (data) => request('/goals', {
   method: 'POST',
   body: JSON.stringify(data),
@@ -297,10 +363,10 @@ export const updateGoal = (goalId, data) => request(`/goals/${goalId}`, {
   body: JSON.stringify(data),
 });
 export const deleteGoal = (goalId) => request(`/goals/${goalId}`, { method: 'DELETE' });
-export const fetchAchievements = (employeeId) => request(`/achievements/${employeeId}`);
+export const fetchAchievements = (employeeId, options) => request(`/achievements/${employeeId}`, { method: 'GET', ...options });
 
 // --- Reports / Health History ---
-export const fetchHealthHistory = (employeeId) => request(`/wellness/health-history/${employeeId}`);
+export const fetchHealthHistory = (employeeId, options) => request(`/wellness/health-history/${employeeId}`, { method: 'GET', ...options });
 export const downloadHealthReportPdf = async (employeeId) => {
   const res = await fetch(`${API_BASE}/reports/health-report/${employeeId}`, {
     credentials: 'include',
@@ -321,22 +387,31 @@ export const downloadHealthReportPdf = async (employeeId) => {
   window.URL.revokeObjectURL(url);
 };
 
+// --- Performance Analytics API ---
+
 // --- AI Wellness Service API ---
 export const sendAiChatMessage = (employeeId, message) => request('/ai/chat', {
   method: 'POST',
   body: JSON.stringify({ employeeId, message }),
 });
 
-export const fetchAiInsights = (employeeId) => request(`/ai/insights/${employeeId}`);
+export const fetchAiInsights = (employeeId, options) => request(`/ai/insights/${employeeId}`, { method: 'GET', ...options });
 
-export const fetchBurnoutTrend = (department) => {
+export const fetchBurnoutTrend = (department, options) => {
   const params = department ? `?department=${encodeURIComponent(department)}` : '';
-  return request(`/ai/burnout-trend${params}`);
+  return request(`/ai/burnout-trend${params}`, { method: 'GET', ...options });
 };
 
 export const generateAiRoutine = (employeeId, preferences = {}) => request('/ai/routine', {
   method: 'POST',
   body: JSON.stringify({ employeeId, preferences }),
+});
+
+// --- System Settings API ---
+export const fetchSystemSettings = (options) => request('/settings', { method: 'GET', ...options });
+export const saveSystemSettings = (settings) => request('/settings', {
+  method: 'PUT',
+  body: JSON.stringify(settings),
 });
 
 // --- Updated Default Export ---
@@ -356,5 +431,6 @@ export default {
   generateDietPlan,
   fetchGoals, createGoal, updateGoal, deleteGoal, fetchAchievements,
   fetchHealthHistory, downloadHealthReportPdf,
+  fetchPerformanceAnalytics,
+  fetchSystemSettings, saveSystemSettings,
 };
-

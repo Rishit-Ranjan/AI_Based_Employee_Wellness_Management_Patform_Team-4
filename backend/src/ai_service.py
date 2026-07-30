@@ -8,13 +8,9 @@ import json
 import random
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, List, Any
-
-# Optional: OpenAI integration
-try:
-    import openai
-    OPENAI_AVAILABLE = True
-except ImportError:
-    OPENAI_AVAILABLE = False
+from ai_policy import AI_POLICY_GUARDRAIL
+from dotenv import load_dotenv
+load_dotenv()
 
 # Optional: Ollama integration (local LLM - privacy focused)
 try:
@@ -39,22 +35,20 @@ class AIWellnessService:
         self.risk_model = risk_model
         self.recommendation_engine = recommendation_engine
         
-        # LLM configuration
-        self.llm_provider = os.getenv('AI_LLM_PROVIDER', 'gemini')  # 'openai', 'ollama', 'gemini', 'none'
-        self.openai_api_key = os.getenv('OPENAI_API_KEY', '')
-        self.ollama_base_url = os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')
-        self.ollama_model = os.getenv('OLLAMA_MODEL', 'llama3.2')
-        self.gemini_api_key = os.getenv('GOOGLE_API_KEY', '')
+        self.gemini_api_key = os.getenv('GEMINI_API_KEY') or os.getenv('GOOGLE_API_KEY', '')
         
         # Initialize Gemini if available
-        if self.llm_provider == 'gemini' and self.gemini_api_key and GEMINI_AVAILABLE:
+        if self.gemini_api_key and GEMINI_AVAILABLE:
             try:
-                genai.configure(api_key=self.gemini_api_key)
-                self.gemini_model = genai.GenerativeModel('gemini-2.0-flash')
+                # NEW SYNTAX: Create a Client for the new google.genai SDK
+                self.gemini_client = genai.Client(api_key=self.gemini_api_key)
+                print("Gemini client initialized successfully.")
             except Exception as e:
                 print(f"Gemini initialization error: {e}")
-                self.gemini_model = None
-        
+                self.gemini_client = None
+        self.recommendation_cache = {} # Cache for recommendations
+        self.risk_prediction_cache = {} # Cache for risk predictions
+        self.performance_analytics_cache = {} # Cache for performance analytics
         # Wellness tips database (rule-based fallback)
         self._init_wellness_knowledge_base()
     
@@ -110,6 +104,7 @@ class AIWellnessService:
             'bp': ['blood pressure', 'bp', 'hypertension', 'heart', 'cardio'],
             'bmi': ['bmi', 'weight', 'obese', 'overweight', 'fat'],
             'routine': ['routine', 'schedule', 'plan', 'daily', 'habit'],
+            'greeting': ['hi', 'hello', 'hey', 'greetings', 'good morning', 'good evening'],
         }
     
     def _detect_intent(self, message: str) -> str:
@@ -175,68 +170,75 @@ class AIWellnessService:
         
         return context
     
-    def _generate_llm_response(self, message: str, context: str, employee_id: str) -> Optional[str]:
-        """Try to get response from LLM provider."""
-        
-        # Try OpenAI
-        if self.llm_provider == 'openai' and self.openai_api_key and OPENAI_AVAILABLE:
-            try:
-                openai.api_key = self.openai_api_key
-                response = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo",
-                    messages=[
-                        {"role": "system", "content": f"""You are an expert AI Wellness Coach for a corporate wellness platform. 
-You have access to this employee's health data: {context}
+    def _get_current_llm_config(self) -> Dict[str, Any]:
+        """Fetch the current LLM configuration from the database."""
+        if self.db is not None:
+            settings = self.db['system_settings'].find_one({'_id': 'system_config'})
+            if settings:
+                return {
+                    'provider': settings.get('llmProvider', 'gemini'),
+                    'ollama_model': settings.get('ollamaModel', 'phi3:3.8b')
+                }
+        # Fallback to environment variables if DB is not available or settings not found
+        return {
+            'provider': os.getenv('AI_LLM_PROVIDER', 'gemini'),
+            'ollama_model': os.getenv('OLLAMA_MODEL', 'phi3:3.8b')
+        }
 
-Provide concise, actionable wellness advice. Be supportive and evidence-based.
-Keep responses under 150 words. Focus on practical tips the employee can implement immediately."""},
-                        {"role": "user", "content": message}
-                    ],
-                    max_tokens=300,
-                    temperature=0.7
-                )
-                return response.choices[0].message.content
-            except Exception as e:
-                print(f"OpenAI API error: {e}")
+    def _generate_llm_response(self, message: str, context: str, employee_id: str, llm_config: Dict) -> Optional[tuple[str, str]]:
+        """Try to get response from LLM provider. Returns (response_text, model_name) or None."""
         
         # Try Ollama (local)
-        if self.llm_provider == 'ollama' and OLLAMA_AVAILABLE:
+        if llm_config['provider'] == 'ollama' and OLLAMA_AVAILABLE:
             try:
-                response = http_requests.post(
-                    f"{self.ollama_base_url}/api/generate",
-                    json={
-                        "model": self.ollama_model,
-                        "prompt": f"""Context (Employee Health Data): {context}
+                prompt = f"""Context (Employee Health Data): {context}
 
 User message: {message}
 
-As an AI Wellness Coach, provide a helpful, concise response (max 150 words) with practical wellness advice.""",
-                        "stream": False,
-                        "max_tokens": 300
+As an AI Wellness Assistant, provide a helpful, concise response (max 150 words) with practical wellness advice.
+
+{AI_POLICY_GUARDRAIL}"""
+                model_name = llm_config['ollama_model']
+                response = http_requests.post(
+                    f"{os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')}/api/generate",
+                    json={
+                        "model": model_name,
+                        "prompt": prompt,
+                        "stream": False
                     },
                     timeout=10
                 )
                 if response.status_code == 200:
-                    return response.json().get('response', '')
+                    return response.json().get('response', ''), model_name
             except Exception as e:
                 print(f"Ollama API error: {e}")
         
         # Try Google Gemini
-        if self.llm_provider == 'gemini' and hasattr(self, 'gemini_model') and self.gemini_model:
-            try:
-                prompt = f"""You are an expert AI Wellness Coach for a corporate wellness platform called "Employee Wellness Management Analytics". 
+        if llm_config['provider'] == 'gemini' and hasattr(self, 'gemini_client') and self.gemini_client:
+                prompt = f"""You are an expert AI Wellness Assistant for a corporate wellness platform called "Employee Wellness Management Analytics". 
 You have access to this employee's health data: {context}
 
 User message: {message}
 
 Provide concise, actionable wellness advice. Be supportive, empathetic, and evidence-based.
 Keep responses under 150 words. Focus on practical tips the employee can implement immediately.
-Use emojis sparingly but effectively to make the response engaging."""
-                gemini_response = self.gemini_model.generate_content(prompt)
-                if gemini_response and gemini_response.text:
-                    return gemini_response.text.strip()
-            except Exception as e:
-                print(f"Gemini API error: {e}")
+Use emojis sparingly but effectively to make the response engaging.
+{AI_POLICY_GUARDRAIL}"""
+                
+                # Iterate through a list of models to handle deprecations and availability
+                model_candidates = ["gemini-3.5-flash", "gemini-pro"]
+                for model in model_candidates:
+                    try:
+                        gemini_response = self.gemini_client.models.generate_content(
+                            model=f'models/{model}', # Use the full model name format
+                            contents=prompt
+                        )
+                        if gemini_response and gemini_response.text:
+                            print(f"Successfully used Gemini model: {model}")
+                            return (gemini_response.text.strip(), model)
+                    except Exception as e:
+                        print(f"Gemini model '{model}' failed: {e}. Trying next model...")
+                        continue # Try the next model in the list
         
         return None
     
@@ -244,6 +246,10 @@ Use emojis sparingly but effectively to make the response engaging."""
         """Generate rule-based response when LLM is not available."""
         
         responses = {
+            'greeting': """Hello! 👋 How are you feeling today? 
+
+I'm your AI Wellness Assistant. Let me know if you'd like to check in on your sleep, stress, fitness, or nutrition goals!""",
+
             'sleep': """I noticed you're asking about sleep! Here's what works:
 
 1️⃣ Stick to a consistent schedule - same bedtime & wake time
@@ -320,7 +326,7 @@ Your wellness journey is about health, not just numbers! What aspect would you l
 
 Want me to customize this for your schedule? ⏰""",
 
-            'general': """I'm your AI Wellness Coach! I can help you with:
+            'general': """I'm your AI Wellness Assistant! I can help you with:
 
 🗣️ **Voice Commands**: Try clicking the microphone and saying "How's my health?"
 🌙 **Sleep Optimization**: Tips for better rest based on your patterns
@@ -344,16 +350,20 @@ What would you like to explore today? I'm here to support your wellness journey!
         
         context_str = json.dumps(context, default=str) if context else "No specific health data available."
         
+        # Get the current LLM configuration from settings
+        llm_config = self._get_current_llm_config()
+        
         # Detect intent
         intent = self._detect_intent(message)
         
         # Try LLM first
-        llm_response = None
-        if self.llm_provider != 'none':
-            llm_response = self._generate_llm_response(message, context_str, employee_id)
+        llm_result = self._generate_llm_response(message, context_str, employee_id, llm_config)
+        
+        llm_response_text = llm_result[0] if llm_result else None
+        model_used = llm_result[1] if llm_result else 'Rule-Based Fallback'
         
         # Fall back to rule-based
-        response_text = llm_response or self._generate_rule_response(message, intent)
+        response_text = llm_response_text or self._generate_rule_response(message, intent)
         
         # Generate related tips
         related_tips = []
@@ -365,7 +375,8 @@ What would you like to explore today? I'm here to support your wellness journey!
             'intent': intent,
             'related_tips': related_tips,
             'has_context': bool(context),
-            'is_llm': llm_response is not None,
+            'is_llm': llm_response_text is not None,
+            'model': model_used,
             'timestamp': datetime.now(timezone.utc).isoformat()
         }
     
@@ -594,14 +605,14 @@ What would you like to explore today? I'm here to support your wellness journey!
     def generate_daily_routine(self, employee_id: str, preferences: Dict = None) -> Dict[str, Any]:
         """Generate a personalized daily wellness routine."""
         context = {}
-        if self.db and employee_id:
+        if self.db is not None and employee_id:
             context = self._get_context_from_db(employee_id)
         
         health = context.get('health', {})
         habits = context.get('habits', {})
         
         # Extract health metrics
-        sleep_hours = health.get('sleep_hours', 7)
+        sleep_hours = float(health.get('sleep_hours', 7) or 7)
         stress_level = health.get('stress_level', 'Medium')
         exercise_hours = health.get('exercise_hours', 0)
         bmi = health.get('bmi', 24)
@@ -609,6 +620,13 @@ What would you like to explore today? I'm here to support your wellness journey!
         # Adjust timing based on preferences or defaults
         wake_time = (preferences or {}).get('wake_time', '6:30 AM')
         work_start = (preferences or {}).get('work_start', '9:00 AM')
+
+        # Initialize the routine dictionary with keys for each period
+        routine_data = {
+            'morning': [],
+            'afternoon': [],
+            'evening': []
+        }
         
         # Generate personalized routine blocks
         routine = []
@@ -620,7 +638,7 @@ What would you like to explore today? I'm here to support your wellness journey!
             'description': 'Drink 500ml water with lemon. 5 min gentle stretching.',
             'duration': '15 min',
             'type': 'wellness'
-        })
+        }) # This is a temporary list, will be sorted later
         
         routine.append({
             'time': self._add_time(wake_time, 30),
@@ -729,15 +747,100 @@ What would you like to explore today? I'm here to support your wellness journey!
             'duration': f'{sleep_hours}h',
             'type': 'sleep'
         })
+
+        # Distribute activities into morning, afternoon, evening based on time
+        for activity in routine:
+            time_str = activity['time']
+            hour = int(time_str.split(':')[0])
+            is_pm = 'PM' in time_str.upper()
+
+            if not is_pm and hour < 12:
+                routine_data['morning'].append(activity['description'])
+            elif (is_pm and hour < 6) or (not is_pm and hour == 12):
+                routine_data['afternoon'].append(activity['description'])
+            else:
+                routine_data['evening'].append(activity['description'])
         
         return {
-            'routine': routine,
+            'morning': routine_data['morning'],
+            'afternoon': routine_data['afternoon'],
+            'evening': routine_data['evening'],
             'total_activities': len(routine),
             'generated_for': employee_id,
             'generated_at': datetime.now(timezone.utc).isoformat(),
             'focus_areas': self._get_focus_areas(health)
         }
     
+    def generate_diet_plan(self, employee_id: str, preferences: Dict = None) -> Dict[str, Any]:
+        """Generates a personalized diet plan using AI."""
+        context = {}
+        if self.db is not None and employee_id:
+            context = self._get_context_from_db(employee_id)
+        
+        health = context.get('health', {})
+        prefs = preferences or {}
+        diet_type = prefs.get('dietType', 'Balanced')
+        
+        context_str = json.dumps(context, default=str) if context else "No specific health data available."
+
+        prompt = f"""You are an expert AI Nutritionist for a corporate wellness platform.
+You have access to this employee's health data: {context_str}
+
+User's diet preference: {diet_type}
+
+Generate a one-day meal plan for this employee. The plan should be simple, practical for a working professional, and aligned with Indian cuisine unless specified otherwise.
+
+The output must be a valid JSON object with the following structure, and nothing else. Do not include markdown formatting like ```json.
+{{
+  "dietType": "{diet_type}",
+  "breakfast": ["Item 1", "Item 2"],
+  "lunch": ["Item 1", "Item 2", "Item 3"],
+  "dinner": ["Item 1", "Item 2"],
+  "snacks": ["Item 1", "Item 2"],
+  "calories": "Approximate total calories (e.g., '1800-2000 kcal')",
+  "protein": "Approximate total protein (e.g., '70-80g')",
+  "waterIntakeLitres": 3,
+  "notes": "A brief, encouraging note about the plan."
+}}
+
+Focus on whole foods. Be specific with meal items.
+{AI_POLICY_GUARDRAIL}
+"""
+        
+        llm_config = self._get_current_llm_config()
+        llm_result = self._generate_llm_response(prompt, context_str, employee_id, llm_config)
+        llm_response_str = llm_result[0] if llm_result else None
+        
+        if llm_response_str:
+            try:
+                plan = self._parse_json_from_llm(llm_response_str)
+                plan['generatedAt'] = datetime.now(timezone.utc).isoformat() 
+                return plan
+            except json.JSONDecodeError:
+                print("AI service returned invalid JSON for diet plan. Falling back to rule-based.")
+
+        # Fallback to a simple rule-based plan if LLM fails
+        return {
+            'dietType': diet_type,
+            'breakfast': ['Oats with milk and fruit', 'Handful of nuts'],
+            'lunch': ['Roti/Rice', 'Dal (Lentil soup)', 'Mixed vegetable curry', 'Salad'],
+            'dinner': ['Quinoa with grilled vegetables', 'Curd/Yogurt'],
+            'snacks': ['Apple', 'Buttermilk'],
+            'calories': '1800-2000 kcal',
+            'protein': '60-70g',
+            'waterIntakeLitres': 3,
+            'notes': 'This is a general healthy plan. For a more personalized AI plan, please try again later.',
+            'generatedAt': datetime.now(timezone.utc).isoformat(),
+        }
+
+    def _parse_json_from_llm(self, llm_output: str) -> Dict:
+        """Extracts a JSON object from a string that might contain markdown code fences."""
+        # Find the start and end of the JSON block
+        start = llm_output.find('{')
+        end = llm_output.rfind('}') + 1
+        json_str = llm_output[start:end]
+        return json.loads(json_str)
+
     def _get_focus_areas(self, health: Dict) -> List[str]:
         """Determine areas the user should focus on."""
         focus = []
@@ -761,7 +864,7 @@ What would you like to explore today? I'm here to support your wellness journey!
                 {
                     'category': 'general',
                     'severity': 'info',
-                    'message': 'Welcome to your AI Wellness Coach! Start tracking your health to get personalized insights.',
+                    'message': 'Welcome to your AI Wellness Assistant! Start tracking your health to get personalized insights.',
                     'tip': 'Log your daily water intake and steps to receive proactive nudges.'
                 }
             ],
@@ -825,3 +928,8 @@ def get_ai_service(db=None, risk_model=None, recommendation_engine=None):
     if _ai_service_instance is None:
         _ai_service_instance = AIWellnessService(db, risk_model, recommendation_engine)
     return _ai_service_instance
+
+def get_ai_diet_plan(employee_id: str, preferences: Dict = None) -> Dict[str, Any]:
+    """Convenience function to generate a diet plan."""
+    service = get_ai_service()
+    return service.generate_diet_plan(employee_id, preferences)

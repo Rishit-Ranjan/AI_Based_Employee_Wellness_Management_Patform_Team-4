@@ -7,10 +7,11 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev:frontend": "cd frontend && npm run dev -- --host",
     "dev:backend": "cd backend/src && python run_flask.py",
-    "dev": "concurrently -k -n FRONTEND,BACKEND -c green,cyan \"npm run dev:frontend\" \"npm run dev:backend\""
+    "dev": "concurrently -k -n BACKEND,FRONTEND -c cyan,green \"npm:dev:backend\" \"npm:dev:frontend\""
   },
   "devDependencies": {
-    "concurrently": "^9.0.0"
+    "concurrently": "^9.0.0",
+    "wait-on": "^7.2.0"
   },
   "repository": {
     "type": "git",
@@ -23,6 +24,9 @@
   "bugs": {
     "url": "https://github.com/Rishit-Ranjan/Employee_wellness_management_analytics_Team-4/issues"
   },
-  "homepage": "https://github.com/Rishit-Ranjan/Employee_wellness_management_analytics_Team-4#readme"
+  "homepage": "https://github.com/Rishit-Ranjan/Employee_wellness_management_analytics_Team-4#readme",
+  "dependencies": {
+    "framer-motion": "^12.42.2",
+    "recharts": "^3.10.0"
+  }
 }
-

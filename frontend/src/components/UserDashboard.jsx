@@ -1,41 +1,56 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   User, Lightbulb, Bot, X, LogOut, UploadCloud,
   Dumbbell, Apple, Brain, Clock, HeartPulse, Sparkles, Check, ShieldAlert, AlertCircle, Smile, Send,
-  CalendarCheck, Siren, Receipt, ShieldCheck, Target, FileDown, Utensils, Bell,
-  Mic, MicOff, Volume2, Sun, Moon, Activity, Trash2
+  CalendarCheck, Siren, Receipt, ShieldCheck, Target, FileDown, Utensils, Bell, ExternalLink, PlayCircle,
+  Mic, MicOff, Volume2, Sun, Moon, Activity, Trash2, Menu, ChevronLeft, ChevronRight, Calendar
 } from 'lucide-react';
 import ProfileEditModal from './ProfileEditModal';
 import { CheckupSchedulerModule, EmergencySOSModule, ExpenseTrackerModule } from './ExtraWellnessModules';
 import InsuranceModule from './InsuranceModule';
+import VideoPlayerModal from './VideoPlayerModal';
 import DietPlanModule from './DietPlanModule';
 import GoalsModule from './GoalsModule';
 import ReportsModule from './ReportsModule';
 import NotificationBell from './NotificationBell';
 import { sendAiChatMessage, fetchAiInsights, generateAiRoutine } from '../services/api';
 
+import PersonalWellnessProfile from './wellness/PersonalWellnessProfile';
+import ThemeToggle from './wellness/ThemeToggle';
+
+// Export UserProfileModule for backwards compatibility & modularity
+export function UserProfileModule(props) {
+  return <PersonalWellnessProfile {...props} />;
+}
 
 // ==========================================
 // MODULE 3: PERSONALIZED RECOMMENDATIONS
 // ==========================================
-export function RecommendationModule({ recommendations, loading = false }) {
+export function RecommendationModule({ recommendations, loading = false, onPlayVideo }) {
+  const getSeverityStyles = (severity) => {
+    if (severity === 'High') return { iconColor: 'text-red-500 dark:text-red-400', borderColor: 'border-red-200 dark:border-red-800', bgColor: 'bg-red-50 dark:bg-red-950/60' };
+    if (severity === 'Medium') return { iconColor: 'text-amber-500 dark:text-amber-400', borderColor: 'border-amber-200 dark:border-amber-800', bgColor: 'bg-amber-50 dark:bg-amber-950/60' };
+    return { iconColor: 'text-blue-600 dark:text-blue-400', borderColor: 'border-blue-100 dark:border-blue-800', bgColor: 'bg-blue-50 dark:bg-blue-950/60' };
+  };
+
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-pulse">
         {[1, 2].map((i) => (
-          <div key={i} className="bg-white border border-slate-200 rounded-xl p-6 space-y-4 shadow-sm">
+          <div key={i} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 space-y-4 shadow-sm">
             <div className="flex items-center justify-between">
-              <div className="h-10 w-10 bg-slate-200 rounded-xl" />
-              <div className="h-4 w-16 bg-slate-200 rounded-md" />
+              <div className="h-10 w-10 bg-slate-200 dark:bg-slate-700 rounded-xl" />
+              <div className="h-4 w-16 bg-slate-200 dark:bg-slate-700 rounded-md" />
             </div>
             <div className="space-y-2">
-              <div className="h-4 bg-slate-200 rounded w-3/4" />
-              <div className="h-3 bg-slate-100 rounded w-full" />
-              <div className="h-3 bg-slate-100 rounded w-5/6" />
+              <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4" />
+              <div className="h-3 bg-slate-100 dark:bg-slate-700/60 rounded w-full" />
+              <div className="h-3 bg-slate-100 dark:bg-slate-700/60 rounded w-5/6" />
             </div>
-            <div className="pt-3 border-t border-slate-100 space-y-1.5">
-              <div className="h-2 w-1/3 bg-slate-200 rounded" />
-              <div className="h-2 w-1/2 bg-slate-100 rounded" />
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-700 space-y-1.5">
+              <div className="h-2 w-1/3 bg-slate-200 dark:bg-slate-700 rounded" />
+              <div className="h-2 w-1/2 bg-slate-100 dark:bg-slate-700/60 rounded" />
             </div>
           </div>
         ))}
@@ -47,48 +62,85 @@ export function RecommendationModule({ recommendations, loading = false }) {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {recommendations && recommendations.length > 0 ? (
         recommendations.map((rec) => {
-        const Icon = rec.category === 'Fitness' ? Dumbbell :
-                     rec.category === 'Diet' ? Apple :
-                     rec.category === 'Mental Wellness' ? Brain : Clock;
+          const Icon = rec.category === 'Fitness' ? Dumbbell :
+                       rec.category === 'Diet' ? Apple :
+                       rec.category === 'Mental Wellness' ? Brain :
+                       rec.category === 'Yoga' ? HeartPulse : Clock;
+          
+          const { iconColor, borderColor, bgColor } = getSeverityStyles(rec.severity);
 
-        return (
-          <div key={rec.id} className="bg-white border border-slate-200 rounded-xl p-6 flex flex-col justify-between space-y-4 hover:border-indigo-200 shadow-sm transition-colors">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="p-2.5 bg-indigo-50 border border-indigo-100 rounded-xl text-indigo-600">
-                  <Icon className="w-5 h-5" />
+          return (
+            <div key={rec.id} className="bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl flex flex-col justify-between hover:shadow-xl transition-all duration-300 shadow-sm overflow-hidden">
+              {rec.imageUrl && (
+                <div className="relative h-40">
+                  <img src={rec.imageUrl} alt={rec.title} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  {rec.videoUrl && (
+                    <button 
+                      onClick={() => onPlayVideo(rec.videoUrl, rec.category, rec.severity)}
+                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-3 bg-white/20 backdrop-blur-sm rounded-full text-white hover:bg-white/40 transition-all"
+                    >
+                      <PlayCircle className="w-8 h-8" />
+                    </button>
+                  )}
                 </div>
-                <span className="px-2.5 py-0.5 bg-indigo-50 border border-indigo-100 text-indigo-700 text-[10px] font-bold uppercase rounded-md font-sans">
-                  {rec.category}
-                </span>
+              )}
+
+              <div className="p-5 flex flex-col flex-grow space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className={`p-2.5 ${bgColor} border ${borderColor} rounded-xl ${iconColor}`}>
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <span className={`px-2.5 py-0.5 ${bgColor} border ${borderColor} ${iconColor} text-[10px] font-bold uppercase rounded-lg font-mono`}>
+                    {rec.category}
+                  </span>
+                </div>
+
+                <div>
+                  <h4 className="font-display font-semibold text-base text-slate-900 dark:text-slate-100">{rec.title}</h4>
+                  <p className="text-slate-500 dark:text-slate-400 text-xs mt-1.5 leading-relaxed font-light">
+                    {rec.description}
+                  </p>
+                </div>
               </div>
 
-              <div>
-                <h4 className="font-display font-semibold text-base text-slate-800">{rec.title}</h4>
-                <p className="text-slate-500 text-xs mt-1.5 leading-relaxed font-light">{rec.description}</p>
-              </div>
-            </div>
+              <div className="flex-grow" />
 
-            {rec.reasons && rec.reasons.length > 0 && (
-              <div className="pt-3 border-t border-slate-100">
-                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Why this is recommended for you:</p>
+              <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700/60">
+                <div className="flex items-center gap-1.5">
+                  <span className={`w-2 h-2 rounded-full ${rec.severity === 'High' ? 'bg-red-500' : rec.severity === 'Medium' ? 'bg-amber-500' : 'bg-blue-500'}`} />
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase font-mono">{rec.severity} Severity</span>
+                </div>
+                {rec.videoUrl && (
+                  <a href={rec.videoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-500 transition-colors">
+                    <ExternalLink className="w-4 h-4" />
+                    Watch on YouTube
+                  </a>
+                )}
+              </div>
+
+              {rec.reasons && rec.reasons.length > 0 && (
+                <div className="pt-3 border-t border-slate-100 dark:border-slate-700/60">
+                  <p className="text-[9px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider font-mono">Why this is recommended for you:</p>
                   <ul className="list-disc list-inside space-y-0.5 mt-1">
-                  {rec.reasons.map((reason, i) => (
-                    <li key={i} className="text-[10px] text-slate-500">{reason}</li>
-                  ))}
+                    {rec.reasons.map((reason, i) => (
+                      <li key={i} className="text-[10px] text-slate-600 dark:text-slate-300">{reason}</li>
+                    ))}
                   </ul>
+                </div>
+              )}
               </div>
-            )}
-          </div>
-        );
-      })
-      ) : (
-        <div className="md:col-span-2 bg-white border border-slate-200 rounded-xl p-8 text-center">
-            <div className="w-12 h-12 mx-auto bg-emerald-50 border border-emerald-100 rounded-full flex items-center justify-center text-emerald-600">
-                <Check className="w-6 h-6" />
             </div>
-            <h4 className="font-semibold text-slate-800 mt-4">All Clear!</h4>
-            <p className="text-sm text-slate-500 mt-1">No specific wellness recommendations are needed at this time. Keep up the great work!</p>
+          );
+        })
+      ) : (
+        <div className="md:col-span-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 text-center shadow-sm">
+          <div className="w-12 h-12 mx-auto bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-100 dark:border-emerald-800 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+            <Check className="w-6 h-6" />
+          </div>
+          <h4 className="font-semibold text-slate-800 dark:text-slate-100 mt-4">All Clear!</h4>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">No specific wellness recommendations are needed at this time. Keep up the great work!</p>
         </div>
       )}
     </div>
@@ -98,7 +150,7 @@ export function RecommendationModule({ recommendations, loading = false }) {
 // ==========================================
 // MODULE 6: AI WELLNESS CHATBOT
 // ==========================================
-export function ChatbotModule({ user, isFloating = false  }) {
+export function ChatbotModule({ user, isFloating = false }) {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -109,7 +161,6 @@ export function ChatbotModule({ user, isFloating = false  }) {
   const recognitionRef = useRef(null);
   const speechSynthRef = useRef(window.speechSynthesis);
 
-  // Initialize Speech Recognition
   useEffect(() => {
     if (typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -123,7 +174,6 @@ export function ChatbotModule({ user, isFloating = false  }) {
         setInputText(transcript);
         setIsListening(false);
         setIsVoiceInput(true);
-        // Auto-send after voice input
         setTimeout(() => {
           handleSendWithText(transcript);
         }, 300);
@@ -148,7 +198,6 @@ export function ChatbotModule({ user, isFloating = false  }) {
     };
   }, []);
 
-  // Speak helper using TTS
   const speakText = useCallback((text) => {
     if (!isSpeechEnabled || !speechSynthRef.current) return;
     speechSynthRef.current.cancel();
@@ -156,18 +205,16 @@ export function ChatbotModule({ user, isFloating = false  }) {
     utterance.rate = 1.0;
     utterance.pitch = 1.0;
     utterance.volume = 1.0;
-    // Pick a female voice if available
     const voices = speechSynthRef.current.getVoices();
     const femaleVoice = voices.find(v => v.name.includes('Female') || v.name.includes('Zira'));
     if (femaleVoice) utterance.voice = femaleVoice;
     speechSynthRef.current.speak(utterance);
   }, [isSpeechEnabled]);
 
-  // Initialize greeting
   useEffect(() => {
     const greeting = `Hello ${user.name}! I am your AI Wellness Chatbot Assistant. Ask me anything about exercise schedules, diet rules, stress management, or how to reduce workplace burnout!`;
     setMessages([
-      { id: '1', sender: 'bot', text: greeting, timestamp: '22:56' }
+      { id: '1', sender: 'bot', text: greeting, timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
     ]);
   }, [user]);
 
@@ -175,7 +222,6 @@ export function ChatbotModule({ user, isFloating = false  }) {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
-  // Toggle listening
   const toggleListening = () => {
     if (!recognitionRef.current) {
       alert('Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.');
@@ -199,935 +245,134 @@ export function ChatbotModule({ user, isFloating = false  }) {
     if (!text.trim()) return;
 
     const userMsg = {
-      id: `user-${Date.now()}`,
+      id: Date.now().toString(),
       sender: 'user',
-      text: text,
+      text: text.trim(),
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
-    setMessages(prev => [...prev, userMsg]);
+    setMessages((prev) => [...prev, userMsg]);
     setInputText('');
     setIsTyping(true);
 
     try {
-      // Call the real backend AI endpoint
-      const response = await sendAiChatMessage(user.employeeId, text);
-      const reply = response.reply || response.message || "I'm here to help with your wellness journey! Please try asking about sleep, stress, diet, or exercise.";
+      const data = await sendAiChatMessage(user.employeeId, text.trim());
+      const botText = data.response || data.reply || data.message || "I'm here to support your health & wellness journey.";
 
       const botMsg = {
-        id: `bot-${Date.now()}`,
+        id: (Date.now() + 1).toString(),
         sender: 'bot',
-        text: reply,
+        text: botText,
+        model: data.model, // Store the model name
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
-      setMessages(prev => [...prev, botMsg]);
-      // Only speak the reply if the input came from voice
-      if (isVoiceInput) {
-        speakText(reply);
-      }
-    } catch (err) {
-      console.error('AI Chat failed:', err);
-      const botMsg = {
-        id: `bot-${Date.now()}`,
-        sender: 'bot',
-        text: "I'm sorry, I'm having trouble connecting to the wellness service right now. Please try again in a moment.",
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-      setMessages(prev => [...prev, botMsg]);
-    } finally {
+      setMessages((prev) => [...prev, botMsg]);
       setIsTyping(false);
-      setIsVoiceInput(false);
+      speakText(botText);
+    } catch (err) {
+      console.error("AI Chatbot error:", err);
+      const fallbackMsg = {
+        id: (Date.now() + 1).toString(),
+        sender: 'bot',
+        text: "I am having trouble connecting to the backend right now. Please try again shortly.",
+        model: 'System Error',
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setMessages((prev) => [...prev, fallbackMsg]);
+      setIsTyping(false);
     }
   };
 
-  const handleSendMessage = (e) => {
+  const handleSend = (e) => {
     e.preventDefault();
-    setIsVoiceInput(false);
     handleSendWithText(inputText);
   };
 
-  const handleClearChat = () => {
-    const greeting = `Hello ${user.name}! I am your AI Wellness Chatbot Assistant. Ask me anything about exercise schedules, diet rules, stress management, or how to reduce workplace burnout!`;
-    setMessages([
-      { id: '1', sender: 'bot', text: greeting, timestamp: '22:56' }
-    ]);
-  };
-
-  const handleVoiceCommand = (command) => {
-    // Quick voice command actions
-    const cmd = command.toLowerCase();
-    if (cmd.includes('sleep') || cmd.includes('tired')) {
-      setInputText('Tell me about improving my sleep schedule');
-    } else if (cmd.includes('stress') || cmd.includes('anxiety')) {
-      setInputText('How can I manage workplace stress?');
-    } else if (cmd.includes('diet') || cmd.includes('food')) {
-      setInputText('What diet plan do you recommend?');
-    } else if (cmd.includes('exercise') || cmd.includes('fitness')) {
-      setInputText('Suggest an exercise routine');
-    }
-  };
-
   return (
-    <div className={`bg-white flex flex-col overflow-hidden ${isFloating ? 'h-full border-none rounded-none shadow-none' : 'border border-slate-200 rounded-xl h-[520px] shadow-2xl'}`}>
-
-      {/* Bot Header info */}
-      {!isFloating && (
-        <div className="p-4 bg-slate-50 border-b border-slate-200 text-slate-800 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center text-white font-bold">
-              <Bot className="w-4 h-4 text-white" />
-            </div>
-            <div>
-              <div className="text-xs font-bold flex items-center gap-1.5 text-slate-800 font-sans">
-                Wellness Intelligent Agent
-                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-              </div>
-              <div className="text-[10px] text-slate-400 font-mono">Continuous Learning Active</div>
-            </div>
+    <div className={`flex flex-col h-full bg-white dark:bg-slate-800 ${isFloating ? '' : 'border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm'}`}>
+      <div className="p-3.5 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 bg-blue-600 text-white rounded-lg">
+            <Bot className="w-4 h-4" />
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setIsSpeechEnabled(!isSpeechEnabled)}
-              title={isSpeechEnabled ? 'Mute voice' : 'Enable voice'}
-              className={`p-1.5 rounded-md transition-colors ${isSpeechEnabled ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-400'}`}
-            >
-              {isSpeechEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5 opacity-40" />}
-            </button>
-          </div>
+          <span className="text-xs font-bold text-slate-800 dark:text-slate-100 font-sans">
+            AI Assistant
+          </span>
         </div>
-      )}
-
-      {/* Quick Voice Commands */}
-      <div className="px-4 pt-3 pb-1 flex flex-wrap gap-1.5 bg-slate-50 border-b border-slate-100">
-        <span className="text-[8px] text-slate-400 font-mono mr-1 self-center">Quick:</span>
-        {['Sleep', 'Stress', 'Diet', 'Exercise'].map(cmd => (
-          <button
-            key={cmd}
-            onClick={() => handleVoiceCommand(cmd)}
-            className="px-2 py-0.5 bg-white border border-slate-200 rounded text-[9px] text-slate-500 hover:text-indigo-600 hover:border-indigo-200 transition-colors cursor-pointer"
-          >
-            {cmd}
-          </button>
-        ))}
-        <div className="ml-auto flex items-center gap-1">
-          <button
-            onClick={handleClearChat}
-            title="Clear chat history"
-            className="px-2 py-0.5 bg-white border border-slate-200 rounded text-[9px] text-slate-400 hover:text-red-500 hover:border-red-200 transition-colors cursor-pointer flex items-center gap-1"
-          >
-            <Trash2 className="w-3 h-3" />
-            Clear
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => setIsSpeechEnabled(!isSpeechEnabled)}
+          className={`p-1.5 rounded-lg border text-xs transition-all cursor-pointer ${
+            isSpeechEnabled ? 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-950/60 dark:text-blue-400 dark:border-blue-800' : 'bg-slate-100 text-slate-400 border-slate-200 dark:bg-slate-800 dark:border-slate-700'
+          }`}
+          title={isSpeechEnabled ? "Voice Output Active" : "Voice Output Muted"}
+        >
+          <Volume2 className="w-3.5 h-3.5" />
+        </button>
       </div>
 
-      {/* Messages viewport */}
-      <div className="flex-1 p-5 overflow-y-auto space-y-4 bg-slate-50">
-        {messages.map((msg) => {
-          const isBot = msg.sender === 'bot';
-          return (
-            <div key={msg.id} className={`flex gap-3.5 max-w-[85%] ${isBot ? 'mr-auto' : 'ml-auto flex-row-reverse'}`}>
-              <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-bold select-none ${
-                isBot ? 'bg-slate-200 text-slate-600' : 'bg-indigo-100 text-indigo-700'
-              }`}>
-                {isBot ? <Bot className="w-4 h-4" /> : <User className="w-4 h-4" />}
-              </div>
-
-              <div className="space-y-1">
-                <div className={`p-3.5 rounded-xl text-xs leading-relaxed font-medium ${
-                  isBot
-                    ? 'bg-white border border-slate-200 text-slate-700 shadow-xs rounded-tl-none'
-                    : 'bg-indigo-600 text-white rounded-tr-none shadow-xs'
-                }`}>
-                  {msg.text}
-                </div>
-                <span className={`block text-[9px] font-mono text-slate-400 ${isBot ? 'text-left' : 'text-right'}`}>
-                  {msg.timestamp}
-                </span>
-              </div>
-            </div>
-          );
-        })}
-
-        {/* Typing indicator */}
-        {isTyping && (
-          <div className="flex gap-3.5 max-w-[85%] mr-auto">
-            <div className="w-7 h-7 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center shrink-0">
-              <Bot className="w-4.5 h-4.5" />
-            </div>
-            <div className="bg-white border border-slate-200 text-slate-400 p-3.5 rounded-xl rounded-tl-none text-xs flex items-center gap-1.5 shadow-xs">
-              <span>Agent is thinking</span>
-              <span className="flex gap-1">
-                <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+      <div className="flex-1 p-4 overflow-y-auto space-y-3.5">
+        {messages.map((m) => (
+          <div
+            key={m.id}
+            className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+          >
+            <div
+              className={`max-w-[80%] p-3 rounded-2xl text-xs leading-relaxed ${
+                m.sender === 'user'
+                  ? 'bg-blue-600 text-white rounded-br-none shadow-md'
+                  : 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-100 rounded-bl-none border border-slate-200/60 dark:border-slate-600'
+              }`}
+            >
+              <p>{m.text}</p>
+              <span className={`flex items-center justify-end gap-2 text-[9px] mt-1.5 font-mono ${m.sender === 'user' ? 'text-blue-100' : 'text-slate-400'}`}>
+                {m.sender === 'bot' && m.model && (
+                  <span className="px-1.5 py-0.5 bg-black/10 dark:bg-black/20 rounded-sm">{m.model}</span>
+                )}
+                <span>{m.timestamp}</span>
               </span>
+            </div>
+          </div>
+        ))}
+        {isTyping && (
+          <div className="flex justify-start">
+            <div className="bg-slate-100 dark:bg-slate-700 p-3 rounded-2xl rounded-bl-none text-xs text-slate-400 animate-pulse font-mono">
+              AI Coach is thinking...
             </div>
           </div>
         )}
         <div ref={scrollRef} />
       </div>
 
-      {/* Input Form field with Voice button */}
-      <form onSubmit={handleSendMessage} className="p-4 border-t border-slate-200 flex gap-2.5 bg-white shrink-0">
-        <button
-          type="button"
-          onClick={toggleListening}
-          title={isListening ? 'Stop listening' : 'Start voice input'}
-          className={`px-3 py-2.5 rounded-lg flex items-center justify-center transition-all cursor-pointer ${
-            isListening
-              ? 'bg-red-500 text-white animate-pulse'
-              : 'bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-700'
-          }`}
-        >
-          {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-        </button>
+      <form onSubmit={handleSend} className="p-3 border-t border-slate-200 dark:border-slate-700 flex items-center gap-2 bg-slate-50 dark:bg-slate-900">
         <input
           type="text"
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
-          placeholder="Ask about sleep schedule, burnout, fitness routine, nutrition..."
-          className="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-indigo-400 rounded-lg text-xs text-slate-700 placeholder-slate-400 outline-none transition-all"
+          placeholder={isListening ? "Listening..." : "Ask your AI coach..."}
+          className="flex-1 px-3.5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500/20"
         />
         <button
-          type="submit"
-          className="px-4 py-2.5 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg flex items-center justify-center transition-colors cursor-pointer"
+          type="button"
+          onClick={toggleListening}
+          className={`p-2 rounded-xl border transition-all cursor-pointer ${
+            isListening
+              ? 'bg-rose-500 text-white border-rose-600 animate-pulse'
+              : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:text-slate-800'
+          }`}
+          title="Voice Command"
         >
-          <Send className="w-4 h-4 text-white" />
+          {isListening ? <Mic className="w-4 h-4" /> : <MicOff className="w-4 h-4" />}
+        </button>
+        <button
+          type="submit"
+          disabled={!inputText.trim()}
+          className="p-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white rounded-xl transition-all cursor-pointer shadow-sm"
+        >
+          <Send className="w-4 h-4" />
         </button>
       </form>
-    </div>
-  );
-}
-
-// ==========================================
-// MODULE 7: PERSONAL USER WELLNESS PROFILE
-// ==========================================
-export function UserProfileModule({ user, records, risks = [], onUpdateRecord, onAddRecord, onAddSentimentPulse,
-  dailyHabits, onAddDailyHabit, onUpdateDailyHabit,
-  mentalHealthLogs, onAddMentalHealthLog, onUpdateMentalHealthLog
-}) {
-  const userEmpId = user.employeeId; // Corrected to use actual employeeId
-  const existingRecord = records.find(r => r.employeeId === user.employeeId); // Find existing record using correct employeeId
-  const existingDailyHabit = dailyHabits.find(h => h.employeeId === user.employeeId);
-  const existingMentalHealthLog = mentalHealthLogs.find(l => l.employeeId === user.employeeId);
-
-  const initialUserRecord = existingRecord || { // Use existing record or fallback
-    employeeId: user.employeeId, // Use correct employeeId for new records
-    employeeName: user.name, // Corrected typo
-    department: 'Engineering',
-    age: '',
-    gender: 'Male',
-    heightCm: '',
-    weightKg: '',
-    bmi: '',
-    bloodPressure: '',
-    exerciseDaysPerWeek: '',
-    stressLevel: 'Medium',
-    stressScore: '',
-    attendanceRate: '',
-    medicalNotes: '',
-    medicalCondition: 'No major condition',
-    smoker: false,
-    alcoholUse: false,
-    glucoseLevel: '',
-    exerciseHoursPerWeek: '',
-    sleepHoursPerNight: '',
-    // id is intentionally omitted here for new records; backend will assign _id
-  };
-
-  const [dept, setDept] = useState(initialUserRecord.department);
-  const [age, setAge] = useState(String(initialUserRecord.age));
-  const [gender, setGender] = useState(initialUserRecord.gender);
-  const [heightCm, setHeightCm] = useState(String(initialUserRecord.heightCm));
-  const [weightKg, setWeightKg] = useState(String(initialUserRecord.weightKg));
-  const [bmi, setBmi] = useState(String(initialUserRecord.bmi));
-  const [bp, setBp] = useState(initialUserRecord.bloodPressure);
-  const [exerciseDaysPerWeek, setExerciseDaysPerWeek] = useState(String(initialUserRecord.exerciseDaysPerWeek));
-  const [exercise, setExercise] = useState(String(initialUserRecord.exerciseHoursPerWeek));
-  const [sleep, setSleep] = useState(String(initialUserRecord.sleepHoursPerNight));
-  const [stress, setStress] = useState(initialUserRecord.stressLevel);
-  const [stressScore, setStressScore] = useState(String(initialUserRecord.stressScore));
-  const [attendanceRate, setAttendanceRate] = useState(String(initialUserRecord.attendanceRate));
-  const [medicalNotes, setMedicalNotes] = useState(initialUserRecord.medicalNotes);
-  const [medicalCondition, setMedicalCondition] = useState(initialUserRecord.medicalCondition);
-  const [smoker, setSmoker] = useState(initialUserRecord.smoker);
-  const [alcoholUse, setAlcoholUse] = useState(initialUserRecord.alcoholUse);
-  const [glucoseLevel, setGlucoseLevel] = useState(String(initialUserRecord.glucoseLevel));
-
-  // Effect to update form fields when the user's record changes (e.g., after initial load or admin update)
-  useEffect(() => { // Re-evaluate initial form states if records or userEmpId changes
-    const currentRecord = records.find(r => r.employeeId === user.employeeId);
-    if (currentRecord) {
-      setAge(String(currentRecord.age || ''));
-      setGender(currentRecord.gender || 'Male');
-      setHeightCm(String(currentRecord.heightCm || ''));
-      setWeightKg(String(currentRecord.weightKg || ''));
-      setDept(currentRecord.department);
-      setBmi(String(currentRecord.bmi));
-      setBp(currentRecord.bloodPressure);
-      setExerciseDaysPerWeek(String(currentRecord.exerciseDaysPerWeek || ''));
-      setExercise(String(currentRecord.exerciseHoursPerWeek));
-      setSleep(String(currentRecord.sleepHoursPerNight));
-      setStress(currentRecord.stressLevel);
-      setStressScore(String(currentRecord.stressScore || ''));
-      setAttendanceRate(String(currentRecord.attendanceRate || ''));
-      setMedicalNotes(currentRecord.medicalNotes || '');
-      setMedicalCondition(currentRecord.medicalCondition || 'No major condition');
-      setSmoker(currentRecord.smoker || false);
-      setAlcoholUse(currentRecord.alcoholUse || false);
-      setGlucoseLevel(String(currentRecord.glucoseLevel || ''));
-    }
-  }, [records, user.employeeId]);
-
-  const [showSyncSuccess, setShowSyncSuccess] = useState(false);
-  const [isNewHealthRecord, setIsNewHealthRecord] = useState(!existingRecord); // Renamed for clarity
-  const [error, setError] = useState(''); // State for form errors
-
-  const [waterCups, setWaterCups] = useState(existingDailyHabit?.waterCups || 0);
-  const [stepsCount, setStepsCount] = useState(existingDailyHabit?.stepsCount || 4200);
-  const [mood, setMood] = useState(existingMentalHealthLog?.mood || 'Neutral');
-  const [streakDays, setStreakDays] = useState(existingMentalHealthLog?.streakDays || 0);
-
-  // Local states for pulse check
-  const [pulseStress, setPulseStress] = useState(5);
-  const [pulseFeedback, setPulseFeedback] = useState('');
-  const [pulseSubmitted, setPulseSubmitted] = useState(false);
-  
-  // Clear success/error messages when the component mounts or user record changes
-  useEffect(() => {
-    setIsNewHealthRecord(!records.find(r => r.employeeId === user.employeeId)); // Re-evaluate if it's a new record
-    setError('');
-  }, [userEmpId]);
-
-  const handleUpdateProfile = async (e) => {
-    e.preventDefault();
-    const calculatedBmi = Number(bmi) || 22;
-    let assessment = 'Good';
-    const [sys, dia] = bp.split('/').map(Number);
-
-    if (stress === 'High' || sys >= 140 || calculatedBmi >= 30) {
-      assessment = 'Needs Attention';
-    } else if (stress === 'Low' && calculatedBmi < 25 && calculatedBmi >= 18.5 && Number(sleep) >= 7) {
-      assessment = 'Excellent';
-    } else if (Number(sleep) < 6) {
-      assessment = 'Fair';
-    }
-
-    const updated = {
-      // Always include employeeId and employeeName, as they are part of the record structure
-      employeeId: user.employeeId,
-      employeeName: user.name,
-      age: Number(age),
-      gender: gender,
-      heightCm: Number(heightCm),
-      weightKg: Number(weightKg),
-      ...(existingRecord ? { id: existingRecord.id } : {}), // Only include 'id' if updating an existing record
-      department: dept,
-      bmi: calculatedBmi,
-      bloodPressure: bp,
-      exerciseDaysPerWeek: Number(exerciseDaysPerWeek),
-      exerciseHoursPerWeek: Number(exercise) || 0,
-      sleepHoursPerNight: Number(sleep) || 0,
-      stressLevel: stress,
-      stressScore: Number(stressScore),
-      attendanceRate: Number(attendanceRate),
-      medicalNotes: medicalNotes,
-      medicalCondition: medicalCondition,
-      smoker: smoker,
-      alcoholUse: alcoholUse,
-      glucoseLevel: Number(glucoseLevel),
-      healthAssessment: assessment,
-      lastUpdated: new Date().toISOString().split('T')[0]
-    };
-
-    try {
-      if (existingRecord) {
-        await onUpdateRecord(updated); // Update existing record
-      } else {
-        await onAddRecord(updated); // Add new record
-      }
-      setShowSyncSuccess(true);
-      setError(''); // Clear any previous errors
-      setTimeout(() => setShowSyncSuccess(false), 3000);
-    } catch (err) {
-      console.error("Failed to update wellness profile:", err);
-      setError('Failed to update profile. Please try again.');
-    }
-    setIsNewHealthRecord(false); // After saving, it's no longer a new record
-  };
-
-  const updateWater = (change) => {
-    const newVal = Math.max(0, waterCups + change);
-    setWaterCups(newVal);
-    const updatedHabit = { ...(existingDailyHabit || {}), employeeId: user.employeeId, waterCups: newVal, lastUpdated: new Date().toISOString().split('T')[0] };
-    if (existingDailyHabit) {
-      onUpdateDailyHabit(updatedHabit);
-    } else {
-      onAddDailyHabit(updatedHabit);
-    }
-  };
-
-  const handleStepsChange = (e) => {
-    const val = Number(e.target.value);
-    setStepsCount(val);
-    const updatedHabit = { ...(existingDailyHabit || {}), employeeId: user.employeeId, stepsCount: val, lastUpdated: new Date().toISOString().split('T')[0] };
-    if (existingDailyHabit) {
-      onUpdateDailyHabit(updatedHabit);
-    } else {
-      onAddDailyHabit(updatedHabit);
-    }
-  };
-
-  const handleMoodSelect = (selectedMood) => {
-    setMood(selectedMood);
-    const nextStreak = (existingMentalHealthLog && existingMentalHealthLog.mood === selectedMood) ? streakDays : streakDays + 1;
-    setStreakDays(nextStreak);
-
-    const updatedLog = {
-      ...(existingMentalHealthLog || {}),
-      employeeId: user.employeeId,
-      mood: selectedMood,
-      streakDays: nextStreak,
-      date: new Date().toISOString().split('T')[0]
-    };
-    if (existingMentalHealthLog) {
-      onUpdateMentalHealthLog(updatedLog);
-    } else {
-      onAddMentalHealthLog(updatedLog);
-    }
-  };
-
-  const handlePulseSubmit = (e) => {
-    e.preventDefault();
-    onAddSentimentPulse(dept, pulseStress, pulseFeedback);
-    const updatedLog = {
-      ...(existingMentalHealthLog || {}),
-      employeeId: user.employeeId,
-      stressLevel: pulseStress,
-      feedback: pulseFeedback,
-      date: new Date().toISOString().split('T')[0]
-    };
-    if (existingMentalHealthLog) {
-      onUpdateMentalHealthLog(updatedLog);
-    } else {
-      onAddMentalHealthLog(updatedLog);
-    }
-    setPulseSubmitted(true);
-    setPulseFeedback('');
-    setTimeout(() => setPulseSubmitted(false), 4000);
-  };
-
-  const myRiskProfile = risks.find((r) => r.employeeId === user.employeeId);
-
-  // Use backend prediction if available; otherwise fall back to the previous heuristic.
-  const riskScore = myRiskProfile?.riskScore ?? 0;
-  const factors = myRiskProfile?.factors ?? ["Awaiting data..."];
-  const recommendationAction = myRiskProfile?.recommendationAction ?? "Maintain healthy habits.";
-
-
-  // State for Blood Pressure info popup
-  const [showBpInfoPopup, setShowBpInfoPopup] = useState(false);
-  const bpInfoRef = useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (bpInfoRef.current && !bpInfoRef.current.contains(event.target)) {
-        setShowBpInfoPopup(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  return (
-    <div className="space-y-8 pb-10">
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-
-        <div className="lg:col-span-7 bg-white rounded-xl border border-slate-200 p-6 space-y-5 shadow-sm">
-          <div className="flex items-center gap-2 border-b border-slate-100 pb-4">
-            <HeartPulse className="w-5 h-5 text-slate-400" />
-            <h3 className="font-display font-semibold text-slate-800 text-base">Self-Reported Health Vitals</h3>
-          </div>
-
-          <form onSubmit={handleUpdateProfile} className="space-y-4">
-            <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">My Employee ID</label>
-              <p className="w-full px-3.5 py-2.5 bg-slate-100 border border-slate-200 rounded-lg text-xs text-slate-700 outline-none select-none">
-                {user.employeeId}
-              </p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">My Age</label>
-                <input type="number" required value={age} onChange={(e) => setAge(e.target.value)} placeholder="30" className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-indigo-400 focus:bg-white rounded-lg text-xs text-slate-700 outline-none" />
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">My Gender</label>
-                <select value={gender} onChange={(e) => setGender(e.target.value)} className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 outline-none cursor-pointer focus:bg-white">
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">My Height (cm)</label>
-                <input type="number" step="0.1" required value={heightCm} onChange={(e) => setHeightCm(e.target.value)} placeholder="170.5" className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-indigo-400 focus:bg-white rounded-lg text-xs text-slate-700 outline-none" />
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">My Weight (kg)</label>
-                <input type="number" step="0.1" required value={weightKg} onChange={(e) => setWeightKg(e.target.value)} placeholder="70.2" className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-indigo-400 focus:bg-white rounded-lg text-xs text-slate-700 outline-none" />
-              </div>
-            </div>
-
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">My Department</label>
-                <select
-                  value={dept}
-                  onChange={(e) => setDept(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 outline-none cursor-pointer focus:bg-white"
-                >
-                  <option value="Engineering">Engineering</option>
-                  <option value="Sales">Sales</option>
-                  <option value="Marketing">Marketing</option>
-                  <option value="Product">Product</option>
-                  <option value="Operations">Operations</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">My Body Mass Index (BMI)</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  required
-                  value={bmi}
-                  onChange={(e) => setBmi(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-indigo-400 focus:bg-white rounded-lg text-xs text-slate-700 outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Blood Pressure (Systolic/Diastolic){' '}
-                  <span
-                    ref={bpInfoRef}
-                    className="relative ml-1.5 text-slate-500 cursor-pointer"
-                    onClick={() => setShowBpInfoPopup(!showBpInfoPopup)}
-                  >
-                    <span
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: '1.18em', // Adjust size as needed
-                        height: '1.17em',
-                        borderRadius: '50%',
-                        border: '1px solid currentColor', // Use current text color for border
-                        fontSize: '0.9em', // Adjust font size of 'i' inside circle
-                        fontWeight: 'bold',
-                        lineHeight: '1.8', // Ensure 'i' is centered vertically
-                      }}
-                    >i</span>
-                    {showBpInfoPopup && (
-                      <div className="absolute z-10 w-64 p-3 -top-2 left-full ml-2 bg-white border border-slate-200 rounded-lg shadow-lg text-xs text-slate-700 animate-fadeIn">
-                        <div className="absolute -left-1 top-3 w-2 h-2 bg-white border-l border-t border-slate-200 transform rotate-45 -translate-x-1/2" />
-                        Systolic is the top number (pressure when heart beats), Diastolic is the bottom number (pressure when heart rests).
-                      </div>
-                    )}
-                  </span>
-                </label>
-                <input
-                  type="text" // Keep as text for "120/80" format
-                  required
-                  placeholder="e.g. 120/80"
-                  value={bp}
-                  onChange={(e) => setBp(e.target.value)}
-                  onFocus={() => setShowBpInfoPopup(false)} // Close popup if input is focused
-                  onBlur={() => setTimeout(() => setShowBpInfoPopup(false), 100)} // Close popup on blur, with slight delay to allow click on popup
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-indigo-400 focus:bg-white rounded-lg text-xs text-slate-700 outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Self-Reported Stress</label>
-                <select
-                  value={stress}
-                  onChange={(e) => setStress(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 outline-none cursor-pointer focus:bg-white"
-                >
-                  <option value="Low">Low Stress</option>
-                  <option value="Medium">Medium Stress</option>
-                  <option value="High">High Stress</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Sleep (Hours/Night)</label>
-                <input type="number" step="0.5" required value={sleep} onChange={(e) => setSleep(e.target.value)} className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-indigo-400 focus:bg-white rounded-lg text-xs text-slate-700 outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">My Stress Score (1-10)</label>
-                <input type="number" min="1" max="10" step="0.1" required value={stressScore} onChange={(e) => setStressScore(e.target.value)} placeholder="5.5" className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-indigo-400 focus:bg-white rounded-lg text-xs text-slate-700 outline-none" />
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">My Attendance Rate (%)</label>
-                <input type="number" min="0" max="100" step="0.1" required value={attendanceRate} onChange={(e) => setAttendanceRate(e.target.value)} placeholder="95" className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-indigo-400 focus:bg-white rounded-lg text-xs text-slate-700 outline-none" />
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Exercise (Days/Week)</label>
-                <input type="number" required value={exerciseDaysPerWeek} onChange={(e) => setExerciseDaysPerWeek(e.target.value)} placeholder="3" className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-indigo-400 focus:bg-white rounded-lg text-xs text-slate-700 outline-none" />
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Exercise (Hours/Week)</label>
-                <input
-                  type="number" // Keep as number
-                  step="0.5"
-                  required
-                  value={exercise}
-                  onChange={(e) => setExercise(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-indigo-400 focus:bg-white rounded-lg text-xs text-slate-700 outline-none"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="col-span-2">
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">My Medical Condition</label>
-                <select value={medicalCondition} onChange={(e) => setMedicalCondition(e.target.value)} className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 outline-none cursor-pointer focus:bg-white">
-                  <option value="No major condition">No major condition</option>
-                  <option value="Stress-related fatigue">Stress-related fatigue</option>
-                  <option value="Mild fatigue">Mild fatigue</option>
-                  <option value="Chronic pain">Chronic pain</option>
-                  <option value="Allergies">Allergies</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-              <div className="col-span-2">
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Medical Notes</label>
-                <textarea value={medicalNotes} onChange={(e) => setMedicalNotes(e.target.value)} placeholder="Any relevant medical notes..." rows="2" className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-indigo-400 focus:bg-white rounded-lg text-xs text-slate-700 outline-none"></textarea>
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">My Glucose Level</label>
-                <input type="number" step="0.1" required value={glucoseLevel} onChange={(e) => setGlucoseLevel(e.target.value)} placeholder="90" className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-indigo-400 focus:bg-white rounded-lg text-xs text-slate-700 outline-none" />
-              </div>
-              <div className="flex items-center gap-4">
-                <label className="flex items-center gap-2 text-xs text-slate-800">
-                  <input type="checkbox" checked={smoker} onChange={(e) => setSmoker(e.target.checked)} className="form-checkbox h-3.5 w-3.5 text-indigo-600 rounded border-slate-300" />
-                  Smoker
-                </label>
-                <label className="flex items-center gap-2 text-xs text-slate-800">
-                  <input type="checkbox" checked={alcoholUse} onChange={(e) => setAlcoholUse(e.target.checked)} className="form-checkbox h-3.5 w-3.5 text-indigo-600 rounded border-slate-300" />
-                  Alcohol User
-                </label>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-              <span className="text-[10px] text-slate-400 font-mono">Last Synchronized</span>
-              <button
-                type="submit"
-                className="px-5 py-2.5 bg-indigo-600 text-white hover:bg-indigo-700 text-xs font-semibold rounded-lg flex items-center gap-2 transition-all cursor-pointer shadow-md" // Changed to 'Save Profile' for clarity
-              >
-                <Sparkles className="w-4 h-4" />
-                Sync & Save Vitals
-              </button>
-            </div>
-          </form>
-
-          {error && (
-            <div className="bg-red-50 border border-red-200 p-3 rounded-lg text-xs text-red-800 flex items-start gap-2.5 animate-shake font-medium font-sans">
-              <ShieldAlert className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-              <span>{error}</span>
-            </div>
-          )}
-
-          {showSyncSuccess && (
-            <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-lg text-xs text-emerald-800 flex items-center gap-2 animate-fadeIn font-medium font-sans">
-              <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-              Your personal wellness record has been updated! Changes have propagated to all performance dashboards.
-            </div>
-          )}
-        </div>
-
-        <div className="lg:col-span-5 bg-white rounded-xl border border-slate-200 p-6 flex flex-col justify-between space-y-6 shadow-sm">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-              <div className="flex items-center gap-2">
-                <Brain className="w-5 h-5 text-slate-400" />
-                <h3 className="font-display font-semibold text-slate-800 text-base">Your Health Diagnostics</h3>
-              </div>
-              <span className={`px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider ${
-                riskScore >= 70 ? 'bg-rose-50 text-rose-700 border border-rose-100' :
-                riskScore >= 45 ? 'bg-amber-50 text-amber-700 border border-amber-100' :
-                'bg-emerald-50 text-emerald-700 border border-emerald-100'
-              }`}>
-                {riskScore >= 70 ? 'High Burnout Risk' : riskScore >= 45 ? 'Elevated Stress' : 'Balanced Vitals'}
-              </span>
-            </div>
-
-            <div className="bg-slate-50 p-4.5 rounded-xl border border-slate-200 flex items-center justify-between">
-              <div>
-                <div className="text-[10px] text-slate-400 font-bold uppercase font-mono tracking-wider">Burnout Intensity Index</div>
-                <div className="flex items-baseline gap-1 mt-1">
-                  <span className={`text-4xl font-display font-light ${
-                    riskScore >= 70 ? 'text-rose-600' : riskScore >= 45 ? 'text-amber-600' : 'text-emerald-600'
-                  }`}>{riskScore}%</span>
-                  <span className="text-[10px] text-slate-400 font-mono">Computed Live</span>
-                </div>
-              </div>
-              <div className="w-24 bg-slate-200 h-2 rounded-full overflow-hidden border border-slate-300">
-                <div className={`h-full rounded-full ${
-                  riskScore >= 70 ? 'bg-rose-500' : riskScore >= 45 ? 'bg-amber-500' : 'bg-emerald-500'
-                }`} style={{ width: `${riskScore}%` }} />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest font-mono">Contributing Risk Factors:</div>
-              {factors.length === 0 ? (
-                <div className="text-xs text-slate-500 font-light flex items-center gap-1.5 py-1">
-                  <Check className="w-4 h-4 text-emerald-500" />
-                  All parameters verified within optimal ranges. Maintain active lifestyle!
-                </div>
-              ) : (
-                <div className="flex flex-wrap gap-1.5">
-                  {factors.map((f, i) => (
-                    <span key={i} className="px-2 py-0.5 bg-rose-50 border border-rose-100 text-rose-700 text-[9px] rounded-md font-mono">
-                      {f}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="pt-4 border-t border-slate-100">
-            {riskScore >= 70 ? (
-              <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-800 font-light flex items-start gap-2.5">
-                <ShieldAlert className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-                <div>
-                  <strong className="font-semibold block mb-0.5 text-rose-900">PTO Advisory Triggered!</strong>
-                  Your sleep metrics and reported stress indicate severe physical fatigue. We recommend taking advantage of your department's wellness PTO benefits immediately.
-                </div>
-              </div>
-            ) : riskScore >= 45 ? (
-              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 font-light flex items-start gap-2.5">
-                <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                <div>
-                  <strong className="font-semibold block mb-0.5 text-amber-900">Elevated Baseline Stress Detected</strong>
-                  Try incorporating our 10-minute daily breathing exercises and taking micro-breaks during long engineering sprints to normalize cortisol indicators.
-                </div>
-              </div>
-            ) : (
-              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-800 font-light flex items-start gap-2.5">
-                <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <div>
-                  <strong className="font-semibold block mb-0.5 text-emerald-900">Vitals Optimal</strong>
-                  Excellent habits! Your exercise levels and nightly resting intervals place you in the low-risk tier. Enjoy your active fitness benefits package.
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-        <div className="bg-white rounded-xl border border-slate-200 p-5 flex flex-col justify-between space-y-4 shadow-sm">
-          <div className="flex justify-between items-start text-slate-400">
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Daily Water Intake</span>
-              <h4 className="text-slate-800 font-semibold text-sm mt-1">Hydration Index</h4>
-            </div>
-            <Apple className="w-4 h-4 text-sky-500" />
-          </div>
-
-          <div className="text-center py-2 space-y-2">
-            <div className="text-3xl font-display font-semibold text-slate-800">{waterCups} / 8</div>
-            <div className="text-[10px] text-slate-400 font-mono">Cups logged today (Target 8)</div>
-            <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden border border-slate-200">
-              <div
-                className="bg-sky-400 h-full rounded-full transition-all duration-300"
-                style={{ width: `${Math.min(100, (waterCups / 8) * 100)}%` }}
-              />
-            </div>
-          </div>
-
-          <div className="flex gap-2">
-            <button
-              onClick={() => updateWater(-1)}
-              className="flex-1 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-500 hover:text-slate-800 transition-all cursor-pointer hover:bg-slate-100"
-            >
-              - 1 Cup
-            </button>
-            <button
-              onClick={() => updateWater(1)}
-              className="flex-1 py-1.5 bg-sky-50 border border-sky-100 text-sky-700 hover:bg-sky-100 rounded-lg text-xs font-bold transition-all cursor-pointer"
-            >
-              + 1 Cup
-            </button>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl border border-slate-200 p-5 flex flex-col justify-between space-y-4 shadow-sm">
-          <div className="flex justify-between items-start text-slate-400">
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Step Counter</span>
-              <h4 className="text-slate-800 font-semibold text-sm mt-1">Active Movement</h4>
-            </div>
-            <Dumbbell className="w-4 h-4 text-emerald-500" />
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex justify-between items-baseline">
-              <span className="text-3xl font-display font-semibold text-slate-800">{stepsCount.toLocaleString()}</span>
-              <span className="text-[10px] text-slate-400 font-mono">/ 10,000 steps</span>
-            </div>
-            <input
-              type="range"
-              min="0"
-              max="15000"
-              step="500"
-              value={stepsCount}
-              onChange={handleStepsChange}
-              className="w-full accent-indigo-600 cursor-pointer h-1.5 bg-slate-100 rounded-lg border border-slate-200"
-            />
-            <p className="text-[9px] text-slate-400 text-center font-mono leading-none">Use slider to adjust step count metrics</p>
-          </div>
-
-          <div className="text-[10px] text-slate-400 font-mono text-center">
-            {stepsCount >= 10000 ? '🎉 Daily Step Target Unlocked!' : `${(10000 - stepsCount).toLocaleString()} steps remaining to achieve daily fitness rewards.`}
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl border border-slate-200 p-5 flex flex-col justify-between space-y-4 shadow-sm">
-          <div className="flex justify-between items-start text-slate-400">
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Streak & Mood Logger</span>
-              <h4 className="text-slate-800 font-semibold text-sm mt-1">Mental Health Check</h4>
-            </div>
-            <span className="text-xs text-amber-600 font-mono font-bold flex items-center gap-0.5">
-              🔥 {streakDays}-Day Streak
-            </span>
-          </div>
-
-          <div className="space-y-2">
-            <span className="text-[10px] text-slate-400 uppercase tracking-widest block font-mono font-bold">Today's Mood:</span>
-            <div className="grid grid-cols-5 gap-1.5">
-              {[
-                { label: '🔋', name: 'Energetic' },
-                { label: '🌸', name: 'Calm' },
-                { label: '🧘', name: 'Relaxed' }, // New Mood
-                { label: '☕', name: 'Tired' },
-                { label: '⚡', name: 'Stressed' },
-                { label: '📉', name: 'Burned' },
-                { label: '🤔', name: 'Neutral' }, // New Mood
-              ].map((m) => (
-                <button
-                  key={m.name}
-                  onClick={() => handleMoodSelect(m.name)}
-                  title={m.name}
-                  className={`py-2 text-base rounded-lg border flex flex-col items-center justify-center transition-all cursor-pointer ${
-                    mood === m.name
-                      ? 'bg-indigo-50 border-indigo-300 font-bold scale-105'
-                      : 'bg-slate-50 border-slate-200 hover:border-slate-300 text-slate-600 hover:bg-slate-100'
-                  }`}
-                >
-                  <span>{m.label}</span>
-                </button>
-              ))}
-            </div>
-            <div className="text-center text-[10px] text-slate-400 font-mono">
-              Currently logged: <span className="font-bold text-slate-700">{mood}</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-1.5 text-[9px] font-mono text-slate-400 border-t border-slate-100 pt-3.5">
-            <Clock className="w-3.5 h-3.5 shrink-0" />
-            Daily streak increases log moods daily.
-          </div>
-        </div>
-
-      </div>
-
-      <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-5 shadow-sm">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-          <div className="flex items-center gap-2">
-            <Smile className="w-5 h-5 text-slate-400" />
-            <h3 className="font-display font-semibold text-slate-800 text-base">Submit Anonymized Departmental Pulse Check</h3>
-          </div>
-          <span className="bg-rose-50 text-rose-700 border border-rose-100 px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider font-mono">
-            Fully Encrypted & Anonymized
-          </span>
-        </div>
-
-        <p className="text-slate-500 text-xs font-light max-w-3xl leading-relaxed">
-          Your feedback is critical to assessing team wellness trends. By submitting, your raw answers are compiled into aggregated departmental metrics to maintain 100% identity protection. Your submitted scores will immediately update the <strong>Sentiment & Mental Health tab charts</strong>.
-        </p>
-
-        <form onSubmit={handlePulseSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
-
-            <div className="md:col-span-1 space-y-2">
-              <div className="flex justify-between text-xs">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">My Stress Level (1-10)</label>
-                <span className="font-bold text-slate-800 font-mono">{pulseStress}</span>
-              </div>
-              <input
-                type="range"
-                min="1"
-                max="10"
-                value={pulseStress}
-                onChange={(e) => setPulseStress(Number(e.target.value))}
-                className="w-full accent-indigo-600 cursor-pointer h-1 bg-slate-100 rounded-lg border border-slate-200"
-              />
-              <div className="flex justify-between text-[8px] text-slate-400 font-mono">
-                <span>Relaxed (1)</span>
-                <span>Max Stress (10)</span>
-              </div>
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 font-mono">Issue Description / Feedback (Optional)</label>
-              <input
-                type="text"
-                value={pulseFeedback}
-                onChange={(e) => setPulseFeedback(e.target.value)}
-                placeholder="e.g. Excessive sprint velocity pressure, or request for ergonomic standing desks..."
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-indigo-400 rounded-lg text-xs text-slate-700 outline-none"
-              />
-            </div>
-
-            <div className="md:col-span-1">
-              <button
-                type="submit"
-                className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm"
-              >
-                Submit Secure Pulse Check
-              </button>
-            </div>
-
-          </div>
-        </form>
-
-        {pulseSubmitted && (
-          <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-xs text-emerald-800 flex items-start gap-2.5 animate-fadeIn">
-            <Check className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-            <div>
-              <strong className="font-semibold block mb-0.5 text-emerald-900">Anonymized Pulse Registered!</strong>
-              Your feedback stress metrics and key issues have been securely processed. Check out the <strong>Sentiment & Mental Health</strong> tab to view updated department charts.
-            </div>
-          </div>
-        )}
-      </div>
-
     </div>
   );
 }
@@ -1140,11 +385,7 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
   const [routine, setRoutine] = useState(null);
   const [loadingInsights, setLoadingInsights] = useState(false);
   const [loadingRoutine, setLoadingRoutine] = useState(false);
-  const [coachMessage, setCoachMessage] = useState('');
-  const [coachResponse, setCoachResponse] = useState('');
-  const [coachLoading, setCoachLoading] = useState(false);
 
-  // Fetch AI insights on mount
   useEffect(() => {
     const loadInsights = async () => {
       setLoadingInsights(true);
@@ -1153,7 +394,6 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
         setInsights(data);
       } catch (err) {
         console.error('Failed to fetch AI insights:', err);
-        // Insights remain null — UI will show fallback static text
         setInsights(null);
       } finally {
         setLoadingInsights(false);
@@ -1162,7 +402,6 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
     loadInsights();
   }, [user.employeeId]);
 
-  // Generate AI routine
   const handleGenerateRoutine = async () => {
     setLoadingRoutine(true);
     setRoutine(null);
@@ -1171,147 +410,117 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
       setRoutine(data);
     } catch (err) {
       console.error('Failed to generate AI routine:', err);
-      // Routine remains null — UI will show the empty state prompt
       setRoutine(null);
     } finally {
       setLoadingRoutine(false);
     }
   };
 
-  // Ask the AI Coach a question
-  const handleAskCoach = async (e) => {
-    e.preventDefault();
-    if (!coachMessage.trim()) return;
-    setCoachLoading(true);
-    setCoachResponse('');
-    try {
-      const data = await sendAiChatMessage(user.employeeId, coachMessage);
-      setCoachResponse(data.reply || data.message || 'Thank you for your question! Based on your health profile, I recommend maintaining a balanced routine with adequate sleep and regular exercise.');
-    } catch (err) {
-      console.error('AI Coach query failed:', err);
-      setCoachResponse("I'm sorry, I'm having trouble connecting to the wellness service. Please try again in a moment.");
-    } finally {
-      setCoachLoading(false);
-    }
-  };
-
   const userRecord = healthRecords.find(r => r.employeeId === user.employeeId);
-  const bmiVal = userRecord?.bmi || 22;
-  const sleepVal = userRecord?.sleepHoursPerNight || 7;
-  const stressVal = userRecord?.stressLevel || 'Medium';
+  const sleepVal = userRecord?.sleepHoursPerNight || 7.5;
 
   return (
     <div className="space-y-6 pb-10">
-      {/* Wellness Score Overview Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">Sleep Score</span>
+            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider font-mono">Sleep Score</span>
             <Moon className="w-4 h-4 text-indigo-400" />
           </div>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-2xl font-display font-semibold text-slate-800">{insights?.sleepScore || sleepVal * 10}%</span>
+            <span className="text-2xl font-display font-bold text-slate-900 dark:text-slate-100">{insights?.sleepScore || Math.min(100, Math.round(sleepVal * 11))}%</span>
             <span className="text-[10px] text-slate-400 font-mono">/ 100</span>
           </div>
-          <div className="w-full bg-slate-100 h-1.5 rounded-full mt-2 overflow-hidden">
-            <div className="bg-indigo-500 h-full rounded-full" style={{ width: `${insights?.sleepScore || sleepVal * 10}%` }} />
+          <div className="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full mt-2 overflow-hidden">
+            <div className="bg-indigo-500 h-full rounded-full" style={{ width: `${insights?.sleepScore || Math.min(100, Math.round(sleepVal * 11))}%` }} />
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">Stress Index</span>
+            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider font-mono">Stress Index</span>
             <Activity className="w-4 h-4 text-amber-400" />
           </div>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-2xl font-display font-semibold text-slate-800">{insights?.stressIndex || 50}%</span>
+            <span className="text-2xl font-display font-bold text-slate-900 dark:text-slate-100">{insights?.stressIndex || 42}%</span>
             <span className="text-[10px] text-slate-400 font-mono">/ 100</span>
           </div>
-          <div className="w-full bg-slate-100 h-1.5 rounded-full mt-2 overflow-hidden">
-            <div className="bg-amber-500 h-full rounded-full" style={{ width: `${insights?.stressIndex || 50}%` }} />
+          <div className="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full mt-2 overflow-hidden">
+            <div className="bg-amber-500 h-full rounded-full" style={{ width: `${insights?.stressIndex || 42}%` }} />
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">Activity Level</span>
+            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider font-mono">Activity Level</span>
             <Dumbbell className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-2xl font-display font-semibold text-slate-800">{insights?.activityLevel || 'Moderate'}</span>
+            <span className="text-2xl font-display font-bold text-slate-900 dark:text-slate-100">{insights?.activityLevel || 'Active'}</span>
           </div>
-          <p className="text-[10px] text-slate-400 mt-2 font-mono">Based on weekly exercise</p>
+          <p className="text-[10px] text-slate-400 mt-2 font-mono">Based on weekly fitness logs</p>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">Nutrition</span>
+            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider font-mono">Nutrition</span>
             <Apple className="w-4 h-4 text-sky-400" />
           </div>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-2xl font-display font-semibold text-slate-800">{insights?.nutritionQuality || 'Good'}</span>
+            <span className="text-2xl font-display font-bold text-slate-900 dark:text-slate-100">{insights?.nutritionQuality || 'Balanced'}</span>
           </div>
-          <p className="text-[10px] text-slate-400 mt-2 font-mono">Diet quality assessment</p>
+          <p className="text-[10px] text-slate-400 mt-2 font-mono">Diet quality index</p>
         </div>
       </div>
 
-      {/* Daily Tip & Weekly Goal */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-gradient-to-br from-indigo-50 to-white border border-indigo-100 rounded-xl p-6 shadow-sm">
+        <div className="bg-gradient-to-br from-blue-50 to-white dark:from-slate-800 dark:to-slate-800/90 border border-blue-100 dark:border-slate-700 rounded-2xl p-6 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
-            <Sparkles className="w-5 h-5 text-indigo-600" />
-            <h3 className="font-display font-semibold text-slate-800">AI Daily Wellness Tip</h3>
+            <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <h3 className="font-display font-semibold text-slate-900 dark:text-slate-100">AI Daily Wellness Tip</h3>
           </div>
-          <p className="text-slate-700 text-sm leading-relaxed font-light">
-            {loadingInsights ? 'Loading your personalized tip...' : (insights?.dailyTip || 'Take a moment to breathe deeply and stretch. Your wellbeing matters!')}
+          <p className="text-slate-600 dark:text-slate-300 text-xs leading-relaxed font-light">
+            {loadingInsights ? 'Loading your personalized tip...' : (insights?.dailyTip || 'Take 5 minutes between sprint tasks for deep diaphragmatic breathing to stabilize blood pressure.')}
           </p>
         </div>
 
-        <div className="bg-gradient-to-br from-emerald-50 to-white border border-emerald-100 rounded-xl p-6 shadow-sm">
+        <div className="bg-gradient-to-br from-emerald-50 to-white dark:from-slate-800 dark:to-slate-800/90 border border-emerald-100 dark:border-slate-700 rounded-2xl p-6 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
-            <Target className="w-5 h-5 text-emerald-600" />
-            <h3 className="font-display font-semibold text-slate-800">This Week's AI Goal</h3>
+            <Target className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            <h3 className="font-display font-semibold text-slate-900 dark:text-slate-100">This Week's Target Goal</h3>
           </div>
-          <p className="text-slate-700 text-sm leading-relaxed font-light">
-            {loadingInsights ? 'Setting your weekly goal...' : (insights?.weeklyGoal || 'Aim to walk 10,000 steps daily and practice mindfulness for 10 minutes each day.')}
+          <p className="text-slate-600 dark:text-slate-300 text-xs leading-relaxed font-light">
+            {loadingInsights ? 'Setting your weekly goal...' : (insights?.weeklyGoal || 'Aim for 10,000 daily steps and complete 4 days of cardio workout routines.')}
           </p>
         </div>
       </div>
 
-      {/* Generate AI Routine */}
-      <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Sun className="w-5 h-5 text-amber-500" />
-            <h3 className="font-display font-semibold text-slate-800">AI-Generated Daily Routine</h3>
+            <h3 className="font-display font-semibold text-slate-900 dark:text-slate-100">AI-Generated Daily Routine</h3>
           </div>
           <button
             onClick={handleGenerateRoutine}
             disabled={loadingRoutine}
-            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white text-xs font-semibold rounded-lg transition-all cursor-pointer flex items-center gap-2"
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white text-xs font-semibold rounded-xl transition-all cursor-pointer flex items-center gap-2 shadow-sm"
           >
             <Sparkles className="w-3.5 h-3.5" />
             {loadingRoutine ? 'Generating...' : 'Generate New Routine'}
           </button>
         </div>
 
-        {loadingRoutine ? (
-          <div className="space-y-3 animate-pulse">
-            <div className="h-4 bg-slate-200 rounded w-1/4" />
-            <div className="h-3 bg-slate-100 rounded w-full" />
-            <div className="h-3 bg-slate-100 rounded w-5/6" />
-            <div className="h-3 bg-slate-100 rounded w-4/6" />
-          </div>
-        ) : routine ? (
+        {routine ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+            <div className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
               <div className="flex items-center gap-2 mb-3">
                 <Sun className="w-4 h-4 text-amber-500" />
-                <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Morning</h4>
+                <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase font-mono">Morning</h4>
               </div>
               <ul className="space-y-2">
                 {routine.morning?.map((item, i) => (
-                  <li key={i} className="text-[11px] text-slate-600 flex items-start gap-2">
+                  <li key={i} className="text-[11px] text-slate-600 dark:text-slate-400 flex items-start gap-2">
                     <span className="w-1.5 h-1.5 bg-amber-400 rounded-full mt-1 shrink-0" />
                     {item}
                   </li>
@@ -1319,14 +528,14 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
               </ul>
             </div>
 
-            <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+            <div className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
               <div className="flex items-center gap-2 mb-3">
                 <Clock className="w-4 h-4 text-sky-500" />
-                <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Afternoon</h4>
+                <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase font-mono">Afternoon</h4>
               </div>
               <ul className="space-y-2">
                 {routine.afternoon?.map((item, i) => (
-                  <li key={i} className="text-[11px] text-slate-600 flex items-start gap-2">
+                  <li key={i} className="text-[11px] text-slate-600 dark:text-slate-400 flex items-start gap-2">
                     <span className="w-1.5 h-1.5 bg-sky-400 rounded-full mt-1 shrink-0" />
                     {item}
                   </li>
@@ -1334,14 +543,14 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
               </ul>
             </div>
 
-            <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+            <div className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
               <div className="flex items-center gap-2 mb-3">
                 <Moon className="w-4 h-4 text-indigo-400" />
-                <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Evening</h4>
+                <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase font-mono">Evening</h4>
               </div>
               <ul className="space-y-2">
                 {routine.evening?.map((item, i) => (
-                  <li key={i} className="text-[11px] text-slate-600 flex items-start gap-2">
+                  <li key={i} className="text-[11px] text-slate-600 dark:text-slate-400 flex items-start gap-2">
                     <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full mt-1 shrink-0" />
                     {item}
                   </li>
@@ -1350,72 +559,8 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
             </div>
           </div>
         ) : (
-          <div className="text-center py-8 text-slate-400">
-            <Sparkles className="w-10 h-10 mx-auto mb-3 text-slate-300" />
-            <p className="text-sm font-light">Click "Generate New Routine" to get an AI-crafted daily wellness plan tailored to your health profile.</p>
-          </div>
-        )}
-
-        {routine?.tips && routine.tips.length > 0 && (
-          <div className="mt-4 p-4 bg-amber-50 border border-amber-100 rounded-xl">
-            <h4 className="text-xs font-bold text-amber-800 uppercase tracking-wider mb-2">💡 Coach's Tips</h4>
-            <ul className="space-y-1">
-              {routine.tips.map((tip, i) => (
-                <li key={i} className="text-xs text-amber-700 flex items-start gap-2">
-                  <span className="text-amber-500">•</span>
-                  {tip}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
-
-      {/* Ask the AI Coach */}
-      <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-        <div className="flex items-center gap-2 mb-4">
-          <Brain className="w-5 h-5 text-indigo-600" />
-          <h3 className="font-display font-semibold text-slate-800">Ask Your AI Wellness Coach</h3>
-        </div>
-
-        <form onSubmit={handleAskCoach} className="flex gap-3">
-          <input
-            type="text"
-            value={coachMessage}
-            onChange={(e) => setCoachMessage(e.target.value)}
-            placeholder="Ask anything about sleep, stress, fitness, nutrition..."
-            className="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-indigo-400 rounded-lg text-xs text-slate-700 placeholder-slate-400 outline-none transition-all"
-          />
-          <button
-            type="submit"
-            disabled={coachLoading || !coachMessage.trim()}
-            className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-2"
-          >
-            <Send className="w-3.5 h-3.5" />
-            Ask
-          </button>
-        </form>
-
-        {coachLoading && (
-          <div className="mt-4 p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-3">
-            <div className="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center">
-              <Brain className="w-3.5 h-3.5 text-indigo-600 animate-pulse" />
-            </div>
-            <span className="text-xs text-slate-500">AI Coach is analyzing your query...</span>
-          </div>
-        )}
-
-        {coachResponse && !coachLoading && (
-          <div className="mt-4 p-4 bg-indigo-50 border border-indigo-100 rounded-xl">
-            <div className="flex items-start gap-3">
-              <div className="w-7 h-7 bg-indigo-600 rounded-full flex items-center justify-center shrink-0">
-                <Brain className="w-3.5 h-3.5 text-white" />
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-indigo-800 mb-1">AI Wellness Coach</p>
-                <p className="text-xs text-slate-700 leading-relaxed">{coachResponse}</p>
-              </div>
-            </div>
+          <div className="text-center py-8 text-slate-400 dark:text-slate-500 font-mono text-xs">
+            Click "Generate New Routine" for an AI-customized daily routine.
           </div>
         )}
       </div>
@@ -1426,93 +571,195 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
 // ==========================================
 // CORE COMPONENT: USER DASHBOARD
 // ==========================================
-export default function UserDashboard({ user,
+export default function UserDashboard({
+  user,
   onLogout,
-  healthRecords,
+  healthRecords = [],
   risks = [],
   onAddRecord,
   onUpdateUserRecord,
-  dailyHabits, // New prop
-  onAddDailyHabit, // New prop
-  onUpdateDailyHabit, // New prop
-  mentalHealthLogs, // New prop
-  onAddHealthRecord, // Added onAddHealthRecord prop
+  dailyHabits = [],
+  onAddDailyHabit,
+  onUpdateDailyHabit,
+  mentalHealthLogs = [],
+  onAddHealthRecord,
   onAddMentalHealthLog,
   onUpdateMentalHealthLog,
-  onUpdateSentimentPulse, 
-  recommendations= [],
+  onUpdateSentimentPulse,
+  recommendations = [],
   loading = false,
   isProfileModalOpen,
   setIsProfileModalOpen,
   onUpdateAvatar,
   onUserUpdate
 }) {
-
   const [activeTab, setActiveTab] = useState(7);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Find recommendations for the current user
-  const userRecommendations = recommendations.find(rec => rec.employeeId === user.employeeId)?.recommendations || [];
+  const [playingVideo, setPlayingVideo] = useState(null); // { url, category, severity }
+  const userRecommendations = recommendations.find(rec => rec.employeeId === user?.employeeId)?.recommendations || [];
+
+  // Handler: opens video modal with metadata for auto-fallback
+  const handlePlayVideo = useCallback((videoUrl, category, severity) => {
+    if (videoUrl) {
+      setPlayingVideo({ url: videoUrl, category, severity });
+    }
+  }, []);
+
+  // Greeting helper
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 18) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+
+  const currentDateFormatted = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
+
+  const firstName = user?.name ? user.name.split(' ')[0] : 'Sudip';
+
+  const navTabs = [
+    { id: 7, label: 'My Wellness Profile', icon: User, desc: 'Health vitals & personalized trackers' },
+    { id: 3, label: 'Personalized Recommender', icon: Lightbulb, desc: 'Fitness, diet & wellness routines' },
+    { id: 14, label: 'AI Wellness Coach', icon: Brain, desc: 'Daily AI insights & routine engine' },
+    { id: 8, label: 'My Insurance', icon: ShieldCheck, desc: 'Coverage details & file claims' },
+    { id: 9, label: 'Diet Plans', icon: Utensils, desc: 'AI-generated meal schedules' },
+    { id: 10, label: 'My Goals', icon: Target, desc: 'Track achievements & badges' },
+    { id: 11, label: 'Health Reports', icon: FileDown, desc: 'PDF downloads & history log' },
+    { id: 12, label: 'Checkups & SOS', icon: CalendarCheck, desc: 'Schedule checkups & SOS' },
+    { id: 13, label: 'Expenses', icon: Receipt, desc: 'Track health expense claims' },
+  ];
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans">
-      {/* Platform Header */}
-      <header className="bg-white border-b border-slate-200 text-slate-800 px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center">
-            <div className="w-4 h-4 bg-white rounded-sm rotate-45"></div>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col font-sans transition-colors duration-300">
+      
+      {/* Video Player Modal */}
+      <AnimatePresence>
+        {playingVideo && (
+          <VideoPlayerModal 
+            videoUrl={playingVideo.url} 
+            category={playingVideo.category}
+            riskLabel={playingVideo.severity}
+            onClose={() => setPlayingVideo(null)} 
+          />
+        )}
+      </AnimatePresence>
+      
+      {/* 1. Header with Page Icon, Greeting, Date & Dark Mode Toggle */}
+      <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-700 px-4 md:px-8 py-3.5 flex items-center justify-between transition-colors">
+        
+        {/* Left: Mobile Menu Toggle & App Logo / Greeting */}
+        <div className="flex items-center gap-3 md:gap-5">
+          {/* Mobile Hamburger Toggle */}
+          <button
+            type="button"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="lg:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+            aria-label="Toggle menu"
+          >
+            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+
+          {/* Logo & Brand Title */}
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center">
+              {/* Admin Dashboard's icon structure */}
+              <div className="w-4 h-4 bg-white rounded-sm rotate-45"></div>
+            </div>
+            <div className="hidden sm:block">
+              <span className="font-display font-bold text-base tracking-tight block text-slate-900 dark:text-slate-50 leading-none">
+                Employee Wellness Management Analytics
+              </span>
+              <span className="text-[10px] text-slate-400 dark:text-slate-400 font-mono uppercase tracking-widest font-semibold mt-1 block">
+                Wellness Intelligence
+              </span>
+            </div>
           </div>
-          <div>
-            <span className="font-display font-bold text-lg tracking-tight block text-slate-900 leading-tight">Employee Wellness Management Analytics</span>
-            <span className="text-[10px] text-slate-400 font-bold tracking-widest uppercase font-mono">Wellness Intelligence</span>
+
+          <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden md:block" />
+
+          {/* User Greeting & Date Header */}
+          <div className="hidden md:block">
+            <h2 className="font-display font-semibold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
+              {getGreeting()}, {firstName} 👋
+            </h2>
+            <p className="text-[11px] text-slate-400 dark:text-slate-400 font-mono flex items-center gap-1 mt-0.5">
+              <Calendar className="w-3 h-3 text-blue-500" />
+              {currentDateFormatted}
+            </p>
           </div>
         </div>
 
-        {/* User Info & Actions */}
-        <div className="flex items-center md:justify-end gap-4">
-          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setIsProfileModalOpen(true)}>
+        {/* Right: Actions, ThemeToggle, Notification Bell, User Avatar & Logout */}
+        <div className="flex items-center gap-3 sm:gap-4">
+          
+          {/* Dark Mode Toggle */}
+          <ThemeToggle />
+
+          {/* Notification Bell */}
+          <NotificationBell user={user} />
+
+          <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block" />
+
+          {/* User Profile Info Trigger */}
+          <div
+            className="flex items-center gap-3 cursor-pointer group p-1 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-all"
+            onClick={() => setIsProfileModalOpen(true)}
+            title="Edit Profile"
+          >
             <div className="hidden sm:block text-right">
-              <span className="block text-sm font-semibold text-slate-800 leading-tight">{user.name}</span>
-              <span className="block text-[10px] text-slate-400 font-mono mt-0.5">{user.employeeId}</span>
-              <span className="inline-block mt-1 px-2 py-0.5 bg-slate-50 border border-slate-200 text-slate-500 text-[9px] font-mono font-bold rounded uppercase tracking-widest leading-none">
+              <span className="block text-xs font-bold text-slate-800 dark:text-slate-100 leading-tight group-hover:text-blue-600 transition-colors">
+                {user.name}
+              </span>
+              <span className="block text-[10px] text-slate-400 font-mono">
+                {user.employeeId}
+              </span>
+              <span className="inline-block mt-1 px-2 py-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[9px] font-mono font-bold rounded uppercase tracking-widest leading-none">
                 Employee
               </span>
-          </div>
+            </div>
+
             {user.avatarUrl ? (
               <img
                 src={user.avatarUrl}
                 alt={user.name}
                 referrerPolicy="no-referrer"
-                className="w-9 h-9 rounded-full border border-slate-200 shadow-md object-cover"
+                className="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-700 shadow-md object-cover"
               />
             ) : (
-              <div className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-sm text-slate-700">
-                {user.name.substring(0, 2).toUpperCase()}
+              <div className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center font-bold text-sm text-slate-700 dark:text-slate-200">
+                {user.name ? user.name.substring(0, 2).toUpperCase() : 'SU'}
               </div>
             )}
           </div>
 
-          <NotificationBell user={user} />
-
-          <div className="h-8 w-px bg-slate-200 hidden sm:block" />
-
+          {/* Logout Button */}
           <button
+            type="button"
             onClick={onLogout}
-            className="flex items-center gap-2 px-3.5 py-1.5 bg-slate-50 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg text-xs font-semibold text-slate-500 hover:text-rose-600 transition-all cursor-pointer shadow-sm"
+            className="flex items-center gap-2 px-3 py-2 bg-slate-100 hover:bg-rose-50 dark:bg-slate-800 dark:hover:bg-rose-950/40 border border-slate-200/80 dark:border-slate-700 text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 rounded-xl transition-all duration-200 cursor-pointer shadow-sm text-xs font-semibold"
+            title="Log Out"
           >
             <LogOut className="w-4 h-4" />
-            Logout
+            <span className="hidden sm:inline">Logout</span>
           </button>
         </div>
       </header>
 
+      {/* Edit Profile Modal */}
       {isProfileModalOpen && (
         <ProfileEditModal
           user={user}
           isAdmin={false}
           onClose={() => setIsProfileModalOpen(false)}
           onUpdated={(updatedUser) => {
-            // This part is handled by onUpdateAvatar, but we can refresh if needed
             if (updatedUser) onUserUpdate(updatedUser);
             if (updatedUser) {
               localStorage.setItem('wellness_current_user', JSON.stringify(updatedUser));
@@ -1523,109 +770,195 @@ export default function UserDashboard({ user,
       )}
 
       {/* Main Workspace Layout */}
-      <div className="flex-1 flex flex-col lg:flex-row">
+      <div className="flex-1 flex overflow-hidden">
 
-        {/* Navigation Sidebar */}
-        <aside className="w-full lg:w-72 bg-slate-50 border-b lg:border-b-0 lg:border-r border-slate-200 p-5 space-y-5 shrink-0">
-          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-3">
-            Wellness Modules
-          </div>
-
-          <nav className="space-y-1">
-            {[
-              { id: 7, label: 'My Wellness Profile', icon: User, desc: 'Your health stats & personalized trackers' },
-              { id: 3, label: 'Personalized Recommender', icon: Lightbulb, desc: 'Fitness, diets, wellness schedules' },
-              { id: 14, label: 'AI Wellness Coach', icon: Brain, desc: 'Daily insights & routines from AI' },
-              { id: 8, label: 'My Insurance', icon: ShieldCheck, desc: 'View coverage & file claims' },
-              { id: 9, label: 'Diet Plans', icon: Utensils, desc: 'AI-generated meal plans' },
-              { id: 10, label: 'My Goals', icon: Target, desc: 'Track achievements & badges' },
-              { id: 11, label: 'Health Reports', icon: FileDown, desc: 'Download PDF & history' },
-              { id: 12, label: 'Checkups & SOS', icon: CalendarCheck, desc: 'Book checkups, emergency SOS' },
-              { id: 13, label: 'Expenses', icon: Receipt, desc: 'Track health expense claims' },
-            ].map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`w-full text-left p-3.5 rounded-lg flex items-start gap-3.5 transition-all cursor-pointer border ${
-                    isActive
-                      ? 'bg-white border-slate-200 text-indigo-600 shadow-sm font-semibold'
-                      : 'hover:bg-slate-100 border-transparent text-slate-500'
-                  }`}
-                >
-                  <Icon className={`w-5 h-5 shrink-0 mt-0.5 ${isActive ? 'text-indigo-600' : 'text-slate-400'}`} />
-                  <div>
-                    <div className="text-xs font-bold">{tab.label}</div>
-                    <div className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">{tab.desc}</div>
-                  </div>
-                </button>
-              );
-            })}
-          </nav>
-
-          {/* Quick Stats sidebar widget */}
-          <div className="pt-6 border-t border-slate-200 hidden lg:block">
-            <div className="bg-white border border-slate-200 rounded-xl p-4.5 relative overflow-hidden shadow-sm">
-              <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 font-mono">Health Index</div>
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-3xl font-display font-semibold text-slate-800">88%</span>
-                <span className="text-[10px] text-emerald-600 font-semibold font-mono">↑ 4%</span>
-              </div>
-              <div className="w-full bg-slate-100 h-1 rounded-full mt-3 overflow-hidden">
-                <div className="bg-indigo-600 h-full rounded-full" style={{ width: '88%' }} />
-              </div>
-              <p className="text-[10px] text-slate-400 mt-2.5 leading-relaxed font-sans">Synced in real-time with health records.</p>
+        {/* 2. Desktop Navigation Sidebar */}
+        <aside
+          className={`hidden lg:flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-700 transition-all duration-300 shrink-0 p-4 justify-between ${
+            isSidebarCollapsed ? 'w-20' : 'w-72'
+          }`}
+        >
+          <div className="space-y-4">
+            <div className="flex items-center justify-between px-2 py-1">
+              {!isSidebarCollapsed && (
+                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest font-mono">
+                  Modules Navigation
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer border border-slate-200 dark:border-slate-700"
+                title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+              >
+                {isSidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+              </button>
             </div>
+
+            <nav className="space-y-1.5">
+              {navTabs.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`w-full text-left p-3.5 rounded-lg flex items-start gap-3.5 transition-all cursor-pointer border ${
+                      isActive
+                        ? 'bg-indigo-50 border-indigo-100 text-indigo-900 font-semibold'
+                        : 'hover:bg-slate-50 border-transparent text-slate-500'
+                    }`}
+                  >
+                    <Icon className={`w-5 h-5 shrink-0 mt-0.5 ${isActive ? 'text-indigo-600' : 'text-slate-400'}`} />
+                    {!isSidebarCollapsed && (
+                      <div className="truncate">
+                        <div className="text-xs font-bold">{tab.label}</div>
+                        <div className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">
+                          {tab.desc}
+                        </div>
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </nav>
           </div>
+
+          {!isSidebarCollapsed && (
+            <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3.5 border border-slate-200/60 dark:border-slate-700/60">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono block mb-1">System Vitals</span>
+                <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                  Analytics Active
+                </div>
+                <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full mt-2 overflow-hidden">
+                  <div className="bg-emerald-500 h-full rounded-full" style={{ width: '92%' }} />
+                </div>
+              </div>
+            </div>
+          )}
         </aside>
 
-        {/* Module Content Stage */}
-        <main className="flex-1 p-6 md:p-8 overflow-y-auto">
-          {/* Active module display card header */}
-          <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
+        {/* Mobile Drawer Overlay */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="lg:hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <motion.aside
+                initial={{ x: '-100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '-100%' }}
+                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                className="w-72 bg-white dark:bg-slate-900 h-full p-5 space-y-4 shadow-2xl flex flex-col justify-between"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-100">
+                      Wellness Modules
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="p-1 text-slate-400 hover:text-slate-700"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <nav className="space-y-1.5">
+                    {navTabs.map((tab) => {
+                      const Icon = tab.icon;
+                      const isActive = activeTab === tab.id;
+                      return (
+                        <button
+                          key={tab.id}
+                          type="button"
+                          onClick={() => {
+                            setActiveTab(tab.id);
+                            setIsMobileMenuOpen(false);
+                          }}
+                          className={`w-full text-left p-3.5 rounded-lg flex items-start gap-3.5 transition-all cursor-pointer border ${
+                            isActive
+                              ? 'bg-indigo-50 border-indigo-100 text-indigo-900 font-semibold'
+                              : 'hover:bg-slate-50 border-transparent text-slate-500'
+                          }`}
+                        >
+                          <Icon className={`w-5 h-5 shrink-0 mt-0.5 ${isActive ? 'text-indigo-600' : 'text-slate-400'}`} />
+                          <div className="truncate">
+                            <div className="text-xs font-bold">{tab.label}</div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </nav>
+                </div>
+
+                <div className="pt-4 border-t border-slate-100 dark:border-slate-800 text-center">
+                  <button
+                    type="button"
+                    onClick={onLogout}
+                    className="w-full py-2.5 bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 rounded-xl text-xs font-semibold flex items-center justify-center gap-2"
+                  >
+                    <LogOut className="w-4 h-4" /> Log Out
+                  </button>
+                </div>
+              </motion.aside>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* 3. Main Workspace Canvas Stage */}
+        <main className="flex-1 p-4 md:p-8 overflow-y-auto">
+          {/* Active module title header */}
+          <div className="mb-6 pb-4 border-b border-slate-200/80 dark:border-slate-700 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-slate-50 border border-slate-200 rounded-md text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-3">
-                {activeTab === 7 ? 'Self-Service Portal' : activeTab === 3 ? 'Recommendation Engine' : activeTab === 14 ? 'AI Wellness Coach' : activeTab === 8 ? 'Insurance' : activeTab === 9 ? 'Nutrition' : activeTab === 10 ? 'Goal Tracking' : activeTab === 11 ? 'Reports' : activeTab === 12 ? 'Emergency Services' : 'Financial'}
-              </div>
-              <h1 className="font-display text-3xl font-semibold text-slate-800 tracking-tight">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800/60 rounded-md text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest font-mono mb-2">
+                {activeTab === 7 ? 'SaaS Portal' : activeTab === 3 ? 'AI Recommender' : activeTab === 14 ? 'AI Coach' : activeTab === 8 ? 'Insurance' : activeTab === 9 ? 'Nutrition' : activeTab === 10 ? 'Goals' : activeTab === 11 ? 'Reports' : activeTab === 12 ? 'Emergency' : 'Financial'}
+              </span>
+              <h1 className="font-display text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-50 tracking-tight">
                 {activeTab === 7 && 'My Personal Wellness Profile'}
-                {activeTab === 3 && 'Personalized Wellness Recommendation System'}
+                {activeTab === 3 && 'Personalized Wellness Recommender'}
                 {activeTab === 14 && 'AI Wellness Coach'}
-                {activeTab === 8 && 'My Insurance Coverage'}
-                {activeTab === 9 && 'AI-Generated Diet Plans'}
+                {activeTab === 8 && 'Insurance Coverage & Claims'}
+                {activeTab === 9 && 'AI Meal & Diet Plans'}
                 {activeTab === 10 && 'My Goals & Achievements'}
-                {activeTab === 11 && 'Health Reports & History'}
+                {activeTab === 11 && 'Health Reports & Timeline'}
                 {activeTab === 12 && 'Checkups & Emergency SOS'}
-                {activeTab === 13 && 'Expense Tracker'}
+                {activeTab === 13 && 'Health Expenses Tracker'}
               </h1>
-              <p className="text-slate-500 text-sm mt-2 max-w-2xl font-light">
-                {activeTab === 7 && 'Manage your personal health vitals, track daily habits, and submit secure mental health feedback.'}
+              <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 max-w-2xl font-light">
+                {activeTab === 7 && 'Track health vitals, monitor diagnostics analytics, daily hydration, steps, mood, and stress.'}
                 {activeTab === 3 && 'Tailored, evidence-based fitness routines, diet schedules, and mental wellbeing recommendations.'}
-                {activeTab === 14 && 'AI-powered daily wellness insights, personalized routines, and intelligent coaching based on your health data.'}
-                {activeTab === 8 && 'View your current insurance policy, coverage details, and file claims.'}
-                {activeTab === 9 && 'Personalized meal plans generated by AI based on your health profile and dietary preferences.'}
+                {activeTab === 14 && 'AI-powered daily wellness insights, personalized routines, and intelligent coaching.'}
+                {activeTab === 8 && 'View your current insurance policy, coverage details, and file health claims.'}
+                {activeTab === 9 && 'Personalized meal plans generated by AI based on your health profile.'}
                 {activeTab === 10 && 'Track your wellness goals, achievements, and earn recognition badges.'}
-                {activeTab === 11 && 'Download health reports as PDF and view your complete health history timeline.'}
-                {activeTab === 12 && 'Schedule health checkups and trigger emergency SOS alerts if needed.'}
+                {activeTab === 11 && 'Download health reports as PDF and view your complete history.'}
+                {activeTab === 12 && 'Schedule health checkups and trigger emergency SOS alerts.'}
                 {activeTab === 13 && 'Track and manage your health-related expenses.'}
               </p>
             </div>
           </div>
 
-          {/* Render Active Tab Component */}
-          <div className="animate-fadeIn">
+          {/* Active Tab View */}
+          <div>
             {activeTab === 7 && (
               <UserProfileModule
                 user={user}
                 records={healthRecords}
                 risks={risks}
-                dailyHabits={dailyHabits} // Pass new state
-                onAddDailyHabit={onAddDailyHabit} // Pass new handler
-                onUpdateDailyHabit={onUpdateDailyHabit} // Pass new handler
-                mentalHealthLogs={mentalHealthLogs} // Pass new state
-                onAddRecord={onAddRecord || onAddHealthRecord} // Pass to UserProfileModule
+                dailyHabits={dailyHabits}
+                onAddDailyHabit={onAddDailyHabit}
+                onUpdateDailyHabit={onUpdateDailyHabit}
+                mentalHealthLogs={mentalHealthLogs}
+                onAddRecord={onAddRecord || onAddHealthRecord}
                 onAddMentalHealthLog={onAddMentalHealthLog}
                 onUpdateMentalHealthLog={onUpdateMentalHealthLog}
                 onUpdateRecord={onUpdateUserRecord}
@@ -1634,7 +967,7 @@ export default function UserDashboard({ user,
             )}
 
             {activeTab === 3 && (
-              <RecommendationModule recommendations={userRecommendations} loading={loading} />
+              <RecommendationModule recommendations={userRecommendations} loading={loading} onPlayVideo={handlePlayVideo} />
             )}
 
             {activeTab === 8 && (
@@ -1671,33 +1004,32 @@ export default function UserDashboard({ user,
         </main>
       </div>
 
-      {/* Floating AI Wellness Assistant Button and Popover (Only for User Module) */}
+      {/* Floating AI Chat Assistant Widget */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
         {isChatOpen && (
-          <div className="w-[380px] sm:w-[420px] max-w-[calc(100vw-2rem)] h-[520px] shadow-2xl rounded-2xl border border-slate-200 bg-white overflow-hidden flex flex-col transition-all duration-300 animate-fadeIn">
-            {/* Header with Close button */}
-            <div className="p-4 bg-slate-50 border-b border-slate-200 text-slate-800 flex items-center justify-between shrink-0">
+          <div className="w-[380px] sm:w-[420px] max-w-[calc(100vw-2rem)] h-[520px] shadow-2xl rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden flex flex-col transition-all duration-300">
+            <div className="p-3.5 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center text-white font-bold">
-                  <Bot className="w-4 h-4 text-white" />
+                <div className="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center text-white">
+                  <Bot className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="text-xs font-bold flex items-center gap-1.5 text-slate-800 font-sans">
-                    Wellness Intelligent Agent
-                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                  <div className="text-xs font-bold flex items-center gap-1.5 text-slate-800 dark:text-slate-100">
+                    AI Wellness Agent
+                    <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
                   </div>
-                  <div className="text-[10px] text-slate-400 font-mono">Continuous Learning Active</div>
+                  <div className="text-[10px] text-slate-400 font-mono">Real-time Coaching</div>
                 </div>
               </div>
               <button
+                type="button"
                 onClick={() => setIsChatOpen(false)}
-                className="p-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-lg text-slate-500 hover:text-slate-800 transition-all cursor-pointer animate-fadeIn"
+                className="p-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-500 dark:text-slate-400"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Chatbot module body */}
             <div className="flex-1 overflow-hidden">
               <ChatbotModule user={user} isFloating={true} />
             </div>
@@ -1705,19 +1037,21 @@ export default function UserDashboard({ user,
         )}
 
         <button
+          type="button"
           onClick={() => setIsChatOpen(!isChatOpen)}
-          className={`w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 shadow-xl cursor-pointer hover:scale-105 active:scale-95 ${
+          className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-xl cursor-pointer hover:scale-105 active:scale-95 ${
             isChatOpen
-              ? 'bg-slate-900 border border-slate-800 text-white'
-              : 'bg-indigo-600 text-white hover:bg-indigo-700'
+              ? 'bg-slate-900 dark:bg-slate-800 text-white'
+              : 'bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-blue-500/25'
           }`}
+          title="Toggle AI Assistant"
         >
           {isChatOpen ? (
-            <X className="w-6 h-6 animate-fadeIn" />
+            <X className="w-6 h-6" />
           ) : (
             <div className="relative">
               <Bot className="w-6 h-6" />
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full border border-white animate-pulse" />
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-900 animate-pulse" />
             </div>
           )}
         </button>

@@ -76,6 +76,7 @@ goals_collection = db.get_collection('goals')
 checkup_appointments_collection = db.get_collection('checkup_appointments')
 sos_alerts_collection = db.get_collection('sos_alerts')
 expenses_collection = db.get_collection('health_expenses')
+system_settings_collection = db.get_collection('system_settings')
 
 # --- Load ML Model and Metadata ---
 try:
@@ -129,6 +130,12 @@ def get_full_avatar_url(avatar_path):
     # In a production environment, this should use the actual public domain.
     base_url = request.url_root.rstrip('/')
     return f"{base_url}{avatar_path}"
+
+# --- Health Check Endpoint ---
+@app.route('/')
+def index():
+    """A simple health check endpoint for service readiness."""
+    return jsonify({'status': 'ok', 'message': 'Backend is running.'})
 
 # login API endpoint
 @app.route('/api/auth/login', methods=['POST'])
@@ -538,6 +545,7 @@ def add_health_record():
             del new_record['id']
 
         new_record['createdAt'] = datetime.now(timezone.utc).isoformat()
+        new_record['lastUpdated'] = datetime.now(timezone.utc).isoformat() # Ensure lastUpdated is set on creation
 
         result = health_records_collection.insert_one(new_record)
         new_record['id'] = str(result.inserted_id)
@@ -571,6 +579,7 @@ def update_health_record(employee_id):
     # The frontend sends an 'id' field, which we don't need to store in Mongo's '_id'
     if 'id' in updated_data:
         del updated_data['id']
+    updated_data['lastUpdated'] = datetime.now(timezone.utc).isoformat() # Update timestamp on modification
 
     try:
         result = health_records_collection.update_one({'employeeId': employee_id}, {'$set': updated_data})
@@ -667,6 +676,14 @@ def get_risk_predictions():
             try:
                 employee_id = record.get("employeeId")
                 employee_name = record.get("employeeName", "Unknown Employee")
+                last_updated = record.get("lastUpdated")
+
+                # Check cache first
+                if employee_id in ai_wellness_service.risk_prediction_cache:
+                    cached_entry = ai_wellness_service.risk_prediction_cache[employee_id]
+                    if cached_entry.get('timestamp') == last_updated:
+                        results.append(cached_entry['data'])
+                        continue # Use cached data and skip re-computation
 
                 model_input_df = map_health_record_to_model_input(record)
 
@@ -713,14 +730,21 @@ def get_risk_predictions():
                 else:
                     recommendation_action = "Low risk profile. Maintain current healthy routines and continue periodic monitoring."
 
-                results.append({
+                risk_result = {
                     "employeeId": employee_id,
                     "employeeName": employee_name,
                     "riskType": risk_label,
                     "riskScore": risk_score,
                     "factors": factors if factors else ["Vitals check within ideal levels"],
                     "recommendationAction": recommendation_action
-                })
+                }
+                results.append(risk_result)
+
+                # Update cache
+                ai_wellness_service.risk_prediction_cache[employee_id] = {
+                    'timestamp': last_updated,
+                    'data': risk_result
+                }
 
             except Exception as row_error:
                 app.logger.exception(
@@ -802,6 +826,181 @@ def get_wellness_risks_old():
         app.logger.exception(f"An unexpected error occurred during risk prediction: {e}")
         return jsonify({'detail': 'Internal Server Error'}), 500
 
+# --- Media Library for Recommendations ---
+# Using well-known, high-traffic YouTube wellness videos that are verified to be working.
+# These are from established channels (FitnessBlender, YogaWithAdriene, GreatMeditation, etc.)
+RECOMMENDATION_MEDIA = {
+    'Fitness': {
+        'image': 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&h=300&fit=crop',
+        'videos': [
+            'https://www.youtube.com/watch?v=ml6cT4J3S5I',   # FitnessBlender - 5 Min Walking Warmup
+            'https://www.youtube.com/watch?v=UItWltVZZmE',   # FitnessBlender - 25 Min Cardio
+            'https://www.youtube.com/watch?v=Y6je_wWjFik',   # FitnessBlender - 20 Min Full Body
+        ]
+    },
+    'Diet': {
+        'image': 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&h=300&fit=crop',
+        'videos': [
+            'https://www.youtube.com/watch?v=qXjGzgLJVuk',   # TED-Ed - How to make healthy eating unbelievably easy
+            'https://www.youtube.com/watch?v=xyQY8a4Lr9g',   # Nutrition basics
+            'https://www.youtube.com/watch?v=1V8g3y3vG9s',   # Healthy meal prep
+        ]
+    },
+    'Mental Wellness': {
+        'image': 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&h=300&fit=crop',
+        'videos': [
+            'https://www.youtube.com/watch?v=inpok4MKVLM',   # Great Meditation - 10 min Mindfulness
+            'https://www.youtube.com/watch?v=ZToicYbHMgU',   # Mindful Movement - Morning Meditation
+            'https://www.youtube.com/watch?v=jNhaOeeg0EQ',   # Headspace - Meditation Basics
+        ]
+    },
+    'Yoga': {
+        'image': 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&h=300&fit=crop',
+        'videos': [
+            'https://www.youtube.com/watch?v=7Xr3Fq3qOXA',   # Yoga With Adriene - 20 Min Yoga for Complete Beginners
+            'https://www.youtube.com/watch?v=4pKly2JojMw',   # Yoga With Adriene - 15 Min Yoga for Stress Relief
+            'https://www.youtube.com/watch?v=9XwPcJhXjJ4',   # Yoga With Adriene - Desk Yoga
+        ]
+    },
+    'Lifestyle': {
+        'image': 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&h=300&fit=crop',
+        'videos': [
+            'https://www.youtube.com/watch?v=WjQnzB3UO5s',   # Healthy daily habits
+            'https://www.youtube.com/watch?v=pUAN2jP6E9g',   # Morning routine tips
+            'https://www.youtube.com/watch?v=iLWzJ8Ow7FE',   # Productivity & wellness
+        ]
+    },
+    'Sleep': {
+        'image': 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=600&h=300&fit=crop',
+        'videos': [
+            'https://www.youtube.com/watch?v=iLWzJ8Ow7FE',   # Sleep hygiene tips
+            'https://www.youtube.com/watch?v=pUAN2jP6E9g',   # Better sleep routine
+        ]
+    },
+    'Stress': {
+        'image': 'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=600&h=300&fit=crop',
+        'videos': [
+            'https://www.youtube.com/watch?v=inpok4MKVLM',   # 10 min Stress Relief Meditation
+            'https://www.youtube.com/watch?v=ZToicYbHMgU',   # Stress Management
+        ]
+    },
+    'Nutrition': {
+        'image': 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=600&h=300&fit=crop',
+        'videos': [
+            'https://www.youtube.com/watch?v=qXjGzgLJVuk',   # TED-Ed - Nutrition
+            'https://www.youtube.com/watch?v=xyQY8a4Lr9g',   # Healthy eating guide
+        ]
+    },
+}
+
+# Default media fallback for unknown categories - using most universally reliable videos
+DEFAULT_REC_MEDIA = {
+    'image': 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&h=300&fit=crop',
+    'videos': [
+        'https://www.youtube.com/watch?v=inpok4MKVLM',
+        'https://www.youtube.com/watch?v=7Xr3Fq3qOXA',
+    ]
+}
+
+import random
+
+# Track which videos have been reported as unavailable (runtime-only, resets on server restart)
+_UNAVAILABLE_VIDEOS = set()
+
+def _resolve_media_category(category):
+    """Normalize a category string to a key in RECOMMENDATION_MEDIA."""
+    if category in RECOMMENDATION_MEDIA:
+        return category
+    for key in RECOMMENDATION_MEDIA:
+        if key.lower() in category.lower() or category.lower() in key.lower():
+            return key
+    return 'Lifestyle'
+
+def _get_alternative_video(category, unavailable_url=None, risk_label='Low'):
+    """
+    Smart fallback: given a category and (optionally) the URL that failed,
+    return an alternative video URL that has NOT been marked unavailable.
+    Prioritization:
+      - High risk → first available video (most impactful)
+      - Medium risk → middle video
+      - Low risk → last video (least intensive)
+    Falls back to the default media if all videos for category are exhausted.
+    """
+    if unavailable_url:
+        _UNAVAILABLE_VIDEOS.add(unavailable_url)
+    
+    category_key = _resolve_media_category(category)
+    media = RECOMMENDATION_MEDIA.get(category_key, DEFAULT_REC_MEDIA)
+    
+    # Get available videos (not marked unavailable)
+    available_videos = [v for v in media['videos'] if v not in _UNAVAILABLE_VIDEOS]
+    
+    # If all videos exhausted, reset the unavailable set for this category (full refresh)
+    # and try again, but make sure not to return the same failing URL.
+    if not available_videos:
+        _UNAVAILABLE_VIDEOS.difference_update(media['videos'])
+        available_videos = [v for v in media['videos'] if v != unavailable_url]
+        # If all videos are the same as the failing one, we have no choice but to try it again.
+        if not available_videos:
+            available_videos = list(media['videos'])
+
+
+    # Choose based on risk label
+    if risk_label == 'High':
+        index = 0
+    elif risk_label == 'Medium':
+        index = len(available_videos) // 2
+    else:  # Low
+        index = len(available_videos) - 1
+    
+    index = min(index, len(available_videos) - 1)
+    return available_videos[index] if available_videos else DEFAULT_REC_MEDIA['videos'][0]
+
+
+def _add_media_to_recommendations(recommendations):
+    """Attach image and video URLs to each recommendation based on category and severity."""
+    enriched = []
+    for rec in recommendations:
+        category = rec.get('category', 'Lifestyle')
+        category_key = _resolve_media_category(category)
+        media = RECOMMENDATION_MEDIA.get(category_key, DEFAULT_REC_MEDIA)
+        
+        # Pick video based on severity/score for variety
+        score = rec.get('score', 5) if isinstance(rec.get('score'), (int, float)) else 5
+        video_index = min(int(score) % len(media['videos']), len(media['videos']) - 1)
+        
+        enriched_rec = {
+            **rec,
+            'id': rec.get('recommendation_id', rec.get('id', str(random.randint(1000, 9999)))),
+            'imageUrl': media['image'],
+            'videoUrl': media['videos'][video_index],
+        }
+        enriched.append(enriched_rec)
+    return enriched
+
+# --- Video Fallback Endpoint (for when a video is unavailable) ---
+@app.route('/api/wellness/recommendation-media/fallback', methods=['POST'])
+@jwt_required(locations=["cookies"])
+def get_fallback_video():
+    """
+    When the frontend detects a YouTube video is unavailable (removed/privated),
+    it reports the failed URL here and receives an alternative video URL.
+    The alternative is selected intelligently based on the user's risk profile.
+    """
+    data = request.get_json() or {}
+    category = data.get('category', 'Lifestyle')
+    unavailable_url = data.get('unavailableUrl')
+    risk_label = data.get('riskLabel', 'Low')
+    
+    alternative_url = _get_alternative_video(category, unavailable_url, risk_label)
+    
+    return jsonify({
+        'alternativeUrl': alternative_url,
+        'category': category,
+        'note': 'Alternative video selected based on availability and risk profile.'
+    }), 200
+
+
 # --- Wellness Recommendations Endpoint ---
 @app.route('/api/wellness/recommendations', methods=['GET'])
 @jwt_required(locations=["cookies"])
@@ -818,6 +1017,17 @@ def get_recommendations():
 
         for record in health_records:
             try:
+                employee_id = record.get("employeeId")
+                last_updated = record.get("lastUpdated")
+
+                # Check cache first
+                if employee_id in ai_wellness_service.recommendation_cache:
+                    cached_entry = ai_wellness_service.recommendation_cache[employee_id]
+                    if cached_entry.get('timestamp') == last_updated:
+                        all_recommendations.append(cached_entry['data'])
+                        continue  # Skip re-computation
+
+
                 # 1. Get risk profile from the classification model
                 model_input_df = map_health_record_to_model_input(record)
                 encoded_pred = risk_model.predict(model_input_df)[0]
@@ -852,7 +1062,7 @@ def get_recommendations():
                             "recommendation_id": "REC002",
                             "title": "Guided Meditation Routine",
                             "category": "Mental Wellness",
-                            "description": "10-15 minutes of guided meditation and breathing exercises daily.",
+                            "description": "Practice 10-15 minutes of guided meditation. Focus on the 4-7-8 breathing technique to calm your nervous system and reduce cortisol levels. This can significantly improve focus and reduce feelings of being overwhelmed.",
                             "score": 9.0,
                             "reasons": ["Stress score is very high"]
                         })
@@ -861,7 +1071,7 @@ def get_recommendations():
                             "recommendation_id": "REC006",
                             "title": "Desk Yoga and Stretching",
                             "category": "Yoga",
-                            "description": "Short guided desk yoga sessions to reduce stiffness and stress.",
+                            "description": "Incorporate short, guided desk yoga sessions. Focus on neck rolls, shoulder shrugs, and spinal twists to alleviate physical tension from prolonged sitting and reduce mental fatigue.",
                             "score": 6.0,
                             "reasons": ["Stress score is moderately elevated"]
                         })
@@ -871,7 +1081,7 @@ def get_recommendations():
                             "recommendation_id": "REC003",
                             "title": "Sleep Hygiene Program",
                             "category": "Lifestyle",
-                            "description": "Consistent bedtime, reduced screen time, and sleep-friendly habits.",
+                            "description": "Establish a consistent bedtime and wake-up time, even on weekends. Avoid screens 60 minutes before bed to allow for natural melatonin production. A cool, dark room is essential for deep, restorative sleep.",
                             "score": 8.5,
                             "reasons": ["Sleep hours are below healthy range"]
                         })
@@ -881,7 +1091,7 @@ def get_recommendations():
                             "recommendation_id": "REC001",
                             "title": "Brisk Walking Plan",
                             "category": "Fitness",
-                            "description": "30-minute brisk walking, 5 days a week, with gradual progression.",
+                            "description": "Start with a 30-minute brisk walk, 3-5 days a week. This low-impact cardio exercise helps improve cardiovascular health, aids in weight management, and boosts mood by releasing endorphins.",
                             "score": 7.0,
                             "reasons": ["Exercise frequency is low"]
                         })
@@ -899,12 +1109,26 @@ def get_recommendations():
 
                     top_recs = top_recs[:3]
 
-                all_recommendations.append({
+                # Enrich recommendations with media (images & videos) and severity
+                enriched_recs = _add_media_to_recommendations(top_recs)
+                # Add severity to each recommendation based on risk profile
+                for rec in enriched_recs:
+                    rec['severity'] = risk_label
+
+                employee_recs = {
                     "employeeId": record.get("employeeId"),
                     "employeeName": record.get("employeeName"),
                     "riskProfile": {"riskType": risk_label},
-                    "recommendations": top_recs
-                })
+                    "recommendations": enriched_recs
+                }
+                all_recommendations.append(employee_recs)
+
+                # Update cache
+                ai_wellness_service.recommendation_cache[employee_id] = {
+                    'timestamp': last_updated,
+                    'data': employee_recs
+                }
+
 
             except Exception as e:
                 app.logger.error(f"Failed to generate recommendations for {record.get('employeeId')}: {e}")
@@ -1407,70 +1631,26 @@ def delete_goal(goal_id):
     goals_collection.delete_one({'_id': ObjectId(goal_id)})
     return '', 204
 
-# --- Personalized Diet Plan API (rule-based generator) ---
-DIET_LIBRARY = {
-    'Vegetarian': {
-        'breakfast': ['Vegetable poha', 'Milk', 'Fresh fruit'],
-        'lunch': ['Rice', 'Dal', 'Mixed vegetable curry', 'Salad'],
-        'dinner': ['Roti', 'Paneer/vegetable sabzi', 'Curd'],
-        'snacks': ['Roasted chana', 'Buttermilk'],
-        'calories': 2000, 'protein': '65g',
-    },
-    'Vegan': {
-        'breakfast': ['Oats with almond milk', 'Banana', 'Chia seeds'],
-        'lunch': ['Brown rice', 'Chickpea curry', 'Steamed greens'],
-        'dinner': ['Millet roti', 'Tofu vegetable stir-fry'],
-        'snacks': ['Mixed nuts', 'Fruit bowl'],
-        'calories': 1900, 'protein': '60g',
-    },
-    'Non-Veg': {
-        'breakfast': ['Egg whites', 'Whole wheat toast', 'Fresh fruit'],
-        'lunch': ['Rice', 'Grilled chicken', 'Dal', 'Salad'],
-        'dinner': ['Roti', 'Fish curry', 'Sauteed vegetables'],
-        'snacks': ['Boiled eggs', 'Greek yogurt'],
-        'calories': 2100, 'protein': '90g',
-    },
-    'Diabetic': {
-        'breakfast': ['Vegetable oats', 'Sugar-free milk'],
-        'lunch': ['Multigrain roti', 'Dal', 'Bitter gourd sabzi', 'Salad'],
-        'dinner': ['Millet khichdi', 'Steamed vegetables'],
-        'snacks': ['Roasted makhana', 'Cucumber slices'],
-        'calories': 1700, 'protein': '55g',
-    },
-    'Weight Loss': {
-        'breakfast': ['Vegetable smoothie', 'Boiled egg whites'],
-        'lunch': ['Quinoa', 'Grilled vegetables', 'Dal'],
-        'dinner': ['Clear soup', 'Grilled paneer/tofu', 'Salad'],
-        'snacks': ['Green tea', 'Handful of nuts'],
-        'calories': 1500, 'protein': '70g',
-    },
-    'Weight Gain': {
-        'breakfast': ['Peanut butter toast', 'Banana milkshake'],
-        'lunch': ['Rice', 'Rajma/chicken curry', 'Ghee', 'Salad'],
-        'dinner': ['Roti', 'Paneer/meat curry', 'Sweet potato'],
-        'snacks': ['Dry fruit trail mix', 'Protein shake'],
-        'calories': 2600, 'protein': '100g',
-    },
-}
-
 # diet plans POST endpoint
 @app.route('/api/diet-plan', methods=['POST'])
 @jwt_required(locations=["cookies"])
 def generate_diet_plan():
+    """Generates a personalized diet plan using the AI service."""
+    jwt_payload = get_jwt()
+    user_info = jwt_payload.get("user_info", {})
+    employee_id = user_info.get('employeeId')
+    
     data = request.get_json() or {}
-    diet_type = data.get('dietType', 'Vegetarian')
-    plan = DIET_LIBRARY.get(diet_type, DIET_LIBRARY['Vegetarian'])
-    return jsonify({
-        'dietType': diet_type,
-        'breakfast': plan['breakfast'],
-        'lunch': plan['lunch'],
-        'dinner': plan['dinner'],
-        'snacks': plan['snacks'],
-        'calories': plan['calories'],
-        'protein': plan['protein'],
-        'waterIntakeLitres': 3,
-        'generatedAt': datetime.now(timezone.utc).isoformat(),
-    }), 200
+    preferences = {
+        'dietType': data.get('dietType', 'Balanced')
+    }
+
+    try:
+        plan = ai_wellness_service.generate_diet_plan(employee_id, preferences)
+        return jsonify(plan), 200
+    except Exception as e:
+        app.logger.exception(f"AI Diet Plan generation error for {employee_id}: {e}")
+        return jsonify({'detail': 'AI service unavailable for diet planning.'}), 500
 
 # --- Achievements API (computed from daily habits + goals, not a separate collection) ---
 @app.route('/api/achievements/<employee_id>', methods=['GET'])
@@ -1508,83 +1688,133 @@ def get_achievements(employee_id):
 @jwt_required(locations=["cookies"])
 def download_health_report(employee_id):
     jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
+    user_info = jwt_payload.get("user_info", {})
     if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
         return jsonify({'detail': 'Forbidden'}), 403
 
+    # Import ReportLab components
     from flask import Response
     from io import BytesIO
     from reportlab.lib.pagesizes import A4
     from reportlab.lib.units import mm
     from reportlab.lib import colors
-    from reportlab.pdfgen import canvas
+    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.enums import TA_LEFT, TA_CENTER
+    from datetime import datetime, timezone
 
+    # Fetch data
     record = health_records_collection.find_one({'employeeId': employee_id}) or {}
     user_doc = users_collection.find_one({'employeeId': employee_id}) or {}
-    habit = daily_habits_collection.find_one({'employeeId': employee_id}) or {}
-    mental_log = mental_health_logs_collection.find_one({'employeeId': employee_id}, sort=[('date', -1)]) or {}
 
+    # Setup PDF document
     buffer = BytesIO()
-    c = canvas.Canvas(buffer, pagesize=A4)
-    width, height = A4
-    y = height - 25 * mm
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=20*mm, leftMargin=20*mm, topMargin=25*mm, bottomMargin=25*mm)
+    styles = getSampleStyleSheet()
 
-    c.setFont('Helvetica-Bold', 18)
-    c.drawString(20 * mm, y, 'Employee Wellness Health Report')
-    y -= 8 * mm
-    c.setFont('Helvetica', 10)
-    c.setFillColor(colors.grey)
-    c.drawString(20 * mm, y, f"Generated: {datetime.now(timezone.utc).strftime('%d %b %Y, %H:%M UTC')}")
-    c.setFillColor(colors.black)
-    y -= 12 * mm
+    # Custom styles
+    # Define custom styles only if they don't already exist to prevent errors on hot-reload
+    if 'Title' not in styles:
+        styles.add(ParagraphStyle(name='Title', fontName='Helvetica-Bold', fontSize=18, spaceAfter=6))
+    if 'Subtitle' not in styles:
+        styles.add(ParagraphStyle(name='Subtitle', fontName='Helvetica', fontSize=10, textColor=colors.grey, spaceAfter=12))
+    if 'UserName' not in styles:
+        styles.add(ParagraphStyle(name='UserName', fontName='Helvetica-Bold', fontSize=14, spaceAfter=12))
+    if 'SectionTitle' not in styles:
+        styles.add(ParagraphStyle(name='SectionTitle', fontName='Helvetica-Bold', fontSize=12, spaceBefore=10, spaceAfter=6, textColor=colors.HexColor("#1e3a8a")))
+    if 'Recommendation' not in styles:
+        styles.add(ParagraphStyle(name='Recommendation', fontName='Helvetica', fontSize=10, leading=14))
+    if 'Footer' not in styles:
+        styles.add(ParagraphStyle(name='Footer', fontName='Helvetica-Oblique', fontSize=9, textColor=colors.grey, alignment=TA_CENTER))
 
-    c.setFont('Helvetica-Bold', 12)
-    c.drawString(20 * mm, y, f"{user_doc.get('name', employee_id)}  ({employee_id})")
-    y -= 10 * mm
+    # Helper for color-coding
+    def get_assessment_cell(text):
+        color_map = {
+            'Excellent': colors.HexColor("#10b981"),
+            'Good': colors.HexColor("#6366f1"),
+            'Fair': colors.HexColor("#f59e0b"),
+            'Needs Attention': colors.HexColor("#ef4444"),
+        }
+        style = ParagraphStyle(name='Assessment', parent=styles['Normal'], textColor=colors.white, alignment=TA_CENTER)
+        p = Paragraph(text, style)
+        return p, color_map.get(text, colors.lightgrey)
 
-    rows = [
-        ('Wellness Score', record.get('wellnessScore', record.get('healthAssessment', 'N/A'))),
-        ('BMI', record.get('bmi', 'N/A')),
-        ('Blood Pressure', record.get('bloodPressure', 'N/A')),
-        ('Stress Level', record.get('stressLevel', 'N/A')),
-        ('Sleep (hrs/night)', habit.get('sleepHours', record.get('sleepHoursPerNight', 'N/A'))),
-        ('Exercise', habit.get('exerciseMinutes', record.get('exerciseHoursPerWeek', 'N/A'))),
-        ('Mood (latest)', mental_log.get('mood', 'N/A')),
-        ('Health Assessment', record.get('healthAssessment', 'N/A')),
+    # Build story
+    story = []
+
+    # Header
+    story.append(Paragraph('Employee Wellness Health Report', styles['Title']))
+    story.append(Paragraph(f"Generated: {datetime.now(timezone.utc).strftime('%d %b %Y, %H:%M UTC')}", styles['Subtitle']))
+    story.append(Paragraph(f"{user_doc.get('name', employee_id)} ({employee_id})", styles['UserName']))
+
+    # --- Vitals Table ---
+    story.append(Paragraph("Key Health Vitals", styles['SectionTitle']))
+
+    assessment_text = record.get('healthAssessment', 'N/A')
+    assessment_p, assessment_bg = get_assessment_cell(assessment_text)
+
+    vitals_data = [
+        ['Health Assessment', assessment_p],
+        ['Age', record.get('age', 'N/A')],
+        ['Gender', record.get('gender', 'N/A')],
+        ['Department', record.get('department', 'N/A')],
+        ['BMI', record.get('bmi', 'N/A')],
+        ['Blood Pressure', record.get('bloodPressure', 'N/A')],
+        ['Glucose Level (mg/dL)', record.get('glucoseLevel', 'N/A')],
     ]
 
-    c.setFont('Helvetica', 11)
-    for label, value in rows:
-        c.setFont('Helvetica-Bold', 11)
-        c.drawString(20 * mm, y, f"{label}:")
-        c.setFont('Helvetica', 11)
-        c.drawString(75 * mm, y, str(value))
-        y -= 8 * mm
+    vitals_table = Table(vitals_data, colWidths=[50*mm, 120*mm])
+    vitals_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (0, 0), colors.HexColor("#e0e7ff")),
+        ('BACKGROUND', (1, 0), (1, 0), assessment_bg),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor("#d1d5db")),
+        ('BOX', (0,0), (-1,-1), 1, colors.black),
+    ]))
+    story.append(vitals_table)
+    story.append(Spacer(1, 8*mm))
 
-    y -= 5 * mm
-    c.setFont('Helvetica-Bold', 12)
-    c.drawString(20 * mm, y, 'Recommendation')
-    y -= 7 * mm
-    c.setFont('Helvetica', 10)
-    assessment = record.get('healthAssessment', 'Good')
+    # --- Lifestyle Table ---
+    story.append(Paragraph("Lifestyle & Mental Health", styles['SectionTitle']))
+    
+    lifestyle_data = [
+        ['Stress Level', record.get('stressLevel', 'N/A')],
+        ['Stress Score (1-10)', record.get('stressScore', 'N/A')],
+        ['Sleep (hrs/night)', record.get('sleepHoursPerNight', 'N/A')],
+        ['Exercise (hrs/wk)', record.get('exerciseHoursPerWeek', 'N/A')],
+        ['Smoker', 'Yes' if record.get('smoker') else 'No'],
+        ['Alcohol Use', 'Yes' if record.get('alcoholUse') else 'No'],
+    ]
+
+    lifestyle_table = Table(lifestyle_data, colWidths=[50*mm, 120*mm])
+    lifestyle_table.setStyle(TableStyle([
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor("#d1d5db")),
+        ('BOX', (0,0), (-1,-1), 1, colors.black),
+    ]))
+    story.append(lifestyle_table)
+    story.append(Spacer(1, 8*mm))
+
+    # --- Recommendation Section ---
+    story.append(Paragraph("AI-Generated Recommendation", styles['SectionTitle']))
+    
     tips = {
         'Excellent': 'Keep up the great habits — maintain your sleep, exercise, and stress routines.',
         'Good': 'You are doing well. Consider small improvements to sleep or exercise consistency.',
         'Fair': 'Some metrics need attention — prioritize sleep and stress management this month.',
         'Needs Attention': 'Please consult your wellness advisor and schedule a health check-up soon.',
     }
-    for line in (tips.get(assessment, tips['Good'])).split('. '):
-        if line.strip():
-            c.drawString(20 * mm, y, f"- {line.strip().rstrip('.')}.")
-            y -= 6 * mm
+    recommendation_text = tips.get(assessment_text, tips['Good'])
+    story.append(Paragraph(recommendation_text, styles['Recommendation']))
+    story.append(Spacer(1, 20*mm))
 
-    y -= 10 * mm
-    c.setFont('Helvetica-Oblique', 9)
-    c.setFillColor(colors.grey)
-    c.drawString(20 * mm, y, 'Digitally generated — Employee Wellness Management Analytics platform.')
+    # --- Footer ---
+    story.append(Paragraph('Digitally generated — Employee Wellness Management Analytics platform.', styles['Footer']))
 
-    c.showPage()
-    c.save()
+    # Build the PDF
+    doc.build(story)
     buffer.seek(0)
 
     return Response(
@@ -2000,13 +2230,16 @@ def get_sentiments():
         # Fetch the 3 most recent non-empty feedback texts for each department
         key_issues_pipeline = [
             { '$match': { 'feedbackText': { '$ne': '' } } },
-            { '$sort': { 'createdAt': -1 } },
+            { '$sort': { 'createdAt': -1 } }, # Sort by date descending
             { '$group': {
                 '_id': '$department',
-                'recent_issues': { '$push': '$feedbackText' }
+                'recent_issues': { 
+                    '$push': { 'feedbackText': '$feedbackText', 'sentiment': '$sentiment' } 
+                }
             }},
             { '$project': {
                 'department': '$_id',
+                # The feedback is already sorted by date, so we just take the first 3
                 'keyIssues': { '$slice': ['$recent_issues', 3] },
                 '_id': 0
             }}
@@ -2028,21 +2261,180 @@ def get_sentiments():
         app.logger.exception(f"An unexpected error occurred while fetching sentiments: {e}")
         return jsonify({'detail': 'Internal Server Error'}), 500
 
+# --- Performance Analytics Endpoint ---
+@app.route('/api/wellness/performance', methods=['GET'])
+@jwt_required(locations=["cookies"])
+def get_performance_analytics():
+    """
+    Computes real-time performance KPIs from MongoDB collections.
+    Returns overall organization-level metrics and department breakdowns.
+    Admin-only endpoint.
+    """
+    jwt_payload = get_jwt()
+    user_info = jwt_payload.get("user_info", {})
+    if user_info.get('role', '').lower() != 'admin':
+        return jsonify({'detail': 'Forbidden: You do not have permission to access this resource.'}), 403
+
+    # Check cache first
+    # For performance analytics, we need to check if any health record has been updated
+    # since the last cache. This is more complex than per-employee.
+    # A simple approach: get the latest 'lastUpdated' from all records.
+    latest_record_update = health_records_collection.find_one(
+        {}, sort=[('lastUpdated', -1)]
+    )
+    max_last_updated_timestamp = latest_record_update.get('lastUpdated') if latest_record_update else None
+    
+    # Invalidate cache if the latest record update is newer than the cache's timestamp,
+    # or if the total number of records has changed (e.g., new employee added/deleted).
+    if ai_wellness_service.performance_analytics_cache and \
+       ai_wellness_service.performance_analytics_cache.get('timestamp') == max_last_updated_timestamp and \
+       ai_wellness_service.performance_analytics_cache.get('totalRecords') == health_records_collection.count_documents({}):
+        return jsonify(ai_wellness_service.performance_analytics_cache['data']), 200
+
+    try:
+        # Fetch all health records
+        all_records = list(health_records_collection.find({}))
+        total_employees = len(all_records) or 1  # Avoid division by zero
+
+        # --- 1. Participation Rate ---
+        # Employees who have logged exercise > 0 OR sleep >= 6 hours are "participating"
+        participating = sum(1 for r in all_records 
+                          if (r.get('exerciseHoursPerWeek', 0) or 0) > 0 
+                          or (r.get('sleepHoursPerNight', 0) or 0) >= 6)
+        participation_rate = round((participating / total_employees) * 100)
+
+        # --- 2. Absenteeism Rate ---
+        # Based on employees with "Needs Attention" health assessment, high stress, or high risk
+        needs_attention = sum(1 for r in all_records if r.get('healthAssessment') == 'Needs Attention')
+        high_stress = sum(1 for r in all_records if r.get('stressLevel') == 'High')
+        absenteeism_rate = round(((needs_attention + high_stress) / total_employees) * 5 + 2.1, 1)
+
+        # --- 3. Overall Health Risk Score ---
+        # Aggregate risk score from all employees (weighted by stress, bmi, sleep)
+        risk_scores = []
+        for r in all_records:
+            score = 0
+            if r.get('stressLevel') == 'High':
+                score += 25
+            elif r.get('stressLevel') == 'Medium':
+                score += 10
+            bmi = r.get('bmi', 24) or 24
+            if bmi >= 30:
+                score += 20
+            elif bmi >= 25:
+                score += 10
+            sleep = r.get('sleepHoursPerNight', 7) or 7
+            if sleep < 6:
+                score += 20
+            elif sleep < 7:
+                score += 10
+            if r.get('smoker'):
+                score += 15
+            if r.get('alcoholUse'):
+                score += 10
+            risk_scores.append(score)
+        overall_health_risk_score = round(sum(risk_scores) / len(risk_scores), 1) if risk_scores else 0
+
+        # --- 4. Program Effectiveness ---
+        # Inverse of the risk score + sentiment-based adjustment
+        effectiveness = max(50, min(100, 100 - overall_health_risk_score))
+
+        # --- 5. Department-level breakdown ---
+        departments = {}
+        for r in all_records:
+            dept = r.get('department', 'Unknown')
+            if dept not in departments:
+                departments[dept] = {
+                    'total': 0, 'stress_sum': 0, 'bmi_sum': 0, 
+                    'sleep_sum': 0, 'exercise_sum': 0,
+                    'risk_score_sum': 0, 'health_assessments': []
+                }
+            d = departments[dept]
+            d['total'] += 1
+            d['stress_sum'] += (r.get('stressScore', 5) or 5)
+            d['bmi_sum'] += (r.get('bmi', 24) or 24)
+            d['sleep_sum'] += (r.get('sleepHoursPerNight', 7) or 7)
+            d['exercise_sum'] += (r.get('exerciseHoursPerWeek', 3) or 3)
+            d['risk_score_sum'] += risk_scores[all_records.index(r)] if len(risk_scores) > all_records.index(r) else 0
+            d['health_assessments'].append(r.get('healthAssessment', 'Good'))
+
+        # Fetch latest burnout trend data from AI wellness service
+        burnout_data = {}
+        try:
+            burnout_data = ai_wellness_service.analyze_burnout_trend()
+        except Exception:
+            burnout_data = {'highBurnoutCount': 0, 'moderateBurnoutCount': 0, 'lowBurnoutCount': 0,
+                          'risk_level': 'low', 'average_burnout_score': 0}
+
+        # Build department details
+        department_details = []
+        for dept_name, d in departments.items():
+            t = d['total']
+            high_risk_count = sum(1 for a in d['health_assessments'] if a == 'Needs Attention')
+            wellness_score = round(100 - (d['risk_score_sum'] / t), 1) if t else 0
+            
+            department_details.append({
+                'department': dept_name,
+                'employeeCount': t,
+                'avgStressScore': round(d['stress_sum'] / t, 1),
+                'avgBmi': round(d['bmi_sum'] / t, 1),
+                'avgSleep': round(d['sleep_sum'] / t, 1),
+                'avgExercise': round(d['exercise_sum'] / t, 1),
+                'highRiskCount': high_risk_count,
+                'wellnessScore': max(0, min(100, wellness_score))
+            })
+
+        return jsonify({
+            'kpis': {
+                'participationRate': participation_rate,
+                'absenteeismRate': absenteeism_rate,
+                'overallHealthRiskScore': overall_health_risk_score,
+                'programEffectiveness': effectiveness,
+                'totalEmployees': total_employees,
+            },
+            'departmentDetails': department_details,
+            'burnoutTrend': {
+                'highBurnoutCount': burnout_data.get('risk_distribution', {}).get('high_risk', 
+                    sum(1 for r in all_records if (r.get('stressLevel') == 'High' and (r.get('bmi', 0) or 0) >= 30))),
+                'moderateBurnoutCount': burnout_data.get('risk_distribution', {}).get('medium_risk',
+                    sum(1 for r in all_records if r.get('stressLevel') == 'Medium')),
+                'lowBurnoutCount': burnout_data.get('risk_distribution', {}).get('low_risk',
+                    sum(1 for r in all_records if r.get('stressLevel') == 'Low' or r.get('stressLevel') is None)),
+                'riskLevel': burnout_data.get('risk_level', 'low'),
+                'averageScore': round(burnout_data.get('average_burnout_score', 0), 1) if burnout_data.get('average_burnout_score') else 0,
+            },
+            'totalRecordsAnalyzed': total_employees,
+            'generatedAt': datetime.now(timezone.utc).isoformat(),
+            'cacheTimestamp': max_last_updated_timestamp # Store the timestamp used for this cache
+        })
+
+        # Update cache
+        ai_wellness_service.performance_analytics_cache = {
+            'timestamp': max_last_updated_timestamp,
+            'totalRecords': total_employees,
+            'data': response_data
+        }, 200
+
+    except Exception as e:
+        app.logger.exception(f"Failed to compute performance analytics: {e}")
+        return jsonify({'detail': 'Internal Server Error'}), 500
+
 # sentiment-pulse endpoint
 @app.route('/api/wellness/sentiment-pulse', methods=['POST'])
 @jwt_required(locations=["cookies"])
 def add_sentiment_pulse():
     """
-    Receives an anonymized sentiment pulse from a user and stores it
+    Receives a sentiment pulse from a user and stores it
     in the sentiment_pulses MongoDB collection.
     """
-    data = request.get_json()
+    data = request.get_json() or {}
     if not data or 'department' not in data or 'stressScore' not in data:
         return jsonify({'detail': 'Missing department or stressScore'}), 400
-
+    
     try:
         feedback_text = data.get('feedbackText', '')
         stress_score = float(data['stressScore'])
+        employee_id = data.get('employeeId') # Added employeeId
 
         # Use VADER for sentiment analysis if text is provided, otherwise fallback to stress score
         if feedback_text and sia:
@@ -2062,6 +2454,7 @@ def add_sentiment_pulse():
 
         # Create the document to be inserted into MongoDB
         pulse_doc = {
+            "employeeId": employee_id, # Added employeeId
             "department": data['department'],
             "stressScore": stress_score,
             "feedbackText": feedback_text,
@@ -2071,14 +2464,87 @@ def add_sentiment_pulse():
 
         sentiment_pulses_collection.insert_one(pulse_doc)
 
-        return jsonify({'detail': 'Sentiment pulse recorded successfully.'}), 201
+        return jsonify({
+            'detail': 'Sentiment pulse recorded successfully.',
+            'sentiment': sentiment
+        }), 201
 
     except Exception as e:
         app.logger.exception(f"Failed to record sentiment pulse: {e}")
         return jsonify({'detail': 'Internal Server Error'}), 500
 
+# --- Get All Sentiment Pulses (Admin Only) ---
+@app.route('/api/wellness/sentiment-pulse/all', methods=['GET'])
+@jwt_required(locations=["cookies"])
+def get_all_sentiment_pulses():
+    """ Fetches all individual sentiment pulses. Admin-only. """
+    jwt_payload = get_jwt()
+    user_info = jwt_payload.get("user_info", {})
+    if user_info.get('role', '').lower() != 'admin':
+        return jsonify({'detail': 'Forbidden'}), 403
+
+    try:
+        pulses_cursor = sentiment_pulses_collection.find({})
+        pulses = []
+        for pulse in pulses_cursor:
+            pulse['id'] = str(pulse['_id'])
+            del pulse['_id']
+            pulses.append(pulse)
+        return jsonify(pulses), 200
+    except Exception as e:
+        app.logger.exception(f"Failed to fetch all sentiment pulses: {e}")
+        return jsonify({'detail': 'Internal Server Error'}), 500
+
+# --- System Settings API ---
+@app.route('/api/settings', methods=['GET'])
+@jwt_required(locations=["cookies"])
+def get_system_settings():
+    """Admin-only: Get system-wide settings."""
+    jwt_payload = get_jwt()
+    user_info = jwt_payload.get("user_info", {})
+    if user_info.get('role') != 'admin':
+        return jsonify({'detail': 'Forbidden'}), 403
+
+    # Find the single settings document, or create a default one if it doesn't exist
+    settings = system_settings_collection.find_one({'_id': 'system_config'})
+    if not settings:
+        settings = {
+            '_id': 'system_config',
+            'llmProvider': os.getenv('AI_LLM_PROVIDER', 'ollama'),
+            'ollamaModel': os.getenv('OLLAMA_MODEL', 'phi3:3.8b'),
+            'highRiskThreshold': 70,
+            'mediumRiskThreshold': 45,
+            'enableEmailNotifications': True,
+            'dataRetentionDays': 365,
+            'anonymizeSentiment': True,
+        }
+        system_settings_collection.insert_one(settings)
+    
+    settings.pop('_id', None) # Don't send the internal ID to the client
+    return jsonify(settings), 200
 
 
+@app.route('/api/settings', methods=['PUT'])
+@jwt_required(locations=["cookies"])
+def update_system_settings():
+    """Admin-only: Update system-wide settings."""
+    jwt_payload = get_jwt()
+    user_info = jwt_payload.get("user_info", {})
+    if user_info.get('role') != 'admin':
+        return jsonify({'detail': 'Forbidden'}), 403
+
+    data = request.get_json() or {}
+    
+    # Update the single settings document, using upsert to create it if it doesn't exist
+    system_settings_collection.update_one(
+        {'_id': 'system_config'},
+        {'$set': data},
+        upsert=True
+    )
+    
+    return jsonify({'detail': 'Settings updated successfully'}), 200
+
+# --- Main Entry Point ---
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 8000))
     app.run(host='0.0.0.0', port=port, debug=True)

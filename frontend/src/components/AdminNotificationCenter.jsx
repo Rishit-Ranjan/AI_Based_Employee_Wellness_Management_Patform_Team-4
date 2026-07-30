@@ -38,18 +38,18 @@ export default function AdminNotificationCenter({ allUsers = [] }) {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white border border-slate-200 rounded-xl p-6">
-        <h3 className="font-display font-semibold text-slate-800 text-base flex items-center gap-2 mb-4"><Send className="w-5 h-5 text-slate-400" /> Compose Notification</h3>
+      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
+        <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2 mb-4"><Send className="w-5 h-5 text-slate-400" /> Compose Notification</h3>
         <form onSubmit={handleSend} className="space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title (e.g. Annual Health Camp)" className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs" />
-            <select value={category} onChange={(e) => setCategory(e.target.value)} className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs">
+            <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title (e.g. Annual Health Camp)" className="px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200" />
+            <select value={category} onChange={(e) => setCategory(e.target.value)} className="px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200">
               {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
-          <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={3} placeholder="Message…" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs resize-y" />
+          <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={3} placeholder="Message…" className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs resize-y text-slate-800 dark:text-slate-200" />
           <div className="flex items-center gap-3">
-            <select value={targetEmployeeId} onChange={(e) => setTargetEmployeeId(e.target.value)} className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs">
+            <select value={targetEmployeeId} onChange={(e) => setTargetEmployeeId(e.target.value)} className="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200">
               <option value="">Broadcast to all employees</option>
               {allUsers.map((u) => <option key={u.employeeId} value={u.employeeId}>{u.name} ({u.employeeId})</option>)}
             </select>
@@ -60,20 +60,20 @@ export default function AdminNotificationCenter({ allUsers = [] }) {
         </form>
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-xl p-6">
-        <h3 className="font-display font-semibold text-slate-800 text-base flex items-center gap-2 mb-4"><Bell className="w-5 h-5 text-slate-400" /> Sent Notifications</h3>
+      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
+        <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2 mb-4"><Bell className="w-5 h-5 text-slate-400" /> Sent Notifications</h3>
         {notifications.length === 0 ? (
-          <p className="text-xs text-slate-400">No notifications sent yet.</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500">No notifications sent yet.</p>
         ) : (
           <div className="space-y-2">
             {notifications.map((n) => (
-              <div key={n.id} className="flex items-start justify-between border border-slate-100 rounded-lg p-3">
+              <div key={n.id} className="flex items-start justify-between border border-slate-100 dark:border-slate-700 rounded-lg p-3">
                 <div>
-                  <div className="text-xs font-semibold text-slate-700">{n.title} <span className="text-[9px] text-slate-400 font-mono ml-1">{n.targetEmployeeId ? `→ ${n.targetEmployeeId}` : '→ all'}</span></div>
-                  <p className="text-[11px] text-slate-500 mt-0.5">{n.message}</p>
-                  <span className="text-[9px] text-slate-300 font-mono">{new Date(n.createdAt).toLocaleString()}</span>
+                  <div className="text-xs font-semibold text-slate-700 dark:text-slate-200">{n.title} <span className="text-[9px] text-slate-400 dark:text-slate-500 font-mono ml-1">{n.targetEmployeeId ? `→ ${n.targetEmployeeId}` : '→ all'}</span></div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{n.message}</p>
+                  <span className="text-[9px] text-slate-300 dark:text-slate-600 font-mono">{new Date(n.createdAt).toLocaleString()}</span>
                 </div>
-                <button onClick={() => handleDelete(n.id)} className="text-slate-300 hover:text-rose-500 cursor-pointer shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
+                <button onClick={() => handleDelete(n.id)} className="text-slate-300 dark:text-slate-600 hover:text-rose-500 dark:hover:text-rose-400 cursor-pointer shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
               </div>
             ))}
           </div>
