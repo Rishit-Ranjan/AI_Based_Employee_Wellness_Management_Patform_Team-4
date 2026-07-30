@@ -8,14 +8,14 @@ import AdminInsuranceModule from './AdminInsuranceModule';
 import AdminNotificationCenter from './AdminNotificationCenter';
 import { AdminCheckupsModule, AdminSosMonitor, AdminExpensesModule } from './AdminExtraModules';
 import NotificationBell from './NotificationBell';
-import ProfileEditModal from './ProfileEditModal';
-import { fetchBurnoutTrend } from '../services/api';
+import ProfileEditModal from './ProfileEditModal'; 
+import api, { fetchBurnoutTrend } from '../services/api';
 import ThemeToggle from './wellness/ThemeToggle';
 
 // ==========================================
 // MODULE 1: EMPLOYEE HEALTH DATA MANAGEMENT
 // ==========================================
-export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecord, onDeleteRecord }) {
+export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecord, onDeleteRecord, loading }) {
   const [search, setSearch] = useState('');
   const [filterDept, setFilterDept] = useState('');
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -118,7 +118,7 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
     return matchSearch && matchDept;
   });
 
-  
+
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     if (!selectedEmployee || !age || !gender || !heightCm || !weightKg || !dept || !bmi || !bp || !exerciseDaysPerWeek || !exercise || !sleep || !stress || !stressScore || !attendanceRate || !medicalCondition || !glucoseLevel) {
@@ -223,7 +223,7 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
     setSelectedEmployee('');
     setAge(''); setGender('Male'); setHeightCm(''); setWeightKg('');
     setBmi(''); setBp(''); setExerciseDaysPerWeek(''); setExercise(''); setSleep('');
-    setStress('Medium'); setStressScore(''); setAttendanceRate('');
+    setStress('Medium'); set(''); setAttendanceRate('');
     setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false); setAlcoholUse(false); setGlucoseLevel('');
     setEditingRecord(null);
     setError(''); // Clear error after successful submission
@@ -500,7 +500,13 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
 
       {/* Health records Card View */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filtered.length === 0 ? (
+        {loading ? (
+          [...Array(8)].map((_, i) => (
+            <div key={i} className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5 space-y-4 shadow-sm animate-pulse">
+              <div className="flex items-center gap-3"><div className="w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-700"></div><div><div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-24 mb-1.5"></div><div className="h-3 bg-slate-100 dark:bg-slate-600 rounded w-16"></div></div></div><div className="space-y-2 pt-4 border-t border-slate-100 dark:border-slate-700"><div className="h-3 bg-slate-100 dark:bg-slate-700 rounded w-full"></div><div className="h-3 bg-slate-100 dark:bg-slate-700 rounded w-5/6"></div></div>
+            </div>
+          ))
+        ) : filtered.length === 0 ? (
           <div className="col-span-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-10 text-center font-mono text-xs text-slate-400 dark:text-slate-500 shadow-sm">
             No records found matching filters.
           </div>
@@ -1059,10 +1065,10 @@ export function SentimentModule({ sentimentList = [], healthRecords = [] }) {
 // MERGED WITH AI ANALYTICS
 // ==========================================
 export function PerformanceDashboard({ kpis, records, performanceData, loadingPerformance, performanceError, risks, sentimentList }) {
-  const [burnoutData, setBurnoutData] = useState(null);
   const [loadingBurnout, setLoadingBurnout] = useState(false);
   const [selectedDept, setSelectedDept] = useState('');
   const [burnoutError, setBurnoutError] = useState('');
+  const burnoutData = performanceData?.burnoutTrend;
 
   // Logic from AiAnalyticsModule
   const departmentWellness = useMemo(() => {
@@ -1093,23 +1099,6 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
       wellnessScore: Math.round(100 - ((data.stressSum / data.total) * 3 + (data.riskHigh / data.total) * 20))
     }));
   }, [records, risks]);
-
-  useEffect(() => {
-    const loadBurnout = async () => {
-      setLoadingBurnout(true);
-      setBurnoutError('');
-      try {
-        const data = await fetchBurnoutTrend(selectedDept || undefined);
-        setBurnoutData(data);
-      } catch (err) {
-        setBurnoutData(null);
-        setBurnoutError('Could not fetch AI burnout trend. Using local data.');
-      } finally {
-        setLoadingBurnout(false);
-      }
-    };
-    loadBurnout();
-  }, [selectedDept]);
 
   if (loadingPerformance) {
     return (
@@ -1591,6 +1580,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
 // ==========================================
 function SystemSettingsModule() {
   const [settings, setSettings] = useState({
+    // Default state before loading from backend
     llmProvider: 'ollama',
     ollamaModel: 'phi3:3.8b',
     highRiskThreshold: 70,
@@ -1599,9 +1589,39 @@ function SystemSettingsModule() {
     dataRetentionDays: 365,
     anonymizeSentiment: true,
   });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        setLoading(true);
+        const fetchedSettings = await api.fetchSystemSettings();
+        setSettings(fetchedSettings);
+      } catch (err) {
+        setError('Failed to load system settings.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadSettings();
+  }, []);
 
   const handleSettingChange = (key, value) => {
     setSettings(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleSaveSettings = async () => {
+    setError('');
+    setSuccess('');
+    try {
+      await api.saveSystemSettings(settings);
+      setSuccess('Settings saved successfully!');
+    } catch (err) {
+      setError('Failed to save settings. Please try again.');
+    }
   };
 
   const SettingCard = ({ title, description, children }) => (
@@ -1621,6 +1641,19 @@ function SystemSettingsModule() {
 
   return (
     <div className="space-y-6">
+      {error && (
+        <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-300 text-xs flex items-start gap-2.5 font-medium">
+          <ShieldAlert className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+          <span>{error}</span>
+        </div>
+      )}
+      {success && (
+        <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-700 dark:text-emerald-300 text-xs flex items-start gap-2.5 font-medium">
+          <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+          <span>{success}</span>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <SettingCard title="AI & Analytics" description="Configure the behavior of AI-powered features.">
           <SettingRow label="LLM Provider">
@@ -1666,7 +1699,10 @@ function SystemSettingsModule() {
         </SettingCard>
       </div>
       <div className="flex justify-end">
-        <button className="px-6 py-2.5 bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-all shadow-sm flex items-center gap-2">
+        <button
+          onClick={handleSaveSettings}
+          className="px-6 py-2.5 bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-all shadow-sm flex items-center gap-2"
+        >
           <Save className="w-3.5 h-3.5" /> Save All Settings
         </button>
       </div>
@@ -2048,6 +2084,7 @@ export default function AdminDashboard({ user,
                 onAddRecord={onAddHealthRecord}
                 onUpdateRecord={onUpdateHealthRecord}
                 onDeleteRecord={onDeleteHealthRecord}
+                loading={loading}
               />
             )}
 

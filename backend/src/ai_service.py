@@ -12,13 +12,6 @@ from ai_policy import AI_POLICY_GUARDRAIL
 from dotenv import load_dotenv
 load_dotenv()
 
-# Optional: OpenAI integration
-try:
-    import openai
-    OPENAI_AVAILABLE = True
-except ImportError:
-    OPENAI_AVAILABLE = False
-
 # Optional: Ollama integration (local LLM - privacy focused)
 try:
     import requests as http_requests
@@ -43,8 +36,7 @@ class AIWellnessService:
         self.recommendation_engine = recommendation_engine
         
         # LLM configuration
-        self.llm_provider = os.getenv('AI_LLM_PROVIDER', 'gemini')  # 'openai', 'ollama', 'gemini', 'none'
-        self.openai_api_key = os.getenv('OPENAI_API_KEY', '')
+        self.llm_provider = os.getenv('AI_LLM_PROVIDER', 'gemini')  # 'ollama', 'gemini', 'none'
         self.ollama_base_url = os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')
         self.ollama_model = os.getenv('OLLAMA_MODEL', 'llama3.2')
         self.gemini_api_key = os.getenv('GEMINI_API_KEY') or os.getenv('GOOGLE_API_KEY', '')
@@ -58,6 +50,9 @@ class AIWellnessService:
                 print(f"Gemini initialization error: {e}")
                 self.gemini_client = None
         
+        self.recommendation_cache = {} # Cache for recommendations
+        self.risk_prediction_cache = {} # Cache for risk predictions
+        self.performance_analytics_cache = {} # Cache for performance analytics
         # Wellness tips database (rule-based fallback)
         self._init_wellness_knowledge_base()
     
@@ -181,28 +176,6 @@ class AIWellnessService:
     
     def _generate_llm_response(self, message: str, context: str, employee_id: str) -> Optional[str]:
         """Try to get response from LLM provider."""
-        
-        # Try OpenAI
-        if self.llm_provider == 'openai' and self.openai_api_key and OPENAI_AVAILABLE:
-            try:
-                openai.api_key = self.openai_api_key
-                response = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo",
-                    messages=[
-                        {"role": "system", "content": f"""You are an expert AI Wellness Coach for a corporate wellness platform. 
-You have access to this employee's health data: {context}
-
-Provide concise, actionable wellness advice. Be supportive and evidence-based.
-Keep responses under 150 words. Focus on practical tips the employee can implement immediately.
-{AI_POLICY_GUARDRAIL}"""},
-                        {"role": "user", "content": message}
-                    ],
-                    max_tokens=300,
-                    temperature=0.7
-                )
-                return response.choices[0].message.content
-            except Exception as e:
-                print(f"OpenAI API error: {e}")
         
         # Try Ollama (local)
         if self.llm_provider == 'ollama' and OLLAMA_AVAILABLE:

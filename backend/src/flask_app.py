@@ -76,6 +76,7 @@ goals_collection = db.get_collection('goals')
 checkup_appointments_collection = db.get_collection('checkup_appointments')
 sos_alerts_collection = db.get_collection('sos_alerts')
 expenses_collection = db.get_collection('health_expenses')
+system_settings_collection = db.get_collection('system_settings')
 
 # --- Load ML Model and Metadata ---
 try:
@@ -129,6 +130,12 @@ def get_full_avatar_url(avatar_path):
     # In a production environment, this should use the actual public domain.
     base_url = request.url_root.rstrip('/')
     return f"{base_url}{avatar_path}"
+
+# --- Health Check Endpoint ---
+@app.route('/')
+def index():
+    """A simple health check endpoint for service readiness."""
+    return jsonify({'status': 'ok', 'message': 'Backend is running.'})
 
 # login API endpoint
 @app.route('/api/auth/login', methods=['POST'])
@@ -538,6 +545,7 @@ def add_health_record():
             del new_record['id']
 
         new_record['createdAt'] = datetime.now(timezone.utc).isoformat()
+        new_record['lastUpdated'] = datetime.now(timezone.utc).isoformat() # Ensure lastUpdated is set on creation
 
         result = health_records_collection.insert_one(new_record)
         new_record['id'] = str(result.inserted_id)
@@ -571,6 +579,7 @@ def update_health_record(employee_id):
     # The frontend sends an 'id' field, which we don't need to store in Mongo's '_id'
     if 'id' in updated_data:
         del updated_data['id']
+    updated_data['lastUpdated'] = datetime.now(timezone.utc).isoformat() # Update timestamp on modification
 
     try:
         result = health_records_collection.update_one({'employeeId': employee_id}, {'$set': updated_data})
@@ -667,6 +676,14 @@ def get_risk_predictions():
             try:
                 employee_id = record.get("employeeId")
                 employee_name = record.get("employeeName", "Unknown Employee")
+                last_updated = record.get("lastUpdated")
+
+                # Check cache first
+                if employee_id in ai_wellness_service.risk_prediction_cache:
+                    cached_entry = ai_wellness_service.risk_prediction_cache[employee_id]
+                    if cached_entry.get('timestamp') == last_updated:
+                        results.append(cached_entry['data'])
+                        continue # Use cached data and skip re-computation
 
                 model_input_df = map_health_record_to_model_input(record)
 
@@ -713,14 +730,21 @@ def get_risk_predictions():
                 else:
                     recommendation_action = "Low risk profile. Maintain current healthy routines and continue periodic monitoring."
 
-                results.append({
+                risk_result = {
                     "employeeId": employee_id,
                     "employeeName": employee_name,
                     "riskType": risk_label,
                     "riskScore": risk_score,
                     "factors": factors if factors else ["Vitals check within ideal levels"],
                     "recommendationAction": recommendation_action
-                })
+                }
+                results.append(risk_result)
+
+                # Update cache
+                ai_wellness_service.risk_prediction_cache[employee_id] = {
+                    'timestamp': last_updated,
+                    'data': risk_result
+                }
 
             except Exception as row_error:
                 app.logger.exception(
@@ -993,6 +1017,17 @@ def get_recommendations():
 
         for record in health_records:
             try:
+                employee_id = record.get("employeeId")
+                last_updated = record.get("lastUpdated")
+
+                # Check cache first
+                if employee_id in ai_wellness_service.recommendation_cache:
+                    cached_entry = ai_wellness_service.recommendation_cache[employee_id]
+                    if cached_entry.get('timestamp') == last_updated:
+                        all_recommendations.append(cached_entry['data'])
+                        continue  # Skip re-computation
+
+
                 # 1. Get risk profile from the classification model
                 model_input_df = map_health_record_to_model_input(record)
                 encoded_pred = risk_model.predict(model_input_df)[0]
@@ -1080,12 +1115,20 @@ def get_recommendations():
                 for rec in enriched_recs:
                     rec['severity'] = risk_label
 
-                all_recommendations.append({
+                employee_recs = {
                     "employeeId": record.get("employeeId"),
                     "employeeName": record.get("employeeName"),
                     "riskProfile": {"riskType": risk_label},
                     "recommendations": enriched_recs
-                })
+                }
+                all_recommendations.append(employee_recs)
+
+                # Update cache
+                ai_wellness_service.recommendation_cache[employee_id] = {
+                    'timestamp': last_updated,
+                    'data': employee_recs
+                }
+
 
             except Exception as e:
                 app.logger.error(f"Failed to generate recommendations for {record.get('employeeId')}: {e}")
@@ -2232,6 +2275,22 @@ def get_performance_analytics():
     if user_info.get('role', '').lower() != 'admin':
         return jsonify({'detail': 'Forbidden: You do not have permission to access this resource.'}), 403
 
+    # Check cache first
+    # For performance analytics, we need to check if any health record has been updated
+    # since the last cache. This is more complex than per-employee.
+    # A simple approach: get the latest 'lastUpdated' from all records.
+    latest_record_update = health_records_collection.find_one(
+        {}, sort=[('lastUpdated', -1)]
+    )
+    max_last_updated_timestamp = latest_record_update.get('lastUpdated') if latest_record_update else None
+    
+    # Invalidate cache if the latest record update is newer than the cache's timestamp,
+    # or if the total number of records has changed (e.g., new employee added/deleted).
+    if ai_wellness_service.performance_analytics_cache and \
+       ai_wellness_service.performance_analytics_cache.get('timestamp') == max_last_updated_timestamp and \
+       ai_wellness_service.performance_analytics_cache.get('totalRecords') == health_records_collection.count_documents({}):
+        return jsonify(ai_wellness_service.performance_analytics_cache['data']), 200
+
     try:
         # Fetch all health records
         all_records = list(health_records_collection.find({}))
@@ -2345,8 +2404,16 @@ def get_performance_analytics():
                 'averageScore': round(burnout_data.get('average_burnout_score', 0), 1) if burnout_data.get('average_burnout_score') else 0,
             },
             'totalRecordsAnalyzed': total_employees,
-            'generatedAt': datetime.now(timezone.utc).isoformat()
-        }), 200
+            'generatedAt': datetime.now(timezone.utc).isoformat(),
+            'cacheTimestamp': max_last_updated_timestamp # Store the timestamp used for this cache
+        })
+
+        # Update cache
+        ai_wellness_service.performance_analytics_cache = {
+            'timestamp': max_last_updated_timestamp,
+            'totalRecords': total_employees,
+            'data': response_data
+        }, 200
 
     except Exception as e:
         app.logger.exception(f"Failed to compute performance analytics: {e}")
@@ -2427,6 +2494,55 @@ def get_all_sentiment_pulses():
     except Exception as e:
         app.logger.exception(f"Failed to fetch all sentiment pulses: {e}")
         return jsonify({'detail': 'Internal Server Error'}), 500
+
+# --- System Settings API ---
+@app.route('/api/settings', methods=['GET'])
+@jwt_required(locations=["cookies"])
+def get_system_settings():
+    """Admin-only: Get system-wide settings."""
+    jwt_payload = get_jwt()
+    user_info = jwt_payload.get("user_info", {})
+    if user_info.get('role') != 'admin':
+        return jsonify({'detail': 'Forbidden'}), 403
+
+    # Find the single settings document, or create a default one if it doesn't exist
+    settings = system_settings_collection.find_one({'_id': 'system_config'})
+    if not settings:
+        settings = {
+            '_id': 'system_config',
+            'llmProvider': os.getenv('AI_LLM_PROVIDER', 'ollama'),
+            'ollamaModel': os.getenv('OLLAMA_MODEL', 'phi3:3.8b'),
+            'highRiskThreshold': 70,
+            'mediumRiskThreshold': 45,
+            'enableEmailNotifications': True,
+            'dataRetentionDays': 365,
+            'anonymizeSentiment': True,
+        }
+        system_settings_collection.insert_one(settings)
+    
+    settings.pop('_id', None) # Don't send the internal ID to the client
+    return jsonify(settings), 200
+
+
+@app.route('/api/settings', methods=['PUT'])
+@jwt_required(locations=["cookies"])
+def update_system_settings():
+    """Admin-only: Update system-wide settings."""
+    jwt_payload = get_jwt()
+    user_info = jwt_payload.get("user_info", {})
+    if user_info.get('role') != 'admin':
+        return jsonify({'detail': 'Forbidden'}), 403
+
+    data = request.get_json() or {}
+    
+    # Update the single settings document, using upsert to create it if it doesn't exist
+    system_settings_collection.update_one(
+        {'_id': 'system_config'},
+        {'$set': data},
+        upsert=True
+    )
+    
+    return jsonify({'detail': 'Settings updated successfully'}), 200
 
 # --- Main Entry Point ---
 if __name__ == '__main__':

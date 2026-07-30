@@ -123,160 +123,105 @@ export default function App() {
     // Load wellness data when currentUser changes (and is not null)
     useEffect(() => {
         if (!currentUser)
-          return;
-    
-        const loadPrimaryData = async () => {
+            return;
+
+        const loadAllData = async (forceRefresh = false) => {
+            // --- Stage 1: Load absolutely critical data for initial render ---
             setLoadingWellnessData(true);
             try {
-                let userToUpdate = { ...currentUser };
-                // 0. If admin, fetch all users for the dropdown
-                if (currentUser.role === 'admin') {
-                    const users = await api.fetchUsers();
-                    // Filter out admin users from allUsers list
-                    // setAllUsers(users.filter(u => u.role !== 'admin'));
-                    setAllUsers(users);
-                }
-                // 1. Health Records from the backend
-                let loadedHR = await api.fetchHealthRecords();
-                if (loadedHR.length === 0) loadedHR = INITIAL_HEALTH_RECORDS;
-
-                // Check if the current user has a record. If not, create and seed one via the API.
                 const userEmpId = currentUser.employeeId;
+                const options = { forceRefresh };
+                
+                // Fetch only the most essential data first: records and users.
+                const [records, users] = await Promise.all([
+                    api.fetchHealthRecords(options),
+                    currentUser.role === 'admin' ? api.fetchUsers(options) : Promise.resolve([])
+                ]);
+
+                let loadedHR = records || [];
                 const userHasRecord = loadedHR.some((r) => r.employeeId === userEmpId);
+
                 if (!userHasRecord && currentUser.role !== 'admin') {
-                    const newUserHR = {
-                        // id will be assigned by the backend
-                        employeeId: userEmpId,
-                        employeeName: currentUser.name,
-                        department: 'Engineering', // Default for dropdown
-                        age: 30, // Default age
-                        gender: 'Male', // Default gender
-                        heightCm: 170, // Default height
-                        weightKg: 70, // Default weight
-                        bmi: 24.2, // Calculated from default height/weight
-                        bloodPressure: '120/80', // Default BP
-                        bloodPressureSystolic: 120,
-                        bloodPressureDiastolic: 80,
-                        exerciseHoursPerWeek: 3.5, // Default exercise
-                        exerciseDaysPerWeek: 3, // Default exercise days
-                        sleepHoursPerNight: 7, // Default sleep
-                        stressLevel: 'Medium', // Default for dropdown
-                        stressScore: 5, // Default stress score
-                        attendanceRate: 95, // Default attendance
-                        medicalNotes: 'No major concerns', // Default
-                        medicalCondition: 'No major condition', // Default
-                        smoker: false, // Default
-                        alcoholUse: false, // Default
-                        glucoseLevel: 90, // Default
-                        healthAssessment: 'Fair', // Neutral default for derived field
-                        lastUpdated: new Date().toISOString().split('T')[0]
-                    };
-                    // This will add the record to the database and return it
-                    const addedRecord = await api.addHealthRecord(newUserHR);
-                    loadedHR = [addedRecord, ...loadedHR];
-                    userToUpdate.hasRecord = true; // Mark that user now has a record
+                    const newRecord = { employeeId: userEmpId, employeeName: currentUser.name, isNew: true };
+                    api.addHealthRecord(newRecord).catch(err => console.error("Failed to create health record in background:", err));
+                    loadedHR = [newRecord, ...loadedHR];
                 }
+
+                // Set state for the initial, fastest data.
                 setHealthRecords(loadedHR);
-
-                // If admin, immediately fetch all pulses and attach them to the records.
-                // This ensures the data is available for all subsequent renders.
                 if (currentUser.role === 'admin') {
-                    const allPulses = await api.fetchAllSentimentPulses();
-                    setHealthRecords(prevRecords => prevRecords.map(record => ({
-                        ...record,
-                        feedbackLogs: allPulses.filter(p => p.employeeId === record.employeeId).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                    })));
+                    setAllUsers(users || []);
                 }
 
-                // 2. Daily Habits for the current user
-                if (!userEmpId) {
-                  console.warn("Missing employeeId for current user", currentUser);
-                } else {
-                    let loadedDH = null;
-                    try {
-                        loadedDH = await api.fetchDailyHabits(userEmpId);
-                    } catch (err) {
-                        if (err.status === 404) { // No record found, create one
-                            const newDailyHabit = {
-                                employeeId: userEmpId,
-                                waterCups: 0,
-                                stepsCount: 0,
-                                lastUpdated: new Date().toISOString().split('T')[0]
-                            };
-                            loadedDH = await api.addDailyHabit(newDailyHabit);
-                        } else {
-                            throw err; // Re-throw other errors
-                        }
-                    }
-                    setDailyHabits(loadedDH ? [loadedDH] : []); // Store as an array for consistency
-
-                    // 3. Mental Health Logs for the current user (today's log)
-                    let loadedMHL = null;
-                    try {
-                        loadedMHL = await api.fetchMentalHealthLogs(userEmpId);
-                    } catch (err) {
-                        if (err.status === 404) { // No record found for today, create one
-                            const newMentalHealthLog = {
-                                employeeId: userEmpId,
-                                mood: 'Neutral', // Default mood
-                                stressLevel: 5, // Default stress
-                                feedback: '',
-                                streakDays: 0, // Initial streak
-                                date: new Date().toISOString().split('T')[0]
-                            };
-                            loadedMHL = await api.addMentalHealthLog(newMentalHealthLog);
-                        } else {
-                            throw err; // Re-throw other errors
-                        }
-                    }
-                    setMentalHealthLogs(loadedMHL ? [loadedMHL] : []); // Store as an array for consistency
-                }
             } catch (error) {
                 console.error("Failed to load primary wellness data:", error);
-                // If the token has expired, log the user out to show the login screen.
-                if (error.status === 401) {
-                    handleLogout();
-                }
+                if (error.status === 401) handleLogout();
             } finally {
                 setLoadingWellnessData(false);
             }
-        };
-    
-const loadSecondaryData = async () => {
-            try {
-                const loadedRisks = await api.fetchRisks();
-                setRisks(loadedRisks || []);
-                const loadedRecommendations = await api.fetchRecommendations();
-                setRecommendations(loadedRecommendations || []);
-                // Only admins can fetch sentiment data (the endpoint is admin-only)
-                if (currentUser?.role === 'admin') {
-                    const loadedSentiments = await api.fetchSentiments();
-                    setSentimentList(loadedSentiments || []);
 
-                    // Also load performance analytics from backend
+            // --- Stage 2: Load other "fast" data in the background without blocking UI ---
+            const options = { forceRefresh };
+            const userEmpId = currentUser.employeeId;
+            
+            if (currentUser.role === 'admin') {
+                const [allPulses, risksData] = await Promise.all([
+                    api.fetchAllSentimentPulses(options),
+                    api.fetchRisks(options)
+                ]);
+
+                // Attach feedback logs once they are available
+                const pulsesByEmployee = new Map();
+                (allPulses || []).forEach(pulse => {
+                    if (!pulsesByEmployee.has(pulse.employeeId)) {
+                        pulsesByEmployee.set(pulse.employeeId, []);
+                    }
+                    pulsesByEmployee.get(pulse.employeeId).push(pulse);
+                });
+                setHealthRecords(prevRecords => prevRecords.map(record => ({
+                    ...record,
+                    feedbackLogs: (pulsesByEmployee.get(record.employeeId) || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                })));
+                setRisks(risksData || []);
+            } else {
+                // For regular users, fetch their specific data
+                api.fetchRisks(options).then(risksData => setRisks(risksData || []));
+            }
+
+            // --- Stage 3: Load slower, AI-driven data in the background ---
+            try {
+                if (currentUser.role === 'admin') {
                     setLoadingPerformance(true);
                     setPerformanceError(null);
-                    try {
-                        const perfData = await api.fetchPerformanceAnalytics();
-                        setPerformanceData(perfData);
-                    } catch (perfErr) {
-                        console.error("Failed to load performance analytics:", perfErr);
-                        setPerformanceError(perfErr.message || 'Failed to load performance analytics');
-                        setPerformanceData(null);
-                    } finally {
-                        setLoadingPerformance(false);
-                    }
-
+                    const [recsData, sentimentsData, perfData] = await Promise.all([
+                        api.fetchRecommendations(options),
+                        api.fetchSentiments(options),
+                        api.fetchPerformanceAnalytics(options)
+                    ]);
+                    setRecommendations(recsData || []);
+                    setSentimentList(sentimentsData || []);
+                    setPerformanceData(perfData);
+                    setLoadingPerformance(false);
+                } else {
+                    const [habits, mentalLogs, recsData] = await Promise.all([
+                        api.fetchDailyHabits(userEmpId, options),
+                        api.fetchMentalHealthLogs(userEmpId, options),
+                        api.fetchRecommendations(options)
+                    ]);
+                    if (!habits) habits = await api.addDailyHabit({ employeeId: userEmpId });
+                    if (!mentalLogs) mentalLogs = await api.addMentalHealthLog({ employeeId: userEmpId });
+                    setDailyHabits(habits ? [habits] : []);
+                    setMentalHealthLogs(mentalLogs ? [mentalLogs] : []);
+                    setRecommendations(recsData || []);
                 }
             } catch (error) {
-                console.error("Failed to load secondary wellness data (risks, recs):", error);
+                console.error("Failed to load secondary wellness data:", error);
+                setPerformanceError(error.message || 'Failed to load data');
             }
         };
-    
-        // Keep loading=true until BOTH primary and secondary data loads complete
-        loadPrimaryData()
-            .then(() => loadSecondaryData())
-            .finally(() => setLoadingWellnessData(false));
+
+        // On initial load for a user, force a refresh. Subsequent renders will use the cache.
+        loadAllData(true);
     }, [currentUser, handleLogout]);
 
     // Event Handlers for User Actions
