@@ -207,7 +207,7 @@ export default function App() {
                 } else {
                     setLoadingRecommendations(true);
                     
-                    // Fetch habits and logs, but don't let them block recommendations
+                    // Fetch habits and logs
                     Promise.all([
                         api.fetchDailyHabits(userEmpId, options).then(h => h || api.addDailyHabit({ employeeId: userEmpId })),
                         api.fetchMentalHealthLogs(userEmpId, options).then(m => m || api.addMentalHealthLog({ employeeId: userEmpId }))
@@ -257,6 +257,10 @@ export default function App() {
             // Recompute Module 2 diagnostics from updated health_records
             const loadedRisks = await api.fetchRisks();
             setRisks(loadedRisks || []);
+
+            // Re-fetch recommendations as they might change based on the updated record
+            const recsData = await api.fetchRecommendations({ forceRefresh: true });
+            setRecommendations(recsData || []);
         } catch (err) {
             console.error('Failed to update health record:', err);
             throw err; // Re-throw so the calling code (AdminDashboard) can catch and display the error
