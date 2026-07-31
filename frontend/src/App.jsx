@@ -222,10 +222,10 @@ export default function App() {
             } catch (error) {
                 console.error("Failed to load secondary wellness data:", error);
                 setPerformanceError(error.message || 'Failed to load data');
+            } finally {
+                setLoadingRecommendations(false);
             }
         };
-
-        setLoadingRecommendations(false);
 
         // On initial load for a user, force a refresh. Subsequent renders will use the cache.
         loadAllData(true);
