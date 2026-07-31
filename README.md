@@ -26,9 +26,10 @@ JWT_SCECRET_KEY=your_jwt_secret_key
 
 FRONTEND_ORIGIN=http://localhost:5173
 
-OPENAI_API_KEY=your_openai_api_key
-
+AI_LLM_PROVIDER=gemini
 GEMINI_API_KEY=your_gemini_api_key
+
+OLLAMA_MODEL=your_downloaded_model
 ```
 
 Then create a virtual environment in the project root using the command:
