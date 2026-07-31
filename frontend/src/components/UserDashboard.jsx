@@ -613,6 +613,153 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
 }
 
 // ==========================================
+// NEW COMPONENT: FLOATING ROBOT ASSISTANT
+// ==========================================
+const FloatingBot = ({ onClick, isChatOpen }) => {
+  const [position, setPosition] = useState({ x: 50, direction: 1 });
+  const [isPaused, setIsPaused] = useState(false);
+  const [bubbleText, setBubbleText] = useState('Click me!');
+  const botRef = useRef(null);
+
+  const bubbleMessages = useMemo(() => [
+    "What are you doing?",
+    "Hey there!",
+    "My name is InfyWell.",
+    "Why aren't you paying attention to me?",
+    "Let's chat!",
+    "Need some wellness tips?"
+  ], []);
+
+  useEffect(() => {
+    if (isChatOpen) return;
+
+    let animationFrameId;
+
+    const moveBot = () => {
+      if (isPaused) {
+        animationFrameId = requestAnimationFrame(moveBot);
+        return;
+      }
+
+      setPosition(prev => {
+        const botWidth = botRef.current?.offsetWidth || 80;
+        const screenWidth = window.innerWidth;
+        let newX = prev.x + prev.direction * 0.5; // Adjust speed here
+        let newDirection = prev.direction;
+
+        if (newX > screenWidth - botWidth - 20) {
+          newX = screenWidth - botWidth - 20;
+          newDirection = -1;
+          setIsPaused(true);
+          setBubbleText(bubbleMessages[Math.floor(Math.random() * bubbleMessages.length)]);
+          setTimeout(() => setIsPaused(false), 2000); // Pause at edge
+        } else if (newX < 20) {
+          newX = 20;
+          newDirection = 1;
+          setIsPaused(true);
+          setBubbleText(bubbleMessages[Math.floor(Math.random() * bubbleMessages.length)]);
+          setTimeout(() => setIsPaused(false), 2000); // Pause at edge
+        }
+
+        return { x: newX, direction: newDirection };
+      });
+
+      animationFrameId = requestAnimationFrame(moveBot);
+    };
+
+    animationFrameId = requestAnimationFrame(moveBot);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [isPaused, isChatOpen, bubbleMessages]);
+
+  return (
+    <div
+      ref={botRef}
+      onClick={onClick}
+      className="fixed bottom-0 left-0 z-50 cursor-pointer"
+      // Only handle movement on the parent wrapper, NOT the flip.
+      style={{
+        transform: `translateX(${position.x}px)`,
+        transition: isPaused ? 'transform 0.5s ease-in-out' : 'none',
+      }}
+      title="Toggle AI Assistant"
+    >
+      {isPaused && !isChatOpen && (
+        <div 
+          className={`absolute bottom-[105%] w-max max-w-[180px] sm:max-w-[220px] whitespace-normal break-words px-3 py-1.5 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 rounded-lg text-[11px] font-semibold shadow-lg animate-fadeIn ${
+            position.direction === 1 
+              ? 'left-0' 
+              : 'right-0'
+          }`}
+        >
+          {bubbleText}
+          
+          {/* Arrow pointing down toward the center of the head (40px in) */}
+          <div 
+            className={`absolute -bottom-1.5 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-white dark:border-t-slate-700 ${
+              position.direction === 1 ? 'left-9' : 'right-9'
+            }`}
+          />
+        </div>
+      )}
+
+      {/* Apply the flip (scaleX) ONLY to the SVG image */}
+      <svg 
+        width="80" 
+        height="120" 
+        viewBox="0 0 80 120" 
+        xmlns="http://www.w3.org/2000/svg" 
+        className="drop-shadow-lg"
+        style={{ transform: `scaleX(${position.direction})` }}
+      >
+        <style>
+          {`
+            .bot-body {
+              animation: ${!isPaused && !isChatOpen ? 'bob 0.6s infinite ease-in-out' : 'none'};
+            }
+            @keyframes bob {
+              0%, 100% { transform: translateY(0); }
+              50% { transform: translateY(3px); }
+            }
+            .bot-leg, .bot-arm {
+              animation: ${!isPaused && !isChatOpen ? 'swing 0.6s infinite ease-in-out' : 'none'};
+              transform-origin: 50% 0;
+            }
+            .bot-leg.right, .bot-arm.right { animation-delay: -0.3s; }
+            @keyframes swing {
+              0%, 100% { transform: rotate(-25deg); }
+              50% { transform: rotate(25deg); }
+            }
+          `}
+        </style>
+        <g className="bot-body">
+          {/* Head */}
+          <rect x="25" y="20" width="30" height="25" rx="6" fill="#a5b4fc" />
+          <rect x="30" y="28" width="20" height="10" rx="3" fill="#1e293b" />
+          <circle cx="36" cy="33" r="2" fill="#4ade80" />
+          <circle cx="44" cy="33" r="2" fill="#4ade80" />
+          <line x1="35" y1="20" x2="35" y2="15" stroke="#a5b4fc" strokeWidth="2" />
+          <circle cx="35" cy="14" r="2" fill="#818cf8" />
+          
+          {/* Body */}
+          <rect x="20" y="45" width="40" height="35" rx="8" fill="#4f46e5" />
+          <circle cx="40" cy="62" r="8" fill="#312e81" />
+          
+          {/* Arms */}
+          <rect className="bot-arm left" x="12" y="48" width="8" height="28" rx="4" fill="#6366f1" style={{transform: 'rotate(25deg)'}} />
+          <rect className="bot-arm right" x="60" y="48" width="8" height="28" rx="4" fill="#6366f1" />
+        </g>
+        {/* Legs */}
+        <rect className="bot-leg left" x="25" y="80" width="10" height="35" rx="5" fill="#4338ca" />
+        <rect className="bot-leg right" x="45" y="80" width="10" height="35" rx="5" fill="#4338ca" />
+      </svg>
+    </div>
+  );
+};
+
+// ==========================================
 // CORE COMPONENT: USER DASHBOARD
 // ==========================================
 export default function UserDashboard({
@@ -641,6 +788,42 @@ export default function UserDashboard({
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  // State for interactive chatbot icon
+  const [pupilTransform, setPupilTransform] = useState('');
+  const chatButtonRef = useRef(null);
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!chatButtonRef.current) return;
+
+      const rect = chatButtonRef.current.getBoundingClientRect();
+      const anchorX = rect.left + rect.width / 2;
+      const anchorY = rect.top + rect.height / 2;
+
+      const deltaX = e.clientX - anchorX;
+      const deltaY = e.clientY - anchorY;
+
+      const angle = Math.atan2(deltaY, deltaX);
+      const distance = Math.min(Math.sqrt(deltaX * deltaX + deltaY * deltaY), 100) / 100;
+
+      // Max pupil movement radius inside the SVG's viewBox
+      const maxPupilMovement = 0.5;
+
+      const pupilX = Math.cos(angle) * maxPupilMovement * distance;
+      const pupilY = Math.sin(angle) * maxPupilMovement * distance;
+
+      setPupilTransform(`translate(${pupilX} ${pupilY})`);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
+
+
 
   const [playingVideo, setPlayingVideo] = useState(null); // { url, category, severity }
   const userRecommendations = useMemo(() => {
@@ -1061,58 +1244,13 @@ export default function UserDashboard({
         </main>
       </div>
 
-      {/* Floating AI Chat Assistant Widget */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
-        {isChatOpen && (
-          <div className="w-[380px] sm:w-[420px] max-w-[calc(100vw-2rem)] h-[520px] shadow-2xl rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden flex flex-col transition-all duration-300">
-            <div className="p-3.5 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between shrink-0">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center text-white">
-                  <Bot className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className="text-xxs font-bold flex items-center gap-1.5 text-slate-800 dark:text-slate-100">
-                    InfyWell
-                    <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                  </div>
-                  <div className="text-[11px] text-slate-400 font-mono">Real-time Assistance</div>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsChatOpen(false)}
-                className="p-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-500 dark:text-slate-400"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="flex-1 overflow-hidden">
-              <ChatbotModule user={user} isFloating={true} />
-            </div>
-          </div>
-        )}
-
-        <button
-          type="button"
-          onClick={() => setIsChatOpen(!isChatOpen)}
-          className={`w-19 h-18 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-xl cursor-pointer hover:scale-105 active:scale-95 ${
-            isChatOpen
-              ? 'bg-slate-900 dark:bg-slate-800 text-white'
-              : 'bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-blue-500/25'
-          }`}
-          title="Toggle AI Assistant"
-        >
-          {isChatOpen ? (
-            <X className="w-9 h-9" />
-          ) : (
-            <div className="relative">
-              <Bot className="w-9 h-9" />
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-900 animate-pulse" />
-            </div>
-          )}
-        </button>
-      </div>
+      {/* Floating AI Chat Assistant & Robot - MOVED OUTSIDE of overflow-hidden parent */}
+      <FloatingBot onClick={() => setIsChatOpen(!isChatOpen)} isChatOpen={isChatOpen} />
+      {isChatOpen && (
+        <div className="fixed bottom-24 right-6 z-50 w-[380px] sm:w-[420px] max-w-[calc(100vw-2rem)] h-[520px] shadow-2xl rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden flex flex-col transition-all duration-300 animate-fadeIn">
+          <ChatbotModule user={user} isFloating={true} />
+        </div>
+      )}
     </div>
   );
 }
