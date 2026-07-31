@@ -206,16 +206,23 @@ export default function App() {
                     setLoadingPerformance(false);
                 } else {
                     setLoadingRecommendations(true);
-                    const [habits, mentalLogs, recsData] = await Promise.all([
-                        api.fetchDailyHabits(userEmpId, options),
-                        api.fetchMentalHealthLogs(userEmpId, options),
-                        api.fetchRecommendations(options)
-                    ]);
-                    const loadedHabits = habits || await api.addDailyHabit({ employeeId: userEmpId });
-                    const loadedMentalLogs = mentalLogs || await api.addMentalHealthLog({ employeeId: userEmpId });
-                    setDailyHabits(loadedHabits ? [loadedHabits] : []);
-                    setMentalHealthLogs(loadedMentalLogs ? [loadedMentalLogs] : []);
-                    setRecommendations(recsData || []);
+                    
+                    // Fetch habits and logs, but don't let them block recommendations
+                    Promise.all([
+                        api.fetchDailyHabits(userEmpId, options).then(h => h || api.addDailyHabit({ employeeId: userEmpId })),
+                        api.fetchMentalHealthLogs(userEmpId, options).then(m => m || api.addMentalHealthLog({ employeeId: userEmpId }))
+                    ]).then(([habits, mentalLogs]) => {
+                        setDailyHabits(habits ? [habits] : []);
+                        setMentalHealthLogs(mentalLogs ? [mentalLogs] : []);
+                    }).catch(err => {
+                        console.warn("Could not load habits or mental health logs:", err);
+                    });
+
+                    // Fetch recommendations separately to ensure they always load
+                    api.fetchRecommendations(options)
+                        .then(recsData => {
+                            setRecommendations(recsData || []);
+                        });
                 }
                 if (currentUser.role !== 'admin') {
                 }
