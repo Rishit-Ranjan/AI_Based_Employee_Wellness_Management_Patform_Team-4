@@ -222,6 +222,10 @@ export default function App() {
                     api.fetchRecommendations(options)
                         .then(recsData => {
                             setRecommendations(recsData || []);
+                        })
+                        .catch(err => {
+                            console.error("Failed to fetch recommendations:", err);
+                            setRecommendations([]); // Set to empty array on error
                         });
                 }
                 if (currentUser.role !== 'admin') {
