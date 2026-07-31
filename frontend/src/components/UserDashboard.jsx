@@ -707,8 +707,8 @@ const FloatingBot = ({ onClick, isChatOpen }) => {
 
       {/* Apply the flip (scaleX) ONLY to the SVG image */}
       <svg 
-        width="80" 
-        height="120" 
+        width="60" 
+        height="97" 
         viewBox="0 0 80 120" 
         xmlns="http://www.w3.org/2000/svg" 
         className="drop-shadow-lg"
