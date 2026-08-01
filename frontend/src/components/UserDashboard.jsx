@@ -114,7 +114,7 @@ export function RecommendationModule({ recommendations, loading = false, onPlayV
                 </div>
                 {rec.videoUrl && (
                   <a href={rec.videoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-500 transition-colors">
-                    <ExternalLink className="w-4 h-4" />
+                    <ExternalLink className="w-5 h-5" />
                     Watch on YouTube
                   </a>
                 )}
