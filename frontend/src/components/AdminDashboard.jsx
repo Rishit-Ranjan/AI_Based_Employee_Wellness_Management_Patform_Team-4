@@ -4,6 +4,10 @@ import { Trash2, Edit, MoreHorizontal, Activity, TrendingUp, Lightbulb, Smile, B
   Search, Plus, X, ShieldAlert, AlertCircle, Check, Sparkles, Dumbbell, Apple, Brain, Clock, ChevronLeft, ChevronRight, Menu, Calendar,
   ShieldCheck, Bell, Receipt, Siren, Zap, Target, Users, LineChart, Cog, Save
 } from 'lucide-react';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ScatterChart, Scatter, ResponsiveContainer } from 'recharts';
+
+const PIE_COLORS = ['#ef4444', '#f59e0b', '#10b981'];
+
 import AdminInsuranceModule from './AdminInsuranceModule';
 import AdminNotificationCenter from './AdminNotificationCenter';
 import { AdminCheckupsModule, AdminSosMonitor, AdminExpensesModule } from './AdminExtraModules';
@@ -1071,6 +1075,18 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
   const [burnoutError, setBurnoutError] = useState('');
   const burnoutData = performanceData?.burnoutTrend;
 
+  const pieData = useMemo(() => {
+    const high = burnoutData?.highBurnoutCount ?? 0;
+    const moderate = burnoutData?.moderateBurnoutCount ?? 0;
+    const low = burnoutData?.lowBurnoutCount ?? 0;
+
+    return [
+      { name: 'High', value: high },
+      { name: 'Moderate', value: moderate },
+      { name: 'Low', value: low },
+    ];
+  }, [burnoutData]);
+
   // Logic from AiAnalyticsModule
   const departmentWellness = useMemo(() => {
     const deptMap = {};
@@ -1154,55 +1170,61 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {/* Burnout probability cards */}
-          <div className="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-xl p-5">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[10px] font-bold text-rose-700 dark:text-rose-300 uppercase tracking-wider">High Burnout Risk</span>
-              <Zap className="w-4 h-4 text-rose-500" />
+          <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <div className="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-xl p-5">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[10px] font-bold text-rose-700 dark:text-rose-300 uppercase tracking-wider">High Risk</span>
+                <Zap className="w-4 h-4 text-rose-500" />
+              </div>
+              <div className="text-3xl font-display font-bold text-rose-700 dark:text-rose-400">{pieData[0].value}</div>
+              <div className="text-[10px] text-rose-500 dark:text-rose-500 mt-1 font-mono">Employees</div>
             </div>
-            <div className="text-3xl font-display font-bold text-rose-700 dark:text-rose-400">
-              {burnoutData?.highBurnoutCount ?? departmentWellness.reduce((sum, d) => sum + d.highRiskCount, 0)}
+            <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl p-5">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider">Moderate Risk</span>
+                <Target className="w-4 h-4 text-amber-500" />
+              </div>
+              <div className="text-3xl font-display font-bold text-amber-700 dark:text-amber-400">{pieData[1].value}</div>
+              <div className="text-[10px] text-amber-500 dark:text-amber-500 mt-1 font-mono">Employees</div>
             </div>
-            <div className="text-[10px] text-rose-500 dark:text-rose-500 mt-1 font-mono">Employees at critical level</div>
-            <div className="w-full bg-rose-200 dark:bg-rose-800 h-1.5 rounded-full mt-3 overflow-hidden">
-              <div
-                className="bg-rose-500 h-full rounded-full"
-                style={{ width: `${Math.min(100, ((burnoutData?.highBurnoutCount ?? departmentWellness.reduce((sum, d) => sum + d.highRiskCount, 0)) / Math.max(records.length, 1)) * 100)}%` }}
-              />
-            </div>
-          </div>
-
-          <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl p-5">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider">Moderate Risk</span>
-              <Target className="w-4 h-4 text-amber-500" />
-            </div>
-            <div className="text-3xl font-display font-bold text-amber-700 dark:text-amber-400">
-              {burnoutData?.moderateBurnoutCount ?? risks.filter(r => r.riskScore >= 45 && r.riskScore < 70).length}
-            </div>
-            <div className="text-[10px] text-amber-500 dark:text-amber-500 mt-1 font-mono">Needs intervention</div>
-            <div className="w-full bg-amber-200 dark:bg-amber-800 h-1.5 rounded-full mt-3 overflow-hidden">
-              <div
-                className="bg-amber-500 h-full rounded-full"
-                style={{ width: `${Math.min(100, ((burnoutData?.moderateBurnoutCount ?? risks.filter(r => r.riskScore >= 45 && r.riskScore < 70).length) / Math.max(records.length, 1)) * 100)}%` }}
-              />
+            <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl p-5">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">Low Risk</span>
+                <Users className="w-4 h-4 text-emerald-500" />
+              </div>
+              <div className="text-3xl font-display font-bold text-emerald-700 dark:text-emerald-400">{pieData[2].value}</div>
+              <div className="text-[10px] text-emerald-500 dark:text-emerald-500 mt-1 font-mono">Employees</div>
             </div>
           </div>
-
-          <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl p-5">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">Low Risk</span>
-              <Users className="w-4 h-4 text-emerald-500" />
-            </div>
-            <div className="text-3xl font-display font-bold text-emerald-700 dark:text-emerald-400">
-              {burnoutData?.lowBurnoutCount ?? risks.filter(r => r.riskScore < 45).length}
-            </div>
-            <div className="text-[10px] text-emerald-500 dark:text-emerald-500 mt-1 font-mono">Healthy baseline</div>
-            <div className="w-full bg-emerald-200 dark:bg-emerald-800 h-1.5 rounded-full mt-3 overflow-hidden">
-              <div
-                className="bg-emerald-500 h-full rounded-full"
-                style={{ width: `${Math.min(100, ((burnoutData?.lowBurnoutCount ?? risks.filter(r => r.riskScore < 45).length) / Math.max(records.length, 1)) * 100)}%` }}
-              />
-            </div>
+          <div className="h-48 md:h-full min-h-[150px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={pieData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                  label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
+                >
+                  {pieData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    background: 'rgba(255, 255, 255, 0.8)',
+                    backdropFilter: 'blur(5px)',
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    fontSize: '12px'
+                  }}
+                />
+                <Legend iconType="circle" iconSize={8} wrapperStyle={{fontSize: '11px'}} />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
         </div>
       )}
@@ -1223,6 +1245,20 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
         <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100">Department Wellness Score Predictions</h3>
       </div>
       <p className="text-xs text-slate-400 dark:text-slate-400">AI-predicted wellness scores based on aggregated health metrics per department</p>
+      
+      <div className="h-72 w-full mt-4">
+        <ResponsiveContainer>
+          <BarChart data={departmentWellness} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(128,128,128,0.2)" />
+            <XAxis dataKey="department" fontSize={10} />
+            <YAxis domain={[0, 100]} />
+            <Tooltip contentStyle={{fontSize: '12px', borderRadius: '8px'}} />
+            <Legend wrapperStyle={{fontSize: '11px'}} />
+            <Bar dataKey="wellnessScore" name="Wellness Score (%)" fill="#6366f1" />
+            <Bar dataKey="avgStressScore" name="Avg Stress (/10)" fill="#f59e0b" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {departmentWellness.length === 0 ? (
@@ -1462,18 +1498,18 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
         <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
           <h4 className="font-display font-semibold text-slate-800 dark:text-slate-100">Health Vitals Scatter Overview</h4>
           <p className="text-slate-400 dark:text-slate-400 text-xs font-light">Real-time clustering of employee metrics (Sleep vs. Exercise hours per week).</p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-4 pt-2">
-            {records.map(r => (
-              <div key={r.id} className="p-4 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 rounded-xl space-y-2 text-center transition-all hover:border-slate-300 dark:hover:border-slate-600 shadow-xs">
-                <div className="w-1.5 h-1.5 bg-slate-400 dark:bg-slate-500 rounded-full mx-auto" />
-                <div className="font-semibold text-xs text-slate-800 dark:text-slate-200 truncate">{r.employeeName}</div>
-                <div className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono">{r.department}</div>
-                <div className="grid grid-cols-2 gap-1 text-[10px] font-mono bg-white dark:bg-slate-800 p-2 rounded border border-slate-150 dark:border-slate-700 mt-2">
-                  <div><span className="block text-[8px] text-slate-400 dark:text-slate-500 uppercase font-sans">Sleep</span><span className="font-bold text-slate-700 dark:text-slate-300">{r.sleepHoursPerNight}h</span></div>
-                  <div><span className="block text-[8px] text-slate-400 dark:text-slate-500 uppercase font-sans">Fit</span><span className="font-bold text-slate-700 dark:text-slate-300">{r.exerciseHoursPerWeek}h</span></div>
-                </div>
-              </div>
-            ))}
+          
+          <div className="h-72 w-full">
+          <ResponsiveContainer>
+            <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(128,128,128,0.2)" />
+              <XAxis type="number" dataKey="exerciseHoursPerWeek" name="Exercise" unit="h/wk" domain={[0, 'dataMax + 2']} />
+              <YAxis type="number" dataKey="sleepHoursPerNight" name="Sleep" unit="h/night" domain={[0, 'dataMax + 1']} />
+              <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{fontSize: '12px', borderRadius: '8px'}} />
+              <Legend wrapperStyle={{fontSize: '11px'}} />
+              <Scatter name="Employees" data={records} fill="#4f46e5" />
+            </ScatterChart>
+          </ResponsiveContainer>
           </div>
         </div>
       </div>
