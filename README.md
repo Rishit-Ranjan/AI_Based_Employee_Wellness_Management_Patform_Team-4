@@ -147,14 +147,13 @@ Open your browser and navigate to **http://localhost:5173**.
 
 ## ⚙️ Usage
 
-The application has two primary roles with default credentials for demonstration:
+The application has two primary roles with default credentials of Admin for demonstration:
 
-#### Employee Access
-
-- **Role:** `Employee`
-- **Employee ID:** `EMP101`
-- **Email:** `sudip@infy.com`
-- **Password:** `password`
+### Employee Role
+-**Role:**'User'
+-**EMP ID:**E.g. EMP101
+-**Email:** personal email is preferred
+-**Password:** set your 6-digit password
 
 #### Administrator Access
 
