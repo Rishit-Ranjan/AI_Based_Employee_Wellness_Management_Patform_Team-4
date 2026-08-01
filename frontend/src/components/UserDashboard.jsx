@@ -641,10 +641,12 @@ const FloatingBot = ({ onClick, isChatOpen }) => {
   const botRef = useRef(null);
 
   const bubbleMessages = useMemo(() => [
-    "Hey there!",
+    "Hey there! How can I assist you today?",
+    "My name's InfyWell",
     "Let's chat!",
     "Need some wellness tips?",
     "How are you feeling today?",
+    "Why aren't you paying attention to me?",
   ], []);
 
   useEffect(() => {
@@ -695,7 +697,7 @@ const FloatingBot = ({ onClick, isChatOpen }) => {
 
       {/* overflow="visible" remains to prevent clipping */}
       <svg 
-        width="75" 
+        width="70"
         height="100" 
         viewBox="0 0 80 120" 
         overflow="visible"
