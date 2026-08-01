@@ -18,6 +18,7 @@ import { sendAiChatMessage, fetchAiInsights, generateAiRoutine } from '../servic
 
 import PersonalWellnessProfile from './wellness/PersonalWellnessProfile';
 import ThemeToggle from './wellness/ThemeToggle';
+import logo from '../assets/logo.png';
 
 // Export UserProfileModule for backwards compatibility & modularity
 export function UserProfileModule(props) {
@@ -634,121 +635,116 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
 // NEW COMPONENT: FLOATING ROBOT ASSISTANT
 // ==========================================
 const FloatingBot = ({ onClick, isChatOpen }) => {
-  const [position, setPosition] = useState({ x: 50, direction: 1 });
   const [isPaused, setIsPaused] = useState(false);
+  const [isWaving, setIsWaving] = useState(false);
   const [bubbleText, setBubbleText] = useState('Click me!');
   const botRef = useRef(null);
 
   const bubbleMessages = useMemo(() => [
-    "What are you doing?",
     "Hey there!",
-    "My name is InfyWell.",
-    "Why aren't you paying attention to me?",
     "Let's chat!",
-    "Need some wellness tips?"
+    "Need some wellness tips?",
+    "How are you feeling today?",
   ], []);
 
   useEffect(() => {
     if (isChatOpen) return;
 
-    let animationFrameId;
+    const idleActions = [
+      () => { // Show bubble
+        setIsPaused(true);
+        setBubbleText(bubbleMessages[Math.floor(Math.random() * bubbleMessages.length)]);
+        setTimeout(() => setIsPaused(false), 4000);
+      },
+      () => { // Wave
+        setIsWaving(true);
+        setTimeout(() => setIsWaving(false), 2500); // Wave for 2.5s
+      },
+    ];
 
-    const moveBot = () => {
-      if (isPaused) {
-        animationFrameId = requestAnimationFrame(moveBot);
-        return;
-      }
-
-      setPosition(prev => {
-        const botWidth = botRef.current?.offsetWidth || 80;
-        const screenWidth = window.innerWidth;
-        let newX = prev.x + prev.direction * 1; // Adjust speed here
-        let newDirection = prev.direction;
-
-        if (newX > screenWidth - botWidth - 20) {
-          newX = screenWidth - botWidth - 20;
-          newDirection = -1;
-          setIsPaused(true);
-          setBubbleText(bubbleMessages[Math.floor(Math.random() * bubbleMessages.length)]);
-          setTimeout(() => setIsPaused(false), 2000); // Pause at edge
-        } else if (newX < 20) {
-          newX = 20;
-          newDirection = 1;
-          setIsPaused(true);
-          setBubbleText(bubbleMessages[Math.floor(Math.random() * bubbleMessages.length)]);
-          setTimeout(() => setIsPaused(false), 2000); // Pause at edge
-        }
-
-        return { x: newX, direction: newDirection };
-      });
-
-      animationFrameId = requestAnimationFrame(moveBot);
-    };
-
-    animationFrameId = requestAnimationFrame(moveBot);
+    const idleInterval = setInterval(() => {
+      idleActions[Math.floor(Math.random() * idleActions.length)]();
+    }, 8000); // Trigger a random idle action every 8 seconds
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      clearInterval(idleInterval);
     };
-  }, [isPaused, isChatOpen, bubbleMessages]);
+  }, [isChatOpen, bubbleMessages]);
 
   return (
     <div
       ref={botRef}
       onClick={onClick}
-      className="fixed bottom-0 left-0 z-50 cursor-pointer"
-      // Only handle movement on the parent wrapper, NOT the flip.
-      style={{
-        transform: `translateX(${position.x}px)`,
-        transition: isPaused ? 'transform 0.5s ease-in-out' : 'none',
-      }}
+      className="fixed bottom-4 right-6 z-50 cursor-pointer"
       title="Toggle AI Assistant"
     >
-      {isPaused && !isChatOpen && (
+      {!isChatOpen && (
         <div 
-          className={`absolute bottom-[105%] w-max max-w-[180px] sm:max-w-[220px] whitespace-normal break-words px-3 py-1.5 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 rounded-lg text-[11px] font-semibold shadow-lg animate-fadeIn ${
-            position.direction === 1 
-              ? 'left-0' 
-              : 'right-0'
+          className={`absolute bottom-[105%] right-0 w-max max-w-[180px] sm:max-w-[220px] whitespace-normal break-words px-3 py-1.5 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 rounded-lg text-[11px] font-semibold shadow-lg transition-opacity duration-300 ${
+            isPaused ? 'opacity-100' : 'opacity-0'
           }`}
         >
           {bubbleText}
           
           {/* Arrow pointing down toward the center of the head (40px in) */}
           <div 
-            className={`absolute -bottom-1.5 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-white dark:border-t-slate-700 ${
-              position.direction === 1 ? 'left-9' : 'right-9'
-            }`}
+            className="absolute -bottom-1.5 right-9 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-white dark:border-t-slate-700"
           />
         </div>
       )}
 
-      {/* Apply the flip (scaleX) ONLY to the SVG image */}
+      {/* overflow="visible" remains to prevent clipping */}
       <svg 
-        width="60" 
-        height="95" 
+        width="75" 
+        height="100" 
         viewBox="0 0 80 120" 
+        overflow="visible"
         xmlns="http://www.w3.org/2000/svg" 
-        className="drop-shadow-lg"
-        style={{ transform: `scaleX(${position.direction})` }}
+        className="drop-shadow-lg transition-transform"
+        style={{ transform: `scaleX(-1)` }}
       >
         <style>
           {`
-            .bot-body {
-              animation: ${!isPaused && !isChatOpen ? 'bob 0.6s infinite ease-in-out' : 'none'};
+            /* Floating hover animation */
+            .bot-body { animation: ${!isPaused && !isChatOpen && !isWaving ? 'bob 2s infinite ease-in-out' : 'none'}; }
+            
+            /* 
+              Using absolute SVG coordinates for transform-origin to bypass Safari/browser bugs.
+              Left Arm X = 12 + (8/2) = 16px. Y = 48 + 4 = 52px.
+              Right Arm X = 60 + (8/2) = 64px. Y = 48 + 4 = 52px.
+            */
+            .bot-arm.left { 
+              animation: ${isWaving ? 'wave-left 2.5s ease-in-out' : 'none'}; 
+              transform-origin: 16px 52px; 
             }
+            .bot-arm.right { 
+              animation: ${isWaving ? 'wave-right 2.5s ease-in-out' : 'none'}; 
+              transform-origin: 64px 52px; 
+            }
+
             @keyframes bob {
               0%, 100% { transform: translateY(0); }
-              50% { transform: translateY(3px); }
+              50% { transform: translateY(-5px); }
             }
-            .bot-leg, .bot-arm {
-              animation: ${!isPaused && !isChatOpen ? 'swing 0.6s infinite ease-in-out' : 'none'};
-              transform-origin: 50% 0;
+
+            @keyframes wave-left {
+              0% { transform: rotate(0deg); }
+              15% { transform: rotate(-140deg); } /* lift up */
+              30% { transform: rotate(-100deg); } /* wave in */
+              45% { transform: rotate(-140deg); } /* wave out */
+              60% { transform: rotate(-100deg); } /* wave in */
+              75% { transform: rotate(-140deg); } /* wave out */
+              100% { transform: rotate(0deg); }   /* back down */
             }
-            .bot-leg.right, .bot-arm.right { animation-delay: -0.3s; }
-            @keyframes swing {
-              0%, 100% { transform: rotate(-25deg); }
-              50% { transform: rotate(25deg); }
+
+            @keyframes wave-right {
+              0% { transform: rotate(0deg); }
+              15% { transform: rotate(140deg); }  /* lift up */
+              30% { transform: rotate(100deg); }  /* wave in */
+              45% { transform: rotate(140deg); }  /* wave out */
+              60% { transform: rotate(100deg); }  /* wave in */
+              75% { transform: rotate(140deg); }  /* wave out */
+              100% { transform: rotate(0deg); }   /* back down */
             }
           `}
         </style>
@@ -766,16 +762,20 @@ const FloatingBot = ({ onClick, isChatOpen }) => {
           <circle cx="40" cy="62" r="8" fill="#312e81" />
           
           {/* Arms */}
-          <rect className="bot-arm left" x="12" y="48" width="8" height="28" rx="4" fill="#6366f1" style={{transform: 'rotate(25deg)'}} />
+          <rect className="bot-arm left" x="12" y="48" width="8" height="28" rx="4" fill="#6366f1" />
           <rect className="bot-arm right" x="60" y="48" width="8" height="28" rx="4" fill="#6366f1" />
         </g>
-        {/* Legs */}
-        <rect className="bot-leg left" x="25" y="80" width="10" height="35" rx="5" fill="#4338ca" />
-        <rect className="bot-leg right" x="45" y="80" width="10" height="35" rx="5" fill="#4338ca" />
+        
+        {/* Legs (Placed inside bot-body so they float with the rest of the body) */}
+        <g className="bot-body">
+          <rect className="bot-leg left" x="25" y="80" width="10" height="35" rx="5" fill="#4338ca" />
+          <rect className="bot-leg right" x="45" y="80" width="10" height="35" rx="5" fill="#4338ca" />
+        </g>
       </svg>
     </div>
   );
 };
+
 
 // ==========================================
 // CORE COMPONENT: USER DASHBOARD
@@ -927,10 +927,7 @@ export default function UserDashboard({
 
           {/* Logo & Brand Title */}
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center">
-              {/* Admin Dashboard's icon structure */}
-              <div className="w-4 h-4 bg-white rounded-sm rotate-45"></div>
-            </div>
+            <img src={logo} alt="App Logo" className="w-15 h-14" />
             <div className="hidden sm:block">
               <span className="font-display font-bold text-base tracking-tight block text-slate-900 dark:text-slate-50 leading-none">
                 Employee Wellness Management Analytics

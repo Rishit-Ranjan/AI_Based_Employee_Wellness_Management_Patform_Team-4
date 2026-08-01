@@ -11,6 +11,7 @@ import NotificationBell from './NotificationBell';
 import ProfileEditModal from './ProfileEditModal'; 
 import api, { fetchBurnoutTrend } from '../services/api';
 import ThemeToggle from './wellness/ThemeToggle';
+import logo from '../assets/logo.png';
 
 // ==========================================
 // MODULE 1: EMPLOYEE HEALTH DATA MANAGEMENT
@@ -1585,8 +1586,7 @@ function SystemSettingsModule() {
     ollamaModel: 'phi3:3.8b',
     highRiskThreshold: 70,
     mediumRiskThreshold: 45,
-    enableEmailNotifications: false,
-    enableSmsNotifications: false,
+    enableEmailNotifications: true,
     dataRetentionDays: 365,
     anonymizeSentiment: true,
   });
@@ -1678,18 +1678,6 @@ function SystemSettingsModule() {
           <SettingRow label="Enable Email Notifications">
             <label className="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" checked={settings.enableEmailNotifications} onChange={(e) => handleSettingChange('enableEmailNotifications', e.target.checked)} className="sr-only peer" />
-              <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-slate-600 peer-checked:bg-blue-600"></div>
-            </label>
-          </SettingRow>
-          <SettingRow label="Enable SMS Notifications">
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" checked={settings.enableSmsNotifications} onChange={(e) => handleSettingChange('enableSmsNotifications', e.target.checked)} className="sr-only peer" />
-              <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-slate-600 peer-checked:bg-blue-600"></div>
-            </label>
-          </SettingRow>
-          <SettingRow label="Enable SMS Notifications">
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" checked={settings.enableSmsNotifications} onChange={(e) => handleSettingChange('enableSmsNotifications', e.target.checked)} className="sr-only peer" />
               <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-slate-600 peer-checked:bg-blue-600"></div>
             </label>
           </SettingRow>
@@ -1834,9 +1822,7 @@ export default function AdminDashboard({ user,
 
           {/* Logo & Brand Title */}
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center">
-              <div className="w-4 h-4 bg-white rounded-sm rotate-45"></div>
-            </div>
+            <img src={logo} alt="App Logo" className="w-15 h-14" />
             <div className="hidden sm:block">
               <span className="font-display font-bold text-base tracking-tight block text-slate-900 dark:text-slate-50 leading-none">
                 Employee Wellness Management Analytics
