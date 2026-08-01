@@ -19,3 +19,4 @@ cloudpickle
 reportlab
 openai
 google-genai
+twilio

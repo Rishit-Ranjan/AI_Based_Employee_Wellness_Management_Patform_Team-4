@@ -6,7 +6,7 @@ const DEPARTMENTS = ['Engineering', 'Sales', 'Marketing', 'Product', 'Operations
 
 export default function ProfileEditModal({ user, isAdmin = false, onClose, onUpdated, onUpdateAvatar }) {
   const [name, setName] = useState(user.name || '');
-  const [phone, setPhone] = useState(user.phone || '');
+  const [phone, setPhone] = useState(user.phone || ''); // Re-add phone state
   const [department, setDepartment] = useState(user.department || 'Engineering');
   const [avatarUrl, setAvatarUrl] = useState(user.avatarUrl || '');
   const [saving, setSaving] = useState(false);
@@ -44,7 +44,7 @@ export default function ProfileEditModal({ user, isAdmin = false, onClose, onUpd
     setSaving(true);
     setError('');
     try {
-      const profileData = { name, department, phone };
+      const profileData = { name, department, phone }; // Re-add phone to payload
 
       // First, handle avatar changes before updating other profile info
       if (avatarFile) {
@@ -136,11 +136,12 @@ export default function ProfileEditModal({ user, isAdmin = false, onClose, onUpd
             <input value={name} onChange={(e) => setName(e.target.value)} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200" />
           </div>
 
+          {/* Re-add phone number input field */}
           <div>
             <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">Phone Number</label>
             <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Your contact number" className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200" />
           </div>
-
+          
           {!isAdmin && (
             <div>
               <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">Department</label>
