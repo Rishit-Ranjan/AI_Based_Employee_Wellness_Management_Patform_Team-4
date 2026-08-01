@@ -1917,7 +1917,7 @@ export default function AdminDashboard({ user,
             <div className="flex items-center justify-between px-2 py-1">
               {!isSidebarCollapsed && (
                 <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest font-mono">
-                  Admin Modules
+                  Admin Navigation
                 </span>
               )}
               <button
