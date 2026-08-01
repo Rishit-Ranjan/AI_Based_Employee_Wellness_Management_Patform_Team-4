@@ -1254,27 +1254,27 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
           <div className="animate-spin w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-start">
           {/* Burnout probability cards */}
-          <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-5 self-start">
-            <div className="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-2xl p-5 shadow-sm min-h-[180px]">
-              <div className="flex items-center justify-between mb-3">
+          <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-3 self-start">
+            <div className="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-2xl p-3.5 shadow-sm min-h-[130px]">
+              <div className="flex items-center justify-between mb-1.5">
                 <span className="text-[10px] font-bold text-rose-700 dark:text-rose-300 uppercase tracking-wider">High Risk</span>
                 <Zap className="w-4 h-4 text-rose-500" />
               </div>
               <div className="text-3xl font-display font-bold text-rose-700 dark:text-rose-400">{pieData[0].value}</div>
               <div className="text-[10px] text-rose-500 dark:text-rose-500 mt-1 font-mono">Employees</div>
             </div>
-            <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-2xl p-5 shadow-sm min-h-[180px]">
-              <div className="flex items-center justify-between mb-3">
+            <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-2xl p-3.5 shadow-sm min-h-[130px]">
+              <div className="flex items-center justify-between mb-1.5">
                 <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider">Moderate Risk</span>
                 <Target className="w-4 h-4 text-amber-500" />
               </div>
               <div className="text-3xl font-display font-bold text-amber-700 dark:text-amber-400">{pieData[1].value}</div>
               <div className="text-[10px] text-amber-500 dark:text-amber-500 mt-1 font-mono">Employees</div>
             </div>
-            <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-5 shadow-sm min-h-[180px]">
-              <div className="flex items-center justify-between mb-3">
+            <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-3.5 shadow-sm min-h-[130px]">
+              <div className="flex items-center justify-between mb-1.5">
                 <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">Low Risk</span>
                 <Users className="w-4 h-4 text-emerald-500" />
               </div>
@@ -1282,7 +1282,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
               <div className="text-[10px] text-emerald-500 dark:text-emerald-500 mt-1 font-mono">Employees</div>
             </div>
           </div>
-          <div className="h-72 md:h-80 min-h-[240px] flex items-center justify-center">
+          <div className="h-64 md:h-72 min-h-[210px] flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart margin={{ top: 10, right: 15, bottom: 10, left: 15 }}>
                 <Pie
