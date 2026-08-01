@@ -145,6 +145,23 @@ This will:
 
 Open your browser and navigate to **http://localhost:5173**.
 
+#### Backend-first startup (optional)
+
+If you want the backend to attempt startup first, use:
+
+```bash
+npm run dev:backend-first
+```
+
+This command will:
+
+- start the backend server first,
+- wait up to 10 seconds for it to become available,
+- then start the frontend dev server,
+- and still launch Vite if the backend does not become ready in time.
+
+This gives you a backend-first flow without blocking the web app entirely if backend startup fails.
+
 ---
 
 ## ⚙️ Usage
