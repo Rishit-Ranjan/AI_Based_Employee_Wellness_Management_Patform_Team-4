@@ -726,7 +726,7 @@ const FloatingBot = ({ onClick, isChatOpen }) => {
       {/* Apply the flip (scaleX) ONLY to the SVG image */}
       <svg 
         width="60" 
-        height="97" 
+        height="95" 
         viewBox="0 0 80 120" 
         xmlns="http://www.w3.org/2000/svg" 
         className="drop-shadow-lg"
@@ -1262,10 +1262,10 @@ export default function UserDashboard({
         </main>
       </div>
 
-      {/* Floating AI Chat Assistant & Robot - MOVED OUTSIDE of overflow-hidden parent */}
+      {/* AI Chat Assistant & Robot - MOVED OUTSIDE of overflow-hidden parent */}
       <FloatingBot onClick={() => setIsChatOpen(!isChatOpen)} isChatOpen={isChatOpen} />
       {isChatOpen && (
-        <div className="fixed bottom-24 right-6 z-50 w-[340px] sm:w-[380px] max-w-[calc(100vw-2rem)] h-[520px] shadow-2xl rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden flex flex-col transition-all duration-300 animate-fadeIn">
+        <div className="fixed bottom-24 right-6 z-50 w-[340px] sm:w-[390px] max-w-[calc(100vw-2rem)] h-[525px] shadow-2xl rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden flex flex-col transition-all duration-300 animate-fadeIn">
           <ChatbotModule user={user} isFloating={true} onClose={() => setIsChatOpen(false)} />
         </div>
       )}
