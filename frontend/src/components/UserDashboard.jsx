@@ -92,14 +92,14 @@ export function RecommendationModule({ recommendations, loading = false, onPlayV
                   <div className={`p-2.5 ${bgColor} border ${borderColor} rounded-xl ${iconColor}`}>
                     <Icon className="w-5 h-5" />
                   </div>
-                  <span className={`px-2.5 py-0.5 ${bgColor} border ${borderColor} ${iconColor} text-[10px] font-bold uppercase rounded-lg font-mono`}>
+                  <span className={`px-3 py-0.5 ${bgColor} border ${borderColor} ${iconColor} text-[10px] font-bold uppercase rounded-lg font-mono`}>
                     {rec.category}
                   </span>
                 </div>
 
                 <div>
-                  <h4 className="font-display font-semibold text-base text-slate-900 dark:text-slate-100">{rec.title}</h4>
-                  <p className="text-slate-500 dark:text-slate-400 text-xs mt-1.5 leading-relaxed font-light">
+                  <h4 className="text-[17px] font-display font-semibold text-base text-slate-900 dark:text-slate-100">{rec.title}</h4>
+                  <p className=" text-slate-500 dark:text-slate-400 text-[15px] mt-1.5 leading-relaxed font-light">
                     {rec.description}
                   </p>
                 </div>
@@ -110,7 +110,7 @@ export function RecommendationModule({ recommendations, loading = false, onPlayV
               <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700/60">
                 <div className="flex items-center gap-1.5">
                   <span className={`w-2 h-2 rounded-full ${rec.severity === 'High' ? 'bg-red-500' : rec.severity === 'Medium' ? 'bg-amber-500' : 'bg-blue-500'}`} />
-                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase font-mono">{rec.severity} Severity</span>
+                  <span className="text-[13px] font-bold text-slate-500 dark:text-slate-400 uppercase font-mono">{rec.severity} Severity</span>
                 </div>
                 {rec.videoUrl && (
                   <a href={rec.videoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-500 transition-colors">
@@ -122,10 +122,10 @@ export function RecommendationModule({ recommendations, loading = false, onPlayV
 
               {rec.reasons && rec.reasons.length > 0 && (
                 <div className="pt-3 border-t border-slate-100 dark:border-slate-700/60">
-                  <p className="text-[9px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider font-mono">Why this is recommended for you:</p>
+                  <p className="text-[12.5px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider font-mono">Why this is recommended for you:</p>
                   <ul className="list-disc list-inside space-y-0.5 mt-1">
                     {rec.reasons.map((reason, i) => (
-                      <li key={i} className="text-[10px] text-slate-600 dark:text-slate-300">{reason}</li>
+                      <li key={i} className="text-[12px] text-slate-600 dark:text-slate-300">{reason}</li>
                     ))}
                   </ul>
                 </div>
