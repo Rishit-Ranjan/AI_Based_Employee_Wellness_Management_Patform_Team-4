@@ -210,7 +210,8 @@ def login():
             "employeeId": user.get('employeeId'),
             "adminId": user.get('adminId'),
             "role": user.get('role', 'user'),
-            "avatarUrl": get_full_avatar_url(user.get("avatarUrl"))
+            "avatarUrl": get_full_avatar_url(user.get("avatarUrl")),
+            "phone": user.get("phone")
         }
 
         # Create token with user_info as the identity
@@ -1864,8 +1865,8 @@ def update_profile():
         allowed_fields['department'] = data['department']
     if 'avatarUrl' in data:
         allowed_fields['avatarUrl'] = data['avatarUrl']
-    if 'phone' in data:
-        allowed_fields['phone'] = data['phone']
+    if 'phone' in data: # Ensure phone is processed
+        allowed_fields['phone'] = data['phone'] 
 
     if not allowed_fields:
         return jsonify({'detail': 'No editable fields provided'}), 400
@@ -1884,6 +1885,7 @@ def update_profile():
             "employeeId": updated_doc.get('employeeId'),
             "role": updated_doc.get('role', role),
             "avatarUrl": updated_doc.get("avatarUrl", user_info.get('avatarUrl')),
+            "phone": updated_doc.get("phone")
         }
         access_token = create_access_token(identity=user_id_str, additional_claims={"user_info": new_user_info})
         resp = make_response(jsonify({'user': new_user_info}))
@@ -2538,7 +2540,8 @@ def get_system_settings():
             'ollamaModel': os.getenv('OLLAMA_MODEL', 'phi3:3.8b'),
             'highRiskThreshold': 70,
             'mediumRiskThreshold': 45,
-            'enableEmailNotifications': True,
+            'enableEmailNotifications': False,
+            'enableSmsNotifications': False,
             'dataRetentionDays': 365,
             'anonymizeSentiment': True,
         }
