@@ -105,7 +105,7 @@ export default function GoalsModule({ user }) {
       </div>
 
       <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
-        <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2 mb-4"><Award className="w-5 h-5 text-slate-400" /> Achievements</h3>
+        <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2 mb-4"><Award className="w-5 h-5 text-slate-400" /> My Achievements</h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {(achievements?.badges || []).map((b, i) => (
             <div key={i} className="border border-amber-100 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/40 rounded-lg p-3.5 text-center">
