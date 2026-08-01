@@ -1075,17 +1075,103 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
   const [burnoutError, setBurnoutError] = useState('');
   const burnoutData = performanceData?.burnoutTrend;
 
+  const filteredRecords = useMemo(() => {
+    if (!selectedDept) return records;
+    return records.filter((r) => (r.department || '').toLowerCase() === selectedDept.toLowerCase());
+  }, [records, selectedDept]);
+
+  const derivedBurnoutFallback = useMemo(() => {
+    const result = { high: 0, moderate: 0, low: 0 };
+    filteredRecords.forEach(r => {
+      const level = (r.stressLevel || '').toString().toLowerCase();
+      const score = Number(r.stressScore);
+      if (level === 'high' || score >= 7) {
+        result.high += 1;
+      } else if (level === 'medium' || (score >= 4 && score < 7)) {
+        result.moderate += 1;
+      } else {
+        result.low += 1;
+      }
+    });
+    return result;
+  }, [filteredRecords]);
+
   const pieData = useMemo(() => {
-    const high = burnoutData?.highBurnoutCount ?? 0;
-    const moderate = burnoutData?.moderateBurnoutCount ?? 0;
-    const low = burnoutData?.lowBurnoutCount ?? 0;
+    const backendHigh = burnoutData?.highBurnoutCount ?? 0;
+    const backendModerate = burnoutData?.moderateBurnoutCount ?? 0;
+    const backendLow = burnoutData?.lowBurnoutCount ?? 0;
+    const backendTotal = backendHigh + backendModerate + backendLow;
+
+    const high = derivedBurnoutFallback.high;
+    const moderate = derivedBurnoutFallback.moderate;
+    const low = derivedBurnoutFallback.low;
+    const total = high + moderate + low;
+
+    if (!selectedDept && backendTotal > 0) {
+      return [
+        { name: 'High', value: backendHigh },
+        { name: 'Moderate', value: backendModerate },
+        { name: 'Low', value: backendLow },
+      ];
+    }
+
+    if (total > 0) {
+      return [
+        { name: 'High', value: high },
+        { name: 'Moderate', value: moderate },
+        { name: 'Low', value: low },
+      ];
+    }
 
     return [
-      { name: 'High', value: high },
-      { name: 'Moderate', value: moderate },
-      { name: 'Low', value: low },
+      { name: 'High', value: backendHigh },
+      { name: 'Moderate', value: backendModerate },
+      { name: 'Low', value: backendLow },
     ];
-  }, [burnoutData]);
+  }, [burnoutData, derivedBurnoutFallback, selectedDept]);
+
+  const pieSegments = useMemo(() => {
+    const filtered = pieData.filter((segment) => segment.value > 0);
+    return filtered.length > 0 ? filtered : [{ name: 'No Data', value: 1 }];
+  }, [pieData]);
+
+  const renderPieLabel = ({ cx, cy, midAngle, outerRadius, percent, name, value }) => {
+    if (!value) return null;
+    const RADIAN = Math.PI / 180;
+    const radius = outerRadius + 22;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+    return (
+      <text x={x} y={y} fill="#334155" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" fontSize={11}>
+        {`${name} ${(percent * 100).toFixed(0)}%`}
+      </text>
+    );
+  };
+
+  const scatterData = useMemo(() => filteredRecords
+    .filter(r => Number.isFinite(Number(r.exerciseHoursPerWeek)) && Number.isFinite(Number(r.sleepHoursPerNight)))
+    .map(r => ({
+      employeeName: r.employeeName || 'Unknown',
+      exerciseHoursPerWeek: Number(r.exerciseHoursPerWeek),
+      sleepHoursPerNight: Number(r.sleepHoursPerNight),
+      department: r.department || 'Unknown',
+    })),
+  [filteredRecords]);
+
+  const ScatterTooltip = ({ active, payload }) => {
+    if (!active || !payload || !payload.length) return null;
+    const point = payload[0].payload;
+    return (
+      <div className="bg-white dark:bg-slate-900/95 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-xs shadow-lg text-slate-900 dark:text-slate-100">
+        <div className="font-semibold mb-1">{point.employeeName}</div>
+        <div className="space-y-1">
+          <div>Department: {point.department}</div>
+          <div>Exercise: {point.exerciseHoursPerWeek} h/wk</div>
+          <div>Sleep: {point.sleepHoursPerNight} h/night</div>
+        </div>
+      </div>
+    );
+  };
 
   // Logic from AiAnalyticsModule
   const departmentWellness = useMemo(() => {
@@ -1168,10 +1254,10 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
           <div className="animate-spin w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
           {/* Burnout probability cards */}
-          <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-5">
-            <div className="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-xl p-5">
+          <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-5 self-start">
+            <div className="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-2xl p-5 shadow-sm min-h-[180px]">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-[10px] font-bold text-rose-700 dark:text-rose-300 uppercase tracking-wider">High Risk</span>
                 <Zap className="w-4 h-4 text-rose-500" />
@@ -1179,7 +1265,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
               <div className="text-3xl font-display font-bold text-rose-700 dark:text-rose-400">{pieData[0].value}</div>
               <div className="text-[10px] text-rose-500 dark:text-rose-500 mt-1 font-mono">Employees</div>
             </div>
-            <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl p-5">
+            <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-2xl p-5 shadow-sm min-h-[180px]">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider">Moderate Risk</span>
                 <Target className="w-4 h-4 text-amber-500" />
@@ -1187,7 +1273,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
               <div className="text-3xl font-display font-bold text-amber-700 dark:text-amber-400">{pieData[1].value}</div>
               <div className="text-[10px] text-amber-500 dark:text-amber-500 mt-1 font-mono">Employees</div>
             </div>
-            <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl p-5">
+            <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-5 shadow-sm min-h-[180px]">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">Low Risk</span>
                 <Users className="w-4 h-4 text-emerald-500" />
@@ -1196,20 +1282,22 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
               <div className="text-[10px] text-emerald-500 dark:text-emerald-500 mt-1 font-mono">Employees</div>
             </div>
           </div>
-          <div className="h-48 md:h-full min-h-[150px]">
+          <div className="h-72 md:h-80 min-h-[240px] flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
+              <PieChart margin={{ top: 10, right: 15, bottom: 10, left: 15 }}>
                 <Pie
-                  data={pieData}
+                  data={pieSegments}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  outerRadius={80}
+                  innerRadius={30}
+                  outerRadius={70}
+                  minAngle={15}
                   fill="#8884d8"
                   dataKey="value"
-                  label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
+                  label={renderPieLabel}
                 >
-                  {pieData.map((entry, index) => (
+                  {pieSegments.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                   ))}
                 </Pie>
@@ -1222,7 +1310,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
                     fontSize: '12px'
                   }}
                 />
-                <Legend iconType="circle" iconSize={8} wrapperStyle={{fontSize: '11px'}} />
+                <Legend iconType="circle" iconSize={8} wrapperStyle={{fontSize: '11px', marginTop: '8px'}} />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -1505,9 +1593,9 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(128,128,128,0.2)" />
               <XAxis type="number" dataKey="exerciseHoursPerWeek" name="Exercise" unit="h/wk" domain={[0, 'dataMax + 2']} />
               <YAxis type="number" dataKey="sleepHoursPerNight" name="Sleep" unit="h/night" domain={[0, 'dataMax + 1']} />
-              <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{fontSize: '12px', borderRadius: '8px'}} />
+              <Tooltip content={<ScatterTooltip />} cursor={{ strokeDasharray: '3 3' }} />
               <Legend wrapperStyle={{fontSize: '11px'}} />
-              <Scatter name="Employees" data={records} fill="#4f46e5" />
+              <Scatter name="Employees" data={scatterData} fill="#4f46e5" />
             </ScatterChart>
           </ResponsiveContainer>
           </div>
@@ -1583,6 +1671,25 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
       <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
         <h4 className="font-display font-semibold text-slate-800 dark:text-slate-100">Health Vitals Scatter Overview</h4>
         <p className="text-slate-400 dark:text-slate-400 text-xs font-light">Real-time clustering of employee metrics (Sleep vs. Exercise hours per week).</p>
+
+        <div className="h-72 w-full mt-4">
+          {scatterData.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(128,128,128,0.2)" />
+                <XAxis type="number" dataKey="exerciseHoursPerWeek" name="Exercise" unit="h/wk" domain={[0, 'dataMax + 2']} />
+                <YAxis type="number" dataKey="sleepHoursPerNight" name="Sleep" unit="h/night" domain={[0, 'dataMax + 1']} />
+                <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ fontSize: '12px', borderRadius: '8px' }} />
+                <Legend wrapperStyle={{ fontSize: '11px' }} />
+                <Scatter name="Employees" data={scatterData} fill="#4f46e5" />
+              </ScatterChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-full flex items-center justify-center rounded-xl border border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-500 dark:text-slate-400 text-sm">
+              No vitals data available for the scatter plot.
+            </div>
+          )}
+        </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-4 pt-2">
           {records.map(r => (
