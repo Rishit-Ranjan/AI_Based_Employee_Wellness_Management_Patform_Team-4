@@ -1,6 +1,6 @@
 # Employee Wellness Management Analytics Platform
-<img width="650" height="325" alt="image" src="https://github.com/user-attachments/assets/210737c9-39a6-4c0e-905a-d9a51d0c2a9d" /><br/>
 
+<img width="650" height="325" alt="image" src="https://github.com/user-attachments/assets/210737c9-39a6-4c0e-905a-d9a51d0c2a9d" /><br/>
 
 An intelligent, full-stack web application designed to monitor and enhance employee wellbeing through data-driven analytics, personalized recommendations, and AI-powered assistance. This platform provides a comprehensive suite of tools for both employees and administrators to proactively manage health, stress, and overall wellness in the workplace.
 
@@ -145,7 +145,7 @@ This will:
 
 Open your browser and navigate to **http://localhost:5173**.
 
-#### Backend-first startup (optional)
+#### Backend First startup (Optional)
 
 If you want the backend to attempt startup first, use:
 
@@ -169,6 +169,7 @@ This gives you a backend-first flow without blocking the web app entirely if bac
 The application has two primary roles with default credentials of Admin for demonstration:
 
 ### Employee Role
+
 - **Role:** 'User'
 - **EMP ID:** E.g. EMP101
 - **Email:** personal email is preferred
