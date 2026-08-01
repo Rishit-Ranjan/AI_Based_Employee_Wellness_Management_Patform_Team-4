@@ -1,7 +1,5 @@
 # Employee Wellness Management Analytics Platform
 
-![Employee Wellness Dashboard](https://user-images.githubusercontent.com/101122628/202913320-13119738-8998-46a2-9331-1e194382c18c.png)
-
 An intelligent, full-stack web application designed to monitor and enhance employee wellbeing through data-driven analytics, personalized recommendations, and AI-powered assistance. This platform provides a comprehensive suite of tools for both employees and administrators to proactively manage health, stress, and overall wellness in the workplace.
 
 ---
@@ -9,6 +7,7 @@ An intelligent, full-stack web application designed to monitor and enhance emplo
 ## ✨ Key Features
 
 ### For Employees:
+
 - **Personalized Dashboard:** A central hub to view health vitals, track daily habits (water, steps, sleep), and log mood/stress levels.
 - **AI Wellness Assistant:** An interactive chatbot (powered by Google Gemini or a local Ollama model) for instant wellness advice, routine generation, and health queries. Includes voice input and speech output.
 - **Personalized Recommendations:** AI-driven suggestions for fitness, diet, yoga, and mental peace, complete with video guides.
@@ -21,6 +20,7 @@ An intelligent, full-stack web application designed to monitor and enhance emplo
   - **Expense Tracking:** Log and manage health-related expenses.
 
 ### For Administrators:
+
 - **Health Data Management:** A comprehensive interface to view, add, and manage employee health records.
 - **Predictive Risk Analysis:** An ML-powered module to identify employees at high, medium, or low risk of burnout or health issues.
 - **Sentiment & Mental Health Analytics:** Anonymized, department-level sentiment analysis based on employee feedback pulses.
@@ -32,14 +32,14 @@ An intelligent, full-stack web application designed to monitor and enhance emplo
 
 ## 🛠️ Tech Stack
 
-| Category      | Technology                                                                                             |
-|---------------|--------------------------------------------------------------------------------------------------------|
-| **Frontend**  | React, Vite, Tailwind CSS, Framer Motion, Recharts, Lucide React                                       |
-| **Backend**   | Python, Flask, MongoDB (via `pymongo`)                                                                 |
-| **AI/ML**     | Scikit-learn, NLTK, Pandas, Google Gemini, Ollama                                                      |
-| **Auth**      | JWT (JSON Web Tokens) with `flask-jwt-extended`                                                        |
-| **Comms**     | Twilio (for SMS notifications), SMTP (for email)                                                       |
-| **Tooling**   | `concurrently` (for parallel dev servers), `dotenv` (for environment management)                       |
+| Category           | Technology                                                                           |
+| ------------------ | ------------------------------------------------------------------------------------ |
+| **Frontend** | React, Vite, Tailwind CSS, Framer Motion, Recharts, Lucide React                     |
+| **Backend**  | Python, Flask, MongoDB (via`pymongo`)                                              |
+| **AI/ML**    | Scikit-learn, NLTK, Pandas, Google Gemini, Ollama                                    |
+| **Auth**     | JWT (JSON Web Tokens) with`flask-jwt-extended`                                     |
+| **Comms**    | Twilio (for SMS notifications), SMTP (for email)                                     |
+| **Tooling**  | `concurrently` (for parallel dev servers), `dotenv` (for environment management) |
 
 ---
 
@@ -48,6 +48,7 @@ An intelligent, full-stack web application designed to monitor and enhance emplo
 Follow these instructions to get the project up and running on your local machine.
 
 ### Prerequisites
+
 - **Node.js** (v18 or later)
 - **Python** (v3.9 or later) with `pip`
 - **MongoDB** instance (local or a cloud service like MongoDB Atlas)
@@ -134,6 +135,7 @@ npm run dev
 ```
 
 This will:
+
 - Start the Flask backend server (usually on `http://localhost:8000`).
 - Start the Vite frontend dev server (usually on `http://localhost:5173`).
 
@@ -146,12 +148,14 @@ Open your browser and navigate to **http://localhost:5173**.
 The application has two primary roles with default credentials for demonstration:
 
 #### Employee Access
+
 - **Role:** `Employee`
 - **Employee ID:** `EMP101`
 - **Email:** `sudip@infy.com`
 - **Password:** `password`
 
 #### Administrator Access
+
 - **Role:** `Admin`
 - **Admin ID:** `ADM001`
 - **Email:** `admin@platform.com`
@@ -162,6 +166,7 @@ The application has two primary roles with default credentials for demonstration
 ## 🤝 Contributing
 
 Contributions are welcome! If you have suggestions for improvements or want to fix a bug, please feel free to:
+
 1. Fork the repository.
 2. Create a new branch (`git checkout -b feature/YourAmazingFeature`).
 3. Make your changes and commit them (`git commit -m 'Add some YourAmazingFeature'`).
