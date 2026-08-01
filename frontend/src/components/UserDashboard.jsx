@@ -150,7 +150,7 @@ export function RecommendationModule({ recommendations, loading = false, onPlayV
 // ==========================================
 // MODULE 6: AI WELLNESS CHATBOT
 // ==========================================
-export function ChatbotModule({ user, isFloating = false }) {
+export function ChatbotModule({ user, isFloating = false, onClose }) {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -317,34 +317,52 @@ export function ChatbotModule({ user, isFloating = false }) {
 
   return (
     <div className={`flex flex-col h-full bg-white dark:bg-slate-800 ${isFloating ? '' : 'border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm'}`}>
-      <div className="p-3.5 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="p-1.5 bg-blue-600 text-white rounded-lg">
-            <Bot className="w-4 h-4" />
+      <div className="p-3.5 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 bg-blue-600 text-white rounded-lg">
+              <Bot className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="text-xxs font-bold text-slate-800 dark:text-slate-100 font-sans">
+                InfyWell
+              </span>
+              <div className="text-[11px] text-slate-400 dark:text-slate-500 -mt-0.5">AI Assistant</div>
+            </div>
           </div>
-          <span className="text-xs font-bold text-slate-800 dark:text-slate-100 font-sans">
-            InfyWell
-          </span>
+          {isFloating && (
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-1.5 rounded-lg border text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 transition-all"
+              title="Close Chat"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleClearChat}
-            className="p-1.5 rounded-lg border text-slate-400 hover:text-red-500 dark:hover:text-red-400 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-red-200 dark:hover:border-red-700 transition-all"
-            title="Clear Chat History"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsSpeechEnabled(!isSpeechEnabled)}
-            className={`p-1.5 rounded-lg border text-xs transition-all cursor-pointer ${
-              isSpeechEnabled ? 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-950/60 dark:text-blue-400 dark:border-blue-800' : 'bg-slate-100 text-slate-400 border-slate-200 dark:bg-slate-800 dark:border-slate-700'
-            }`}
-            title={isSpeechEnabled ? "Voice Output Active" : "Voice Output Muted"}
-          >
-            <Volume2 className="w-3.5 h-3.5" />
-          </button>
+        {isFloating && (
+          <div className="w-full border-t border-slate-200 dark:border-slate-700 mt-3" />
+        )}
+        <div className="flex items-center justify-end mt-3">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleClearChat}
+              className="p-1.5 rounded-lg border text-slate-400 hover:text-red-500 dark:hover:text-red-400 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-red-200 dark:hover:border-red-700 transition-all"
+              title="Clear Chat History"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsSpeechEnabled(!isSpeechEnabled)}
+              className={`p-1.5 rounded-lg border text-xs transition-all cursor-pointer ${isSpeechEnabled ? 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-950/60 dark:text-blue-400 dark:border-blue-800' : 'bg-slate-100 text-slate-400 border-slate-200 dark:bg-slate-800 dark:border-slate-700'}`}
+              title={isSpeechEnabled ? "Voice Output Active" : "Voice Output Muted"}
+            >
+              <Volume2 className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -1247,8 +1265,8 @@ export default function UserDashboard({
       {/* Floating AI Chat Assistant & Robot - MOVED OUTSIDE of overflow-hidden parent */}
       <FloatingBot onClick={() => setIsChatOpen(!isChatOpen)} isChatOpen={isChatOpen} />
       {isChatOpen && (
-        <div className="fixed bottom-24 right-6 z-50 w-[380px] sm:w-[420px] max-w-[calc(100vw-2rem)] h-[520px] shadow-2xl rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden flex flex-col transition-all duration-300 animate-fadeIn">
-          <ChatbotModule user={user} isFloating={true} />
+        <div className="fixed bottom-24 right-6 z-50 w-[340px] sm:w-[380px] max-w-[calc(100vw-2rem)] h-[520px] shadow-2xl rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden flex flex-col transition-all duration-300 animate-fadeIn">
+          <ChatbotModule user={user} isFloating={true} onClose={() => setIsChatOpen(false)} />
         </div>
       )}
     </div>

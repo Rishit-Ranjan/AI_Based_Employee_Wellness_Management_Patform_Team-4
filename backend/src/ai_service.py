@@ -207,7 +207,7 @@ As an AI Wellness Assistant, provide a helpful, concise response (max 150 words)
                         "prompt": prompt,
                         "stream": False
                     },
-                    timeout=30
+                    timeout=25
                 )
                 if response.status_code == 200:
                     return response.json().get('response', ''), model_name
