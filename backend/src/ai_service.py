@@ -622,167 +622,58 @@ What would you like to explore today? I'm here to support your wellness journey!
         if self.db is not None and employee_id:
             context = self._get_context_from_db(employee_id)
         
-        health = context.get('health', {})
-        habits = context.get('habits', {})
-        
-        # Extract health metrics
-        sleep_hours = float(health.get('sleep_hours', 7) or 7)
-        stress_level = health.get('stress_level', 'Medium')
-        exercise_hours = health.get('exercise_hours', 0)
-        bmi = health.get('bmi', 24)
-        
-        # Adjust timing based on preferences or defaults
-        wake_time = (preferences or {}).get('wake_time', '6:30 AM')
-        work_start = (preferences or {}).get('work_start', '9:00 AM')
+        context_str = json.dumps(context, default=str) if context else "No specific health data available."
+        prefs_str = json.dumps(preferences, default=str) if preferences else "No specific user preferences."
 
-        # Initialize the routine dictionary with keys for each period
-        routine_data = {
-            'morning': [],
-            'afternoon': [],
-            'evening': []
-        }
-        
-        # Generate personalized routine blocks
-        routine = []
-        
-        # Morning block
-        routine.append({
-            'time': wake_time,
-            'title': '🌅 Wake Up & Hydrate',
-            'description': 'Drink 500ml water with lemon. 5 min gentle stretching.',
-            'duration': '15 min',
-            'type': 'wellness'
-        }) # This is a temporary list, will be sorted later
-        
-        routine.append({
-            'time': self._add_time(wake_time, 30),
-            'title': '🧘 Morning Mindfulness',
-            'description': '5 min meditation + 2 min gratitude journaling. Sets positive tone for the day.',
-            'duration': '10 min',
-            'type': 'mental_health' if stress_level == 'High' else 'wellness'
-        })
-        
-        # Breakfast
-        routine.append({
-            'time': self._add_time(wake_time, 60),
-            'title': '🥗 Nutritious Breakfast',
-            'description': 'Include protein (eggs/yogurt) + complex carbs (oats) + fruit.',
-            'duration': '20 min',
-            'type': 'nutrition'
-        })
-        
-        # Work blocks
-        routine.append({
-            'time': work_start,
-            'title': '💼 Focus Work Block 1',
-            'description': '90 min focused work. Put phone away. Single task.',
-            'duration': '90 min',
-            'type': 'work'
-        })
-        
-        routine.append({
-            'time': self._add_time(work_start, 90),
-            'title': '☕ Micro-Break',
-            'description': 'Stand up. 2 min stretch. Walk around. Refill water.',
-            'duration': '10 min',
-            'type': 'break'
-        })
-        
-        # Mid-morning
-        if exercise_hours < 2:
-            routine.append({
-                'time': '11:00 AM',
-                'title': '🚶 Movement Snack',
-                'description': '5 min brisk walk or 10 desk exercises. Boosts energy and focus.',
-                'duration': '10 min',
-                'type': 'exercise'
-            })
-        
-        # Lunch
-        routine.append({
-            'time': '12:30 PM',
-            'title': '🥗 Lunch Break (Tech-Free)',
-            'description': 'Eat without screens. 10 min walk after meals improves digestion.',
-            'duration': '45 min',
-            'type': 'nutrition'
-        })
-        
-        # Afternoon
-        routine.append({
-            'time': '2:00 PM',
-            'title': '💼 Focus Work Block 2',
-            'description': '60 min focused work. Energy dip is normal - try standing desk.',
-            'duration': '60 min',
-            'type': 'work'
-        })
-        
-        routine.append({
-            'time': '3:30 PM',
-            'title': '⚡ Energy Reset',
-            'description': '5 min breathing exercise (box breathing). Snack: nuts + fruit.',
-            'duration': '15 min',
-            'type': 'break'
-        })
-        
-        # Exercise recommendation
-        routine.append({
-            'time': '5:30 PM',
-            'title': '🏋️ Exercise Window',
-            'description': f'30 min activity. Your preference: {"walking" if exercise_hours < 1 else "mix of cardio and strength"}. Best time for workout.',
-            'duration': '30-45 min',
-            'type': 'exercise'
-        })
-        
-        # Dinner
-        routine.append({
-            'time': '7:30 PM',
-            'title': '🥘 Light Dinner',
-            'description': 'Eat 3 hours before bed. Focus on vegetables and lean protein.',
-            'duration': '30 min',
-            'type': 'nutrition'
-        })
-        
-        # Wind down
-        wind_down_time = self._subtract_time_from_sleep(sleep_hours)
-        routine.append({
-            'time': wind_down_time,
-            'title': '🌙 Wind Down Routine',
-            'description': 'No screens. Read a book, take a warm bath, gentle stretching. Dim lights.',
-            'duration': '60 min',
-            'type': 'sleep'
-        })
-        
-        # Sleep
-        sleep_time = self._get_sleep_time(sleep_hours)
-        routine.append({
-            'time': sleep_time,
-            'title': '😴 Sleep',
-            'description': f'Target: {sleep_hours}h of quality sleep. Keep room cool (65-68°F) and dark.',
-            'duration': f'{sleep_hours}h',
-            'type': 'sleep'
-        })
+        prompt = f"""You are an expert AI Wellness Coach.
+You have access to this employee's health data: {context_str}
+User's preferences: {prefs_str}
 
-        # Distribute activities into morning, afternoon, evening based on time
-        for activity in routine:
-            time_str = activity['time']
-            hour = int(time_str.split(':')[0])
-            is_pm = 'PM' in time_str.upper()
+Generate a simple, actionable, and personalized one-day wellness routine for this employee.
+The routine should be broken down into "morning", "afternoon", and "evening".
+Each section should contain a list of 2-4 brief, string-based activity suggestions.
 
-            if not is_pm and hour < 12:
-                routine_data['morning'].append(activity['description'])
-            elif (is_pm and hour < 6) or (not is_pm and hour == 12):
-                routine_data['afternoon'].append(activity['description'])
-            else:
-                routine_data['evening'].append(activity['description'])
+The output must be a valid JSON object with the following structure, and nothing else. Do not include markdown formatting like ```json.
+{{
+  "morning": ["Activity 1", "Activity 2", "Activity 3"],
+  "afternoon": ["Activity 1", "Activity 2"],
+  "evening": ["Activity 1", "Activity 2", "Activity 3"]
+}}
+
+Focus on practical, evidence-based wellness tips that a working professional can easily integrate.
+Tailor the suggestions based on the provided health data (e.g., if stress is high, include more mindfulness; if sleep is low, focus on wind-down activities).
+{AI_POLICY_GUARDRAIL}
+"""
         
+        llm_config = self._get_current_llm_config()
+        llm_result = self._generate_llm_response(prompt, context_str, employee_id, llm_config)
+        llm_response_str = llm_result[0] if llm_result else None
+        
+        if llm_response_str:
+            try:
+                plan = self._parse_json_from_llm(llm_response_str)
+                plan['generatedAt'] = datetime.now(timezone.utc).isoformat()
+                return plan
+            except json.JSONDecodeError:
+                print("AI service returned invalid JSON for routine. Falling back to rule-based.")
+
+        # Fallback to a simple rule-based plan if LLM fails
         return {
-            'morning': routine_data['morning'],
-            'afternoon': routine_data['afternoon'],
-            'evening': routine_data['evening'],
-            'total_activities': len(routine),
-            'generated_for': employee_id,
-            'generated_at': datetime.now(timezone.utc).isoformat(),
-            'focus_areas': self._get_focus_areas(health)
+            'morning': [
+                "Wake up, drink a glass of water.",
+                "5-minute stretching or light yoga.",
+                "Eat a protein-rich breakfast."
+            ],
+            'afternoon': [
+                "Take a 15-minute walk after lunch.",
+                "Practice 2 minutes of deep breathing at your desk."
+            ],
+            'evening': [
+                "30-minute workout (cardio or strength).",
+                "Eat a light dinner at least 2 hours before bed.",
+                "Read a book or listen to calm music (no screens)."
+            ],
+            'generatedAt': datetime.now(timezone.utc).isoformat(),
         }
     
     def generate_diet_plan(self, employee_id: str, preferences: Dict = None) -> Dict[str, Any]:
