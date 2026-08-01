@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev:frontend": "cd frontend && npm run dev -- --host",
     "dev:backend": "cd backend/src && python run_flask.py",
-    "dev": "concurrently -k -n BACKEND,FRONTEND -c cyan,green \"npm:dev:backend\" \"npm:dev:frontend\""
+    "dev": "concurrently -k -n BACKEND,FRONTEND -c cyan,green \"npm:dev:backend\" \"npm:dev:frontend\"",
+    "dev:backend-first": "node ./scripts/dev-backend-first.cjs"
   },
   "devDependencies": {
     "concurrently": "^9.0.0",
