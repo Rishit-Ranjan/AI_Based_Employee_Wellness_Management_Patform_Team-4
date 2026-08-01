@@ -662,7 +662,7 @@ const FloatingBot = ({ onClick, isChatOpen }) => {
       setPosition(prev => {
         const botWidth = botRef.current?.offsetWidth || 80;
         const screenWidth = window.innerWidth;
-        let newX = prev.x + prev.direction * 0.5; // Adjust speed here
+        let newX = prev.x + prev.direction * 1; // Adjust speed here
         let newDirection = prev.direction;
 
         if (newX > screenWidth - botWidth - 20) {
