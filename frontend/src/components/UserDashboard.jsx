@@ -1032,7 +1032,7 @@ export default function UserDashboard({
         {/* 2. Desktop Navigation Sidebar */}
         <aside
           className={`hidden lg:flex flex-col h-full overflow-y-auto bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-700 transition-all duration-300 shrink-0 p-4 justify-between ${
-            isSidebarCollapsed ? 'w-20' : 'w-72'
+            isSidebarCollapsed ? 'w-20' : 'w-70'
           }`}
         >
           <div className="space-y-4 flex-1 overflow-y-auto">
@@ -1061,7 +1061,7 @@ export default function UserDashboard({
                     key={tab.id}
                     type="button"
                     onClick={() => setActiveTab(tab.id)}
-                    className={`w-full text-left p-4 rounded-lg flex items-start gap-4 transition-all cursor-pointer border ${
+                    className={`w-full text-left p-4 rounded-lg flex items-start gap-3 transition-all cursor-pointer border ${
                       isActive
                         ? 'bg-indigo-50 border-indigo-100 text-indigo-900 font-semibold'
                         : 'hover:bg-slate-50 border-transparent text-slate-500'

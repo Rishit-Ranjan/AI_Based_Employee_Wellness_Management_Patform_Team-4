@@ -2103,13 +2103,13 @@ export default function AdminDashboard({ user,
         {/* Navigation Sidebar */}
         <aside
           className={`hidden lg:flex flex-col h-full overflow-hidden bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-700 transition-all duration-300 shrink-0 p-3 justify-between ${
-            isSidebarCollapsed ? 'w-20' : 'w-72'
+            isSidebarCollapsed ? 'w-20' : 'w-67'
           }`}
         >
           <div className="space-y-4">
             <div className="flex items-center justify-between px-2 py-1">
               {!isSidebarCollapsed && (
-                <span className="text-[12px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest font-mono">
+                <span className="text-[13px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest font-mono">
                   Admin Navigation
                 </span>
               )}
@@ -2132,7 +2132,7 @@ export default function AdminDashboard({ user,
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     title={tab.label}
-                    className={`w-full text-left p-4 rounded-lg flex items-start gap-3.5 transition-all cursor-pointer border ${
+                    className={`w-full text-left p-4 rounded-lg flex items-start gap-3 transition-all cursor-pointer border ${
                       isActive
                         ? 'bg-indigo-50 border-indigo-100 text-indigo-900 font-semibold'
                         : 'hover:bg-slate-50 border-transparent text-slate-500'
