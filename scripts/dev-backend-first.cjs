@@ -96,20 +96,16 @@ const isBackendReady = () => new Promise((resolve) => {
 });
 
 const waitForBackend = async (timeoutMs = backendReadyTimeoutMs, intervalMs = backendReadyIntervalMs) => {
-  const deadline = Date.now() + timeoutMs;
-  let attempt = 0;
+  const start = Date.now();
+  const deadline = start + timeoutMs;
   while (Date.now() < deadline) {
-    attempt += 1;
     const ready = await isBackendReady();
-    if (ready) {
-      return true;
-    }
-    if (backendExitedEarly) {
-      return false;
-    }
-    if (attempt % Math.max(1, Math.floor(1000 / intervalMs)) === 0) {
-      console.log(`Waiting for backend to become ready... (${Math.floor((Date.now() - (deadline - timeoutMs)) / 1000)}s)`);
-    }
+    if (ready) return true;
+    if (backendExitedEarly) return false;
+
+    const elapsedSeconds = Math.floor((Date.now() - start) / 1000);
+    console.log(`Waiting for backend to become ready... (${elapsedSeconds}s)`);
+
     await new Promise((resolve) => setTimeout(resolve, intervalMs));
   }
   return false;

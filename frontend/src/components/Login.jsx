@@ -17,18 +17,24 @@ export default function Login({ onNavigate, onLoginSuccess }) {
   const passwordRef = useRef(null);
   const EMP_EMAIL_KEY = 'wellness_remember_email_employee';
   const ADMIN_EMAIL_KEY = 'wellness_remember_email_admin';
+  const EMP_ENTITY_KEY = 'wellness_remember_entity_employee';
+  const ADMIN_ENTITY_KEY = 'wellness_remember_entity_admin';
 
   // Load saved emails (per-role) if remember me was checked previously
   useEffect(() => {
     try {
       const savedEmp = localStorage.getItem(EMP_EMAIL_KEY);
       const savedAdmin = localStorage.getItem(ADMIN_EMAIL_KEY);
-      // Prefer employee saved email for initial load if present, otherwise admin
+      const savedEmpEntity = localStorage.getItem(EMP_ENTITY_KEY);
+      const savedAdminEntity = localStorage.getItem(ADMIN_ENTITY_KEY);
+      // Prefer employee saved email/entity for initial load if present, otherwise admin
       if (savedEmp) {
         setEmail(savedEmp);
+        if (savedEmpEntity) setEntityId(savedEmpEntity);
         setRememberMe(true);
       } else if (savedAdmin) {
         setEmail(savedAdmin);
+        if (savedAdminEntity) setEntityId(savedAdminEntity);
         setRememberMe(true);
         // don't auto-switch role here; user may choose Admin explicitly
       }
@@ -74,11 +80,16 @@ export default function Login({ onNavigate, onLoginSuccess }) {
 
       try {
         if (rememberMe) {
-          const key = role === 'Admin' ? ADMIN_EMAIL_KEY : EMP_EMAIL_KEY;
-          localStorage.setItem(key, email);
+          const emailKey = role === 'Admin' ? ADMIN_EMAIL_KEY : EMP_EMAIL_KEY;
+          const entityKey = role === 'Admin' ? ADMIN_ENTITY_KEY : EMP_ENTITY_KEY;
+          localStorage.setItem(emailKey, email);
+          // Save entityId per-role as well (Admin ID / Employee ID). DO NOT store passwords.
+          if (entityId) localStorage.setItem(entityKey, entityId);
         } else {
           localStorage.removeItem(EMP_EMAIL_KEY);
           localStorage.removeItem(ADMIN_EMAIL_KEY);
+          localStorage.removeItem(EMP_ENTITY_KEY);
+          localStorage.removeItem(ADMIN_ENTITY_KEY);
         }
       } catch (e) {
         // ignore storage errors
@@ -238,7 +249,9 @@ export default function Login({ onNavigate, onLoginSuccess }) {
                   // If remember me is enabled and an employee email is saved, restore it; otherwise clear
                   if (rememberMe) {
                     const saved = localStorage.getItem(EMP_EMAIL_KEY);
-                    setEmail(saved || '');
+                      setEmail(saved || '');
+                      const savedEntity = localStorage.getItem(EMP_ENTITY_KEY);
+                      setEntityId(savedEntity || '');
                   } else {
                     setEmail('');
                   }
@@ -263,6 +276,8 @@ export default function Login({ onNavigate, onLoginSuccess }) {
                   if (rememberMe) {
                     const saved = localStorage.getItem(ADMIN_EMAIL_KEY);
                     setEmail(saved || '');
+                    const savedEntity = localStorage.getItem(ADMIN_ENTITY_KEY);
+                    setEntityId(savedEntity || '');
                   } else {
                     setEmail('');
                   }
