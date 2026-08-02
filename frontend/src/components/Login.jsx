@@ -15,13 +15,25 @@ export default function Login({ onNavigate, onLoginSuccess }) {
   const entityRef = useRef(null);
   const emailRef = useRef(null);
   const passwordRef = useRef(null);
+  const EMP_EMAIL_KEY = 'wellness_remember_email_employee';
+  const ADMIN_EMAIL_KEY = 'wellness_remember_email_admin';
 
-  // Load saved email if remember me was checked
+  // Load saved emails (per-role) if remember me was checked previously
   useEffect(() => {
-    const savedEmail = localStorage.getItem('wellness_remember_email');
-    if (savedEmail) {
-      setEmail(savedEmail);
-      setRememberMe(true);
+    try {
+      const savedEmp = localStorage.getItem(EMP_EMAIL_KEY);
+      const savedAdmin = localStorage.getItem(ADMIN_EMAIL_KEY);
+      // Prefer employee saved email for initial load if present, otherwise admin
+      if (savedEmp) {
+        setEmail(savedEmp);
+        setRememberMe(true);
+      } else if (savedAdmin) {
+        setEmail(savedAdmin);
+        setRememberMe(true);
+        // don't auto-switch role here; user may choose Admin explicitly
+      }
+    } catch (e) {
+      // ignore storage errors
     }
   }, []);
 
@@ -60,10 +72,16 @@ export default function Login({ onNavigate, onLoginSuccess }) {
     try {
       const res = await loginApi(email, password, role, entityId);
 
-      if (rememberMe) {
-        localStorage.setItem('wellness_remember_email', email);
-      } else {
-        localStorage.removeItem('wellness_remember_email');
+      try {
+        if (rememberMe) {
+          const key = role === 'Admin' ? ADMIN_EMAIL_KEY : EMP_EMAIL_KEY;
+          localStorage.setItem(key, email);
+        } else {
+          localStorage.removeItem(EMP_EMAIL_KEY);
+          localStorage.removeItem(ADMIN_EMAIL_KEY);
+        }
+      } catch (e) {
+        // ignore storage errors
       }
 
       // Backend returns: { user: userInfo }
@@ -214,10 +232,16 @@ export default function Login({ onNavigate, onLoginSuccess }) {
                 onClick={() => {
                   setRole('Employee');
                   setEntityId('');
-                  setEmail('');
                   setPassword('');
                   setFieldErrors({ email: '', password: '', entityId: '' });
                   setError('');
+                  // If remember me is enabled and an employee email is saved, restore it; otherwise clear
+                  if (rememberMe) {
+                    const saved = localStorage.getItem(EMP_EMAIL_KEY);
+                    setEmail(saved || '');
+                  } else {
+                    setEmail('');
+                  }
                   if (entityRef.current) entityRef.current.focus();
                 }}
                 className={`flex items-center justify-center gap-2 p-3 rounded-lg border transition-all text-xs font-semibold ${
@@ -233,10 +257,15 @@ export default function Login({ onNavigate, onLoginSuccess }) {
                 onClick={() => {
                   setRole('Admin');
                   setEntityId('');
-                  setEmail('');
                   setPassword('');
                   setFieldErrors({ email: '', password: '', entityId: '' });
                   setError('');
+                  if (rememberMe) {
+                    const saved = localStorage.getItem(ADMIN_EMAIL_KEY);
+                    setEmail(saved || '');
+                  } else {
+                    setEmail('');
+                  }
                   if (entityRef.current) entityRef.current.focus();
                 }}
                 className={`flex items-center justify-center gap-2 p-3 rounded-lg border transition-all text-xs font-semibold ${
