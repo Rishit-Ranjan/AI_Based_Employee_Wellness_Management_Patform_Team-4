@@ -104,7 +104,13 @@ const waitForBackend = async (timeoutMs = backendReadyTimeoutMs, intervalMs = ba
     if (backendExitedEarly) return false;
 
     const elapsedSeconds = Math.floor((Date.now() - start) / 1000);
-    console.log(`Waiting for backend to become ready... (${elapsedSeconds}s)`);
+    const spinnerChars = ['|', '/', '-', '\\'];
+    const spinnerChar = spinnerChars[elapsedSeconds % spinnerChars.length];
+    if (process.stdout.isTTY) {
+      process.stdout.write(`\rWaiting for backend to become ready... (${elapsedSeconds}s) ${spinnerChar}`);
+    } else {
+      console.log(`Waiting for backend to become ready... (${elapsedSeconds}s) ${spinnerChar}`);
+    }
 
     await new Promise((resolve) => setTimeout(resolve, intervalMs));
   }
@@ -113,6 +119,8 @@ const waitForBackend = async (timeoutMs = backendReadyTimeoutMs, intervalMs = ba
 
 (async () => {
   const ready = await waitForBackend();
+  // Clear the waiting line and move to a fresh line so backend logs appear below the spinner
+  if (process.stdout.isTTY) process.stdout.write('\r\x1b[K\n');
   if (ready) {
     if (waitOnHandled) return;
     waitOnHandled = true;
