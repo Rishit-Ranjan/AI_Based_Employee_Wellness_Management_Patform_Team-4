@@ -71,6 +71,20 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const formatLastSync = (value) => {
+    if (!value) return 'Unknown';
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return value;
+    return parsed.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    }).replace(/,/g, '');
+  };
+
 
     const openEditModal = (record) => {
     setEditingRecord(record);
@@ -609,7 +623,7 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
                 </div>
 
                 <div className="pt-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between text-[10px] text-slate-400 dark:text-slate-500 font-mono">
-                  <span>Last Sync: {record.lastUpdated}</span>
+                  <span>Last Sync: {formatLastSync(record.lastUpdated)}</span>
                   <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold ${
                     record.healthAssessment === 'Excellent' ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800' :
                     record.healthAssessment === 'Good' ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-800' :
@@ -1749,7 +1763,8 @@ function SystemSettingsModule() {
     ollamaModel: 'phi3:3.8b',
     highRiskThreshold: 70,
     mediumRiskThreshold: 45,
-    enableEmailNotifications: true,
+    enableEmailNotifications: false,
+    enableSmsNotifications: false,
     dataRetentionDays: 365,
     anonymizeSentiment: true,
   });
@@ -1762,7 +1777,17 @@ function SystemSettingsModule() {
       try {
         setLoading(true);
         const fetchedSettings = await api.fetchSystemSettings();
-        setSettings(fetchedSettings);
+        const defaultSettings = {
+          llmProvider: 'ollama',
+          ollamaModel: 'phi3:3.8b',
+          highRiskThreshold: 70,
+          mediumRiskThreshold: 45,
+          enableEmailNotifications: false,
+          enableSmsNotifications: false,
+          dataRetentionDays: 365,
+          anonymizeSentiment: true,
+        };
+        setSettings({ ...defaultSettings, ...fetchedSettings });
       } catch (err) {
         setError('Failed to load system settings.');
         console.error(err);
@@ -1841,6 +1866,12 @@ function SystemSettingsModule() {
           <SettingRow label="Enable Email Notifications">
             <label className="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" checked={settings.enableEmailNotifications} onChange={(e) => handleSettingChange('enableEmailNotifications', e.target.checked)} className="sr-only peer" />
+              <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-slate-600 peer-checked:bg-blue-600"></div>
+            </label>
+          </SettingRow>
+          <SettingRow label="Enable SMS Notifications">
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" checked={settings.enableSmsNotifications} onChange={(e) => handleSettingChange('enableSmsNotifications', e.target.checked)} className="sr-only peer" />
               <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-slate-600 peer-checked:bg-blue-600"></div>
             </label>
           </SettingRow>
@@ -2122,20 +2153,6 @@ export default function AdminDashboard({ user,
             </nav>
           </div>
 
-          {/* Quick Stats sidebar widget */}
-          {!isSidebarCollapsed && (
-            <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
-              <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3.5 border border-slate-200/60 dark:border-slate-700/60">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono block mb-1">System Vitals</span>
-                <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                  Analytics Active
-                </div>
-                <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full mt-2 overflow-hidden">
-                  <div className="bg-emerald-500 h-full rounded-full" style={{ width: '92%' }} />
-                </div>
-              </div>
-            </div>
-          )}
         </aside>
 
         {/* Mobile Drawer Overlay */}
@@ -2230,6 +2247,17 @@ export default function AdminDashboard({ user,
                 {activeTab === 7 && 'Oversee employee checkup scheduling, SOS alerts, and expense claims.'}
                 {activeTab === 10 && 'Manage application-wide settings and configurations.'}
               </p>
+            </div>
+            <div className="min-w-[220px] rounded-3xl bg-slate-50/80 dark:bg-slate-900 border border-slate-200/70 dark:border-slate-700 p-4">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono block mb-2">
+                System Vitals
+              </span>
+              <div className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2">
+                Analytics Active
+              </div>
+              <div className="w-full bg-slate-200 dark:bg-slate-700 h-2.5 rounded-full overflow-hidden">
+                <div className="bg-emerald-500 h-full rounded-full" style={{ width: '92%' }} />
+              </div>
             </div>
           </div>
 
