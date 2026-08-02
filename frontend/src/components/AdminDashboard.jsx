@@ -247,7 +247,7 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
     setSelectedEmployee('');
     setAge(''); setGender('Male'); setHeightCm(''); setWeightKg('');
     setBmi(''); setBp(''); setExerciseDaysPerWeek(''); setExercise(''); setSleep('');
-    setStress('Medium'); set(''); setAttendanceRate('');
+    setStress('Medium'); setStressScore(''); setAttendanceRate('');
     setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false); setAlcoholUse(false); setGlucoseLevel('');
     setEditingRecord(null);
     setError(''); // Clear error after successful submission
@@ -1909,7 +1909,7 @@ export default function AdminDashboard({ user,
   healthRecords,
   allUsers,
   risks,
-  recommendations = personalRecommendations,
+  recommendations = [],
   sentimentList,
   kpis,
   loading,
@@ -2016,7 +2016,7 @@ export default function AdminDashboard({ user,
 
           {/* Logo & Brand Title */}
           <div className="flex items-center gap-3">
-            <img src={logo} alt="App Logo" className="w-15 h-14" />
+            <img src={logo} alt="App Logo" className="w-12 h-10" />
             <div className="hidden sm:block">
               <span className="font-display font-bold text-base tracking-tight block text-slate-900 dark:text-slate-50 leading-none">
                 Employee Wellness Management Analytics
@@ -2102,14 +2102,14 @@ export default function AdminDashboard({ user,
 
         {/* Navigation Sidebar */}
         <aside
-          className={`hidden lg:flex flex-col h-full overflow-hidden bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-700 transition-all duration-300 shrink-0 p-4 justify-between ${
+          className={`hidden lg:flex flex-col h-full overflow-hidden bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-700 transition-all duration-300 shrink-0 p-3 justify-between ${
             isSidebarCollapsed ? 'w-20' : 'w-72'
           }`}
         >
           <div className="space-y-4">
             <div className="flex items-center justify-between px-2 py-1">
               {!isSidebarCollapsed && (
-                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest font-mono">
+                <span className="text-[12px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest font-mono">
                   Admin Navigation
                 </span>
               )}
@@ -2132,7 +2132,7 @@ export default function AdminDashboard({ user,
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     title={tab.label}
-                    className={`w-full text-left p-3.5 rounded-lg flex items-start gap-3.5 transition-all cursor-pointer border ${
+                    className={`w-full text-left p-4 rounded-lg flex items-start gap-3.5 transition-all cursor-pointer border ${
                       isActive
                         ? 'bg-indigo-50 border-indigo-100 text-indigo-900 font-semibold'
                         : 'hover:bg-slate-50 border-transparent text-slate-500'
@@ -2142,7 +2142,7 @@ export default function AdminDashboard({ user,
                     {!isSidebarCollapsed && (
                       <div className="truncate">
                         <div className="text-xs font-bold">{tab.label}</div>
-                        <div className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">
+                        <div className="text-[11px] text-slate-400 mt-0.5 line-clamp-1">
                           {tab.desc}
                         </div>
                       </div>
@@ -2155,7 +2155,6 @@ export default function AdminDashboard({ user,
 
         </aside>
 
-        {/* Mobile Drawer Overlay */}
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div
@@ -2175,14 +2174,8 @@ export default function AdminDashboard({ user,
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-                    <span className="text-xs font-bold text-slate-800 dark:text-slate-100">
-                      Admin Modules
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="p-1 text-slate-400 hover:text-slate-700"
-                    >
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-100">Admin Modules</span>
+                    <button type="button" onClick={() => setIsMobileMenuOpen(false)} className="p-1 text-slate-400 hover:text-slate-700">
                       <X className="w-5 h-5" />
                     </button>
                   </div>

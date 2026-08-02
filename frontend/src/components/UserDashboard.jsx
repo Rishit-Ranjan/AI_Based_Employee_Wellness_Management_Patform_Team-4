@@ -898,7 +898,7 @@ export default function UserDashboard({
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col font-sans transition-colors duration-300">
+    <div className="h-screen overflow-hidden bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col font-sans transition-colors duration-300">
       
       {/* Video Player Modal */}
       <AnimatePresence>
@@ -1027,18 +1027,18 @@ export default function UserDashboard({
       )}
 
       {/* Main Workspace Layout */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden min-h-0">
 
         {/* 2. Desktop Navigation Sidebar */}
         <aside
-          className={`hidden lg:flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-700 transition-all duration-300 shrink-0 p-4 justify-between ${
+          className={`hidden lg:flex flex-col h-full overflow-y-auto bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-700 transition-all duration-300 shrink-0 p-4 justify-between ${
             isSidebarCollapsed ? 'w-20' : 'w-72'
           }`}
         >
-          <div className="space-y-4">
+          <div className="space-y-4 flex-1 overflow-y-auto">
             <div className="flex items-center justify-between px-2 py-1">
               {!isSidebarCollapsed && (
-                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest font-mono">
+                <span className="text-[12px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono">
                   Modules Navigation
                 </span>
               )}
@@ -1061,20 +1061,20 @@ export default function UserDashboard({
                     key={tab.id}
                     type="button"
                     onClick={() => setActiveTab(tab.id)}
-                    className={`w-full text-left p-3.5 rounded-lg flex items-start gap-3.5 transition-all cursor-pointer border ${
+                    className={`w-full text-left p-4 rounded-lg flex items-start gap-4 transition-all cursor-pointer border ${
                       isActive
                         ? 'bg-indigo-50 border-indigo-100 text-indigo-900 font-semibold'
                         : 'hover:bg-slate-50 border-transparent text-slate-500'
                     }`}
-                  >
-                    <Icon className={`w-5 h-5 shrink-0 mt-0.5 ${isActive ? 'text-indigo-600' : 'text-slate-400'}`} />
+                      >
+                        <Icon className={`w-5.5 h-5.5 shrink-0 mt-0.5 ${isActive ? 'text-indigo-600' : 'text-slate-400'}`} />
                     {!isSidebarCollapsed && (
                       <div className="truncate">
-                        <div className="text-xs font-bold">{tab.label}</div>
-                        <div className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">
-                          {tab.desc}
+                              <div className="text-[12px] font-semibold">{tab.label}</div>
+                              <div className="text-[11px] text-slate-400 mt-0.5 line-clamp-1">
+                                {tab.desc}
+                              </div>
                         </div>
-                      </div>
                     )}
                   </button>
                 );
@@ -1117,9 +1117,9 @@ export default function UserDashboard({
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-                    <span className="text-xs font-bold text-slate-800 dark:text-slate-100">
-                      Wellness Modules
-                    </span>
+                      <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                        Wellness Modules
+                      </span>
                     <button
                       type="button"
                       onClick={() => setIsMobileMenuOpen(false)}
@@ -1141,16 +1141,16 @@ export default function UserDashboard({
                             setActiveTab(tab.id);
                             setIsMobileMenuOpen(false);
                           }}
-                          className={`w-full text-left p-3.5 rounded-lg flex items-start gap-3.5 transition-all cursor-pointer border ${
+                          className={`w-full text-left p-4 rounded-lg flex items-start gap-4 transition-all cursor-pointer border ${
                             isActive
                               ? 'bg-indigo-50 border-indigo-100 text-indigo-900 font-semibold'
                               : 'hover:bg-slate-50 border-transparent text-slate-500'
                           }`}
                         >
-                          <Icon className={`w-5 h-5 shrink-0 mt-0.5 ${isActive ? 'text-indigo-600' : 'text-slate-400'}`} />
-                          <div className="truncate">
-                            <div className="text-xs font-bold">{tab.label}</div>
-                          </div>
+                            <Icon className={`w-6 h-6 shrink-0 mt-0.5 ${isActive ? 'text-indigo-600' : 'text-slate-400'}`} />
+                            <div className="truncate">
+                              <div className="text-[11px] font-semibold">{tab.label}</div>
+                            </div>
                         </button>
                       );
                     })}
@@ -1172,7 +1172,7 @@ export default function UserDashboard({
         </AnimatePresence>
 
         {/* 3. Main Workspace Canvas Stage */}
-        <main className="flex-1 p-4 md:p-8 overflow-y-auto">
+        <main className="flex-1 p-4 md:p-8 overflow-y-auto min-h-0">
           {/* Active module title header */}
           <div className="mb-6 pb-4 border-b border-slate-200/80 dark:border-slate-700 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
