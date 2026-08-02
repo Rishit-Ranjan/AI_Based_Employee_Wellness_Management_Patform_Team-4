@@ -211,7 +211,15 @@ export default function Login({ onNavigate, onLoginSuccess }) {
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
-                onClick={() => setRole('Employee')}
+                onClick={() => {
+                  setRole('Employee');
+                  setEntityId('');
+                  setEmail('');
+                  setPassword('');
+                  setFieldErrors({ email: '', password: '', entityId: '' });
+                  setError('');
+                  if (entityRef.current) entityRef.current.focus();
+                }}
                 className={`flex items-center justify-center gap-2 p-3 rounded-lg border transition-all text-xs font-semibold ${
                   role === 'Employee'
                     ? 'bg-indigo-50 border-indigo-500 text-indigo-700 shadow-sm'
@@ -222,7 +230,15 @@ export default function Login({ onNavigate, onLoginSuccess }) {
               </button>
               <button
                 type="button"
-                onClick={() => setRole('Admin')}
+                onClick={() => {
+                  setRole('Admin');
+                  setEntityId('');
+                  setEmail('');
+                  setPassword('');
+                  setFieldErrors({ email: '', password: '', entityId: '' });
+                  setError('');
+                  if (entityRef.current) entityRef.current.focus();
+                }}
                 className={`flex items-center justify-center gap-2 p-3 rounded-lg border transition-all text-xs font-semibold ${
                   role === 'Admin' ? 'bg-indigo-50 border-indigo-500 text-indigo-700 shadow-sm' : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100'
                 }`}
@@ -250,6 +266,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
                 </div>
                 <input
                   id="entityId"
+                  ref={entityRef}
                   type="text"
                   required
                   value={entityId}
@@ -273,6 +290,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
                 </div>
                 <input
                   id="email"
+                  ref={emailRef}
                   type="email"
                   required
                   value={email}
@@ -305,6 +323,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
                 </div>
                 <input
                   id="password"
+                  ref={passwordRef}
                   type={showPassword ? 'text' : 'password'}
                   required
                   value={password}
