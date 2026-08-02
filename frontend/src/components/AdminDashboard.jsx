@@ -6,7 +6,12 @@ import { Trash2, Edit, MoreHorizontal, Activity, TrendingUp, Lightbulb, Smile, B
 } from 'lucide-react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ScatterChart, Scatter, ResponsiveContainer } from 'recharts';
 
-const PIE_COLORS = ['#ef4444', '#f59e0b', '#10b981'];
+const PIE_COLOR_MAP = {
+  High: '#ef4444',
+  Moderate: '#f59e0b',
+  Low: '#10b981',
+  'No Data': '#cbd5e1',
+};
 
 import AdminInsuranceModule from './AdminInsuranceModule';
 import AdminNotificationCenter from './AdminNotificationCenter';
@@ -1298,7 +1303,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
                   label={renderPieLabel}
                 >
                   {pieSegments.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                    <Cell key={`cell-${index}`} fill={PIE_COLOR_MAP[entry.name] || PIE_COLOR_MAP['No Data']} />
                   ))}
                 </Pie>
                 <Tooltip
