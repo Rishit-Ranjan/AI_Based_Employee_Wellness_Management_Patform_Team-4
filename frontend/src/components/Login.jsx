@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Activity, Sparkles, Shield, UserCheck, UserCog, Hash } from 'lucide-react';
 import { login as loginApi } from '../services/api';
 
@@ -9,8 +9,12 @@ export default function Login({ onNavigate, onLoginSuccess }) {
   const [entityId, setEntityId] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({ email: '', password: '', entityId: '' });
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const entityRef = useRef(null);
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
 
   // Load saved email if remember me was checked
   useEffect(() => {
@@ -33,9 +37,21 @@ export default function Login({ onNavigate, onLoginSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
-    if (!email || !password || !entityId) {
-      setError('Please fill in all required fields.');
+    setFieldErrors({ email: '', password: '', entityId: '' });
+
+    // Client-side per-field validation
+    const newFieldErrors = { email: '', password: '', entityId: '' };
+    if (!entityId) newFieldErrors.entityId = role === 'Admin' ? 'Please enter your Admin ID.' : 'Please enter your Employee ID.';
+    if (!email) newFieldErrors.email = 'Please enter your email address.';
+    else if (!/\S+@\S+\.\S+/.test(email)) newFieldErrors.email = 'Please enter a valid email address.';
+    if (!password) newFieldErrors.password = 'Please enter your password.';
+
+    if (newFieldErrors.email || newFieldErrors.password || newFieldErrors.entityId) {
+      setFieldErrors(newFieldErrors);
+      // focus first invalid field
+      if (newFieldErrors.entityId && entityRef.current) entityRef.current.focus();
+      else if (newFieldErrors.email && emailRef.current) emailRef.current.focus();
+      else if (newFieldErrors.password && passwordRef.current) passwordRef.current.focus();
       return;
     }
 
@@ -54,7 +70,55 @@ export default function Login({ onNavigate, onLoginSuccess }) {
       onLoginSuccess(res?.user || res?.user_info || res);
     } catch (err) {
       console.error('Login API error:', err);
-      setError('Invalid email or password. Please try again.');
+      // Attempt to map server error to specific field errors when possible
+      const serverBody = err?.body || {};
+      const message = String(err?.message || '').toLowerCase();
+
+      const nextFieldErrors = { email: '', password: '', entityId: '' };
+
+      // If backend returns structured field info
+      if (serverBody?.field && serverBody?.message) {
+        const f = serverBody.field;
+        if (f === 'email' || f === 'user' || f === 'entityId') nextFieldErrors.email = serverBody.message;
+        if (f === 'password') nextFieldErrors.password = serverBody.message;
+      }
+
+      // If backend returns per-field errors object
+      if (serverBody?.errors && typeof serverBody.errors === 'object') {
+        Object.keys(serverBody.errors).forEach((k) => {
+          if (k.toLowerCase().includes('email') || k.toLowerCase().includes('user')) nextFieldErrors.email = serverBody.errors[k];
+          if (k.toLowerCase().includes('password')) nextFieldErrors.password = serverBody.errors[k];
+          if (k.toLowerCase().includes('entity') || k.toLowerCase().includes('id')) nextFieldErrors.entityId = serverBody.errors[k];
+        });
+      }
+
+      // Common HTTP status heuristics
+      if (!nextFieldErrors.email && !nextFieldErrors.password && !nextFieldErrors.entityId) {
+        if (err?.status === 404) {
+          nextFieldErrors.email = 'No account found with this email.';
+        } else if (err?.status === 401) {
+          // If message mentions password, point to password; if mentions email/user point to email;
+          // otherwise treat as a generic credential failure and show a top-level error banner.
+          if (message.includes('password')) nextFieldErrors.password = 'Incorrect password.';
+          else if (message.includes('email') || message.includes('user') || message.includes('account')) nextFieldErrors.email = 'No account found with this email.';
+          else setError(serverBody?.message || 'Incorrect password or email. Please verify your credentials.');
+        } else if (message.includes('password')) {
+          nextFieldErrors.password = serverBody?.message || 'Incorrect password.';
+        } else if (message.includes('email') || message.includes('user') || message.includes('account')) {
+          nextFieldErrors.email = serverBody?.message || 'No account found with this email.';
+        }
+      }
+
+      // If we computed any field-level errors, set them and focus the first one.
+      if (nextFieldErrors.email || nextFieldErrors.password || nextFieldErrors.entityId) {
+        setFieldErrors(nextFieldErrors);
+        if (nextFieldErrors.entityId && entityRef.current) entityRef.current.focus();
+        else if (nextFieldErrors.email && emailRef.current) emailRef.current.focus();
+        else if (nextFieldErrors.password && passwordRef.current) passwordRef.current.focus();
+      } else if (!error) {
+        // No field-level info; ensure a useful top-level error is shown
+        setError(serverBody?.message || 'Invalid email or password. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -193,6 +257,9 @@ export default function Login({ onNavigate, onLoginSuccess }) {
                   placeholder={role === 'Admin' ? 'e.g. ADM001' : 'e.g. EMP101'}
                   className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-indigo-500 focus:bg-white transition-all"
                 />
+                {fieldErrors.entityId && (
+                  <div className="text-[12px] text-rose-600 mt-2 font-medium">{fieldErrors.entityId}</div>
+                )}
               </div>
             </div>
 
@@ -213,6 +280,9 @@ export default function Login({ onNavigate, onLoginSuccess }) {
                   placeholder="name@company.com"
                   className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-indigo-500 focus:bg-white transition-all"
                 />
+                {fieldErrors.email && (
+                  <div className="text-[12px] text-rose-600 mt-2 font-medium">{fieldErrors.email}</div>
+                )}
               </div>
             </div>
 
@@ -249,6 +319,9 @@ export default function Login({ onNavigate, onLoginSuccess }) {
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
+                {fieldErrors.password && (
+                  <div className="text-[12px] text-rose-600 mt-2 font-medium">{fieldErrors.password}</div>
+                )}
               </div>
             </div>
 
