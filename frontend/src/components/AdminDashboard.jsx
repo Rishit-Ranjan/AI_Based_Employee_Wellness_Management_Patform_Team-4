@@ -1168,7 +1168,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
     const point = payload[0].payload;
     return (
       <div className="bg-white dark:bg-slate-900/95 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-xs shadow-lg text-slate-900 dark:text-slate-100">
-        <div className="font-semibold mb-1">{point.employeeName}</div>
+        <div className="font-semibold mb-1">Employee: {point.employeeName}</div>
         <div className="space-y-1">
           <div>Department: {point.department}</div>
           <div>Exercise: {point.exerciseHoursPerWeek} h/wk</div>
@@ -1418,22 +1418,24 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
   );
 
   const renderDepartmentSentiment = () => (
-    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 space-y-5">
-      <div className="flex items-center gap-2">
-        <Smile className="w-5 h-5 text-emerald-500" />
-        <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100">Department Sentiment & Mental Health Analytics</h3>
+    <div className="space-y-6">
+      <div className="border-b border-slate-200 dark:border-slate-700 pb-4">
+        <div className="flex items-center gap-2">
+          <Smile className="w-5 h-5 text-emerald-500" />
+          <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100">Department Sentiment & Mental Health Analytics</h3>
+        </div>
+        <p className="text-xs text-slate-400 dark:text-slate-400 mt-2">Anonymized sentiment distribution and stress index from pulse feedback.</p>
       </div>
-      <p className="text-xs text-slate-400 dark:text-slate-400">Anonymized sentiment distribution and stress index from pulse feedback.</p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {sentimentList.map((sent) => (
-          <div key={sent.department} className="bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 rounded-xl p-5 space-y-4">
+          <div key={sent.department} className="bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 rounded-xl p-5 space-y-4 shadow-sm">
             <div className="flex justify-between items-center">
               <h4 className="font-semibold text-slate-800 dark:text-slate-100">{sent.department}</h4>
               <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold font-mono">Pulse Count: {sent.recentFeedbackCount}</span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_0.9fr] gap-5 items-start">
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                   <span className="flex items-center gap-1.5"><Smile className="w-4 h-4 text-emerald-500" /> Positive</span>
@@ -1460,32 +1462,45 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
                 </div>
               </div>
 
-              <div className="p-4 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-600 rounded-xl flex flex-col items-center justify-center text-center">
-                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1 font-mono">Stress Index</span>
-                <span className={`text-4xl font-display font-bold ${
-                  sent.averageStressScore >= 7 ? 'text-rose-600' : sent.averageStressScore >= 5 ? 'text-amber-600' : 'text-emerald-600'
-                }`}>{sent.averageStressScore}</span>
-                <span className="text-[9px] text-slate-400 dark:text-slate-500 font-mono mt-1">/ 10</span>
+              <div className="space-y-4">
+                <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-600 rounded-xl p-4 text-center">
+                  <div className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono mb-2">Stress Index</div>
+                  <div className={`text-4xl font-display font-bold ${sent.averageStressScore >= 7 ? 'text-rose-600' : sent.averageStressScore >= 5 ? 'text-amber-600' : 'text-emerald-600'}`}>{sent.averageStressScore}</div>
+                  <div className="text-[9px] text-slate-400 dark:text-slate-500 font-mono mt-1">/ 10</div>
+                </div>
               </div>
             </div>
-
-            {sent.keyIssues && sent.keyIssues.length > 0 && (
-              <div className="pt-3 border-t border-slate-100 dark:border-slate-600">
-                <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono">Recent Feedback Logs</p>
-                <ul className="space-y-1 mt-1.5">
-                  {sent.keyIssues.map((issue, idx) => (
-                    <li key={idx} className="text-xs text-slate-500 dark:text-slate-400 font-light flex items-start gap-1.5">
-                      <span className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${
-                        issue.sentiment === 'Positive' ? 'bg-emerald-500' :
-                        issue.sentiment === 'Negative' ? 'bg-rose-500' :
-                        'bg-slate-400'
-                      }`} />
-                      <span>{issue.feedbackText}</span>
-                    </li>
-                  ))}
-                </ul>
+            <div className="flex justify-center pt-4">
+              <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-600 rounded-xl p-3 w-full max-w-[360px]">
+                <div className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono mb-2 text-center">Sentiment Breakdown</div>
+                <div className="h-40 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={[
+                          { name: 'Positive', value: sent.sentimentDistribution.positive, fill: '#22c55e' },
+                          { name: 'Neutral', value: sent.sentimentDistribution.neutral, fill: '#94a3b8' },
+                          { name: 'Negative', value: sent.sentimentDistribution.negative, fill: '#ef4444' },
+                        ]}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={28}
+                        outerRadius={54}
+                        paddingAngle={4}
+                      >
+                        <Cell key="positive" fill="#22c55e" />
+                        <Cell key="neutral" fill="#94a3b8" />
+                        <Cell key="negative" fill="#ef4444" />
+                      </Pie>
+                      <Tooltip wrapperStyle={{ fontSize: 12, borderRadius: '8px' }} />
+                      <Legend verticalAlign="bottom" height={24} wrapperStyle={{ fontSize: '11px' }} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
-            )}
+            </div>
           </div>
         ))}
       </div>
@@ -1684,7 +1699,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(128,128,128,0.2)" />
                 <XAxis type="number" dataKey="exerciseHoursPerWeek" name="Exercise" unit="h/wk" domain={[0, 'dataMax + 2']} />
                 <YAxis type="number" dataKey="sleepHoursPerNight" name="Sleep" unit="h/night" domain={[0, 'dataMax + 1']} />
-                <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ fontSize: '12px', borderRadius: '8px' }} />
+                <Tooltip content={<ScatterTooltip />} cursor={{ strokeDasharray: '3 3' }} />
                 <Legend wrapperStyle={{ fontSize: '11px' }} />
                 <Scatter name="Employees" data={scatterData} fill="#4f46e5" />
               </ScatterChart>

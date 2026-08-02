@@ -6,6 +6,8 @@ const projectRoot = path.resolve(__dirname, '..');
 const backendDir = path.resolve(projectRoot, 'backend', 'src');
 const frontendDir = path.resolve(projectRoot, 'frontend');
 const backendUrl = 'http://127.0.0.1:8000';
+const backendReadyTimeoutMs = Number(process.env.BACKEND_READY_TIMEOUT_MS) || 20000;
+const backendReadyIntervalMs = Number(process.env.BACKEND_READY_INTERVAL_MS) || 1000;
 const venvPython = path.resolve(projectRoot, '.venv', 'Scripts', 'python.exe');
 const pythonCommand = process.platform === 'win32' && require('fs').existsSync(venvPython)
   ? venvPython
@@ -93,9 +95,11 @@ const isBackendReady = () => new Promise((resolve) => {
   req.end();
 });
 
-const waitForBackend = async (timeoutMs = 10000, intervalMs = 500) => {
+const waitForBackend = async (timeoutMs = backendReadyTimeoutMs, intervalMs = backendReadyIntervalMs) => {
   const deadline = Date.now() + timeoutMs;
+  let attempt = 0;
   while (Date.now() < deadline) {
+    attempt += 1;
     const ready = await isBackendReady();
     if (ready) {
       return true;
@@ -103,20 +107,24 @@ const waitForBackend = async (timeoutMs = 10000, intervalMs = 500) => {
     if (backendExitedEarly) {
       return false;
     }
+    if (attempt % Math.max(1, Math.floor(1000 / intervalMs)) === 0) {
+      console.log(`Waiting for backend to become ready... (${Math.floor((Date.now() - (deadline - timeoutMs)) / 1000)}s)`);
+    }
     await new Promise((resolve) => setTimeout(resolve, intervalMs));
   }
   return false;
 };
 
 (async () => {
-  const ready = await waitForBackend(10000, 500);
+  const ready = await waitForBackend();
   if (ready) {
     if (waitOnHandled) return;
     waitOnHandled = true;
     console.log('Backend is ready. Launching frontend.');
     startFrontend();
   } else {
-    console.warn('Backend did not become ready within 10 seconds. Launching frontend anyway.');
+    console.warn(`Backend did not become ready within ${backendReadyTimeoutMs / 1000} seconds. Launching frontend anyway.`);
     startFrontend();
   }
 })();
+
