@@ -196,6 +196,18 @@ Contributions are welcome! If you have suggestions for improvements or want to f
 
 ---
 
+## Software Specification
+
+1. Frontend: React + Vite with Tailwind CSS.
+
+2. Backend: Flask API with Python.
+
+3. Database: MongoDB.
+
+4. Authentication: JWT and bcrypt for secure login and password handling.
+
+5. Tools/Libraries: React Router, Flask-CORS, PyMongo, and ML libraries for wellness analytics.
+
 ## 📄 License
 
 This project is licensed under the MIT License. See the `LICENSE` file for more details.
