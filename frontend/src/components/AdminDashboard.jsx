@@ -1161,7 +1161,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
     return (
-      <text x={x} y={y} fill="#334155" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" fontSize={11}>
+      <text x={x} y={y} fill="currentColor" className="text-slate-800 dark:text-slate-100" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" fontSize={11}>
         {`${name} ${(percent * 100).toFixed(0)}%`}
       </text>
     );
