@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Activity, Sparkles, Shield, UserCheck, UserCog, Hash } from 'lucide-react';
 import { login as loginApi } from '../services/api';
+import FloatingSupportButton from './FloatingSupportButton';
 
 export default function Login({ onNavigate, onLoginSuccess }) {
   const [email, setEmail] = useState('');
@@ -151,6 +152,11 @@ export default function Login({ onNavigate, onLoginSuccess }) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSupportClick = () => {
+    // Implement your desired action here, e.g., open a modal, navigate to a support page
+    alert('Customer Support button clicked!');
   };
 
   return (
@@ -429,6 +435,9 @@ export default function Login({ onNavigate, onLoginSuccess }) {
             </p>
           </div>
         </div>
+
+        {/* Floating Customer Support Button */}
+        <FloatingSupportButton onClick={handleSupportClick} />
       </div>
     </div>
   );
