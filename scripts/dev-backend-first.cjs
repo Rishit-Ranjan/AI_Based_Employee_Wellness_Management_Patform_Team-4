@@ -6,7 +6,7 @@ const projectRoot = path.resolve(__dirname, '..');
 const backendDir = path.resolve(projectRoot, 'backend', 'src');
 const frontendDir = path.resolve(projectRoot, 'frontend');
 const backendUrl = 'http://127.0.0.1:8000';
-const backendReadyTimeoutMs = Number(process.env.BACKEND_READY_TIMEOUT_MS) || 30000;
+const backendReadyTimeoutMs = Number(process.env.BACKEND_READY_TIMEOUT_MS) || 35000;
 const backendReadyIntervalMs = Number(process.env.BACKEND_READY_INTERVAL_MS) || 1000;
 const venvPython = path.resolve(projectRoot, '.venv', 'Scripts', 'python.exe');
 const pythonCommand = process.platform === 'win32' && require('fs').existsSync(venvPython)
