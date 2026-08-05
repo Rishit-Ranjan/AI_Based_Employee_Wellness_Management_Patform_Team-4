@@ -11,7 +11,7 @@ import { CheckupSchedulerModule, EmergencySOSModule, ExpenseTrackerModule } from
 import InsuranceModule from './InsuranceModule';
 import VideoPlayerModal from './VideoPlayerModal';
 import DietPlanModule from './DietPlanModule';
-import GoalsModule from './GoalsModule';
+import GoalsModule from './GoalsModule'; // Assuming this is a local component
 import ReportsModule from './ReportsModule';
 import NotificationBell from './NotificationBell';
 import { sendAiChatMessage, fetchAiInsights, generateAiRoutine } from '../services/api';
@@ -157,6 +157,7 @@ export function ChatbotModule({ user, isFloating = false, onClose }) {
   const [isTyping, setIsTyping] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isSpeechEnabled, setIsSpeechEnabled] = useState(true);
+  const [ollamaModelInput, setOllamaModelInput] = useState(''); // New state for custom Ollama model
   const [selectedModel, setSelectedModel] = useState('gemini');
   const [isVoiceInput, setIsVoiceInput] = useState(false);
   const scrollRef = useRef(null);
@@ -225,6 +226,17 @@ export function ChatbotModule({ user, isFloating = false, onClose }) {
         { id: '1', sender: 'bot', text: greeting, model: 'System Message', timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
       ]);
     }
+
+    // Fetch system settings to get the default Ollama model
+    const fetchDefaultOllamaModel = async () => {
+      try {
+        const settings = await api.fetchSystemSettings(); // Assuming api.fetchSystemSettings exists
+        setOllamaModelInput(settings.ollamaModel || 'qwen3:1.7b'); // Initialize with default or fallback
+      } catch (error) {
+        console.error("Failed to fetch default Ollama model:", error);
+      }
+    };
+    fetchDefaultOllamaModel();
   }, [user.employeeId, user.name]);
 
   useEffect(() => {
@@ -271,7 +283,7 @@ export function ChatbotModule({ user, isFloating = false, onClose }) {
     setMessages((prev) => [...prev, userMsg]);
     setInputText('');
     setIsTyping(true);
-
+    
     try {
       const data = await sendAiChatMessage(user.employeeId, text.trim(), selectedModel);
       const botText = data.response || data.reply || data.message || "I'm here to support your health & wellness journey.";
@@ -409,6 +421,16 @@ export function ChatbotModule({ user, isFloating = false, onClose }) {
           <option value="gemini">Gemini</option>
           <option value="ollama">Ollama</option>
         </select>
+        {selectedModel === 'ollama' && (
+          <input
+            type="text"
+            value={ollamaModelInput}
+            onChange={(e) => setOllamaModelInput(e.target.value)}
+            placeholder="Ollama Model (e.g. llama3:8b)"
+            className="flex-1 px-3.5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500/20"
+            title="Specify Ollama model name (e.g., llama3:8b, mistral:7b)"
+          />
+        )}
         <input
           type="text"
           value={inputText}

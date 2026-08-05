@@ -177,12 +177,12 @@ class AIWellnessService:
             if settings:
                 return {
                     'provider': settings.get('llmProvider', 'gemini'),
-                    'ollama_model': settings.get('ollamaModel', 'phi3:3.8b')
+                    'ollama_model': settings.get('ollamaModel', 'qwen3:1.7b') # New default Ollama model
                 }
         # Fallback to environment variables if DB is not available or settings not found
         return {
             'provider': os.getenv('AI_LLM_PROVIDER', 'gemini'),
-            'ollama_model': os.getenv('OLLAMA_MODEL', 'phi3:3.8b')
+            'ollama_model': os.getenv('OLLAMA_MODEL', 'qwen3:1.7b') # New default Ollama model
         }
 
     def _generate_llm_response(self, message: str, context: str, employee_id: str, llm_config: Dict) -> Optional[tuple[str, str]]:
@@ -351,7 +351,7 @@ What would you like to explore today? I'm here to support your wellness journey!
         
         return responses.get(intent, responses['general'])
     
-    def chat(self, message: str, employee_id: str = None, model_override: str = None) -> Dict[str, Any]:
+    def chat(self, message: str, employee_id: str = None, model_override: str = None, ollama_model_name: Optional[str] = None) -> Dict[str, Any]:
         """Main chat handler - tries LLM first, falls back to rule-based."""
         
         # Get health context if employee_id is provided
@@ -366,6 +366,10 @@ What would you like to explore today? I'm here to support your wellness journey!
         # Allow user to override the model from the frontend
         if model_override and model_override in ['gemini', 'ollama']:
             llm_config['provider'] = model_override
+        
+        # Allow user to override the specific Ollama model name
+        if ollama_model_name and llm_config['provider'] == 'ollama':
+            llm_config['ollama_model'] = ollama_model_name
         
         # Detect intent
         intent = self._detect_intent(message)
