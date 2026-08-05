@@ -7,11 +7,7 @@ const backendDir = path.resolve(projectRoot, 'backend', 'src');
 const frontendDir = path.resolve(projectRoot, 'frontend');
 const backendUrl = 'http://127.0.0.1:8000';
 const backendReadyTimeoutMs = Number(process.env.BACKEND_READY_TIMEOUT_MS) || 35000;
-const backendReadyIntervalMs = Number(process.env.BACKEND_READY_INTERVAL_MS) || 1000;
-const venvPython = path.resolve(projectRoot, '.venv', 'Scripts', 'python.exe');
-const pythonCommand = process.platform === 'win32' && require('fs').existsSync(venvPython)
-  ? venvPython
-  : 'python';
+const backendReadyIntervalMs = Number(process.env.BACKEND_READY_INTERVAL_MS) || 1000; // Increased to 60 seconds
 let frontendProcess;
 let backendProcess;
 let frontendStarted = false;
@@ -66,7 +62,7 @@ const startFrontend = () => {
   });
 };
 
-backendProcess = spawnProcess(pythonCommand, ['run_flask.py'], backendDir);
+backendProcess = spawnProcess('waitress-serve', ['--listen=0.0.0.0:8000', 'run_flask:app'], backendDir);
 
 backendProcess.on('exit', (code) => {
   if (!frontendStarted) {
@@ -131,4 +127,3 @@ const waitForBackend = async (timeoutMs = backendReadyTimeoutMs, intervalMs = ba
     startFrontend();
   }
 })();
-

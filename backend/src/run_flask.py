@@ -1,8 +1,9 @@
 import os
 import sys
 from flask_app import app
+from waitress import serve
 
-if __name__ == '__main__':
+def serve_app():
     port = int(os.getenv('PORT', 8000))
-    print('Starting backend with Python:', sys.executable)
-    app.run(host='0.0.0.0', port=port, debug=True, use_reloader=False)
+    print(f"Serving Flask app with Waitress on http://0.0.0.0:{port}")
+    serve(app, host='0.0.0.0', port=port)
