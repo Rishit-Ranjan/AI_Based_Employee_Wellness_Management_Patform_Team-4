@@ -134,7 +134,6 @@ From the root directory of the project, run the concurrent script to start both 
 ```bash
 # From the project root directory
 npm run dev
-npm run dev:backend-first
 ```
 
 This will:
