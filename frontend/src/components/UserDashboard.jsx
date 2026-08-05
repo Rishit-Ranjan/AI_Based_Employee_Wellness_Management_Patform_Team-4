@@ -11,7 +11,7 @@ import { CheckupSchedulerModule, EmergencySOSModule, ExpenseTrackerModule } from
 import InsuranceModule from './InsuranceModule';
 import VideoPlayerModal from './VideoPlayerModal';
 import DietPlanModule from './DietPlanModule';
-import GoalsModule from './GoalsModule';
+import GoalsModule from './GoalsModule'; // Assuming this is a local component
 import ReportsModule from './ReportsModule';
 import NotificationBell from './NotificationBell';
 import { sendAiChatMessage, fetchAiInsights, generateAiRoutine } from '../services/api';
