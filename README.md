@@ -99,14 +99,11 @@ FRONTEND_ORIGIN="http://localhost:5173"
 # --- AI Services (Optional) ---
 # AI Provider is fixed to Ollama for local development.
 
-# Generic AI model name for Ollama. This will be the default model used if not
-# overridden by system settings or user input in the chatbot.
 # For Ollama, this should be the model tag (e.g., "qwen3:1.7b", "llama3:8b")
 AI_MODEL_NAME="qwen3:1.7b"
 
 # Ollama Base URL
 OLLAMA_BASE_URL="http://localhost:11434"
-# Gemini integration has been removed.
 
 # --- SMS Notifications (Optional) ---
 TWILIO_ACCOUNT_SID="your_twilio_account_sid"
@@ -137,6 +134,7 @@ From the root directory of the project, run the concurrent script to start both 
 ```bash
 # From the project root directory
 npm run dev
+npm run dev:backend-first
 ```
 
 This will:
