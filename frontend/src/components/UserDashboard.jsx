@@ -156,8 +156,7 @@ export function ChatbotModule({ user, isFloating = false, onClose }) {
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isListening, setIsListening] = useState(false);
-const [isSpeechEnabled, setIsSpeechEnabled] = useState(true);
-  const [selectedModel, setSelectedModel] = useState('gemini');
+  const [isSpeechEnabled, setIsSpeechEnabled] = useState(true); 
   const [isVoiceInput, setIsVoiceInput] = useState(false);
   const scrollRef = useRef(null);
   const recognitionRef = useRef(null);
@@ -275,8 +274,8 @@ const [isSpeechEnabled, setIsSpeechEnabled] = useState(true);
     setInputText('');
     setIsTyping(true);
     
-try { // Pass '' for aiModelName so the backend uses the env-configured AI_MODEL_NAME
-      const data = await sendAiChatMessage(user.employeeId, text.trim(), selectedModel, '');
+    try { // The `aiModelName` parameter is no longer needed
+      const data = await sendAiChatMessage(user.employeeId, text.trim());
       const botText = data.response || data.reply || data.message || "I'm here to support your health & wellness journey.";
 
       const botMsg = {
@@ -404,16 +403,8 @@ try { // Pass '' for aiModelName so the backend uses the env-configured AI_MODEL
       </div>
 
       <form onSubmit={handleSend} className="p-2.5 border-t border-slate-200 dark:border-slate-700 flex items-center gap-2 bg-slate-50 dark:bg-slate-900">
-<div className="flex flex-col w-full gap-2">
-          <div className="flex items-center gap-2">
-            <select
-              value={selectedModel}
-              onChange={(e) => setSelectedModel(e.target.value)}
-              className="px-2 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-[11px] font-semibold text-slate-600 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500/20"
-            >
-              <option value="gemini">Gemini</option>
-              <option value="ollama">Ollama</option>
-            </select>
+          <div className="flex items-center gap-2 w-full">
+            {/* Main Chat Input */}
             <input
               type="text"
               value={inputText}
@@ -441,7 +432,6 @@ try { // Pass '' for aiModelName so the backend uses the env-configured AI_MODEL
               <Send className="w-4 h-4" />
             </button>
           </div>
-        </div>
       </form>
     </div>
   );

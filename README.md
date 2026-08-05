@@ -97,21 +97,16 @@ JWT_SECRET_KEY="a-very-strong-and-secret-key-for-jwt"
 FRONTEND_ORIGIN="http://localhost:5173"
 
 # --- AI Services (Optional) ---
-# Choose 'gemini' or 'ollama'
-AI_LLM_PROVIDER="gemini"
+# AI Provider is fixed to Ollama for local development.
 
-# Generic AI model name (optional). If set, it overrides the provider-specific
-# model names below for whichever provider is active. Falls back to the
-# provider-specific defaults if not set.
-AI_MODEL_NAME=""
+# Generic AI model name for Ollama. This will be the default model used if not
+# overridden by system settings or user input in the chatbot.
+# For Ollama, this should be the model tag (e.g., "qwen3:1.7b", "llama3:8b")
+AI_MODEL_NAME="qwen3:1.7b"
 
-# For Ollama (if used)
+# Ollama Base URL
 OLLAMA_BASE_URL="http://localhost:11434"
-OLLAMA_MODEL="phi3:3.8b"
-
-# For Google Gemini (if used)
-GEMINI_API_KEY="your_google_gemini_api_key"
-GEMINI_MODEL_NAME="gemini-2.0-flash"
+# Gemini integration has been removed.
 
 # --- SMS Notifications (Optional) ---
 TWILIO_ACCOUNT_SID="your_twilio_account_sid"
