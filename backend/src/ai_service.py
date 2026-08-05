@@ -147,18 +147,30 @@ class AIWellnessService:
         return context
     
     def _get_current_llm_config(self) -> Dict[str, Any]:
-        """Fetch the current LLM configuration from environment variables.
-        Ensures the model name is Ollama-compatible."""
+        """Fetch the current LLM configuration from system settings or environment variables.
+
+        The app uses Ollama (local LLM). The model name is resolved with this
+        precedence:
+          - DB system settings (admin UI) ``aiModelName`` override
+          - ``AI_MODEL_NAME`` environment variable
+          - sensible default (``qwen3:1.7b``)
+        """
         # Provider is now fixed to Ollama
         provider = 'ollama'
-        
-        # Model name is resolved from environment variable, with a fallback.
-        model_name = os.getenv('AI_MODEL_NAME', 'qwen3:1.7b')
 
-        # Crucial: If AI_MODEL_NAME was mistakenly set to a Gemini model, force it to a known Ollama default.
-        if 'gemini' in model_name.lower():
-            print(f"Warning: AI_MODEL_NAME '{model_name}' appears to be a Gemini model. Forcing to 'qwen3:1.7b' for Ollama.")
-            model_name = 'qwen3:1.7b'
+        # Generic AI_MODEL_NAME from environment
+        env_ai_model_name = os.getenv('AI_MODEL_NAME')
+
+        model_name_from_settings = None
+        if self.db is not None:
+            settings = self.db['system_settings'].find_one({'_id': 'system_config'}) # Assuming 'system_config' is the ID
+            if settings:
+                model_name_from_settings = settings.get('aiModelName')
+        
+        # Prioritize DB setting, then environment variable, then hardcoded default
+        model_name = model_name_from_settings if model_name_from_settings is not None else env_ai_model_name
+        if not model_name:
+            model_name = 'qwen3:1.7b' # Ultimate fallback
 
         return {
             'provider': provider,
@@ -168,9 +180,14 @@ class AIWellnessService:
     def _generate_llm_response(self, message: str, context: str, employee_id: str, llm_config: Dict) -> Optional[tuple[str, str]]:
         """Try to get response from the Ollama LLM. Returns (response_text, model_name) or None.
         The provider is now fixed to Ollama."""
-        
-        # model_name_to_use is already resolved and sanitized by _get_current_llm_config
+
+        # The llm_config contains the model name from user input or from _get_current_llm_config.
+        # We prioritize the user's input if it exists.
         model_name_to_use = llm_config.get('model_name')
+        
+        # If the resolved model name is empty or looks like a Gemini model, fall back to a safe Ollama default.
+        if not model_name_to_use or 'gemini' in str(model_name_to_use).lower():
+            model_name_to_use = os.getenv('AI_MODEL_NAME', 'qwen3:1.7b') # Fallback to env var or hardcoded default
 
         try:
             prompt = f"""Context (Employee Health Data): {context}
@@ -196,15 +213,22 @@ As an AI Wellness Assistant, provide a helpful, concise response (max 150 words)
                 error_msg = f"Ollama API returned status {response.status_code}: {response.text}"
                 print(f"Ollama API error: {error_msg}")
                 return f"Ollama model failed to respond. Please ensure the Ollama server is running and the '{model_name_to_use}' model is downloaded.", "Ollama Error"
+            
         except http_requests.exceptions.ConnectionError as e:
             error_msg = f"Could not connect to Ollama server at {ollama_base_url}. Is Ollama running and '{model_name_to_use}' downloaded?"
             print(f"Ollama API error: {error_msg} - {e}")
             return f"Ollama model failed: {error_msg}", "Ollama Error"
+        
         except http_requests.exceptions.Timeout as e:
             error_msg = f"Ollama API request timed out after 30 seconds."
             print(f"Ollama API error: {error_msg}")
             return f"Ollama model failed: {error_msg}. The model may be taking too long to respond.", "Ollama Error"
 
+        except Exception as e: # Catch any other unexpected errors during the API call
+            error_msg = f"An unexpected error occurred during Ollama API call: {e}"
+            print(f"Ollama API error: {error_msg}")
+            return f"Ollama model failed: {error_msg}", "Ollama Error"
+        
     def _generate_rule_response(self, message: str, intent: str) -> str:
         """Generate rule-based response when LLM is not available."""
         
@@ -283,14 +307,14 @@ Your wellness journey is about health, not just numbers! What aspect would you l
         
         return responses.get(intent, responses['general'])
 
-        
-    def chat(self, message: str, employee_id: str = None) -> Dict[str, Any]:
+    def chat(self, message: str, employee_id: str = None, ai_model_name: Optional[str] = None) -> Dict[str, Any]:
         """Main chat handler - tries LLM first, falls back to rule-based."""
         
         # Get health context if employee_id is provided
         context = {}
         if employee_id:
             context = self._get_context_from_db(employee_id)
+        
         context_str = json.dumps(context, default=str) if context else "No specific health data available."
         
         # Get the current LLM configuration from settings
