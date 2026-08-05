@@ -99,14 +99,11 @@ FRONTEND_ORIGIN="http://localhost:5173"
 # --- AI Services (Optional) ---
 # AI Provider is fixed to Ollama for local development.
 
-# Generic AI model name for Ollama. This will be the default model used if not
-# overridden by system settings or user input in the chatbot.
 # For Ollama, this should be the model tag (e.g., "qwen3:1.7b", "llama3:8b")
 AI_MODEL_NAME="qwen3:1.7b"
 
 # Ollama Base URL
 OLLAMA_BASE_URL="http://localhost:11434"
-# Gemini integration has been removed.
 
 # --- SMS Notifications (Optional) ---
 TWILIO_ACCOUNT_SID="your_twilio_account_sid"
@@ -157,11 +154,11 @@ npm run dev:backend-first
 This command will:
 
 - start the backend server first,
-- wait up to 10 seconds for it to become available,
+- wait up to 20 seconds for it to become available,
 - then start the frontend dev server,
 - and still launch Vite if the backend does not become ready in time.
 
-This gives you a backend-first flow without blocking the web app entirely if backend startup fails.
+This gives a backend-first flow without blocking the web app entirely if backend startup fails.
 
 ---
 
