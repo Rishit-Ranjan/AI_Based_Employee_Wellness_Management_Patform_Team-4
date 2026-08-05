@@ -202,16 +202,25 @@ class AIWellnessService:
         # Generic override from DB settings (admin can set a single AI model name)
         db_ai_model_name = None
 
-        # Prefer DB settings when available (admin can override via Settings UI).
-        # DB provider-specific models take highest precedence so the admin's
-        # explicit Ollama/Gemini model is never overwritten by a generic override.
+# Prefer DB settings when available (admin can override via Settings UI).
+        # DB provider-specific models take highest precedence. The generic DB
+        # ``aiModelName`` is treated like the ``AI_MODEL_NAME`` env var: it is
+        # only used when no provider-specific setting/env is present, so a Gemini
+        # generic name never overrides an explicit Ollama model (and vice-versa).
         if self.db is not None:
             settings = self.db['system_settings'].find_one({'_id': 'system_config'})
             if settings:
                 provider = settings.get('llmProvider', provider)
                 db_ai_model_name = settings.get('aiModelName')
-                gemini_model = settings.get('geminiModel') or db_ai_model_name or gemini_model
-                ollama_model = settings.get('ollamaModel') or db_ai_model_name or ollama_model
+                # Provider-specific DB overrides take highest precedence.
+                gemini_model = settings.get('geminiModel') or gemini_model
+                ollama_model = settings.get('ollamaModel') or ollama_model
+                # Generic DB override only when no provider-specific setting/env exists.
+                if db_ai_model_name:
+                    if not os.getenv('GEMINI_MODEL_NAME') and not settings.get('geminiModel'):
+                        gemini_model = db_ai_model_name
+                    if not os.getenv('OLLAMA_MODEL') and not settings.get('ollamaModel'):
+                        ollama_model = db_ai_model_name
 
         # Resolve the model name based on the active provider
         model_name = gemini_model if provider == 'gemini' else ollama_model
