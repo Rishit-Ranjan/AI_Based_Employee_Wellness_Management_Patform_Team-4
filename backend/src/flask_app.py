@@ -1921,15 +1921,12 @@ def ai_chat():
     user_info = jwt_payload.get("user_info")
     data = request.get_json() or {}
     message = data.get('message', '')
-    model_override = data.get('model') # 'gemini' or 'ollama' (provider override)
-    ai_model_name = data.get('aiModelName') # Specific AI model name override
     employee_id = data.get('employeeId') or user_info.get('employeeId')
     
     if not message:
         return jsonify({'detail': 'Message is required'}), 400
-    
     try:
-        result = ai_wellness_service.chat(message, employee_id, model_override, ai_model_name)
+        result = ai_wellness_service.chat(message, employee_id)
         return jsonify(result), 200
     except Exception as e:
         app.logger.exception(f"AI Chat error: {e}")
@@ -2529,8 +2526,9 @@ def get_system_settings():
     if not settings:
         settings = {
             '_id': 'system_config',
-            'llmProvider': os.getenv('AI_LLM_PROVIDER', 'ollama'), # Default provider from env or 'ollama'
-            'aiModelName': os.getenv('AI_MODEL_NAME', 'qwen3:1.7b'), # Generic AI model name from env or 'qwen3:1.7b'
+            'llmProvider': 'ollama',
+            # Default model name from env or hardcoded fallback
+            'aiModelName': os.getenv('AI_MODEL_NAME', 'qwen3:1.7b'), 
             'highRiskThreshold': 70,
             'mediumRiskThreshold': 45,
             'enableEmailNotifications': False,
@@ -2541,6 +2539,7 @@ def get_system_settings():
         system_settings_collection.insert_one(settings)
     
     settings.pop('_id', None) # Don't send the internal ID to the client
+    settings.pop('aiModelName', None) # Explicitly remove aiModelName as it's now env-controlled
     return jsonify(settings), 200
 
 
@@ -2555,10 +2554,17 @@ def update_system_settings():
 
     data = request.get_json() or {}
     
+    # Prepare update operations
+    update_ops = {'$set': data}
+    
+    # Crucial: Explicitly unset aiModelName from the database, as it's now env-controlled
+    # This cleans up any old, incorrect values that might be lingering.
+    update_ops['$unset'] = {'aiModelName': ''}
+
     # Update the single settings document, using upsert to create it if it doesn't exist
     system_settings_collection.update_one(
-        {'_id': 'system_config'},
-        {'$set': data},
+        {'_id': 'system_config'}, # Target the system_config document
+        update_ops, # Apply both $set for other fields and $unset for aiModelName
         upsert=True
     )
     

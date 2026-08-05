@@ -6,46 +6,22 @@ Uses a hybrid approach: rule-based reasoning + optional LLM integration.
 import os
 import json
 import random
+import requests as http_requests
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, List, Any
 from ai_policy import AI_POLICY_GUARDRAIL
 from dotenv import load_dotenv
 load_dotenv()
 
-# Optional: Ollama integration (local LLM - privacy focused)
-try:
-    import requests as http_requests
-    OLLAMA_AVAILABLE = True
-except ImportError:
-    OLLAMA_AVAILABLE = False
-
-# Optional: Google Gemini integration
-try:
-    import google.genai as genai
-    GEMINI_AVAILABLE = True
-except ImportError:
-    GEMINI_AVAILABLE = False
-
 
 class AIWellnessService:
     """AI-powered wellness assistant service."""
-    
+
     def __init__(self, db=None, risk_model=None, recommendation_engine=None):
         self.db = db
         self.risk_model = risk_model
         self.recommendation_engine = recommendation_engine
         
-        self.gemini_api_key = os.getenv('GEMINI_API_KEY') or os.getenv('GOOGLE_API_KEY', '')
-        
-        # Initialize Gemini if available
-        if self.gemini_api_key and GEMINI_AVAILABLE:
-            try:
-                # NEW SYNTAX: Create a Client for the new google.genai SDK
-                self.gemini_client = genai.Client(api_key=self.gemini_api_key)
-                print("Gemini client initialized successfully.")
-            except Exception as e:
-                print(f"Gemini initialization error: {e}")
-                self.gemini_client = None
         self.recommendation_cache = {} # Cache for recommendations
         self.risk_prediction_cache = {} # Cache for risk predictions
         self.performance_analytics_cache = {} # Cache for performance analytics
@@ -162,7 +138,7 @@ class AIWellnessService:
             sos_count = self.db['sos_alerts'].count_documents({
                 'employeeId': employee_id,
                 'createdAt': {'$gte': (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()}
-})
+            })
             context['recent_sos'] = sos_count
             
         except Exception as e:
@@ -171,167 +147,154 @@ class AIWellnessService:
         return context
     
     def _get_current_llm_config(self) -> Dict[str, Any]:
-        """Fetch the current LLM configuration from system settings or environment variables.
+        """Fetch the current LLM configuration from environment variables.
+        Ensures the model name is Ollama-compatible."""
+        # Provider is now fixed to Ollama
+        provider = 'ollama'
+        
+        # Model name is resolved from environment variable, with a fallback.
+        model_name = os.getenv('AI_MODEL_NAME', 'qwen3:1.7b')
 
-        Resolves the correct model name for the active provider so that selecting
-        Ollama always uses an Ollama model and selecting Gemini always uses a Gemini
-        model. Precedence:
-          - DB system settings (admin UI) overrides
-          - ``AI_MODEL_NAME`` (generic override) overrides
-          - ``GEMINI_MODEL_NAME`` / ``OLLAMA_MODEL`` (provider-specific) overrides
-          - sensible default
-        """
-# Default provider from environment or 'ollama'
-        provider = os.getenv('AI_LLM_PROVIDER', 'ollama')
-
-        # Provider-specific env fallbacks
-        default_gemini_model = os.getenv('GEMINI_MODEL_NAME', 'gemini-3.5-flash')
-        default_ollama_model = os.getenv('OLLAMA_MODEL', 'qwen3:1.7b')
-        generic_model = os.getenv('AI_MODEL_NAME')
-
-        # Start from provider-specific env (or defaults). ONLY apply the generic
-        # env override (AI_MODEL_NAME) when no provider-specific env is set, so a
-        # Gemini default never leaks into an Ollama request (and vice-versa).
-        gemini_model = default_gemini_model
-        ollama_model = default_ollama_model
-        if not os.getenv('GEMINI_MODEL_NAME') and generic_model:
-            gemini_model = generic_model
-        if not os.getenv('OLLAMA_MODEL') and generic_model:
-            ollama_model = generic_model
-
-        # Generic override from DB settings (admin can set a single AI model name)
-        db_ai_model_name = None
-
-# Prefer DB settings when available (admin can override via Settings UI).
-        # DB provider-specific models take highest precedence. The generic DB
-        # ``aiModelName`` is treated like the ``AI_MODEL_NAME`` env var: it is
-        # only used when no provider-specific setting/env is present, so a Gemini
-        # generic name never overrides an explicit Ollama model (and vice-versa).
-        if self.db is not None:
-            settings = self.db['system_settings'].find_one({'_id': 'system_config'})
-            if settings:
-                provider = settings.get('llmProvider', provider)
-                db_ai_model_name = settings.get('aiModelName')
-                # Provider-specific DB overrides take highest precedence.
-                gemini_model = settings.get('geminiModel') or gemini_model
-                ollama_model = settings.get('ollamaModel') or ollama_model
-                # Generic DB override only when no provider-specific setting/env exists.
-                if db_ai_model_name:
-                    if not os.getenv('GEMINI_MODEL_NAME') and not settings.get('geminiModel'):
-                        gemini_model = db_ai_model_name
-                    if not os.getenv('OLLAMA_MODEL') and not settings.get('ollamaModel'):
-                        ollama_model = db_ai_model_name
-
-        # Resolve the model name based on the active provider
-        model_name = gemini_model if provider == 'gemini' else ollama_model
+        # Crucial: If AI_MODEL_NAME was mistakenly set to a Gemini model, force it to a known Ollama default.
+        if 'gemini' in model_name.lower():
+            print(f"Warning: AI_MODEL_NAME '{model_name}' appears to be a Gemini model. Forcing to 'qwen3:1.7b' for Ollama.")
+            model_name = 'qwen3:1.7b'
 
         return {
             'provider': provider,
             'model_name': model_name,
-            'gemini_model': gemini_model,
-            'ollama_model': ollama_model,
         }
 
     def _generate_llm_response(self, message: str, context: str, employee_id: str, llm_config: Dict) -> Optional[tuple[str, str]]:
-        """Try to get response from LLM provider. Returns (response_text, model_name) or None."""
+        """Try to get response from the Ollama LLM. Returns (response_text, model_name) or None.
+        The provider is now fixed to Ollama."""
+        
+        # model_name_to_use is already resolved and sanitized by _get_current_llm_config
+        model_name_to_use = llm_config.get('model_name')
 
-        provider = llm_config.get('provider')
-
-        # --- Ollama Logic ---
-        if provider == 'ollama' and OLLAMA_AVAILABLE:
-            try:
-                # Use the live override (if any) first, then the provider-resolved model name
-                model_name_to_use = llm_config.get('model_name') or llm_config.get('ollama_model') or os.getenv('OLLAMA_MODEL', 'qwen3:1.7b')
-                prompt = f"""Context (Employee Health Data): {context}
+        try:
+            prompt = f"""Context (Employee Health Data): {context}
 
 User message: {message}
 
 As an AI Wellness Assistant, provide a helpful, concise response (max 150 words) with practical wellness advice.
 
 {AI_POLICY_GUARDRAIL}"""
-                ollama_base_url = os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')
-                response = http_requests.post(
-                    f"{ollama_base_url}/api/generate",
-                    json={
-                        "model": model_name_to_use,
-                        "prompt": prompt,
-                        "stream": False
-                    },
-                    timeout=25
-                )
-                if response.status_code == 200:
-                    return response.json().get('response', ''), model_name_to_use
-                else:
-                    error_msg = f"Ollama API returned status {response.status_code}: {response.text}"
-                    print(f"Ollama API error: {error_msg}")
-                    return f"Ollama model failed to respond. Please ensure the Ollama server is running and the '{model_name_to_use}' model is downloaded.", "Ollama Error"
-            except http_requests.exceptions.ConnectionError as e:
-                error_msg = f"Could not connect to Ollama server at {ollama_base_url}. Is Ollama running and '{model_name_to_use}' downloaded?"
-                print(f"Ollama API error: {error_msg} - {e}")
-                return f"Ollama model failed: {error_msg}", "Ollama Error"
-            except http_requests.exceptions.Timeout as e:
-                error_msg = f"Ollama API request timed out after 30 seconds."
+            ollama_base_url = os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')
+            response = http_requests.post(
+                f"{ollama_base_url}/api/generate",
+                json={
+                    "model": model_name_to_use,
+                    "prompt": prompt,
+                    "stream": False
+                },
+                timeout=25
+            )
+            if response.status_code == 200:
+                return response.json().get('response', ''), model_name_to_use
+            else:
+                error_msg = f"Ollama API returned status {response.status_code}: {response.text}"
                 print(f"Ollama API error: {error_msg}")
-                return f"Ollama model failed: {error_msg}. The model may be taking too long to respond.", "Ollama Error"
+                return f"Ollama model failed to respond. Please ensure the Ollama server is running and the '{model_name_to_use}' model is downloaded.", "Ollama Error"
+        except http_requests.exceptions.ConnectionError as e:
+            error_msg = f"Could not connect to Ollama server at {ollama_base_url}. Is Ollama running and '{model_name_to_use}' downloaded?"
+            print(f"Ollama API error: {error_msg} - {e}")
+            return f"Ollama model failed: {error_msg}", "Ollama Error"
+        except http_requests.exceptions.Timeout as e:
+            error_msg = f"Ollama API request timed out after 30 seconds."
+            print(f"Ollama API error: {error_msg}")
+            return f"Ollama model failed: {error_msg}. The model may be taking too long to respond.", "Ollama Error"
 
-        # --- Gemini Logic ---
-        if provider == 'gemini' and hasattr(self, 'gemini_client') and self.gemini_client:
-            # Use the live override (if any) first, then the provider-resolved model name
-            model_name_to_use = llm_config.get('model_name') or llm_config.get('gemini_model') or os.getenv('GEMINI_MODEL_NAME', 'gemini-3.5-flash')
-            prompt = f"""You are an expert AI Wellness Assistant for a corporate wellness platform called "Employee Wellness Management Analytics". 
-You have access to this employee's health data: {context}
-
-User message: {message}
-
-Provide concise, actionable wellness advice. Be supportive, empathetic, and evidence-based.
-Keep responses under 150 words. Focus on practical tips the employee can implement immediately.
-Use emojis sparingly but effectively to make the response engaging.
-{AI_POLICY_GUARDRAIL}"""
-            try:
-                gemini_response = self.gemini_client.models.generate_content(
-                    model=f'models/{model_name_to_use}',
-                    contents=prompt
-                )
-                if gemini_response and gemini_response.text:
-                    print(f"Successfully used Gemini model: {model_name_to_use}")
-                    return (gemini_response.text.strip(), model_name_to_use)
-            except Exception as e:
-                print(f"Gemini model '{model_name_to_use}' failed: {e}")
-                return f"Gemini model '{model_name_to_use}' failed to respond: {e}", "Gemini Error"
-
-        return None
+    def _generate_rule_response(self, message: str, intent: str) -> str:
+        """Generate rule-based response when LLM is not available."""
         
-    def chat(self, message: str, employee_id: str = None, model_override: str = None, ai_model_name: Optional[str] = None) -> Dict[str, Any]:
+        responses = {
+            'greeting': """Hello! 👋 How are you feeling today? 
+
+I'm your AI Wellness Assistant. Let me know if you'd like to check in on your sleep, stress, fitness, or nutrition goals!""",
+
+            'sleep': """I noticed you're asking about sleep! Here's what works:
+
+1️⃣ Stick to a consistent schedule - same bedtime & wake time
+2️⃣ Create a 'power down' routine 60 min before bed
+3️⃣ Keep your room cool (65-68°F) and dark
+4️⃣ Avoid caffeine after 2 PM
+5️⃣ Try 4-7-8 breathing to fall asleep faster
+
+Would you like me to help you create a personalized sleep schedule? 🌙""",
+
+            'stress': """Great that you're addressing stress! Try these evidence-based techniques:
+
+🧘 **5-Minute Reset**: Close your eyes and take 10 deep belly breaths
+📝 **Brain Dump**: Write everything worrying you for 5 minutes
+🚶 **Walk Away**: Step outside for 5 minutes of fresh air
+🎵 **Music Therapy**: Listen to music at 60 BPM to sync brain waves
+
+Your stress score is important feedback. Let me know if you need more coping strategies! 💪""",
+
+            'exercise': """Getting active is key to wellness! Here's your personalized approach:
+
+🏃 **Micro Workouts**: 5-10 min movement breaks every 2 hours
+💪 **Desk Exercises**: Chair squats, wall pushups, seated leg raises
+🚶 **Walking**: Aim for 8,000 steps - break into 3 walks (morning/lunch/evening)
+🧘 **Stretching**: 5 min morning + 5 min evening prevents stiffness
+
+Start small - consistency beats intensity! What sounds manageable? 🔥""",
+
+            'nutrition': """Smart nutrition choices = better energy & focus! Here's what I recommend:
+
+🥗 **Plate Method**: 50% veggies, 25% protein, 25% whole grains
+💧 **Hydration**: Your goal is 8 cups of water - try flavoring with lemon/cucumber
+⏰ **Timing**: Don't eat 3 hours before sleep
+🍎 **Smart Snacks**: Nuts, fruit, yogurt instead of processed options
+
+Would you like me to tailor a meal plan based on your diet preferences? 🥑""",
+
+            'mental_health': """Your mental wellbeing matters! Here are some powerful strategies:
+
+🌅 **Morning Ritual**: 2 min gratitude journaling sets a positive tone
+⏸️ **Micro-Breaks**: 60 seconds of deep breathing every hour
+📵 **Digital Detox**: 30 min of no screens before bed
+🤝 **Connect**: Reach out to one colleague today - social bonds protect mental health
+
+Remember: It's okay to not be okay. Your anonymized pulse helps us improve workplace wellness. ❤️""",
+
+            'bp': """Blood pressure management is crucial for long-term health:
+
+🩺 **Monitor**: Check BP at the same time daily (morning is best)
+🧂 **Reduce Sodium**: Aim for < 2000mg/day - watch hidden salt in processed foods
+🥦 **DASH Diet**: Focus on fruits, veggies, whole grains, lean proteins
+🏃 **Exercise**: 30 min moderate activity 5 days/week lowers BP by 5-8 mmHg
+🧘 **Stress Management**: 10 min meditation daily lowers systolic BP by 5 mmHg
+
+Your health record shows your BP trends. Let me know if you want specific guidance! ❤️""",
+
+            'bmi': """Let's talk about your BMI and overall wellness:
+
+📊 **BMI is one metric**: It doesn't tell the whole story - muscle mass, body composition matter too
+🎯 **Focus on habits**, not numbers: Consistent sleep, exercise, and nutrition drive results
+📉 **Sustainable changes**: 0.5-1 kg per week is healthy weight management
+💪 **Strength training**: Building muscle increases resting metabolism
+
+Your wellness journey is about health, not just numbers! What aspect would you like to focus on? 🌟""",
+
+            'general': "I'm your AI Wellness Assistant! I can help with sleep, stress, fitness, and nutrition. What's on your mind?"
+        }
+        
+        return responses.get(intent, responses['general'])
+
+        
+    def chat(self, message: str, employee_id: str = None) -> Dict[str, Any]:
         """Main chat handler - tries LLM first, falls back to rule-based."""
         
         # Get health context if employee_id is provided
         context = {}
         if employee_id:
             context = self._get_context_from_db(employee_id)
-        
         context_str = json.dumps(context, default=str) if context else "No specific health data available."
         
         # Get the current LLM configuration from settings
         llm_config = self._get_current_llm_config()
-        # Allow user to override the model from the frontend
-        if model_override and model_override in ['gemini', 'ollama']:
-            llm_config['provider'] = model_override
-            # Re-resolve the model name for the newly selected provider so a
-            # Gemini model name never leaks into an Ollama request (and vice-versa).
-            llm_config['model_name'] = (
-                llm_config['gemini_model'] if model_override == 'gemini'
-                else llm_config['ollama_model']
-            )
-        
-        # Allow user to override the specific AI model name
-        # (kept for backward compatibility; the frontend now sends '' so the
-        # env-configured AI_MODEL_NAME / provider-specific model is used)
-        if ai_model_name:
-            llm_config['model_name'] = ai_model_name
-            if llm_config['provider'] == 'gemini':
-                llm_config['gemini_model'] = ai_model_name
-            else:
-                llm_config['ollama_model'] = ai_model_name
         
         # Detect intent
         intent = self._detect_intent(message)

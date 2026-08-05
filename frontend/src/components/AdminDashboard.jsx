@@ -1760,7 +1760,6 @@ function SystemSettingsModule() {
   const [settings, setSettings] = useState({
     // Default state before loading from backend
     llmProvider: 'ollama',
-    aiModelName: 'qwen3:1.7b', // Generic AI model name
     highRiskThreshold: 70,
     mediumRiskThreshold: 45,
     enableEmailNotifications: false,
@@ -1779,7 +1778,6 @@ function SystemSettingsModule() {
         const fetchedSettings = await api.fetchSystemSettings();
         const defaultSettings = {
           llmProvider: 'ollama',
-          aiModelName: 'qwen3:1.7b', // Generic AI model name
           highRiskThreshold: 70,
           mediumRiskThreshold: 45,
           enableEmailNotifications: false,
@@ -1806,7 +1804,11 @@ function SystemSettingsModule() {
     setError('');
     setSuccess('');
     try {
-      await api.saveSystemSettings(settings);
+      // Create a copy of settings and explicitly remove aiModelName before saving
+      const settingsToSave = { ...settings };
+      delete settingsToSave.aiModelName;
+
+      await api.saveSystemSettings(settingsToSave);
       setSuccess('Settings saved successfully!');
     } catch (err) {
       setError('Failed to save settings. Please try again.');
@@ -1822,7 +1824,7 @@ function SystemSettingsModule() {
         </div>
         {title === "AI & Analytics" && (
           <span className="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-[10px] font-mono font-bold rounded-md uppercase tracking-wider">
-            Active: {settings.llmProvider}
+            Active: Ollama
           </span>
         )}
       </div>
@@ -1888,6 +1890,7 @@ function SystemSettingsModule() {
             </label>
           </SettingRow>
         </SettingCard>
+
       </div>
       <div className="flex justify-end">
         <button
