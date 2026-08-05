@@ -1062,11 +1062,13 @@ def get_recommendations():
 
                 # 3. Use the loaded recommendation engine if available
                 if recommendation_engine is not None and callable(recommendation_engine):
+                    app.logger.debug(f"Recommendation engine is callable (type: {type(recommendation_engine)}). Attempting to use it.")
                     top_recs = recommendation_engine(employee_profile, top_n=3)
                 
                 # 4. Fallback: Exact structural mirror matching the engine's output dictionary format
                 else:
                     top_recs = []
+                    app.logger.warning(f"Recommendation engine is not callable or is None (type: {type(recommendation_engine)}). Using fallback logic.")
                     
                     if employee_profile["stress_score"] >= 8:
                         top_recs.append({
