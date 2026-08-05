@@ -1924,10 +1924,19 @@ export default function AdminDashboard({ user,
   loadingPerformance,
   performanceError
 }) {
-  const [activeTab, setActiveTab] = useState(1);
+  // Initialize activeTab from localStorage, default to 1 if not found
+  const [activeTab, setActiveTab] = useState(() => {
+    const savedTab = localStorage.getItem('adminActiveTab');
+    return savedTab ? parseInt(savedTab, 10) : 1;
+  });
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotifCenterOpen, setIsNotifCenterOpen] = useState(false);
+
+  // Save activeTab to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('adminActiveTab', activeTab.toString());
+  }, [activeTab]);
 
   // Find the logged-in admin's department from their health record.
   // This is used to filter the sentiment module to only show the admin's own department.
