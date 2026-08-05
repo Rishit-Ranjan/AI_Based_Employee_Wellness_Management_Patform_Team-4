@@ -804,12 +804,19 @@ export default function UserDashboard({
   onUpdateAvatar,
   onUserUpdate
 }) {
-  const [activeTab, setActiveTab] = useState(7);
+  // Initialize activeTab from localStorage, default to 7 if not found
+  const [activeTab, setActiveTab] = useState(() => {
+    const savedTab = localStorage.getItem('userActiveTab');
+    return savedTab ? parseInt(savedTab, 10) : 7;
+  });
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   // State for interactive chatbot icon
+  useEffect(() => {
+    localStorage.setItem('userActiveTab', activeTab.toString());
+  }, [activeTab]);
   const [pupilTransform, setPupilTransform] = useState('');
   const chatButtonRef = useRef(null);
 
