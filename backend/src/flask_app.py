@@ -1061,7 +1061,7 @@ def get_recommendations():
                 }
 
                 # 3. Use the loaded recommendation engine if available
-                if recommendation_engine is not None:
+                if recommendation_engine is not None and callable(recommendation_engine):
                     top_recs = recommendation_engine(employee_profile, top_n=3)
                 
                 # 4. Fallback: Exact structural mirror matching the engine's output dictionary format
@@ -1143,6 +1143,17 @@ def get_recommendations():
 
             except Exception as e:
                 app.logger.error(f"Failed to generate recommendations for {record.get('employeeId')}: {e}")
+                # Add a placeholder recommendation for the employee if an error occurred
+                all_recommendations.append({
+                    "employeeId": record.get("employeeId"),
+                    "employeeName": record.get("employeeName", "Unknown Employee"),
+                    "riskProfile": {"riskType": "Unknown"},
+                    "recommendations": [{
+                        "title": "Recommendation Generation Failed",
+                        "description": f"An error occurred: {e}. Please check employee health data and model loading.",
+                        "category": "System", "severity": "Critical"
+                    }]
+                })
 
         # For a non-admin user, return just their recommendations directly, not nested in an array.
         if not is_admin and all_recommendations:
