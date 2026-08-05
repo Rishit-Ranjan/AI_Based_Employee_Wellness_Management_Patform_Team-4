@@ -26,12 +26,16 @@ from pymongo import MongoClient
 from pymongo.errors import ConfigurationError
 from bson import ObjectId
 from dotenv import load_dotenv
-import joblib
 import pandas as pd
 from email_sender import send_email
-import cloudpickle
-from nltk.sentiment import SentimentIntensityAnalyzer
-import nltk
+from model_loader import (
+    get_risk_model,
+    get_target_encoder,
+    get_feature_columns,
+    get_recommendation_engine,
+    get_sentiment_analyzer,
+    preload_models,
+)
 
 app = Flask(__name__)
 
@@ -86,36 +90,16 @@ sos_alerts_collection = db.get_collection('sos_alerts')
 expenses_collection = db.get_collection('health_expenses')
 system_settings_collection = db.get_collection('system_settings')
 
-# --- Load ML Model and Metadata ---
-try:
-    # Correctly locate the 'backend' directory from the 'src' directory
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    MODELS_DIR = os.path.join(BASE_DIR, "models")
-    
-    risk_model = joblib.load(os.path.join(MODELS_DIR, "wellness_risk_model.pkl"))
-    target_encoder = joblib.load(os.path.join(MODELS_DIR, "target_encoder.pkl"))
-    feature_columns = joblib.load(os.path.join(MODELS_DIR, "feature_columns.pkl"))
+# --- Lazy Loading of ML Models ---
+# AI/ML model artifacts (risk model, target encoder, feature columns, recommendation
+# engine, and VADER sentiment analyzer) are now loaded lazily on their first use
+# via the model_loader module. This keeps application startup fast and only incurs
+# model loading cost when the corresponding feature endpoint is first accessed.
+#
+# To keep the first-feature-request fast, we kick off a background preloader that
+# warms the model cache during startup (non-blocking daemon thread).
+preload_models(blocking=False)
 
-    with open(os.path.join(MODELS_DIR, "wellness_recommendation_engine.pkl"), "rb") as f:
-        recommendation_engine = cloudpickle.load(f)
-        
-    app.logger.info("All ML models and functional recommendation engines loaded successfully.")
-
-except Exception as e:
-    app.logger.error(f"Error loading ML model: {e}")
-    risk_model = None
-    target_encoder = None
-    feature_columns = None
-    recommendation_engine = None
-
-# --- NLTK Setup for Sentiment Analysis ---
-try:
-    nltk.download('vader_lexicon', quiet=True)
-    sia = SentimentIntensityAnalyzer()
-except Exception as e:
-    app.logger.error(f"Failed to initialize NLTK Sentiment Analyzer: {e}")
-    sia = None
-    
 #--- Utility Functions ---
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
@@ -660,21 +644,23 @@ def map_health_record_to_model_input(record):
         "smoker": record.get("smoker", False),
         "alcohol_use": record.get("alcoholUse", False),
         "medical_condition": record.get("medicalCondition", "No major condition") or "No major condition",
-    }
+}
 
     df = pd.DataFrame([normalized])
 
     categorical_cols = [col for col in ["gender", "medical_condition"] if col in df.columns]
     df = pd.get_dummies(df, columns=categorical_cols, drop_first=True)
 
-    df = df.reindex(columns=feature_columns, fill_value=0)
+    df = df.reindex(columns=get_feature_columns(), fill_value=0)
     return df
 
 # --- Risk Prediction Endpoint ---
 @app.route('/api/wellness/risks', methods=['GET'])
 @jwt_required(locations=["cookies"])
 def get_risk_predictions():
-    if risk_model is None or target_encoder is None or feature_columns is None:
+    risk_model = get_risk_model()
+    target_encoder = get_target_encoder()
+    if risk_model is None or target_encoder is None:
         return jsonify({"detail": "ML model artifacts are not loaded on the server."}), 500
 
     try:
@@ -781,7 +767,9 @@ def get_risk_predictions():
 @app.route('/api/wellness/risks_old', methods=['GET'])
 @jwt_required(locations=["cookies"])
 def get_wellness_risks_old():
-    if risk_model is None or target_encoder is None or feature_columns is None:
+    risk_model = get_risk_model()
+    target_encoder = get_target_encoder()
+    if risk_model is None or target_encoder is None:
         return jsonify({'detail': 'ML model is not available.'}), 503
 
     try:
@@ -1014,7 +1002,10 @@ def get_fallback_video():
 @app.route('/api/wellness/recommendations', methods=['GET'])
 @jwt_required(locations=["cookies"])
 def get_recommendations():
-    if risk_model is None:
+    risk_model = get_risk_model()
+    target_encoder = get_target_encoder()
+    recommendation_engine = get_recommendation_engine()
+    if risk_model is None or target_encoder is None:
         return jsonify({"detail": "Risk prediction model is not available."}), 503
 
     jwt_payload = get_jwt()
@@ -1920,7 +1911,7 @@ def change_password():
 
 # --- AI Wellness Service Endpoints ---
 from ai_service import get_ai_service
-ai_wellness_service = get_ai_service(db, risk_model, recommendation_engine)
+ai_wellness_service = get_ai_service(db)
 
 @app.route('/api/ai/chat', methods=['POST'])
 @jwt_required(locations=["cookies"])
@@ -2451,7 +2442,7 @@ def get_performance_analytics():
 def add_sentiment_pulse():
     """
     Receives a sentiment pulse from a user and stores it
-    in the sentiment_pulses MongoDB collection.
+in the sentiment_pulses MongoDB collection.
     """
     data = request.get_json() or {}
     if not data or 'department' not in data or 'stressScore' not in data:
@@ -2463,6 +2454,7 @@ def add_sentiment_pulse():
         employee_id = data.get('employeeId') # Added employeeId
 
         # Use VADER for sentiment analysis if text is provided, otherwise fallback to stress score
+        sia = get_sentiment_analyzer()
         if feedback_text and sia:
             sentiment_scores = sia.polarity_scores(feedback_text)
             compound_score = sentiment_scores['compound']

@@ -20,3 +20,4 @@ reportlab
 openai
 google-genai
 twilio
+waitress
