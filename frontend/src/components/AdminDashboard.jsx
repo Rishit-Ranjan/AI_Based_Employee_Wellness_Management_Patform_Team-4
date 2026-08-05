@@ -1760,7 +1760,7 @@ function SystemSettingsModule() {
   const [settings, setSettings] = useState({
     // Default state before loading from backend
     llmProvider: 'ollama',
-    ollamaModel: 'qwen3:1.7b', // New default Ollama model
+    aiModelName: 'qwen3:1.7b', // Generic AI model name
     highRiskThreshold: 70,
     mediumRiskThreshold: 45,
     enableEmailNotifications: false,
@@ -1779,7 +1779,7 @@ function SystemSettingsModule() {
         const fetchedSettings = await api.fetchSystemSettings();
         const defaultSettings = {
           llmProvider: 'ollama',
-          ollamaModel: 'qwen3:1.7b', // New default Ollama model
+          aiModelName: 'qwen3:1.7b', // Generic AI model name
           highRiskThreshold: 70,
           mediumRiskThreshold: 45,
           enableEmailNotifications: false,

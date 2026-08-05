@@ -100,12 +100,18 @@ FRONTEND_ORIGIN="http://localhost:5173"
 # Choose 'gemini' or 'ollama'
 AI_LLM_PROVIDER="gemini"
 
+# Generic AI model name (optional). If set, it overrides the provider-specific
+# model names below for whichever provider is active. Falls back to the
+# provider-specific defaults if not set.
+AI_MODEL_NAME=""
+
 # For Ollama (if used)
 OLLAMA_BASE_URL="http://localhost:11434"
 OLLAMA_MODEL="phi3:3.8b"
 
 # For Google Gemini (if used)
 GEMINI_API_KEY="your_google_gemini_api_key"
+GEMINI_MODEL_NAME="gemini-2.0-flash"
 
 # --- SMS Notifications (Optional) ---
 TWILIO_ACCOUNT_SID="your_twilio_account_sid"

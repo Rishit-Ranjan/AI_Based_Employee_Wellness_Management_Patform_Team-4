@@ -162,7 +162,7 @@ class AIWellnessService:
             sos_count = self.db['sos_alerts'].count_documents({
                 'employeeId': employee_id,
                 'createdAt': {'$gte': (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()}
-            })
+})
             context['recent_sos'] = sos_count
             
         except Exception as e:
@@ -171,26 +171,68 @@ class AIWellnessService:
         return context
     
     def _get_current_llm_config(self) -> Dict[str, Any]:
-        """Fetch the current LLM configuration from the database."""
+        """Fetch the current LLM configuration from system settings or environment variables.
+
+        Resolves the correct model name for the active provider so that selecting
+        Ollama always uses an Ollama model and selecting Gemini always uses a Gemini
+        model. Precedence:
+          - DB system settings (admin UI) overrides
+          - ``AI_MODEL_NAME`` (generic override) overrides
+          - ``GEMINI_MODEL_NAME`` / ``OLLAMA_MODEL`` (provider-specific) overrides
+          - sensible default
+        """
+# Default provider from environment or 'ollama'
+        provider = os.getenv('AI_LLM_PROVIDER', 'ollama')
+
+        # Provider-specific env fallbacks
+        default_gemini_model = os.getenv('GEMINI_MODEL_NAME', 'gemini-3.5-flash')
+        default_ollama_model = os.getenv('OLLAMA_MODEL', 'qwen3:1.7b')
+        generic_model = os.getenv('AI_MODEL_NAME')
+
+        # Start from provider-specific env (or defaults). ONLY apply the generic
+        # env override (AI_MODEL_NAME) when no provider-specific env is set, so a
+        # Gemini default never leaks into an Ollama request (and vice-versa).
+        gemini_model = default_gemini_model
+        ollama_model = default_ollama_model
+        if not os.getenv('GEMINI_MODEL_NAME') and generic_model:
+            gemini_model = generic_model
+        if not os.getenv('OLLAMA_MODEL') and generic_model:
+            ollama_model = generic_model
+
+        # Generic override from DB settings (admin can set a single AI model name)
+        db_ai_model_name = None
+
+        # Prefer DB settings when available (admin can override via Settings UI).
+        # DB provider-specific models take highest precedence so the admin's
+        # explicit Ollama/Gemini model is never overwritten by a generic override.
         if self.db is not None:
             settings = self.db['system_settings'].find_one({'_id': 'system_config'})
             if settings:
-                return {
-                    'provider': settings.get('llmProvider', 'gemini'),
-                    'ollama_model': settings.get('ollamaModel', 'qwen3:1.7b') # New default Ollama model
-                }
-        # Fallback to environment variables if DB is not available or settings not found
+                provider = settings.get('llmProvider', provider)
+                db_ai_model_name = settings.get('aiModelName')
+                gemini_model = settings.get('geminiModel') or db_ai_model_name or gemini_model
+                ollama_model = settings.get('ollamaModel') or db_ai_model_name or ollama_model
+
+        # Resolve the model name based on the active provider
+        model_name = gemini_model if provider == 'gemini' else ollama_model
+
         return {
-            'provider': os.getenv('AI_LLM_PROVIDER', 'gemini'),
-            'ollama_model': os.getenv('OLLAMA_MODEL', 'qwen3:1.7b') # New default Ollama model
+            'provider': provider,
+            'model_name': model_name,
+            'gemini_model': gemini_model,
+            'ollama_model': ollama_model,
         }
 
     def _generate_llm_response(self, message: str, context: str, employee_id: str, llm_config: Dict) -> Optional[tuple[str, str]]:
         """Try to get response from LLM provider. Returns (response_text, model_name) or None."""
-        
-        # Try Ollama (local)
-        if llm_config['provider'] == 'ollama' and OLLAMA_AVAILABLE:
+
+        provider = llm_config.get('provider')
+
+        # --- Ollama Logic ---
+        if provider == 'ollama' and OLLAMA_AVAILABLE:
             try:
+                # Use the live override (if any) first, then the provider-resolved model name
+                model_name_to_use = llm_config.get('model_name') or llm_config.get('ollama_model') or os.getenv('OLLAMA_MODEL', 'qwen3:1.7b')
                 prompt = f"""Context (Employee Health Data): {context}
 
 User message: {message}
@@ -198,35 +240,36 @@ User message: {message}
 As an AI Wellness Assistant, provide a helpful, concise response (max 150 words) with practical wellness advice.
 
 {AI_POLICY_GUARDRAIL}"""
-                model_name = llm_config['ollama_model']
                 ollama_base_url = os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')
                 response = http_requests.post(
                     f"{ollama_base_url}/api/generate",
                     json={
-                        "model": model_name,
+                        "model": model_name_to_use,
                         "prompt": prompt,
                         "stream": False
                     },
                     timeout=25
                 )
                 if response.status_code == 200:
-                    return response.json().get('response', ''), model_name
+                    return response.json().get('response', ''), model_name_to_use
                 else:
                     error_msg = f"Ollama API returned status {response.status_code}: {response.text}"
                     print(f"Ollama API error: {error_msg}")
-                    return f"Ollama model failed to respond. Please ensure the Ollama server is running and the '{model_name}' model is downloaded.", "Ollama Error"
+                    return f"Ollama model failed to respond. Please ensure the Ollama server is running and the '{model_name_to_use}' model is downloaded.", "Ollama Error"
             except http_requests.exceptions.ConnectionError as e:
-                error_msg = f"Could not connect to Ollama server at {ollama_base_url}. Is Ollama running?"
+                error_msg = f"Could not connect to Ollama server at {ollama_base_url}. Is Ollama running and '{model_name_to_use}' downloaded?"
                 print(f"Ollama API error: {error_msg} - {e}")
                 return f"Ollama model failed: {error_msg}", "Ollama Error"
             except http_requests.exceptions.Timeout as e:
                 error_msg = f"Ollama API request timed out after 30 seconds."
                 print(f"Ollama API error: {error_msg}")
                 return f"Ollama model failed: {error_msg}. The model may be taking too long to respond.", "Ollama Error"
-        
-        # Try Google Gemini
-        if llm_config['provider'] == 'gemini' and hasattr(self, 'gemini_client') and self.gemini_client:
-                prompt = f"""You are an expert AI Wellness Assistant for a corporate wellness platform called "Employee Wellness Management Analytics". 
+
+        # --- Gemini Logic ---
+        if provider == 'gemini' and hasattr(self, 'gemini_client') and self.gemini_client:
+            # Use the live override (if any) first, then the provider-resolved model name
+            model_name_to_use = llm_config.get('model_name') or llm_config.get('gemini_model') or os.getenv('GEMINI_MODEL_NAME', 'gemini-3.5-flash')
+            prompt = f"""You are an expert AI Wellness Assistant for a corporate wellness platform called "Employee Wellness Management Analytics". 
 You have access to this employee's health data: {context}
 
 User message: {message}
@@ -235,123 +278,21 @@ Provide concise, actionable wellness advice. Be supportive, empathetic, and evid
 Keep responses under 150 words. Focus on practical tips the employee can implement immediately.
 Use emojis sparingly but effectively to make the response engaging.
 {AI_POLICY_GUARDRAIL}"""
-                
-                # Iterate through a list of models to handle deprecations and availability
-                model_candidates = ["gemini-3.5-flash", "gemini-pro"]
-                for model in model_candidates:
-                    try:
-                        gemini_response = self.gemini_client.models.generate_content(
-                            model=f'models/{model}', # Use the full model name format
-                            contents=prompt
-                        )
-                        if gemini_response and gemini_response.text:
-                            print(f"Successfully used Gemini model: {model}")
-                            return (gemini_response.text.strip(), model)
-                    except Exception as e:
-                        print(f"Gemini model '{model}' failed: {e}. Trying next model...")
-                        continue # Try the next model in the list
-        
+            try:
+                gemini_response = self.gemini_client.models.generate_content(
+                    model=f'models/{model_name_to_use}',
+                    contents=prompt
+                )
+                if gemini_response and gemini_response.text:
+                    print(f"Successfully used Gemini model: {model_name_to_use}")
+                    return (gemini_response.text.strip(), model_name_to_use)
+            except Exception as e:
+                print(f"Gemini model '{model_name_to_use}' failed: {e}")
+                return f"Gemini model '{model_name_to_use}' failed to respond: {e}", "Gemini Error"
+
         return None
-    
-    def _generate_rule_response(self, message: str, intent: str) -> str:
-        """Generate rule-based response when LLM is not available."""
         
-        responses = {
-            'greeting': """Hello! 👋 How are you feeling today? 
-
-I'm your AI Wellness Assistant. Let me know if you'd like to check in on your sleep, stress, fitness, or nutrition goals!""",
-
-            'sleep': """I noticed you're asking about sleep! Here's what works:
-
-1️⃣ Stick to a consistent schedule - same bedtime & wake time
-2️⃣ Create a 'power down' routine 60 min before bed
-3️⃣ Keep your room cool (65-68°F) and dark
-4️⃣ Avoid caffeine after 2 PM
-5️⃣ Try 4-7-8 breathing to fall asleep faster
-
-Would you like me to help you create a personalized sleep schedule? 🌙""",
-
-            'stress': """Great that you're addressing stress! Try these evidence-based techniques:
-
-🧘 **5-Minute Reset**: Close your eyes and take 10 deep belly breaths
-📝 **Brain Dump**: Write everything worrying you for 5 minutes
-🚶 **Walk Away**: Step outside for 5 minutes of fresh air
-🎵 **Music Therapy**: Listen to music at 60 BPM to sync brain waves
-
-Your stress score is important feedback. Let me know if you need more coping strategies! 💪""",
-
-            'exercise': """Getting active is key to wellness! Here's your personalized approach:
-
-🏃 **Micro Workouts**: 5-10 min movement breaks every 2 hours
-💪 **Desk Exercises**: Chair squats, wall pushups, seated leg raises
-🚶 **Walking**: Aim for 8,000 steps - break into 3 walks (morning/lunch/evening)
-🧘 **Stretching**: 5 min morning + 5 min evening prevents stiffness
-
-Start small - consistency beats intensity! What sounds manageable? 🔥""",
-
-            'nutrition': """Smart nutrition choices = better energy & focus! Here's what I recommend:
-
-🥗 **Plate Method**: 50% veggies, 25% protein, 25% whole grains
-💧 **Hydration**: Your goal is 8 cups of water - try flavoring with lemon/cucumber
-⏰ **Timing**: Don't eat 3 hours before sleep
-🍎 **Smart Snacks**: Nuts, fruit, yogurt instead of processed options
-
-Would you like me to tailor a meal plan based on your diet preferences? 🥑""",
-
-            'mental_health': """Your mental wellbeing matters! Here are some powerful strategies:
-
-🌅 **Morning Ritual**: 2 min gratitude journaling sets a positive tone
-⏸️ **Micro-Breaks**: 60 seconds of deep breathing every hour
-📵 **Digital Detox**: 30 min of no screens before bed
-🤝 **Connect**: Reach out to one colleague today - social bonds protect mental health
-
-Remember: It's okay to not be okay. Your anonymized pulse helps us improve workplace wellness. ❤️""",
-
-            'bp': """Blood pressure management is crucial for long-term health:
-
-🩺 **Monitor**: Check BP at the same time daily (morning is best)
-🧂 **Reduce Sodium**: Aim for < 2000mg/day - watch hidden salt in processed foods
-🥦 **DASH Diet**: Focus on fruits, veggies, whole grains, lean proteins
-🏃 **Exercise**: 30 min moderate activity 5 days/week lowers BP by 5-8 mmHg
-🧘 **Stress Management**: 10 min meditation daily lowers systolic BP by 5 mmHg
-
-Your health record shows your BP trends. Let me know if you want specific guidance! ❤️""",
-
-            'bmi': """Let's talk about your BMI and overall wellness:
-
-📊 **BMI is one metric**: It doesn't tell the whole story - muscle mass, body composition matter too
-🎯 **Focus on habits**, not numbers: Consistent sleep, exercise, and nutrition drive results
-📉 **Sustainable changes**: 0.5-1 kg per week is healthy weight management
-💪 **Strength training**: Building muscle increases resting metabolism
-
-Your wellness journey is about health, not just numbers! What aspect would you like to focus on? 🌟""",
-
-            'routine': """Here's your optimal daily routine based on wellness science:
-
-🌅 **Morning (6-8 AM)**: Wake up same time, drink water, 5 min stretch, healthy breakfast
-💼 **Work Blocks (9-12 PM)**: 90 min focus sessions with 5 min breaks
-🥗 **Lunch (12-1 PM)**: Balanced meal, 10 min walk after
-⚡ **Afternoon (2-4 PM)**: Micro-breaks every 60 min (stand, stretch, breathe)
-🌇 **Evening (5-7 PM)**: Exercise window, dinner (3h before sleep)
-🌙 **Wind Down (8-10 PM)**: No screens, reading, meditation, consistent bedtime
-
-Want me to customize this for your schedule? ⏰""",
-
-            'general': """I'm your AI Wellness Assistant! I can help you with:
-
-🗣️ **Voice Commands**: Try clicking the microphone and saying "How's my health?"
-🌙 **Sleep Optimization**: Tips for better rest based on your patterns
-🧘 **Stress Management**: Breathing exercises and coping strategies
-🏃 **Fitness Guidance**: Personalized workout suggestions
-🥗 **Nutrition Advice**: Meal planning and healthy eating tips
-📊 **Health Insights**: Analysis of your wellness trends
-
-What would you like to explore today? I'm here to support your wellness journey! 🌟"""
-        }
-        
-        return responses.get(intent, responses['general'])
-    
-    def chat(self, message: str, employee_id: str = None, model_override: str = None, ollama_model_name: Optional[str] = None) -> Dict[str, Any]:
+    def chat(self, message: str, employee_id: str = None, model_override: str = None, ai_model_name: Optional[str] = None) -> Dict[str, Any]:
         """Main chat handler - tries LLM first, falls back to rule-based."""
         
         # Get health context if employee_id is provided
@@ -366,10 +307,22 @@ What would you like to explore today? I'm here to support your wellness journey!
         # Allow user to override the model from the frontend
         if model_override and model_override in ['gemini', 'ollama']:
             llm_config['provider'] = model_override
+            # Re-resolve the model name for the newly selected provider so a
+            # Gemini model name never leaks into an Ollama request (and vice-versa).
+            llm_config['model_name'] = (
+                llm_config['gemini_model'] if model_override == 'gemini'
+                else llm_config['ollama_model']
+            )
         
-        # Allow user to override the specific Ollama model name
-        if ollama_model_name and llm_config['provider'] == 'ollama':
-            llm_config['ollama_model'] = ollama_model_name
+        # Allow user to override the specific AI model name
+        # (kept for backward compatibility; the frontend now sends '' so the
+        # env-configured AI_MODEL_NAME / provider-specific model is used)
+        if ai_model_name:
+            llm_config['model_name'] = ai_model_name
+            if llm_config['provider'] == 'gemini':
+                llm_config['gemini_model'] = ai_model_name
+            else:
+                llm_config['ollama_model'] = ai_model_name
         
         # Detect intent
         intent = self._detect_intent(message)

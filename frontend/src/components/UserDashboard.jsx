@@ -156,8 +156,7 @@ export function ChatbotModule({ user, isFloating = false, onClose }) {
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [isSpeechEnabled, setIsSpeechEnabled] = useState(true);
-  const [ollamaModelInput, setOllamaModelInput] = useState(''); // New state for custom Ollama model
+const [isSpeechEnabled, setIsSpeechEnabled] = useState(true);
   const [selectedModel, setSelectedModel] = useState('gemini');
   const [isVoiceInput, setIsVoiceInput] = useState(false);
   const scrollRef = useRef(null);
@@ -227,16 +226,8 @@ export function ChatbotModule({ user, isFloating = false, onClose }) {
       ]);
     }
 
-    // Fetch system settings to get the default Ollama model
-    const fetchDefaultOllamaModel = async () => {
-      try {
-        const settings = await api.fetchSystemSettings(); // Assuming api.fetchSystemSettings exists
-        setOllamaModelInput(settings.ollamaModel || 'qwen3:1.7b'); // Initialize with default or fallback
-      } catch (error) {
-        console.error("Failed to fetch default Ollama model:", error);
-      }
-    };
-    fetchDefaultOllamaModel();
+// The AI model name is configured server-side via the AI_MODEL_NAME
+    // environment variable, so no client-side model-name fetching is needed here.
   }, [user.employeeId, user.name]);
 
   useEffect(() => {
@@ -284,8 +275,8 @@ export function ChatbotModule({ user, isFloating = false, onClose }) {
     setInputText('');
     setIsTyping(true);
     
-    try {
-      const data = await sendAiChatMessage(user.employeeId, text.trim(), selectedModel);
+try { // Pass '' for aiModelName so the backend uses the env-configured AI_MODEL_NAME
+      const data = await sendAiChatMessage(user.employeeId, text.trim(), selectedModel, '');
       const botText = data.response || data.reply || data.message || "I'm here to support your health & wellness journey.";
 
       const botMsg = {
@@ -413,50 +404,44 @@ export function ChatbotModule({ user, isFloating = false, onClose }) {
       </div>
 
       <form onSubmit={handleSend} className="p-2.5 border-t border-slate-200 dark:border-slate-700 flex items-center gap-2 bg-slate-50 dark:bg-slate-900">
-        <select
-          value={selectedModel}
-          onChange={(e) => setSelectedModel(e.target.value)}
-          className="px-2 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-[11px] font-semibold text-slate-600 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500/20"
-        >
-          <option value="gemini">Gemini</option>
-          <option value="ollama">Ollama</option>
-        </select>
-        {selectedModel === 'ollama' && (
-          <input
-            type="text"
-            value={ollamaModelInput}
-            onChange={(e) => setOllamaModelInput(e.target.value)}
-            placeholder="Ollama Model (e.g. llama3:8b)"
-            className="flex-1 px-3.5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500/20"
-            title="Specify Ollama model name (e.g., llama3:8b, mistral:7b)"
-          />
-        )}
-        <input
-          type="text"
-          value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
-          placeholder={isListening ? "Listening..." : "Ask your AI assistant..."}
-          className="flex-1 px-3.5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500/20"
-        />
-        <button
-          type="button"
-          onClick={toggleListening}
-          className={`p-2 rounded-xl border transition-all cursor-pointer ${
-            isListening
-              ? 'bg-rose-500 text-white border-rose-600 animate-pulse'
-              : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:text-slate-800'
-          }`}
-          title="Voice Command"
-        >
-          {isListening ? <Mic className="w-4 h-4" /> : <MicOff className="w-4 h-4" />}
-        </button>
-        <button
-          type="submit"
-          disabled={!inputText.trim()}
-          className="p-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white rounded-xl transition-all cursor-pointer shadow-sm"
-        >
-          <Send className="w-4 h-4" />
-        </button>
+<div className="flex flex-col w-full gap-2">
+          <div className="flex items-center gap-2">
+            <select
+              value={selectedModel}
+              onChange={(e) => setSelectedModel(e.target.value)}
+              className="px-2 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-[11px] font-semibold text-slate-600 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500/20"
+            >
+              <option value="gemini">Gemini</option>
+              <option value="ollama">Ollama</option>
+            </select>
+            <input
+              type="text"
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              placeholder={isListening ? "Listening..." : "Ask your AI assistant..."}
+              className="flex-1 px-3.5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500/20"
+            />
+            <button
+              type="button"
+              onClick={toggleListening}
+              className={`p-2 rounded-xl border transition-all cursor-pointer ${
+                isListening
+                  ? 'bg-rose-500 text-white border-rose-600 animate-pulse'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:text-slate-800'
+              }`}
+              title="Voice Command"
+            >
+              {isListening ? <Mic className="w-4 h-4" /> : <MicOff className="w-4 h-4" />}
+            </button>
+            <button
+              type="submit"
+              disabled={!inputText.trim()}
+              className="p-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white rounded-xl transition-all cursor-pointer shadow-sm"
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
       </form>
     </div>
   );
