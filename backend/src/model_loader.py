@@ -96,3 +96,33 @@ def get_sentiment_analyzer():
 
                 _sia = SentimentIntensityAnalyzer()
     return _sia
+
+
+def preload_models(blocking: bool = False) -> None:
+    """Eagerly load all model artifacts so the first feature request is fast.
+
+    By default this runs in a background daemon thread so server startup is not
+    blocked. Pass ``blocking=True`` to force synchronous loading (useful for
+    smoke tests or ensuring readiness before serving traffic).
+
+    Loading is thread-safe and idempotent: re-running simply returns the already
+    cached artifacts.
+    """
+    def _load_all():
+        get_risk_model()
+        get_target_encoder()
+        get_feature_columns()
+        get_recommendation_engine()
+        get_sentiment_analyzer()
+
+    if blocking:
+        _load_all()
+        return
+
+    try:
+        import threading
+
+        thread = threading.Thread(target=_load_all, name="model-preloader", daemon=True)
+        thread.start()
+    except Exception as e:  # pragma: no cover - defensive
+        print(f"Failed to start model preloader thread: {e}")

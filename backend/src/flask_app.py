@@ -34,6 +34,7 @@ from model_loader import (
     get_feature_columns,
     get_recommendation_engine,
     get_sentiment_analyzer,
+    preload_models,
 )
 
 app = Flask(__name__)
@@ -94,6 +95,10 @@ system_settings_collection = db.get_collection('system_settings')
 # engine, and VADER sentiment analyzer) are now loaded lazily on their first use
 # via the model_loader module. This keeps application startup fast and only incurs
 # model loading cost when the corresponding feature endpoint is first accessed.
+#
+# To keep the first-feature-request fast, we kick off a background preloader that
+# warms the model cache during startup (non-blocking daemon thread).
+preload_models(blocking=False)
 
 #--- Utility Functions ---
 def hash_password(password: str) -> str:
