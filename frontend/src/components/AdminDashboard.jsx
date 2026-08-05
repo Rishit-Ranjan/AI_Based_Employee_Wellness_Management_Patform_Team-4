@@ -1760,7 +1760,7 @@ function SystemSettingsModule() {
   const [settings, setSettings] = useState({
     // Default state before loading from backend
     llmProvider: 'ollama',
-    ollamaModel: 'phi3:3.8b',
+    ollamaModel: 'qwen3:1.7b', // New default Ollama model
     highRiskThreshold: 70,
     mediumRiskThreshold: 45,
     enableEmailNotifications: false,
@@ -1779,7 +1779,7 @@ function SystemSettingsModule() {
         const fetchedSettings = await api.fetchSystemSettings();
         const defaultSettings = {
           llmProvider: 'ollama',
-          ollamaModel: 'phi3:3.8b',
+          ollamaModel: 'qwen3:1.7b', // New default Ollama model
           highRiskThreshold: 70,
           mediumRiskThreshold: 45,
           enableEmailNotifications: false,
@@ -2285,7 +2285,7 @@ export default function AdminDashboard({ user,
             )}
 
             {activeTab === 4 && (
-              <SentimentModule sentimentList={filteredSentimentList} healthRecords={healthRecords} />
+              <SentimentModule sentimentList={filteredSentimentList} healthReords={healthRecords} />
             )}
 
             {activeTab === 5 && (

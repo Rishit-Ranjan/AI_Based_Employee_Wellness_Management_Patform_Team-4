@@ -1921,14 +1921,15 @@ def ai_chat():
     user_info = jwt_payload.get("user_info")
     data = request.get_json() or {}
     message = data.get('message', '')
-    model_override = data.get('model') # 'gemini' or ollama
+    model_override = data.get('model') # 'gemini' or 'ollama' (provider)
+    ollama_model_name = data.get('ollamaModelName') # Specific Ollama model name override
     employee_id = data.get('employeeId') or user_info.get('employeeId')
     
     if not message:
         return jsonify({'detail': 'Message is required'}), 400
     
     try:
-        result = ai_wellness_service.chat(message, employee_id, model_override)
+        result = ai_wellness_service.chat(message, employee_id, model_override, ollama_model_name)
         return jsonify(result), 200
     except Exception as e:
         app.logger.exception(f"AI Chat error: {e}")
@@ -2528,8 +2529,8 @@ def get_system_settings():
     if not settings:
         settings = {
             '_id': 'system_config',
-            'llmProvider': os.getenv('AI_LLM_PROVIDER', 'ollama'),
-            'ollamaModel': os.getenv('OLLAMA_MODEL', 'phi3:3.8b'),
+            'llmProvider': os.getenv('AI_LLM_PROVIDER', 'ollama'), # Default to ollama
+            'ollamaModel': os.getenv('OLLAMA_MODEL', 'qwen3:1.7b'), # New default Ollama model
             'highRiskThreshold': 70,
             'mediumRiskThreshold': 45,
             'enableEmailNotifications': False,
