@@ -626,9 +626,43 @@ Tailor the suggestions based on the provided health data (e.g., if stress is hig
                 "Eat a light dinner at least 2 hours before bed.",
                 "Read a book or listen to calm music (no screens)."
             ],
-            'generatedAt': datetime.now(timezone.utc).isoformat(),
+'generatedAt': datetime.now(timezone.utc).isoformat(),
         }
-    
+
+    # Guidance for each supported diet type so the LLM tailors the plan correctly.
+    DIET_TYPE_GUIDANCE = {
+        'Vegetarian': (
+            "The user is strictly VEGETARIAN. Do NOT include any meat, fish, poultry, or eggs. "
+            "Use plant-based proteins such as paneer, tofu, lentils (dal), chickpeas, beans, and legumes. "
+            "Dairy products like milk, curd, and paneer are allowed."
+        ),
+        'Vegan': (
+            "The user follows a VEGAN diet. Do NOT include any animal products: no meat, fish, eggs, "
+            "dairy (milk, cheese, curd, butter, ghee, paneer), or honey. Use plant-based protein sources "
+            "such as tofu, chickpeas, lentils, beans, quinoa, nuts, and seeds. Use plant milks (soy/oat/almond)."
+        ),
+        'Non-Veg': (
+            "The user follows a NON-VEGETARIAN diet and can eat meat, fish, and eggs. "
+            "Include lean protein sources such as grilled chicken, fish (e.g., salmon/tuna), and eggs alongside "
+            "whole grains and vegetables."
+        ),
+        'Diabetic': (
+            "The user has DIABETES. The plan must be low-glycemic and sugar-free. Avoid white rice, refined "
+            "sugar, sugary drinks, and processed carbs. Use whole grains (brown rice, millet, oats), high-fiber "
+            "vegetables, legumes, and lean/plant proteins. Keep portions consistent and spread carbs evenly."
+        ),
+        'Weight Loss': (
+            "The user wants to LOSE WEIGHT. Keep the plan calorie-controlled and low-calorie (approx 1200-1500 kcal/day). "
+            "Prioritize high-protein, high-fiber foods, plenty of vegetables, and minimal refined carbs and oils. "
+            "Avoid fried foods, sugary drinks, and heavy desserts."
+        ),
+        'Weight Gain': (
+            "The user wants to GAIN WEIGHT. Make the plan calorie-dense and high-protein (approx 2500-3000 kcal/day). "
+            "Include healthy fats (nuts, seeds, avocado, ghee/olive oil), complex carbs (rice, whole grains), dairy, "
+            "and protein-rich foods. Add healthy snacks between meals."
+        ),
+    }
+
     def generate_diet_plan(self, employee_id: str, preferences: Dict = None) -> Dict[str, Any]:
         """Generates a personalized diet plan using AI."""
         context = {}
@@ -641,12 +675,21 @@ Tailor the suggestions based on the provided health data (e.g., if stress is hig
         
         context_str = json.dumps(context, default=str) if context else "No specific health data available."
 
+        # Diet-type-specific instruction pulled from the guidance map.
+        diet_guidance = self.DIET_TYPE_GUIDANCE.get(
+            diet_type,
+            "The user follows a balanced diet with no specific restrictions. Include a variety of whole foods."
+        )
+
         prompt = f"""You are an expert AI Nutritionist for a corporate wellness platform.
 You have access to this employee's health data: {context_str}
 
 User's diet preference: {diet_type}
 
-Generate a one-day meal plan for this employee. The plan should be simple, practical for a working professional, and aligned with Indian cuisine unless specified otherwise.
+DIET RESTRICTION / GOAL (MUST follow strictly):
+{diet_guidance}
+
+Generate a one-day meal plan for this employee. The plan must be simple, practical for a working professional, and aligned with Indian cuisine unless specified otherwise. Every meal item MUST comply with the diet restriction/goal described above.
 
 The output must be a valid JSON object with the following structure, and nothing else. Do not include markdown formatting like ```json.
 {{
@@ -661,7 +704,7 @@ The output must be a valid JSON object with the following structure, and nothing
   "notes": "A brief, encouraging note about the plan."
 }}
 
-Focus on whole foods. Be specific with meal items.
+Focus on whole foods. Be specific with meal items and ensure they respect the diet restriction/goal.
 {AI_POLICY_GUARDRAIL}
 """
         
