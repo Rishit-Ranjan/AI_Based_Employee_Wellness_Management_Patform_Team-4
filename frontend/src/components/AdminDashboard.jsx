@@ -2287,8 +2287,8 @@ export default function AdminDashboard({ user,
               <RecommendationModule recommendations={recommendations} loading={loading} />
             )}
 
-            {activeTab === 4 && (
-              <SentimentModule sentimentList={filteredSentimentList} healthReords={healthRecords} />
+{activeTab === 4 && (
+              <SentimentModule sentimentList={filteredSentimentList} healthRecords={healthRecords} />
             )}
 
             {activeTab === 5 && (

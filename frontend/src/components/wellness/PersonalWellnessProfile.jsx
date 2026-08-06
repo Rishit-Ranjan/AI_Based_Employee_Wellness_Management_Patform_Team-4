@@ -129,6 +129,7 @@ export default function PersonalWellnessProfile({
   const [pulseFeedback, setPulseFeedback] = useState('');
   const [pulseSubmitted, setPulseSubmitted] = useState(false);
   const [lastPulseSentiment, setLastPulseSentiment] = useState(null);
+  const [pulseFeedbackError, setPulseFeedbackError] = useState('');
 
   const [showBpInfoPopup, setShowBpInfoPopup] = useState(false);
   const bpInfoRef = useRef(null);
@@ -262,6 +263,12 @@ export default function PersonalWellnessProfile({
 
   const handlePulseSubmit = async (e) => {
     e.preventDefault();
+    if (!pulseFeedback.trim()) {
+      setPulseFeedbackError('Please enter your feedback before submitting.');
+      setTimeout(() => setPulseFeedbackError(''), 4000);
+      return;
+    }
+    setPulseFeedbackError('');
     if (onAddSentimentPulse) {
       const result = await onAddSentimentPulse(user.employeeId, dept, pulseStress, pulseFeedback);
       setLastPulseSentiment(result.sentiment);
@@ -880,7 +887,7 @@ export default function PersonalWellnessProfile({
 
             <div className="md:col-span-2">
               <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
-                Feedback / Workload Notes (Optional)
+                Feedback / Workload Notes
               </label>
               <input
                 type="text"
@@ -889,6 +896,12 @@ export default function PersonalWellnessProfile({
                 placeholder="Share anonymized feedback regarding team workload..."
                 className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none"
               />
+              {pulseFeedbackError && (
+                <p className="mt-1.5 text-[11px] text-rose-600 dark:text-rose-400 flex items-center gap-1">
+                  <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
+                  {pulseFeedbackError}
+                </p>
+              )}
             </div>
 
             <div className="md:col-span-1">

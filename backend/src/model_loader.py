@@ -70,16 +70,38 @@ def get_feature_columns():
 
 
 def get_recommendation_engine():
-    """Return the wellness recommendation engine, loading on first use."""
+    """Return the wellness recommendation engine, loading on first use.
+
+    The engine is expected to be a callable function (serialized via cloudpickle).
+    If the loaded artifact is not callable (e.g. a stale ``dict`` or an old
+    class-based object from a previous commit), we return ``None`` instead so the
+    calling code can safely fall back to its built-in rule-based logic rather than
+    crashing with a "'dict' object is not callable" error.
+    """
     global _recommendation_engine
     if _recommendation_engine is None:
         with _lock:
             if _recommendation_engine is None:
-                with open(
-                    os.path.join(_get_models_dir(), "wellness_recommendation_engine.pkl"),
-                    "rb",
-                ) as f:
-                    _recommendation_engine = cloudpickle.load(f)
+                try:
+                    with open(
+                        os.path.join(_get_models_dir(), "wellness_recommendation_engine.pkl"),
+                        "rb",
+                    ) as f:
+                        _recommendation_engine = cloudpickle.load(f)
+                    # Guard against a stale/non-callable artifact (dict, class, etc.)
+                    if not callable(_recommendation_engine):
+                        print(
+                            "WARNING: recommendation engine artifact is not callable "
+                            f"(type={type(_recommendation_engine)}). Falling back to "
+                            "rule-based recommendations."
+                        )
+                        _recommendation_engine = None
+                except Exception as e:  # noqa: BLE001 - defensive, never crash startup
+                    print(
+                        "WARNING: failed to load recommendation engine "
+                        f"({e}). Falling back to rule-based recommendations."
+                    )
+                    _recommendation_engine = None
     return _recommendation_engine
 
 

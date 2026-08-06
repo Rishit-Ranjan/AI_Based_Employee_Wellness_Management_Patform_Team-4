@@ -1060,10 +1060,19 @@ def get_recommendations():
                     "risk_label": str(risk_label)
                 }
 
-                # 3. Use the loaded recommendation engine if available
+# 3. Use the loaded recommendation engine if available
                 if recommendation_engine is not None and callable(recommendation_engine):
                     app.logger.debug(f"Recommendation engine is callable (type: {type(recommendation_engine)}). Attempting to use it.")
-                    top_recs = recommendation_engine(employee_profile, top_n=3)
+                    try:
+                        top_recs = recommendation_engine(employee_profile, top_n=3)
+                    except Exception as engine_error:
+                        # Defensive: never let a broken engine take down the request.
+                        # Fall back to built-in rule-based recommendations.
+                        app.logger.warning(
+                            f"Recommendation engine raised an error for {employee_id}: "
+                            f"{engine_error}. Falling back to rule-based recommendations."
+                        )
+                        top_recs = []
                 
                 # 4. Fallback: Exact structural mirror matching the engine's output dictionary format
                 else:
@@ -2513,11 +2522,22 @@ def get_all_sentiment_pulses():
         return jsonify({'detail': 'Forbidden'}), 403
 
     try:
-        pulses_cursor = sentiment_pulses_collection.find({})
+        # Fetch all pulses and create a map of employeeId to user details
+        all_users = {u['employeeId']: u for u in users_collection.find({}, {'employeeId': 1, 'name': 1})}
+
+        pulses_cursor = sentiment_pulses_collection.find({}).sort('createdAt', -1)
         pulses = []
         for pulse in pulses_cursor:
             pulse['id'] = str(pulse['_id'])
             del pulse['_id']
+            
+            # Enrich with employeeName from the users map
+            employee_id = pulse.get('employeeId')
+            if employee_id and employee_id in all_users:
+                pulse['employeeName'] = all_users[employee_id].get('name', 'Unknown Employee')
+            else:
+                pulse['employeeName'] = 'Unknown Employee'
+
             pulses.append(pulse)
         return jsonify(pulses), 200
     except Exception as e:

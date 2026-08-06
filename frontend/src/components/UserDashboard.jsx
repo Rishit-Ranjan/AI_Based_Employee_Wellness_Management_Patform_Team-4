@@ -1015,11 +1015,12 @@ export default function UserDashboard({
       </header>
 
       {/* Edit Profile Modal */}
-      {isProfileModalOpen && (
+{isProfileModalOpen && (
         <ProfileEditModal
           user={user}
           isAdmin={false}
           onClose={() => setIsProfileModalOpen(false)}
+          onUpdateAvatar={onUpdateAvatar}
           onUpdated={(updatedUser) => {
             if (updatedUser) onUserUpdate(updatedUser);
             if (updatedUser) {
