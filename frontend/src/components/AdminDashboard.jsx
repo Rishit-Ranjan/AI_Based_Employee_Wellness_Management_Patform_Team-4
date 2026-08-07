@@ -1441,6 +1441,13 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
         <p className="text-xs text-slate-400 dark:text-slate-400 mt-2">Anonymized sentiment distribution and stress index from pulse feedback.</p>
       </div>
 
+      {(!sentimentList || sentimentList.length === 0) ? (
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-10 text-center shadow-sm">
+          <Smile className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+          <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">No department sentiment data available yet.</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5">Department sentiment analytics will appear here once employees submit their wellness pulse checks.</p>
+        </div>
+      ) : (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {sentimentList.map((sent) => (
           <div key={sent.department} className="bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 rounded-xl p-5 space-y-4 shadow-sm">
@@ -1518,6 +1525,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
           </div>
         ))}
       </div>
+      )}
     </div>
   );
 

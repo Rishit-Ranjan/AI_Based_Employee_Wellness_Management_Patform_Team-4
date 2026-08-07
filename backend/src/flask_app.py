@@ -2250,15 +2250,6 @@ def get_sentiments():
                     '_id': '$department',
                     'total_feedback': { '$sum': 1 },
                     'avg_stress_score': { '$avg': '$stressScore' },
-                    'positive_count': {
-                        '$sum': { '$cond': [{ '$eq': ['$sentiment', 'Positive'] }, 1, 0] }
-                    },
-                    'neutral_count': {
-                        '$sum': { '$cond': [{ '$eq': ['$sentiment', 'Neutral'] }, 1, 0] }
-                    },
-                    'negative_count': {
-                        '$sum': { '$cond': [{ '$eq': ['$sentiment', 'Negative'] }, 1, 0] }
-                    }
                 }
             },
             {
@@ -2266,17 +2257,6 @@ def get_sentiments():
                     'department': '$_id',
                     'total_feedback': 1,
                     'avg_stress_score': { '$round': ['$avg_stress_score', 1] },
-                    'sentimentDistribution': {
-                        'positive': {
-                            '$round': [{ '$multiply': [{ '$divide': ['$positive_count', '$total_feedback'] }, 100] }]
-                        },
-                        'neutral': {
-                            '$round': [{ '$multiply': [{ '$divide': ['$neutral_count', '$total_feedback'] }, 100] }]
-                        },
-                        'negative': {
-                            '$round': [{ '$multiply': [{ '$divide': ['$negative_count', '$total_feedback'] }, 100] }]
-                        }
-                    },
                     '_id': 0
                 }
             }
@@ -2287,17 +2267,24 @@ def get_sentiments():
         # Fetch the 3 most recent non-empty feedback texts for each department
         key_issues_pipeline = [
             { '$match': { 'feedbackText': { '$ne': '' } } },
-            { '$sort': { 'createdAt': -1 } }, # Sort by date descending
+            { '$sort': { 'date': -1 } }, # Sort by date descending
             { '$group': {
                 '_id': '$department',
                 'recent_issues': { 
-                    '$push': { 'feedbackText': '$feedbackText', 'sentiment': '$sentiment' } 
+                    '$push': {
+                        '$concat': [
+                            { '$ifNull': ['$sentiment', 'Neutral'] },
+                            ': ',
+                            '$feedbackText'
+                        ]
+                    }
                 }
             }},
             { '$project': {
                 'department': '$_id',
                 # The feedback is already sorted by date, so we just take the first 3
-                'keyIssues': { '$slice': ['$recent_issues', 3] },
+                # The feedback is already sorted by date, so we just take the first 3
+                'keyIssues': { '$slice': ['$recent_issues', 3] }, # Now a list of strings
                 '_id': 0
             }}
         ]
@@ -2309,10 +2296,20 @@ def get_sentiments():
             results.append({
                 "department": stats['department'],
                 "averageStressScore": stats['avg_stress_score'],
-                "sentimentDistribution": stats['sentimentDistribution'],
                 "keyIssues": key_issues_data.get(stats['department'], ["No specific issues logged"]),
                 "recentFeedbackCount": stats['total_feedback']
             })
+
+        # If no sentiment data is available at all, return a default placeholder
+        if not results:
+            return jsonify([{
+                "department": "All Departments",
+                "averageStressScore": 0,
+                "keyIssues": ["No feedback has been submitted yet. Encourage employees to use the pulse check feature."],
+                "recentFeedbackCount": 0,
+                "isPlaceholder": True
+            }]), 200
+
         return jsonify(results), 200
     except Exception as e:
         app.logger.exception(f"An unexpected error occurred while fetching sentiments: {e}")
