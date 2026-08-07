@@ -227,6 +227,7 @@ checkup_appointments_collection = db.get_collection('checkup_appointments')
 sos_alerts_collection = db.get_collection('sos_alerts')
 expenses_collection = db.get_collection('health_expenses')
 system_settings_collection = db.get_collection('system_settings')
+support_tickets_collection = db.get_collection('support_tickets')
 
 # --- Lazy Loading of ML Models ---
 # AI/ML model artifacts (risk model, target encoder, feature columns, recommendation
@@ -2747,6 +2748,75 @@ def update_system_settings():
     )
     
     return jsonify({'detail': 'Settings updated successfully'}), 200
+
+# --- Customer Support Tickets API ---
+@app.route('/api/support/ticket', methods=['POST'])
+@jwt_required(locations=["cookies"])
+def submit_support_ticket():
+    """Employee submits a customer support ticket (starts as 'Open')."""
+    jwt_payload = get_jwt()
+    user_info = jwt_payload.get("user_info", {})
+    data = request.get_json() or {}
+
+    subject = (data.get('subject') or '').strip()
+    message = (data.get('message') or '').strip()
+    if not subject or not message:
+        return jsonify({'detail': 'subject and message are required'}), 400
+
+    doc = {
+        'employeeId': data.get('employeeId') or user_info.get('employeeId'),
+        'employeeName': data.get('employeeName') or user_info.get('name'),
+        'subject': subject,
+        'message': message,
+        'status': 'Open',
+        'createdAt': datetime.now(timezone.utc).isoformat(),
+    }
+    result = support_tickets_collection.insert_one(doc)
+    doc['id'] = str(result.inserted_id)
+    del doc['_id']
+    return jsonify(doc), 201
+
+
+@app.route('/api/support/tickets', methods=['GET'])
+@jwt_required(locations=["cookies"])
+def get_support_tickets():
+    """Employees see their own tickets; admins can pass ?all=1 to see every ticket."""
+    jwt_payload = get_jwt()
+    user_info = jwt_payload.get("user_info", {})
+    if user_info.get('role') == 'admin' and request.args.get('all'):
+        cursor = support_tickets_collection.find({}).sort('createdAt', -1)
+    else:
+        cursor = support_tickets_collection.find({'employeeId': user_info.get('employeeId')}).sort('createdAt', -1)
+
+    tickets = []
+    for t in cursor:
+        t['id'] = str(t['_id'])
+        del t['_id']
+        tickets.append(t)
+    return jsonify(tickets), 200
+
+
+@app.route('/api/support/tickets/<ticket_id>', methods=['PUT'])
+@jwt_required(locations=["cookies"])
+def update_support_ticket(ticket_id):
+    """Admin-only: update the status (e.g. Open -> In Progress -> Resolved)."""
+    jwt_payload = get_jwt()
+    user_info = jwt_payload.get("user_info", {})
+    if user_info.get('role') != 'admin':
+        return jsonify({'detail': 'Forbidden'}), 403
+
+    data = request.get_json() or {}
+    status = (data.get('status') or '').strip()
+    if status not in {'Open', 'In Progress', 'Resolved', 'Closed'}:
+        return jsonify({'detail': 'Invalid status'}), 400
+
+    result = support_tickets_collection.update_one(
+        {'_id': ObjectId(ticket_id)},
+        {'$set': {'status': status, 'updatedAt': datetime.now(timezone.utc).isoformat()}},
+    )
+    if result.matched_count == 0:
+        return jsonify({'detail': 'Ticket not found'}), 404
+    return jsonify({'detail': f'Ticket marked as {status}'}), 200
 
 # --- Main Entry Point ---
 if __name__ == '__main__':

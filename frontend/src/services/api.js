@@ -415,6 +415,17 @@ export const saveSystemSettings = (settings) => request('/settings', {
   body: JSON.stringify(settings),
 });
 
+// --- Customer Support API ---
+export const submitSupportTicket = (ticketData) => request('/support/ticket', {
+  method: 'POST',
+  body: JSON.stringify(ticketData),
+});
+export const fetchSupportTickets = (isAdmin = false, options) => request(`/support/tickets${isAdmin ? '?all=1' : ''}`, { method: 'GET', ...options });
+export const updateSupportTicket = (ticketId, status) => request(`/support/tickets/${ticketId}`, {
+  method: 'PUT',
+  body: JSON.stringify({ status }),
+});
+
 // --- Updated Default Export ---
 export default {
   login, signup, me, logout, forgotPassword, resetPassword,
