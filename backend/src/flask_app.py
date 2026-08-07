@@ -2654,7 +2654,7 @@ in the sentiment_pulses MongoDB collection.
             "stressScore": stress_score,
             "feedbackText": feedback_text,
             "sentiment": sentiment,
-            "createdAt": datetime.now(timezone.utc)
+            "createdAt": datetime.now(timezone.utc).isoformat()
         }
 
         sentiment_pulses_collection.insert_one(pulse_doc)

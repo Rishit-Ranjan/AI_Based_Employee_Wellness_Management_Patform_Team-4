@@ -974,9 +974,7 @@ export function SentimentModule({ sentimentList = [], healthRecords = [] }) {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2 mb-4">
-          <Users className="w-5 h-5 text-slate-400" /> Individual Employee Sentiment
-        </h3>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {healthRecords.map((record) => {
             const stressScore = record.stressScore;
