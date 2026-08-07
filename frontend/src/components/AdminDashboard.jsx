@@ -1446,45 +1446,55 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
           <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5">Department sentiment analytics will appear here once employees submit their wellness pulse checks.</p>
         </div>
       ) : (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {sentimentList.map((sent) => (
+<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {sentimentList.map((sent) => {
+          // Defensive normalization: some legacy/cached entries may lack
+          // sentimentDistribution or averageStressScore. Default gracefully.
+          const dist = sent.sentimentDistribution || { positive: 0, neutral: 0, negative: 0 };
+          const positive = Number(dist.positive) || 0;
+          const neutral = Number(dist.neutral) || 0;
+          const negative = Number(dist.negative) || 0;
+          const avgStress = Number(sent.averageStressScore) || 0;
+          const pulseCount = Number(sent.recentFeedbackCount) || 0;
+
+          return (
           <div key={sent.department} className="bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 rounded-xl p-5 space-y-4 shadow-sm">
             <div className="flex justify-between items-center">
               <h4 className="font-semibold text-slate-800 dark:text-slate-100">{sent.department}</h4>
-              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold font-mono">Pulse Count: {sent.recentFeedbackCount}</span>
+              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold font-mono">Pulse Count: {pulseCount}</span>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_0.9fr] gap-5 items-start">
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                   <span className="flex items-center gap-1.5"><Smile className="w-4 h-4 text-emerald-500" /> Positive</span>
-                  <span className="font-mono font-bold text-emerald-600">{sent.sentimentDistribution.positive}%</span>
+                  <span className="font-mono font-bold text-emerald-600">{positive}%</span>
                 </div>
                 <div className="w-full bg-slate-200 dark:bg-slate-600 h-1.5 rounded-full overflow-hidden">
-                  <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${sent.sentimentDistribution.positive}%` }} />
+                  <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${positive}%` }} />
                 </div>
 
                 <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                   <span className="flex items-center gap-1.5"><Smile className="w-4 h-4 text-slate-400" /> Neutral</span>
-                  <span className="font-mono font-bold text-slate-500 dark:text-slate-400">{sent.sentimentDistribution.neutral}%</span>
+                  <span className="font-mono font-bold text-slate-500 dark:text-slate-400">{neutral}%</span>
                 </div>
                 <div className="w-full bg-slate-200 dark:bg-slate-600 h-1.5 rounded-full overflow-hidden">
-                  <div className="bg-slate-400 h-full rounded-full" style={{ width: `${sent.sentimentDistribution.neutral}%` }} />
+                  <div className="bg-slate-400 h-full rounded-full" style={{ width: `${neutral}%` }} />
                 </div>
 
                 <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                   <span className="flex items-center gap-1.5"><ShieldAlert className="w-4 h-4 text-rose-500" /> Negative</span>
-                  <span className="font-mono font-bold text-rose-600">{sent.sentimentDistribution.negative}%</span>
+                  <span className="font-mono font-bold text-rose-600">{negative}%</span>
                 </div>
                 <div className="w-full bg-slate-200 dark:bg-slate-600 h-1.5 rounded-full overflow-hidden">
-                  <div className="bg-rose-500 h-full rounded-full" style={{ width: `${sent.sentimentDistribution.negative}%` }} />
+                  <div className="bg-rose-500 h-full rounded-full" style={{ width: `${negative}%` }} />
                 </div>
               </div>
 
               <div className="space-y-4">
                 <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-600 rounded-xl p-4 text-center">
                   <div className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono mb-2">Stress Index</div>
-                  <div className={`text-4xl font-display font-bold ${sent.averageStressScore >= 7 ? 'text-rose-600' : sent.averageStressScore >= 5 ? 'text-amber-600' : 'text-emerald-600'}`}>{sent.averageStressScore}</div>
+                  <div className={`text-4xl font-display font-bold ${avgStress >= 7 ? 'text-rose-600' : avgStress >= 5 ? 'text-amber-600' : 'text-emerald-600'}`}>{avgStress}</div>
                   <div className="text-[9px] text-slate-400 dark:text-slate-500 font-mono mt-1">/ 10</div>
                 </div>
               </div>
@@ -1497,9 +1507,9 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
                     <PieChart>
                       <Pie
                         data={[
-                          { name: 'Positive', value: sent.sentimentDistribution.positive, fill: '#22c55e' },
-                          { name: 'Neutral', value: sent.sentimentDistribution.neutral, fill: '#94a3b8' },
-                          { name: 'Negative', value: sent.sentimentDistribution.negative, fill: '#ef4444' },
+                          { name: 'Positive', value: positive, fill: '#22c55e' },
+                          { name: 'Neutral', value: neutral, fill: '#94a3b8' },
+                          { name: 'Negative', value: negative, fill: '#ef4444' },
                         ]}
                         dataKey="value"
                         nameKey="name"
@@ -1521,7 +1531,8 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
               </div>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
       )}
     </div>
