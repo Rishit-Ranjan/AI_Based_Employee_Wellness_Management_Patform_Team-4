@@ -1533,7 +1533,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
                 </div>
               </div>
 
-              <div className="space-y-4">
+<div className="space-y-4">
                 <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-600 rounded-xl p-4 text-center">
                   <div className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono mb-2">Stress Index</div>
                   <div className={`text-4xl font-display font-bold ${avgStress >= 7 ? 'text-rose-600' : avgStress >= 5 ? 'text-amber-600' : 'text-emerald-600'}`}>{avgStress}</div>
@@ -1541,6 +1541,34 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
                 </div>
               </div>
             </div>
+
+            {/* Feedback Logger: recent raw feedback entries per department */}
+            {(Array.isArray(sent.feedbackLogs) && sent.feedbackLogs.length > 0) && (
+              <div className="pt-3 border-t border-slate-200 dark:border-slate-600">
+                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono mb-1.5">
+                  Recent Feedback Logger
+                </div>
+                <ul className="space-y-1.5">
+                  {sent.feedbackLogs.slice(0, 5).map((log, idx) => {
+                    const cIdx = log.indexOf(':');
+                    const sentimentTag = cIdx > -1 ? log.slice(0, cIdx).trim() : 'Neutral';
+                    const text = cIdx > -1 ? log.slice(cIdx + 1).trim() : log;
+                    return (
+                      <li key={idx} className="text-[11px] text-slate-600 dark:text-slate-300 font-light flex items-start gap-2">
+                        <span className={`shrink-0 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider ${
+                          sentimentTag === 'Positive' ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800' :
+                          sentimentTag === 'Negative' ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-100 dark:border-rose-800' :
+                          'bg-slate-100 dark:bg-slate-600 text-slate-500 dark:text-slate-300 border border-slate-200 dark:border-slate-500'
+                        }`}>
+                          {sentimentTag}
+                        </span>
+                        <span>{text}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
           </div>
           );
         })}

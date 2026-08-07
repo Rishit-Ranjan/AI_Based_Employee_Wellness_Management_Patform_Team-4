@@ -748,7 +748,7 @@ def delete_health_record(employee_id):
 @jwt_required(locations=["cookies"])
 def get_all_users():
     """ Fetches all users with the 'user' role. Admin-only endpoint. """
-    jwt_payload = get_jwt() 
+    jwt_payload = get_jwt()
     user_info = jwt_payload.get("user_info", {})
     if user_info.get('role', '').lower() != 'admin':
         return jsonify({'detail': 'Forbidden: You do not have permission to access this resource.'}), 403
@@ -2381,14 +2381,25 @@ def get_sentiments():
     if user_info.get('role', '').lower() != 'admin':
         return jsonify({'detail': 'Forbidden: You do not have permission to access this resource.'}), 403
 
-    try: 
-        # Aggregation pipeline to calculate stats for each department from MongoDB
+    try:
+        # Aggregation pipeline to calculate stats for each department from MongoDB.
+        # Includes per-sentiment counts so the frontend can render the
+        # positive / neutral / negative distribution bars correctly.
         pipeline = [
             {
                 '$group': {
                     '_id': '$department',
                     'total_feedback': { '$sum': 1 },
                     'avg_stress_score': { '$avg': '$stressScore' },
+                    'positive_count': {
+                        '$sum': { '$cond': [{ '$eq': ['$sentiment', 'Positive'] }, 1, 0] }
+                    },
+                    'neutral_count': {
+                        '$sum': { '$cond': [{ '$eq': ['$sentiment', 'Neutral'] }, 1, 0] }
+                    },
+                    'negative_count': {
+                        '$sum': { '$cond': [{ '$eq': ['$sentiment', 'Negative'] }, 1, 0] }
+                    }
                 }
             },
             {
@@ -2396,11 +2407,14 @@ def get_sentiments():
                     'department': '$_id',
                     'total_feedback': 1,
                     'avg_stress_score': { '$round': ['$avg_stress_score', 1] },
+                    'positive_count': 1,
+                    'neutral_count': 1,
+                    'negative_count': 1,
                     '_id': 0
                 }
             }
         ]
-        
+
         department_stats = list(sentiment_pulses_collection.aggregate(pipeline))
 
         # Fetch the 3 most recent non-empty feedback texts for each department
@@ -2409,7 +2423,7 @@ def get_sentiments():
             { '$sort': { 'date': -1 } }, # Sort by date descending
             { '$group': {
                 '_id': '$department',
-                'recent_issues': { 
+                'recent_issues': {
                     '$push': {
                         '$concat': [
                             { '$ifNull': ['$sentiment', 'Neutral'] },
@@ -2421,22 +2435,33 @@ def get_sentiments():
             }},
             { '$project': {
                 'department': '$_id',
-                # The feedback is already sorted by date, so we just take the first 3
-                # The feedback is already sorted by date, so we just take the first 3
-                'keyIssues': { '$slice': ['$recent_issues', 3] }, # Now a list of strings
+                # The feedback is already sorted by date, so we just take an extended logger list
+                'latestFeedbackLogs': { '$slice': ['$recent_issues', 10] },
                 '_id': 0
             }}
         ]
-        key_issues_data = {item['department']: item['keyIssues'] for item in sentiment_pulses_collection.aggregate(key_issues_pipeline)}
+        key_issues_data = {item['department']: item['latestFeedbackLogs'] for item in sentiment_pulses_collection.aggregate(key_issues_pipeline)}
 
-        # Combine the aggregated stats with the key issues
+        # Combine the aggregated stats with the key issues and sentiment distribution
         results = []
         for stats in department_stats:
+            total = stats['total_feedback'] or 1
+            positive = stats.get('positive_count', 0)
+            neutral = stats.get('neutral_count', 0)
+            negative = stats.get('negative_count', 0)
             results.append({
                 "department": stats['department'],
                 "averageStressScore": stats['avg_stress_score'],
                 "keyIssues": key_issues_data.get(stats['department'], ["No specific issues logged"]),
-                "recentFeedbackCount": stats['total_feedback']
+                "recentFeedbackCount": stats['total_feedback'],
+                # Distribution percentages computed so the frontend bars fill correctly
+                "sentimentDistribution": {
+                    "positive": round((positive / total) * 100),
+                    "neutral": round((neutral / total) * 100),
+                    "negative": round((negative / total) * 100)
+                },
+                # Feedback logger: recent raw feedback entries per department
+                "feedbackLogs": key_issues_data.get(stats['department'], [])
             })
 
         # If no sentiment data is available at all, return a default placeholder
@@ -2446,6 +2471,8 @@ def get_sentiments():
                 "averageStressScore": 0,
                 "keyIssues": ["No feedback has been submitted yet. Encourage employees to use the pulse check feature."],
                 "recentFeedbackCount": 0,
+                "sentimentDistribution": {"positive": 0, "neutral": 0, "negative": 0},
+                "feedbackLogs": [],
                 "isPlaceholder": True
             }]), 200
 
