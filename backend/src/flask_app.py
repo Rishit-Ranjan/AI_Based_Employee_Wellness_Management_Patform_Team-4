@@ -28,18 +28,156 @@ from bson import ObjectId
 from dotenv import load_dotenv
 import pandas as pd
 from email_sender import send_email
-from model_loader import (
-    get_risk_model,
-    get_target_encoder,
-    get_feature_columns,
-    get_recommendation_engine,
-    get_sentiment_analyzer,
-    preload_models,
-)
+import threading
+import joblib
+import cloudpickle
 
 app = Flask(__name__)
 
 load_dotenv()
+
+"""
+Lazy loading utility for AI/ML models.
+
+Models are loaded from disk the first time they are actually needed (i.e. the
+first request to an endpoint that requires them), rather than at application
+startup. This shifts the loading cost from cold-start time to the first feature
+request and keeps the server responsive even when ML artifacts are heavy.
+
+All accessors are thread-safe (double-checked locking) so that a model is only
+loaded once even under concurrent first-access requests.
+"""
+
+# Module-level lock to protect lazy initialization.
+_lock = threading.Lock()
+
+# Cache for loaded model artifacts (None means "not yet loaded").
+_risk_model = None
+_target_encoder = None
+_feature_columns = None
+_recommendation_engine = None
+_sia = None
+
+def _get_models_dir() -> str:
+    """Resolve the absolute path to the backend/models directory."""
+    # This file lives in backend/src, so models dir is one level up.
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_dir, "models")
+
+
+def get_risk_model():
+    """Return the wellness risk classification model, loading on first use."""
+    global _risk_model
+    if _risk_model is None:
+        with _lock:
+            if _risk_model is None:
+                _risk_model = joblib.load(
+                    os.path.join(_get_models_dir(), "wellness_risk_model.pkl")
+                )
+    return _risk_model
+
+def get_target_encoder():
+    """Return the target label encoder, loading on first use."""
+    global _target_encoder
+    if _target_encoder is None:
+        with _lock:
+            if _target_encoder is None:
+                _target_encoder = joblib.load(
+                    os.path.join(_get_models_dir(), "target_encoder.pkl")
+                )
+    return _target_encoder
+
+def get_feature_columns():
+    """Return the feature columns list, loading on first use."""
+    global _feature_columns
+    if _feature_columns is None:
+        with _lock:
+            if _feature_columns is None:
+                _feature_columns = joblib.load(
+                    os.path.join(_get_models_dir(), "feature_columns.pkl")
+                )
+    return _feature_columns
+
+def get_recommendation_engine():
+    """Return the wellness recommendation engine, loading on first use.
+
+    The engine is expected to be a callable function (serialized via cloudpickle).
+    If the loaded artifact is not callable (e.g. a stale ``dict`` or an old
+    class-based object from a previous commit), we return ``None`` instead so the
+    calling code can safely fall back to its built-in rule-based logic rather than
+    crashing with a "'dict' object is not callable" error.
+    """
+    global _recommendation_engine
+    if _recommendation_engine is None:
+        with _lock:
+            if _recommendation_engine is None:
+                try:
+                    with open(
+                        os.path.join(_get_models_dir(), "wellness_recommendation_engine.pkl"),
+                        "rb",
+                    ) as f:
+                        _recommendation_engine = cloudpickle.load(f)
+                    # Guard against a stale/non-callable artifact (dict, class, etc.)
+                    if not callable(_recommendation_engine):
+                        print(
+                            "WARNING: recommendation engine artifact is not callable "
+                            f"(type={type(_recommendation_engine)}). Falling back to "
+                            "rule-based recommendations."
+                        )
+                        _recommendation_engine = None
+                except Exception as e:  # noqa: BLE001 - defensive, never crash startup
+                    print(
+                        "WARNING: failed to load recommendation engine "
+                        f"({e}). Falling back to rule-based recommendations."
+                    )
+                    _recommendation_engine = None
+    return _recommendation_engine
+
+
+def get_sentiment_analyzer():
+    """Return the VADER sentiment analyzer, loading on first use."""
+    global _sia
+    if _sia is None:
+        with _lock:
+            if _sia is None:
+                import nltk
+
+                nltk.download("vader_lexicon", quiet=True)
+                from nltk.sentiment import SentimentIntensityAnalyzer
+
+                _sia = SentimentIntensityAnalyzer()
+    return _sia
+
+
+def preload_models(blocking: bool = False) -> None:
+    """Eagerly load all model artifacts so the first feature request is fast.
+
+    By default this runs in a background daemon thread so server startup is not
+    blocked. Pass ``blocking=True`` to force synchronous loading (useful for
+    smoke tests or ensuring readiness before serving traffic).
+
+    Loading is thread-safe and idempotent: re-running simply returns the already
+    cached artifacts.
+    """
+    def _load_all():
+        get_risk_model()
+        get_target_encoder()
+        get_feature_columns()
+        get_recommendation_engine()
+        get_sentiment_analyzer()
+
+    if blocking:
+        _load_all()
+        return
+
+    try:
+        import threading
+
+        thread = threading.Thread(target=_load_all, name="model-preloader", daemon=True)
+        thread.start()
+    except Exception as e:  # pragma: no cover - defensive
+        print(f"Failed to start model preloader thread: {e}")
+
 
 # --- App Configuration ---
 MONGO_URI = os.getenv('MONGO_URI', 'mongodb://localhost:27017/employee_wellness_analytics')
@@ -89,6 +227,7 @@ checkup_appointments_collection = db.get_collection('checkup_appointments')
 sos_alerts_collection = db.get_collection('sos_alerts')
 expenses_collection = db.get_collection('health_expenses')
 system_settings_collection = db.get_collection('system_settings')
+support_tickets_collection = db.get_collection('support_tickets')
 
 # --- Lazy Loading of ML Models ---
 # AI/ML model artifacts (risk model, target encoder, feature columns, recommendation
@@ -609,7 +748,7 @@ def delete_health_record(employee_id):
 @jwt_required(locations=["cookies"])
 def get_all_users():
     """ Fetches all users with the 'user' role. Admin-only endpoint. """
-    jwt_payload = get_jwt() 
+    jwt_payload = get_jwt()
     user_info = jwt_payload.get("user_info", {})
     if user_info.get('role', '').lower() != 'admin':
         return jsonify({'detail': 'Forbidden: You do not have permission to access this resource.'}), 403
@@ -658,6 +797,7 @@ def map_health_record_to_model_input(record):
 @app.route('/api/wellness/risks', methods=['GET'])
 @jwt_required(locations=["cookies"])
 def get_risk_predictions():
+    ai_wellness_service = get_ai_service(db)
     risk_model = get_risk_model()
     target_encoder = get_target_encoder()
     if risk_model is None or target_encoder is None:
@@ -1002,6 +1142,7 @@ def get_fallback_video():
 @app.route('/api/wellness/recommendations', methods=['GET'])
 @jwt_required(locations=["cookies"])
 def get_recommendations():
+    ai_wellness_service = get_ai_service(db)
     risk_model = get_risk_model()
     target_encoder = get_target_encoder()
     recommendation_engine = get_recommendation_engine()
@@ -1060,19 +1201,10 @@ def get_recommendations():
                     "risk_label": str(risk_label)
                 }
 
-# 3. Use the loaded recommendation engine if available
+                # 3. Use the loaded recommendation engine if available
                 if recommendation_engine is not None and callable(recommendation_engine):
                     app.logger.debug(f"Recommendation engine is callable (type: {type(recommendation_engine)}). Attempting to use it.")
-                    try:
-                        top_recs = recommendation_engine(employee_profile, top_n=3)
-                    except Exception as engine_error:
-                        # Defensive: never let a broken engine take down the request.
-                        # Fall back to built-in rule-based recommendations.
-                        app.logger.warning(
-                            f"Recommendation engine raised an error for {employee_id}: "
-                            f"{engine_error}. Falling back to rule-based recommendations."
-                        )
-                        top_recs = []
+                    top_recs = recommendation_engine(employee_profile, top_n=3)
                 
                 # 4. Fallback: Exact structural mirror matching the engine's output dictionary format
                 else:
@@ -1453,6 +1585,33 @@ def update_insurance(employee_id):
     if result.matched_count == 0:
         return jsonify({'detail': 'No insurance policy found for this employee'}), 404
     return jsonify({'detail': 'Insurance policy updated'}), 200
+
+# --- Insurance endpoint (DELETE) - admin only ---
+@app.route('/api/insurance/<employee_id>', methods=['DELETE'])
+@jwt_required(locations=["cookies"])
+def delete_insurance(employee_id):
+    """Admin-only: delete an employee's insurance policy.
+
+    The policy cannot be deleted while it has pending (unresolved) claims,
+    to preserve the integrity of the claims/approval workflow.
+    """
+    jwt_payload = get_jwt()
+    user_info = jwt_payload.get("user_info")
+    if user_info.get('role') != 'admin':
+        return jsonify({'detail': 'Forbidden'}), 403
+
+    policy = insurance_collection.find_one({'employeeId': employee_id})
+    if not policy:
+        return jsonify({'detail': 'No insurance policy found for this employee'}), 404
+
+    pending_claims = [c for c in policy.get('claims', []) if c.get('status') == 'Pending']
+    if pending_claims:
+        return jsonify({
+            'detail': f'Cannot delete: {len(pending_claims)} pending claim(s) must be resolved first.'
+        }), 409
+
+    insurance_collection.delete_one({'employeeId': employee_id})
+    return '', 204
 
 # insurance endpoint (POST claim) - employee or admin
 @app.route('/api/insurance/<employee_id>/claims', methods=['POST'])
@@ -2222,8 +2381,10 @@ def get_sentiments():
     if user_info.get('role', '').lower() != 'admin':
         return jsonify({'detail': 'Forbidden: You do not have permission to access this resource.'}), 403
 
-    try: 
-        # Aggregation pipeline to calculate stats for each department from MongoDB
+    try:
+        # Aggregation pipeline to calculate stats for each department from MongoDB.
+        # Includes per-sentiment counts so the frontend can render the
+        # positive / neutral / negative distribution bars correctly.
         pipeline = [
             {
                 '$group': {
@@ -2246,53 +2407,75 @@ def get_sentiments():
                     'department': '$_id',
                     'total_feedback': 1,
                     'avg_stress_score': { '$round': ['$avg_stress_score', 1] },
-                    'sentimentDistribution': {
-                        'positive': {
-                            '$round': [{ '$multiply': [{ '$divide': ['$positive_count', '$total_feedback'] }, 100] }]
-                        },
-                        'neutral': {
-                            '$round': [{ '$multiply': [{ '$divide': ['$neutral_count', '$total_feedback'] }, 100] }]
-                        },
-                        'negative': {
-                            '$round': [{ '$multiply': [{ '$divide': ['$negative_count', '$total_feedback'] }, 100] }]
-                        }
-                    },
+                    'positive_count': 1,
+                    'neutral_count': 1,
+                    'negative_count': 1,
                     '_id': 0
                 }
             }
         ]
-        
+
         department_stats = list(sentiment_pulses_collection.aggregate(pipeline))
 
         # Fetch the 3 most recent non-empty feedback texts for each department
         key_issues_pipeline = [
             { '$match': { 'feedbackText': { '$ne': '' } } },
-            { '$sort': { 'createdAt': -1 } }, # Sort by date descending
+            { '$sort': { 'date': -1 } }, # Sort by date descending
             { '$group': {
                 '_id': '$department',
-                'recent_issues': { 
-                    '$push': { 'feedbackText': '$feedbackText', 'sentiment': '$sentiment' } 
+                'recent_issues': {
+                    '$push': {
+                        '$concat': [
+                            { '$ifNull': ['$sentiment', 'Neutral'] },
+                            ': ',
+                            '$feedbackText'
+                        ]
+                    }
                 }
             }},
             { '$project': {
                 'department': '$_id',
-                # The feedback is already sorted by date, so we just take the first 3
-                'keyIssues': { '$slice': ['$recent_issues', 3] },
+                # The feedback is already sorted by date, so we just take an extended logger list
+                'latestFeedbackLogs': { '$slice': ['$recent_issues', 10] },
                 '_id': 0
             }}
         ]
-        key_issues_data = {item['department']: item['keyIssues'] for item in sentiment_pulses_collection.aggregate(key_issues_pipeline)}
+        key_issues_data = {item['department']: item['latestFeedbackLogs'] for item in sentiment_pulses_collection.aggregate(key_issues_pipeline)}
 
-        # Combine the aggregated stats with the key issues
+        # Combine the aggregated stats with the key issues and sentiment distribution
         results = []
         for stats in department_stats:
+            total = stats['total_feedback'] or 1
+            positive = stats.get('positive_count', 0)
+            neutral = stats.get('neutral_count', 0)
+            negative = stats.get('negative_count', 0)
             results.append({
                 "department": stats['department'],
                 "averageStressScore": stats['avg_stress_score'],
-                "sentimentDistribution": stats['sentimentDistribution'],
                 "keyIssues": key_issues_data.get(stats['department'], ["No specific issues logged"]),
-                "recentFeedbackCount": stats['total_feedback']
+                "recentFeedbackCount": stats['total_feedback'],
+                # Distribution percentages computed so the frontend bars fill correctly
+                "sentimentDistribution": {
+                    "positive": round((positive / total) * 100),
+                    "neutral": round((neutral / total) * 100),
+                    "negative": round((negative / total) * 100)
+                },
+                # Feedback logger: recent raw feedback entries per department
+                "feedbackLogs": key_issues_data.get(stats['department'], [])
             })
+
+        # If no sentiment data is available at all, return a default placeholder
+        if not results:
+            return jsonify([{
+                "department": "All Departments",
+                "averageStressScore": 0,
+                "keyIssues": ["No feedback has been submitted yet. Encourage employees to use the pulse check feature."],
+                "recentFeedbackCount": 0,
+                "sentimentDistribution": {"positive": 0, "neutral": 0, "negative": 0},
+                "feedbackLogs": [],
+                "isPlaceholder": True
+            }]), 200
+
         return jsonify(results), 200
     except Exception as e:
         app.logger.exception(f"An unexpected error occurred while fetching sentiments: {e}")
@@ -2302,6 +2485,7 @@ def get_sentiments():
 @app.route('/api/wellness/performance', methods=['GET'])
 @jwt_required(locations=["cookies"])
 def get_performance_analytics():
+    ai_wellness_service = get_ai_service(db)
     """
     Computes real-time performance KPIs from MongoDB collections.
     Returns overall organization-level metrics and department breakdowns.
@@ -2497,7 +2681,7 @@ in the sentiment_pulses MongoDB collection.
             "stressScore": stress_score,
             "feedbackText": feedback_text,
             "sentiment": sentiment,
-            "createdAt": datetime.now(timezone.utc)
+            "createdAt": datetime.now(timezone.utc).isoformat()
         }
 
         sentiment_pulses_collection.insert_one(pulse_doc)
@@ -2522,22 +2706,11 @@ def get_all_sentiment_pulses():
         return jsonify({'detail': 'Forbidden'}), 403
 
     try:
-        # Fetch all pulses and create a map of employeeId to user details
-        all_users = {u['employeeId']: u for u in users_collection.find({}, {'employeeId': 1, 'name': 1})}
-
-        pulses_cursor = sentiment_pulses_collection.find({}).sort('createdAt', -1)
+        pulses_cursor = sentiment_pulses_collection.find({})
         pulses = []
         for pulse in pulses_cursor:
             pulse['id'] = str(pulse['_id'])
             del pulse['_id']
-            
-            # Enrich with employeeName from the users map
-            employee_id = pulse.get('employeeId')
-            if employee_id and employee_id in all_users:
-                pulse['employeeName'] = all_users[employee_id].get('name', 'Unknown Employee')
-            else:
-                pulse['employeeName'] = 'Unknown Employee'
-
             pulses.append(pulse)
         return jsonify(pulses), 200
     except Exception as e:
@@ -2602,6 +2775,75 @@ def update_system_settings():
     )
     
     return jsonify({'detail': 'Settings updated successfully'}), 200
+
+# --- Customer Support Tickets API ---
+@app.route('/api/support/ticket', methods=['POST'])
+@jwt_required(locations=["cookies"])
+def submit_support_ticket():
+    """Employee submits a customer support ticket (starts as 'Open')."""
+    jwt_payload = get_jwt()
+    user_info = jwt_payload.get("user_info", {})
+    data = request.get_json() or {}
+
+    subject = (data.get('subject') or '').strip()
+    message = (data.get('message') or '').strip()
+    if not subject or not message:
+        return jsonify({'detail': 'subject and message are required'}), 400
+
+    doc = {
+        'employeeId': data.get('employeeId') or user_info.get('employeeId'),
+        'employeeName': data.get('employeeName') or user_info.get('name'),
+        'subject': subject,
+        'message': message,
+        'status': 'Open',
+        'createdAt': datetime.now(timezone.utc).isoformat(),
+    }
+    result = support_tickets_collection.insert_one(doc)
+    doc['id'] = str(result.inserted_id)
+    del doc['_id']
+    return jsonify(doc), 201
+
+
+@app.route('/api/support/tickets', methods=['GET'])
+@jwt_required(locations=["cookies"])
+def get_support_tickets():
+    """Employees see their own tickets; admins can pass ?all=1 to see every ticket."""
+    jwt_payload = get_jwt()
+    user_info = jwt_payload.get("user_info", {})
+    if user_info.get('role') == 'admin' and request.args.get('all'):
+        cursor = support_tickets_collection.find({}).sort('createdAt', -1)
+    else:
+        cursor = support_tickets_collection.find({'employeeId': user_info.get('employeeId')}).sort('createdAt', -1)
+
+    tickets = []
+    for t in cursor:
+        t['id'] = str(t['_id'])
+        del t['_id']
+        tickets.append(t)
+    return jsonify(tickets), 200
+
+
+@app.route('/api/support/tickets/<ticket_id>', methods=['PUT'])
+@jwt_required(locations=["cookies"])
+def update_support_ticket(ticket_id):
+    """Admin-only: update the status (e.g. Open -> In Progress -> Resolved)."""
+    jwt_payload = get_jwt()
+    user_info = jwt_payload.get("user_info", {})
+    if user_info.get('role') != 'admin':
+        return jsonify({'detail': 'Forbidden'}), 403
+
+    data = request.get_json() or {}
+    status = (data.get('status') or '').strip()
+    if status not in {'Open', 'In Progress', 'Resolved', 'Closed'}:
+        return jsonify({'detail': 'Invalid status'}), 400
+
+    result = support_tickets_collection.update_one(
+        {'_id': ObjectId(ticket_id)},
+        {'$set': {'status': status, 'updatedAt': datetime.now(timezone.utc).isoformat()}},
+    )
+    if result.matched_count == 0:
+        return jsonify({'detail': 'Ticket not found'}), 404
+    return jsonify({'detail': f'Ticket marked as {status}'}), 200
 
 # --- Main Entry Point ---
 if __name__ == '__main__':

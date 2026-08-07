@@ -195,15 +195,23 @@ export default function App() {
                     setLoadingRecommendations(true);
                     setLoadingPerformance(true);
                     setPerformanceError(null);
-                    const [recsData, sentimentsData, perfData] = await Promise.all([
+                    const [recsData, perfData] = await Promise.all([
                         api.fetchRecommendations(options),
-                        api.fetchSentiments(options),
                         api.fetchPerformanceAnalytics(options)
                     ]);
                     setRecommendations(recsData || []);
-                    setSentimentList(sentimentsData || []);
                     setPerformanceData(perfData);
                     setLoadingPerformance(false);
+
+                    // Fetch department sentiment separately so a failure here
+                    // does not block the rest of the performance analytics.
+                    try {
+                        const sentimentsData = await api.fetchSentiments(options);
+                        setSentimentList(sentimentsData || []);
+                    } catch (sentErr) {
+                        console.error("Failed to fetch department sentiments:", sentErr);
+                        setSentimentList([]);
+                    }
                 } else {
                     setLoadingRecommendations(true);
                     
@@ -313,11 +321,11 @@ export default function App() {
   
         // 2. For immediate UI feedback on the admin dashboard, re-fetch all data.
         if (currentUser?.role === 'admin') {
-            // Re-fetch aggregated sentiments for the department-level card
-            api.fetchSentiments().then(sentiments => setSentimentList(sentiments || []));
+            // Re-fetch aggregated sentiments for the department-level card (forceRefresh to bypass GET cache)
+            api.fetchSentiments({ forceRefresh: true }).then(sentiments => setSentimentList(sentiments || []));
 
             // Re-fetch all individual pulses and re-attach them to health records for the individual cards
-            const allPulses = await api.fetchAllSentimentPulses();
+            const allPulses = await api.fetchAllSentimentPulses({ forceRefresh: true });
             setHealthRecords(prevRecords => {
                 return prevRecords.map(record => {
                     const feedbackLogs = allPulses.filter(pulse => pulse.employeeId === record.employeeId).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));

@@ -50,9 +50,14 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
   const [attendanceRate, setAttendanceRate] = useState('');
   const [medicalNotes, setMedicalNotes] = useState('');
   const [medicalCondition, setMedicalCondition] = useState('No major condition');
-  const [smoker, setSmoker] = useState(false);
+const [smoker, setSmoker] = useState(false);
   const [alcoholUse, setAlcoholUse] = useState(false);
   const [glucoseLevel, setGlucoseLevel] = useState('');
+  const [emergencyContactName, setEmergencyContactName] = useState('');
+  const [emergencyContactPhone, setEmergencyContactPhone] = useState('');
+  const [bloodGroup, setBloodGroup] = useState('');
+  const [allergies, setAllergies] = useState('');
+  const [existingDiseases, setExistingDiseases] = useState('');
 
   const [successMessage, setSuccessMessage] = useState('');
   const [error, setError] = useState(''); // State for form errors
@@ -104,9 +109,14 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
     setAttendanceRate(String(record.attendanceRate));
     setMedicalNotes(record.medicalNotes);
     setMedicalCondition(record.medicalCondition);
-    setSmoker(record.smoker);
+setSmoker(record.smoker);
     setAlcoholUse(record.alcoholUse);
     setGlucoseLevel(String(record.glucoseLevel));
+    setEmergencyContactName(record.emergencyContactName || '');
+    setEmergencyContactPhone(record.emergencyContactPhone || '');
+    setBloodGroup(record.bloodGroup || '');
+    setAllergies(record.allergies || '');
+    setExistingDiseases(record.existingDiseases || '');
     setIsAddOpen(true);
     setError(''); // Clear any previous errors when opening modal
   };
@@ -131,7 +141,8 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
     setStress('Medium');
     setStressScore('');
     setAttendanceRate('');
-    setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false); setAlcoholUse(false); setGlucoseLevel('');
+setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false); setAlcoholUse(false); setGlucoseLevel('');
+    setEmergencyContactName(''); setEmergencyContactPhone(''); setBloodGroup(''); setAllergies(''); setExistingDiseases('');
     setIsAddOpen(true);
     setError(''); // Clear any previous errors when opening modal
   };
@@ -200,9 +211,14 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
         attendanceRate: Number(attendanceRate),
         medicalNotes: medicalNotes,
         medicalCondition: medicalCondition,
-        smoker: smoker,
+smoker: smoker,
         alcoholUse: alcoholUse,
         glucoseLevel: Number(glucoseLevel),
+        emergencyContactName: emergencyContactName,
+        emergencyContactPhone: emergencyContactPhone,
+        bloodGroup: bloodGroup,
+        allergies: allergies,
+        existingDiseases: existingDiseases,
         healthAssessment: assessment,
         lastUpdated: new Date().toISOString().split('T')[0]
       };
@@ -234,6 +250,11 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
         smoker: smoker,
         alcoholUse: alcoholUse,
         glucoseLevel: Number(glucoseLevel),
+        emergencyContactName: emergencyContactName,
+        emergencyContactPhone: emergencyContactPhone,
+        bloodGroup: bloodGroup,
+        allergies: allergies,
+        existingDiseases: existingDiseases,
         healthAssessment: assessment,
         lastUpdated: new Date().toISOString().split('T')[0]
       };
@@ -248,7 +269,8 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
     setAge(''); setGender('Male'); setHeightCm(''); setWeightKg('');
     setBmi(''); setBp(''); setExerciseDaysPerWeek(''); setExercise(''); setSleep('');
     setStress('Medium'); setStressScore(''); setAttendanceRate('');
-    setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false); setAlcoholUse(false); setGlucoseLevel('');
+setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false); setAlcoholUse(false); setGlucoseLevel('');
+    setEmergencyContactName(''); setEmergencyContactPhone(''); setBloodGroup(''); setAllergies(''); setExistingDiseases('');
     setEditingRecord(null);
     setError(''); // Clear error after successful submission
   };
@@ -490,7 +512,7 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
                   <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Glucose Level</label>
                   <input type="number" step="0.1" required value={glucoseLevel} onChange={(e) => setGlucoseLevel(e.target.value)} placeholder="90" className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none" />
                 </div>
-                <div className="flex items-center gap-4">
+<div className="flex items-center gap-4">
                   <label className="flex items-center gap-2 text-xs text-slate-800 dark:text-slate-200">
                     <input type="checkbox" checked={smoker} onChange={(e) => setSmoker(e.target.checked)} className="form-checkbox h-3.5 w-3.5 text-indigo-600 rounded border-slate-300" />
                     Smoker
@@ -499,6 +521,26 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
                     <input type="checkbox" checked={alcoholUse} onChange={(e) => setAlcoholUse(e.target.checked)} className="form-checkbox h-3.5 w-3.5 text-indigo-600 rounded border-slate-300" />
                     Alcohol User
                   </label>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Blood Group</label>
+                  <input type="text" value={bloodGroup} onChange={(e) => setBloodGroup(e.target.value)} placeholder="O+" className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none" />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Allergies</label>
+                  <input type="text" value={allergies} onChange={(e) => setAllergies(e.target.value)} placeholder="None" className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none" />
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Existing Diseases</label>
+                  <input type="text" value={existingDiseases} onChange={(e) => setExistingDiseases(e.target.value)} placeholder="e.g. Hypertension, Diabetes" className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none" />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Emergency Contact Name</label>
+                  <input type="text" value={emergencyContactName} onChange={(e) => setEmergencyContactName(e.target.value)} placeholder="Contact person" className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none" />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Emergency Contact Phone</label>
+                  <input type="text" value={emergencyContactPhone} onChange={(e) => setEmergencyContactPhone(e.target.value)} placeholder="+1 555 000 0000" className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none" />
                 </div>
               </div>
 
@@ -974,9 +1016,7 @@ export function SentimentModule({ sentimentList = [], healthRecords = [] }) {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2 mb-4">
-          <Users className="w-5 h-5 text-slate-400" /> Individual Employee Sentiment
-        </h3>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {healthRecords.map((record) => {
             const stressScore = record.stressScore;
@@ -1441,83 +1481,99 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
         <p className="text-xs text-slate-400 dark:text-slate-400 mt-2">Anonymized sentiment distribution and stress index from pulse feedback.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {sentimentList.map((sent) => (
+      {(!sentimentList || sentimentList.length === 0) ? (
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-10 text-center shadow-sm">
+          <Smile className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+          <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">No department sentiment data available yet.</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5">Department sentiment analytics will appear here once employees submit their wellness pulse checks.</p>
+        </div>
+      ) : (
+<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {sentimentList.map((sent) => {
+          // Defensive normalization: some legacy/cached entries may lack
+          // sentimentDistribution or averageStressScore. Default gracefully.
+          const dist = sent.sentimentDistribution || { positive: 0, neutral: 0, negative: 0 };
+          const positive = Number(dist.positive) || 0;
+          const neutral = Number(dist.neutral) || 0;
+          const negative = Number(dist.negative) || 0;
+          const avgStress = Number(sent.averageStressScore) || 0;
+          const pulseCount = Number(sent.recentFeedbackCount) || 0;
+
+          return (
           <div key={sent.department} className="bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 rounded-xl p-5 space-y-4 shadow-sm">
             <div className="flex justify-between items-center">
               <h4 className="font-semibold text-slate-800 dark:text-slate-100">{sent.department}</h4>
-              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold font-mono">Pulse Count: {sent.recentFeedbackCount}</span>
+              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold font-mono">Pulse Count: {pulseCount}</span>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_0.9fr] gap-5 items-start">
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                   <span className="flex items-center gap-1.5"><Smile className="w-4 h-4 text-emerald-500" /> Positive</span>
-                  <span className="font-mono font-bold text-emerald-600">{sent.sentimentDistribution.positive}%</span>
+                  <span className="font-mono font-bold text-emerald-600">{positive}%</span>
                 </div>
                 <div className="w-full bg-slate-200 dark:bg-slate-600 h-1.5 rounded-full overflow-hidden">
-                  <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${sent.sentimentDistribution.positive}%` }} />
+                  <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${positive}%` }} />
                 </div>
 
                 <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                   <span className="flex items-center gap-1.5"><Smile className="w-4 h-4 text-slate-400" /> Neutral</span>
-                  <span className="font-mono font-bold text-slate-500 dark:text-slate-400">{sent.sentimentDistribution.neutral}%</span>
+                  <span className="font-mono font-bold text-slate-500 dark:text-slate-400">{neutral}%</span>
                 </div>
                 <div className="w-full bg-slate-200 dark:bg-slate-600 h-1.5 rounded-full overflow-hidden">
-                  <div className="bg-slate-400 h-full rounded-full" style={{ width: `${sent.sentimentDistribution.neutral}%` }} />
+                  <div className="bg-slate-400 h-full rounded-full" style={{ width: `${neutral}%` }} />
                 </div>
 
                 <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                   <span className="flex items-center gap-1.5"><ShieldAlert className="w-4 h-4 text-rose-500" /> Negative</span>
-                  <span className="font-mono font-bold text-rose-600">{sent.sentimentDistribution.negative}%</span>
+                  <span className="font-mono font-bold text-rose-600">{negative}%</span>
                 </div>
                 <div className="w-full bg-slate-200 dark:bg-slate-600 h-1.5 rounded-full overflow-hidden">
-                  <div className="bg-rose-500 h-full rounded-full" style={{ width: `${sent.sentimentDistribution.negative}%` }} />
+                  <div className="bg-rose-500 h-full rounded-full" style={{ width: `${negative}%` }} />
                 </div>
               </div>
 
-              <div className="space-y-4">
+<div className="space-y-4">
                 <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-600 rounded-xl p-4 text-center">
                   <div className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono mb-2">Stress Index</div>
-                  <div className={`text-4xl font-display font-bold ${sent.averageStressScore >= 7 ? 'text-rose-600' : sent.averageStressScore >= 5 ? 'text-amber-600' : 'text-emerald-600'}`}>{sent.averageStressScore}</div>
+                  <div className={`text-4xl font-display font-bold ${avgStress >= 7 ? 'text-rose-600' : avgStress >= 5 ? 'text-amber-600' : 'text-emerald-600'}`}>{avgStress}</div>
                   <div className="text-[9px] text-slate-400 dark:text-slate-500 font-mono mt-1">/ 10</div>
                 </div>
               </div>
             </div>
-            <div className="flex justify-center pt-4">
-              <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-600 rounded-xl p-3 w-full max-w-[360px]">
-                <div className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono mb-2 text-center">Sentiment Breakdown</div>
-                <div className="h-40 w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={[
-                          { name: 'Positive', value: sent.sentimentDistribution.positive, fill: '#22c55e' },
-                          { name: 'Neutral', value: sent.sentimentDistribution.neutral, fill: '#94a3b8' },
-                          { name: 'Negative', value: sent.sentimentDistribution.negative, fill: '#ef4444' },
-                        ]}
-                        dataKey="value"
-                        nameKey="name"
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={28}
-                        outerRadius={54}
-                        paddingAngle={4}
-                      >
-                        <Cell key="positive" fill="#22c55e" />
-                        <Cell key="neutral" fill="#94a3b8" />
-                        <Cell key="negative" fill="#ef4444" />
-                      </Pie>
-                      <Tooltip wrapperStyle={{ fontSize: 12, borderRadius: '8px' }} />
-                      <Legend verticalAlign="bottom" height={24} wrapperStyle={{ fontSize: '11px' }} />
-                    </PieChart>
-                  </ResponsiveContainer>
+
+            {/* Feedback Logger: recent raw feedback entries per department */}
+            {(Array.isArray(sent.feedbackLogs) && sent.feedbackLogs.length > 0) && (
+              <div className="pt-3 border-t border-slate-200 dark:border-slate-600">
+                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono mb-1.5">
+                  Recent Feedback Logger
                 </div>
+                <ul className="space-y-1.5">
+                  {sent.feedbackLogs.slice(0, 5).map((log, idx) => {
+                    const cIdx = log.indexOf(':');
+                    const sentimentTag = cIdx > -1 ? log.slice(0, cIdx).trim() : 'Neutral';
+                    const text = cIdx > -1 ? log.slice(cIdx + 1).trim() : log;
+                    return (
+                      <li key={idx} className="text-[11px] text-slate-600 dark:text-slate-300 font-light flex items-start gap-2">
+                        <span className={`shrink-0 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider ${
+                          sentimentTag === 'Positive' ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800' :
+                          sentimentTag === 'Negative' ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-100 dark:border-rose-800' :
+                          'bg-slate-100 dark:bg-slate-600 text-slate-500 dark:text-slate-300 border border-slate-200 dark:border-slate-500'
+                        }`}>
+                          {sentimentTag}
+                        </span>
+                        <span>{text}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
-            </div>
+            )}
           </div>
-        ))}
+          );
+        })}
       </div>
+      )}
     </div>
   );
 

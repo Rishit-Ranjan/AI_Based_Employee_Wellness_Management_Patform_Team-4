@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { ShieldCheck, Plus, Save, CheckCircle2, XCircle, Users } from 'lucide-react';
-import { fetchAllInsurance, saveInsurance, updateInsuranceClaim } from '../services/api';
+import { ShieldCheck, Plus, Save, CheckCircle2, XCircle, Users, Trash2, AlertTriangle, X } from 'lucide-react';
+import { fetchAllInsurance, saveInsurance, updateInsuranceClaim, deleteInsurance } from '../services/api';
 
 export default function AdminInsuranceModule({ allUsers = [] }) {
   const [policies, setPolicies] = useState([]);
@@ -8,6 +8,9 @@ export default function AdminInsuranceModule({ allUsers = [] }) {
   const [selectedEmp, setSelectedEmp] = useState('');
   const [form, setForm] = useState({ provider: '', policyNumber: '', coverage: '', expiryDate: '' });
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null); // { employeeId, provider, policyNumber }
+  const [deleteError, setDeleteError] = useState('');
 
   const load = () => {
     setLoading(true);
@@ -15,6 +18,22 @@ export default function AdminInsuranceModule({ allUsers = [] }) {
   };
 
   useEffect(() => { load(); }, []);
+
+  const handleDelete = async () => {
+    if (!confirmDelete) return;
+    const { employeeId } = confirmDelete;
+    setDeleting(employeeId);
+    setDeleteError('');
+    try {
+      await deleteInsurance(employeeId);
+      setPolicies((prev) => prev.filter((p) => p.employeeId !== employeeId));
+      setConfirmDelete(null);
+    } catch (err) {
+      setDeleteError(err?.message || 'Could not delete the policy.');
+    } finally {
+      setDeleting(null);
+    }
+  };
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -114,6 +133,7 @@ export default function AdminInsuranceModule({ allUsers = [] }) {
                 <th className="pb-2 font-semibold">Coverage</th>
                 <th className="pb-2 font-semibold">Used</th>
                 <th className="pb-2 font-semibold">Expiry</th>
+                <th className="pb-2 font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -124,12 +144,79 @@ export default function AdminInsuranceModule({ allUsers = [] }) {
                   <td className="py-2 text-slate-700 dark:text-slate-200">₹{Number(p.coverage || 0).toLocaleString('en-IN')}</td>
                   <td className="py-2 text-slate-700 dark:text-slate-200">₹{Number(p.claimUsed || 0).toLocaleString('en-IN')}</td>
                   <td className="py-2 text-slate-500 dark:text-slate-400">{p.expiryDate || '—'}</td>
+                  <td className="py-2">
+                    <button
+                      onClick={() => {
+                        setDeleteError('');
+                        setConfirmDelete({ employeeId: p.employeeId, provider: p.provider, policyNumber: p.policyNumber });
+                      }}
+                      disabled={deleting === p.employeeId}
+                      title="Delete policy"
+                      className="p-1.5 bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900/80 border border-rose-200 dark:border-rose-800 rounded-lg text-rose-600 dark:text-rose-400 cursor-pointer disabled:opacity-50"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         )}
       </div>
+
+      {confirmDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-slate-950/70 backdrop-blur-sm p-4" onClick={() => setConfirmDelete(null)}>
+          <div
+            className="w-full max-w-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-4 mb-3">
+              <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400">
+                <AlertTriangle className="w-5 h-5" />
+                <h4 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-sm">Delete insurance policy?</h4>
+              </div>
+              <button
+                onClick={() => setConfirmDelete(null)}
+                className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                title="Cancel"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
+              This will permanently remove the policy for{' '}
+              <span className="font-mono font-semibold text-slate-800 dark:text-slate-100">{confirmDelete.employeeId}</span>
+              {confirmDelete.provider && <span> ({confirmDelete.provider}{confirmDelete.policyNumber ? ` · ${confirmDelete.policyNumber}` : ''})</span>}.
+              This action cannot be undone.
+            </p>
+
+            {deleteError && (
+              <p className="text-xs text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 rounded-lg px-3 py-2 mb-4">
+                {deleteError}
+              </p>
+            )}
+
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setConfirmDelete(null)}
+                disabled={deleting === confirmDelete.employeeId}
+                className="px-3 py-2 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 rounded-lg text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleting === confirmDelete.employeeId}
+                className="px-3 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                <Trash2 className="w-3.5 h-3.5" /> {deleting === confirmDelete.employeeId ? 'Deleting…' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+

@@ -336,6 +336,7 @@ export const fileInsuranceClaim = (employeeId, data) => request(`/insurance/${em
   method: 'POST',
   body: JSON.stringify(data),
 });
+export const deleteInsurance = (employeeId) => request(`/insurance/${employeeId}`, { method: 'DELETE' });
 
 // --- Notifications ---
 export const fetchNotifications = (isAdmin = false, options) => request(`/notifications${isAdmin ? '?all=true' : ''}`, { method: 'GET', ...options });
@@ -414,6 +415,17 @@ export const saveSystemSettings = (settings) => request('/settings', {
   body: JSON.stringify(settings),
 });
 
+// --- Customer Support API ---
+export const submitSupportTicket = (ticketData) => request('/support/ticket', {
+  method: 'POST',
+  body: JSON.stringify(ticketData),
+});
+export const fetchSupportTickets = (isAdmin = false, options) => request(`/support/tickets${isAdmin ? '?all=1' : ''}`, { method: 'GET', ...options });
+export const updateSupportTicket = (ticketId, status) => request(`/support/tickets/${ticketId}`, {
+  method: 'PUT',
+  body: JSON.stringify({ status }),
+});
+
 // --- Updated Default Export ---
 export default {
   login, signup, me, logout, forgotPassword, resetPassword,
@@ -426,7 +438,7 @@ export default {
   triggerSos, fetchSosAlerts, resolveSos,
   fetchExpenses, addExpense, deleteExpense, updateExpense,
   fetchAllInsurance, saveInsurance, updateInsuranceClaim,
-  fetchInsurance, fileInsuranceClaim,
+  fetchInsurance, fileInsuranceClaim, deleteInsurance,
   fetchNotifications, sendNotification, deleteNotification, markNotificationRead,
   generateDietPlan,
   fetchGoals, createGoal, updateGoal, deleteGoal, fetchAchievements,
