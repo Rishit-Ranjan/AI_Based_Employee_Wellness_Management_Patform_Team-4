@@ -336,6 +336,7 @@ export const fileInsuranceClaim = (employeeId, data) => request(`/insurance/${em
   method: 'POST',
   body: JSON.stringify(data),
 });
+export const deleteInsurance = (employeeId) => request(`/insurance/${employeeId}`, { method: 'DELETE' });
 
 // --- Notifications ---
 export const fetchNotifications = (isAdmin = false, options) => request(`/notifications${isAdmin ? '?all=true' : ''}`, { method: 'GET', ...options });
@@ -426,7 +427,7 @@ export default {
   triggerSos, fetchSosAlerts, resolveSos,
   fetchExpenses, addExpense, deleteExpense, updateExpense,
   fetchAllInsurance, saveInsurance, updateInsuranceClaim,
-  fetchInsurance, fileInsuranceClaim,
+  fetchInsurance, fileInsuranceClaim, deleteInsurance,
   fetchNotifications, sendNotification, deleteNotification, markNotificationRead,
   generateDietPlan,
   fetchGoals, createGoal, updateGoal, deleteGoal, fetchAchievements,

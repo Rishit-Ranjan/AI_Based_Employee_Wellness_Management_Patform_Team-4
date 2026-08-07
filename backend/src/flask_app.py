@@ -1587,6 +1587,33 @@ def update_insurance(employee_id):
         return jsonify({'detail': 'No insurance policy found for this employee'}), 404
     return jsonify({'detail': 'Insurance policy updated'}), 200
 
+# --- Insurance endpoint (DELETE) - admin only ---
+@app.route('/api/insurance/<employee_id>', methods=['DELETE'])
+@jwt_required(locations=["cookies"])
+def delete_insurance(employee_id):
+    """Admin-only: delete an employee's insurance policy.
+
+    The policy cannot be deleted while it has pending (unresolved) claims,
+    to preserve the integrity of the claims/approval workflow.
+    """
+    jwt_payload = get_jwt()
+    user_info = jwt_payload.get("user_info")
+    if user_info.get('role') != 'admin':
+        return jsonify({'detail': 'Forbidden'}), 403
+
+    policy = insurance_collection.find_one({'employeeId': employee_id})
+    if not policy:
+        return jsonify({'detail': 'No insurance policy found for this employee'}), 404
+
+    pending_claims = [c for c in policy.get('claims', []) if c.get('status') == 'Pending']
+    if pending_claims:
+        return jsonify({
+            'detail': f'Cannot delete: {len(pending_claims)} pending claim(s) must be resolved first.'
+        }), 409
+
+    insurance_collection.delete_one({'employeeId': employee_id})
+    return '', 204
+
 # insurance endpoint (POST claim) - employee or admin
 @app.route('/api/insurance/<employee_id>/claims', methods=['POST'])
 @jwt_required(locations=["cookies"])

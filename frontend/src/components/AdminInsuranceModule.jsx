@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { ShieldCheck, Plus, Save, CheckCircle2, XCircle, Users } from 'lucide-react';
-import { fetchAllInsurance, saveInsurance, updateInsuranceClaim } from '../services/api';
+import { ShieldCheck, Plus, Save, CheckCircle2, XCircle, Users, Trash2 } from 'lucide-react';
+import { fetchAllInsurance, saveInsurance, updateInsuranceClaim, deleteInsurance } from '../services/api';
 
 export default function AdminInsuranceModule({ allUsers = [] }) {
   const [policies, setPolicies] = useState([]);
@@ -8,6 +8,7 @@ export default function AdminInsuranceModule({ allUsers = [] }) {
   const [selectedEmp, setSelectedEmp] = useState('');
   const [form, setForm] = useState({ provider: '', policyNumber: '', coverage: '', expiryDate: '' });
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(null);
 
   const load = () => {
     setLoading(true);
@@ -15,6 +16,19 @@ export default function AdminInsuranceModule({ allUsers = [] }) {
   };
 
   useEffect(() => { load(); }, []);
+
+  const handleDelete = async (employeeId) => {
+    if (!window.confirm(`Delete the insurance policy for ${employeeId}?\n\nThis action cannot be undone.`)) return;
+    setDeleting(employeeId);
+    try {
+      await deleteInsurance(employeeId);
+      setPolicies((prev) => prev.filter((p) => p.employeeId !== employeeId));
+    } catch (err) {
+      alert(err?.message || 'Could not delete the policy.');
+    } finally {
+      setDeleting(null);
+    }
+  };
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -114,6 +128,7 @@ export default function AdminInsuranceModule({ allUsers = [] }) {
                 <th className="pb-2 font-semibold">Coverage</th>
                 <th className="pb-2 font-semibold">Used</th>
                 <th className="pb-2 font-semibold">Expiry</th>
+                <th className="pb-2 font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -124,6 +139,16 @@ export default function AdminInsuranceModule({ allUsers = [] }) {
                   <td className="py-2 text-slate-700 dark:text-slate-200">₹{Number(p.coverage || 0).toLocaleString('en-IN')}</td>
                   <td className="py-2 text-slate-700 dark:text-slate-200">₹{Number(p.claimUsed || 0).toLocaleString('en-IN')}</td>
                   <td className="py-2 text-slate-500 dark:text-slate-400">{p.expiryDate || '—'}</td>
+                  <td className="py-2">
+                    <button
+                      onClick={() => handleDelete(p.employeeId)}
+                      disabled={deleting === p.employeeId}
+                      title="Delete policy"
+                      className="p-1.5 bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900/80 border border-rose-200 dark:border-rose-800 rounded-lg text-rose-600 dark:text-rose-400 cursor-pointer disabled:opacity-50"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
