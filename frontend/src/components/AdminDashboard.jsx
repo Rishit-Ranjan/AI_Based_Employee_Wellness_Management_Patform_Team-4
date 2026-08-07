@@ -1499,37 +1499,6 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
                 </div>
               </div>
             </div>
-            <div className="flex justify-center pt-4">
-              <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-600 rounded-xl p-3 w-full max-w-[360px]">
-                <div className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono mb-2 text-center">Sentiment Breakdown</div>
-                <div className="h-40 w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={[
-                          { name: 'Positive', value: positive, fill: '#22c55e' },
-                          { name: 'Neutral', value: neutral, fill: '#94a3b8' },
-                          { name: 'Negative', value: negative, fill: '#ef4444' },
-                        ]}
-                        dataKey="value"
-                        nameKey="name"
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={28}
-                        outerRadius={54}
-                        paddingAngle={4}
-                      >
-                        <Cell key="positive" fill="#22c55e" />
-                        <Cell key="neutral" fill="#94a3b8" />
-                        <Cell key="negative" fill="#ef4444" />
-                      </Pie>
-                      <Tooltip wrapperStyle={{ fontSize: 12, borderRadius: '8px' }} />
-                      <Legend verticalAlign="bottom" height={24} wrapperStyle={{ fontSize: '11px' }} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            </div>
           </div>
           );
         })}
