@@ -51,7 +51,7 @@ export default function PersonalWellnessProfile({
   const existingDailyHabit = dailyHabits.find(h => h.employeeId === userEmpId);
   const existingMentalHealthLog = mentalHealthLogs.find(l => l.employeeId === userEmpId);
 
-  const initialUserRecord = existingRecord || {
+const initialUserRecord = existingRecord || {
     employeeId: userEmpId,
     employeeName: user?.name,
     department: 'Engineering',
@@ -72,6 +72,11 @@ export default function PersonalWellnessProfile({
     glucoseLevel: '',
     sleepHoursPerNight: '',
     exerciseHoursPerWeek: '',
+    emergencyContactName: '',
+    emergencyContactPhone: '',
+    bloodGroup: '',
+    allergies: '',
+    existingDiseases: '',
   };
 
   const [dept, setDept] = useState(initialUserRecord.department || 'Engineering');
@@ -89,9 +94,14 @@ export default function PersonalWellnessProfile({
   const [attendanceRate, setAttendanceRate] = useState(String(initialUserRecord.attendanceRate || '95'));
   const [medicalNotes, setMedicalNotes] = useState(initialUserRecord.medicalNotes || '');
   const [medicalCondition, setMedicalCondition] = useState(initialUserRecord.medicalCondition || 'No major condition');
-  const [smoker, setSmoker] = useState(initialUserRecord.smoker || false);
+const [smoker, setSmoker] = useState(initialUserRecord.smoker || false);
   const [alcoholUse, setAlcoholUse] = useState(initialUserRecord.alcoholUse || false);
   const [glucoseLevel, setGlucoseLevel] = useState(String(initialUserRecord.glucoseLevel || '90'));
+  const [emergencyContactName, setEmergencyContactName] = useState(initialUserRecord.emergencyContactName || '');
+  const [emergencyContactPhone, setEmergencyContactPhone] = useState(initialUserRecord.emergencyContactPhone || '');
+  const [bloodGroup, setBloodGroup] = useState(initialUserRecord.bloodGroup || '');
+  const [allergies, setAllergies] = useState(initialUserRecord.allergies || '');
+  const [existingDiseases, setExistingDiseases] = useState(initialUserRecord.existingDiseases || '');
 
   useEffect(() => {
     const currentRecord = records.find(r => r.employeeId === userEmpId);
@@ -109,11 +119,16 @@ export default function PersonalWellnessProfile({
       setStress(currentRecord.stressLevel || 'Medium');
       setStressScore(String(currentRecord.stressScore || '5'));
       setAttendanceRate(String(currentRecord.attendanceRate || '95'));
-      setMedicalNotes(currentRecord.medicalNotes || '');
+setMedicalNotes(currentRecord.medicalNotes || '');
       setMedicalCondition(currentRecord.medicalCondition || 'No major condition');
       setSmoker(currentRecord.smoker || false);
       setAlcoholUse(currentRecord.alcoholUse || false);
       setGlucoseLevel(String(currentRecord.glucoseLevel || '90'));
+      setEmergencyContactName(currentRecord.emergencyContactName || '');
+      setEmergencyContactPhone(currentRecord.emergencyContactPhone || '');
+      setBloodGroup(currentRecord.bloodGroup || '');
+      setAllergies(currentRecord.allergies || '');
+      setExistingDiseases(currentRecord.existingDiseases || '');
     }
   }, [records, userEmpId]);
 
@@ -188,9 +203,14 @@ export default function PersonalWellnessProfile({
       attendanceRate: Number(attendanceRate),
       medicalNotes: medicalNotes,
       medicalCondition: medicalCondition,
-      smoker: smoker,
+smoker: smoker,
       alcoholUse: alcoholUse,
       glucoseLevel: Number(glucoseLevel),
+      emergencyContactName: emergencyContactName,
+      emergencyContactPhone: emergencyContactPhone,
+      bloodGroup: bloodGroup,
+      allergies: allergies,
+      existingDiseases: existingDiseases,
       healthAssessment: assessment,
       lastUpdated: new Date().toISOString().split('T')[0]
     };
@@ -671,7 +691,7 @@ export default function PersonalWellnessProfile({
                     Nicotine / Tobacco User
                   </label>
 
-                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
+<label className="flex items-center gap-2 text-xs font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={alcoholUse}
@@ -680,6 +700,90 @@ export default function PersonalWellnessProfile({
                     />
                     Alcohol User
                   </label>
+                </div>
+              </div>
+            </ProfileCard>
+
+            {/* Card 5: Emergency Contact & Medical Info */}
+            <ProfileCard
+              title="Emergency Contact & Medical Info"
+              subtitle="Critical details shared with responders during an SOS alert"
+              icon={ShieldCheck}
+              badge="Section 05"
+              badgeColor="rose"
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
+                    Emergency Contact Name
+                  </label>
+                  <input
+                    type="text"
+                    value={emergencyContactName}
+                    onChange={(e) => setEmergencyContactName(e.target.value)}
+                    placeholder="e.g. Priya Sharma"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 dark:focus:border-rose-400 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
+                    Emergency Contact Phone
+                  </label>
+                  <input
+                    type="tel"
+                    value={emergencyContactPhone}
+                    onChange={(e) => setEmergencyContactPhone(e.target.value)}
+                    placeholder="e.g. +91 98765 43210"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 dark:focus:border-rose-400 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
+                    Blood Group
+                  </label>
+                  <select
+                    value={bloodGroup}
+                    onChange={(e) => setBloodGroup(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 dark:focus:border-rose-400 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none transition-all cursor-pointer"
+                  >
+                    <option value="">Select blood group</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
+                    Allergies
+                  </label>
+                  <input
+                    type="text"
+                    value={allergies}
+                    onChange={(e) => setAllergies(e.target.value)}
+                    placeholder="e.g. Peanuts, Penicillin"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 dark:focus:border-rose-400 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none transition-all"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
+                    Existing Diseases / Conditions
+                  </label>
+                  <input
+                    type="text"
+                    value={existingDiseases}
+                    onChange={(e) => setExistingDiseases(e.target.value)}
+                    placeholder="e.g. Asthma, Hypertension"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 dark:focus:border-rose-400 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none transition-all"
+                  />
                 </div>
               </div>
             </ProfileCard>

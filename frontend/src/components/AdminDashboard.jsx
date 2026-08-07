@@ -50,9 +50,14 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
   const [attendanceRate, setAttendanceRate] = useState('');
   const [medicalNotes, setMedicalNotes] = useState('');
   const [medicalCondition, setMedicalCondition] = useState('No major condition');
-  const [smoker, setSmoker] = useState(false);
+const [smoker, setSmoker] = useState(false);
   const [alcoholUse, setAlcoholUse] = useState(false);
   const [glucoseLevel, setGlucoseLevel] = useState('');
+  const [emergencyContactName, setEmergencyContactName] = useState('');
+  const [emergencyContactPhone, setEmergencyContactPhone] = useState('');
+  const [bloodGroup, setBloodGroup] = useState('');
+  const [allergies, setAllergies] = useState('');
+  const [existingDiseases, setExistingDiseases] = useState('');
 
   const [successMessage, setSuccessMessage] = useState('');
   const [error, setError] = useState(''); // State for form errors
@@ -104,9 +109,14 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
     setAttendanceRate(String(record.attendanceRate));
     setMedicalNotes(record.medicalNotes);
     setMedicalCondition(record.medicalCondition);
-    setSmoker(record.smoker);
+setSmoker(record.smoker);
     setAlcoholUse(record.alcoholUse);
     setGlucoseLevel(String(record.glucoseLevel));
+    setEmergencyContactName(record.emergencyContactName || '');
+    setEmergencyContactPhone(record.emergencyContactPhone || '');
+    setBloodGroup(record.bloodGroup || '');
+    setAllergies(record.allergies || '');
+    setExistingDiseases(record.existingDiseases || '');
     setIsAddOpen(true);
     setError(''); // Clear any previous errors when opening modal
   };
@@ -131,7 +141,8 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
     setStress('Medium');
     setStressScore('');
     setAttendanceRate('');
-    setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false); setAlcoholUse(false); setGlucoseLevel('');
+setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false); setAlcoholUse(false); setGlucoseLevel('');
+    setEmergencyContactName(''); setEmergencyContactPhone(''); setBloodGroup(''); setAllergies(''); setExistingDiseases('');
     setIsAddOpen(true);
     setError(''); // Clear any previous errors when opening modal
   };
@@ -200,9 +211,14 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
         attendanceRate: Number(attendanceRate),
         medicalNotes: medicalNotes,
         medicalCondition: medicalCondition,
-        smoker: smoker,
+smoker: smoker,
         alcoholUse: alcoholUse,
         glucoseLevel: Number(glucoseLevel),
+        emergencyContactName: emergencyContactName,
+        emergencyContactPhone: emergencyContactPhone,
+        bloodGroup: bloodGroup,
+        allergies: allergies,
+        existingDiseases: existingDiseases,
         healthAssessment: assessment,
         lastUpdated: new Date().toISOString().split('T')[0]
       };
@@ -234,6 +250,11 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
         smoker: smoker,
         alcoholUse: alcoholUse,
         glucoseLevel: Number(glucoseLevel),
+        emergencyContactName: emergencyContactName,
+        emergencyContactPhone: emergencyContactPhone,
+        bloodGroup: bloodGroup,
+        allergies: allergies,
+        existingDiseases: existingDiseases,
         healthAssessment: assessment,
         lastUpdated: new Date().toISOString().split('T')[0]
       };
@@ -248,7 +269,8 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
     setAge(''); setGender('Male'); setHeightCm(''); setWeightKg('');
     setBmi(''); setBp(''); setExerciseDaysPerWeek(''); setExercise(''); setSleep('');
     setStress('Medium'); setStressScore(''); setAttendanceRate('');
-    setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false); setAlcoholUse(false); setGlucoseLevel('');
+setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false); setAlcoholUse(false); setGlucoseLevel('');
+    setEmergencyContactName(''); setEmergencyContactPhone(''); setBloodGroup(''); setAllergies(''); setExistingDiseases('');
     setEditingRecord(null);
     setError(''); // Clear error after successful submission
   };
@@ -490,7 +512,7 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
                   <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Glucose Level</label>
                   <input type="number" step="0.1" required value={glucoseLevel} onChange={(e) => setGlucoseLevel(e.target.value)} placeholder="90" className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none" />
                 </div>
-                <div className="flex items-center gap-4">
+<div className="flex items-center gap-4">
                   <label className="flex items-center gap-2 text-xs text-slate-800 dark:text-slate-200">
                     <input type="checkbox" checked={smoker} onChange={(e) => setSmoker(e.target.checked)} className="form-checkbox h-3.5 w-3.5 text-indigo-600 rounded border-slate-300" />
                     Smoker
@@ -499,6 +521,26 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
                     <input type="checkbox" checked={alcoholUse} onChange={(e) => setAlcoholUse(e.target.checked)} className="form-checkbox h-3.5 w-3.5 text-indigo-600 rounded border-slate-300" />
                     Alcohol User
                   </label>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Blood Group</label>
+                  <input type="text" value={bloodGroup} onChange={(e) => setBloodGroup(e.target.value)} placeholder="O+" className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none" />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Allergies</label>
+                  <input type="text" value={allergies} onChange={(e) => setAllergies(e.target.value)} placeholder="None" className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none" />
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Existing Diseases</label>
+                  <input type="text" value={existingDiseases} onChange={(e) => setExistingDiseases(e.target.value)} placeholder="e.g. Hypertension, Diabetes" className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none" />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Emergency Contact Name</label>
+                  <input type="text" value={emergencyContactName} onChange={(e) => setEmergencyContactName(e.target.value)} placeholder="Contact person" className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none" />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Emergency Contact Phone</label>
+                  <input type="text" value={emergencyContactPhone} onChange={(e) => setEmergencyContactPhone(e.target.value)} placeholder="+1 555 000 0000" className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none" />
                 </div>
               </div>
 
