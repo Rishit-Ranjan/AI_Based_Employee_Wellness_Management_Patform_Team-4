@@ -207,11 +207,24 @@ export function ChatbotModule({ user, isFloating = false, onClose }) {
     utterance.rate = 1.0;
     utterance.pitch = 1.0;
     utterance.volume = 1.0;
-    const voices = speechSynthRef.current.getVoices();
+const voices = speechSynthRef.current.getVoices();
     const femaleVoice = voices.find(v => v.name.includes('Female') || v.name.includes('Zira'));
     if (femaleVoice) utterance.voice = femaleVoice;
     speechSynthRef.current.speak(utterance);
   }, [isSpeechEnabled]);
+
+// Toggle voice output: muting cancels the current speech instantly so the
+  // speaker stops immediately (speechSynthesis.pause() is delayed in browsers).
+  const toggleSpeech = useCallback(() => {
+    setIsSpeechEnabled((prev) => {
+      const next = !prev;
+      if (!next) {
+        // Muting -> stop the ongoing voice output instantly
+        speechSynthRef.current?.cancel();
+      }
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     // Load messages from localStorage on mount
@@ -358,9 +371,9 @@ export function ChatbotModule({ user, isFloating = false, onClose }) {
             >
               <Trash2 className="w-3.5 h-3.5" />
             </button>
-            <button
+<button
               type="button"
-              onClick={() => setIsSpeechEnabled(!isSpeechEnabled)}
+              onClick={toggleSpeech}
               className={`p-1.5 rounded-lg border text-xs transition-all cursor-pointer ${isSpeechEnabled ? 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-950/60 dark:text-blue-400 dark:border-blue-800' : 'bg-slate-100 text-slate-400 border-slate-200 dark:bg-slate-800 dark:border-slate-700'}`}
               title={isSpeechEnabled ? "Voice Output Active" : "Voice Output Muted"}
             >
