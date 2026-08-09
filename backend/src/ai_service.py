@@ -661,11 +661,85 @@ Tailor the suggestions based on the provided health data (e.g., if stress is hig
             "Prioritize high-protein, high-fiber foods, plenty of vegetables, and minimal refined carbs and oils. "
             "Avoid fried foods, sugary drinks, and heavy desserts."
         ),
-        'Weight Gain': (
+'Weight Gain': (
             "The user wants to GAIN WEIGHT. Make the plan calorie-dense and high-protein (approx 2500-3000 kcal/day). "
             "Include healthy fats (nuts, seeds, avocado, ghee/olive oil), complex carbs (rice, whole grains), dairy, "
             "and protein-rich foods. Add healthy snacks between meals."
         ),
+    }
+
+    # Rule-based fallback meal plans for each supported diet type (used when the LLM is unavailable).
+    RULE_BASED_DIET_PLANS = {
+        'Vegetarian': {
+            'breakfast': ['Oats with milk and fruit', 'Handful of nuts'],
+            'lunch': ['Roti/Rice', 'Dal (Lentil soup)', 'Mixed vegetable curry', 'Salad'],
+            'dinner': ['Quinoa with grilled vegetables', 'Curd/Yogurt'],
+            'snacks': ['Apple', 'Buttermilk'],
+            'calories': '1800-2000 kcal',
+            'protein': '60-70g',
+            'waterIntakeLitres': 3,
+            'notes': 'This is a general vegetarian plan. For a more personalized AI plan, please try again later.',
+        },
+        'Vegan': {
+            'breakfast': ['Oats with soy/almond milk and fruit', 'Handful of nuts'],
+            'lunch': ['Brown rice', 'Chickpea curry', 'Stir-fried vegetables', 'Lentil salad'],
+            'dinner': ['Quinoa with roasted vegetables', 'Tofu stir-fry'],
+            'snacks': ['Apple', 'Roasted chana'],
+            'calories': '1800-2000 kcal',
+            'protein': '55-65g',
+            'waterIntakeLitres': 3,
+            'notes': 'This is a general vegan plan with no animal products. For a more personalized AI plan, please try again later.',
+        },
+        'Non-Veg': {
+            'breakfast': ['Egg omelette with whole wheat toast', 'Fruit and a glass of milk'],
+            'lunch': ['Brown rice', 'Grilled chicken', 'Mixed vegetable curry', 'Salad'],
+            'dinner': ['Grilled fish (salmon/tuna)', 'Quinoa', 'Steamed vegetables'],
+            'snacks': ['Boiled eggs', 'Mixed nuts'],
+            'calories': '2000-2200 kcal',
+            'protein': '80-90g',
+            'waterIntakeLitres': 3,
+            'notes': 'This is a general non-vegetarian plan with lean proteins. For a more personalized AI plan, please try again later.',
+        },
+        'Diabetic': {
+            'breakfast': ['Oats/steel-cut oatmeal with nuts and seeds', 'Black coffee/tea without sugar'],
+            'lunch': ['Millet/brown rice', 'Dal (Lentil soup)', 'Mixed vegetable curry', 'Green salad'],
+            'dinner': ['Whole wheat roti', 'Paneer/tofu and vegetable curry', 'Curd/Yogurt'],
+            'snacks': ['Roasted chana or nuts', 'Buttermilk'],
+            'calories': '1600-1800 kcal',
+            'protein': '65-75g',
+            'waterIntakeLitres': 3,
+            'notes': 'This is a low-glycemic, sugar-free plan suited for diabetes. For a more personalized AI plan, please try again later.',
+        },
+        'Weight Loss': {
+            'breakfast': ['Vegetable poha/vegetable oats', 'Green tea'],
+            'lunch': ['Brown rice or 2 rotis', 'Dal (Lentil soup)', 'Large mixed vegetable curry', 'Salad'],
+            'dinner': ['Grilled paneer/tofu/chicken', 'Steamed vegetables', 'Buttermilk'],
+            'snacks': ['Fresh fruit', 'Roasted chana'],
+            'calories': '1200-1500 kcal',
+            'protein': '60-70g',
+            'waterIntakeLitres': 3,
+            'notes': 'This is a calorie-controlled plan for weight loss. For a more personalized AI plan, please try again later.',
+        },
+        'Weight Gain': {
+            'breakfast': ['Banana and peanut butter oats', 'Whole eggs/upma', 'Glass of whole milk'],
+            'lunch': ['Rice', 'Dal', 'Paneer/vegetable curry', 'Ghee roasted roti', 'Curd'],
+            'dinner': ['Whole wheat roti', 'Chicken/paneer curry', 'Rice', 'Salad with olive oil'],
+            'snacks': ['Nuts and seeds trail mix', 'Milkshake/smoothie', 'Nut butter sandwich'],
+            'calories': '2500-3000 kcal',
+            'protein': '90-100g',
+            'waterIntakeLitres': 3,
+            'notes': 'This is a calorie-dense, high-protein plan for weight gain. For a more personalized AI plan, please try again later.',
+        },
+        'Balanced': {
+            'breakfast': ['Oats with milk and fruit', 'Handful of nuts'],
+            'lunch': ['Roti/Rice', 'Dal (Lentil soup)', 'Mixed vegetable curry', 'Salad'],
+            'dinner': ['Quinoa with grilled vegetables', 'Curd/Yogurt'],
+            'snacks': ['Apple', 'Buttermilk'],
+            'calories': '1800-2000 kcal',
+            'protein': '60-70g',
+            'waterIntakeLitres': 3,
+            'notes': 'This is a general healthy plan. For a more personalized AI plan, please try again later.',
+        },
     }
 
     def generate_diet_plan(self, employee_id: str, preferences: Dict = None) -> Dict[str, Any]:
@@ -720,22 +794,27 @@ Focus on whole foods. Be specific with meal items and ensure they respect the di
         if llm_response_str:
             try:
                 plan = self._parse_json_from_llm(llm_response_str)
-                plan['generatedAt'] = datetime.now(timezone.utc).isoformat() 
-                return plan
+                # Only accept the LLM plan if it complies with the selected diet type.
+                compliant_plan = self._validate_diet_plan(diet_type, plan)
+                if compliant_plan is not None:
+                    compliant_plan['generatedAt'] = datetime.now(timezone.utc).isoformat()
+                    return compliant_plan
+                print(f"AI returned a diet plan that does not comply with '{diet_type}'. Falling back to rule-based.")
             except json.JSONDecodeError:
                 print("AI service returned invalid JSON for diet plan. Falling back to rule-based.")
 
-        # Fallback to a simple rule-based plan if LLM fails
+        # Fallback to a diet-type-specific rule-based plan if LLM fails
+        fallback_plan = self.RULE_BASED_DIET_PLANS.get(diet_type, self.RULE_BASED_DIET_PLANS['Balanced'])
         return {
             'dietType': diet_type,
-            'breakfast': ['Oats with milk and fruit', 'Handful of nuts'],
-            'lunch': ['Roti/Rice', 'Dal (Lentil soup)', 'Mixed vegetable curry', 'Salad'],
-            'dinner': ['Quinoa with grilled vegetables', 'Curd/Yogurt'],
-            'snacks': ['Apple', 'Buttermilk'],
-            'calories': '1800-2000 kcal',
-            'protein': '60-70g',
-            'waterIntakeLitres': 3,
-            'notes': 'This is a general healthy plan. For a more personalized AI plan, please try again later.',
+            'breakfast': fallback_plan['breakfast'],
+            'lunch': fallback_plan['lunch'],
+            'dinner': fallback_plan['dinner'],
+            'snacks': fallback_plan['snacks'],
+            'calories': fallback_plan['calories'],
+            'protein': fallback_plan['protein'],
+            'waterIntakeLitres': fallback_plan['waterIntakeLitres'],
+            'notes': fallback_plan['notes'],
             'generatedAt': datetime.now(timezone.utc).isoformat(),
         }
 
@@ -746,6 +825,53 @@ Focus on whole foods. Be specific with meal items and ensure they respect the di
         end = llm_output.rfind('}') + 1
         json_str = llm_output[start:end]
         return json.loads(json_str)
+
+    def _validate_diet_plan(self, diet_type: str, plan: Dict) -> Optional[Dict]:
+        """Validate that an LLM-generated meal plan complies with the selected diet type.
+
+        Checks the meal items for foods that are not allowed for the given diet type.
+        Returns the plan unchanged if it complies, otherwise returns None so the caller
+        can fall back to the rule-based plan for that diet type.
+        """
+        if not isinstance(plan, dict):
+            return None
+
+        # Collect all meal item text for keyword checking.
+        meal_items = []
+        for key in ('breakfast', 'lunch', 'dinner', 'snacks'):
+            items = plan.get(key)
+            if isinstance(items, list):
+                meal_items.extend(str(item).lower() for item in items)
+            elif isinstance(items, str):
+                meal_items.append(items.lower())
+
+        combined = ' '.join(meal_items)
+
+        # Non-vegetarian / animal products that must NOT appear for veg/vegan.
+        animal_terms = [
+            'chicken', 'mutton', 'lamb', 'pork', 'bacon', 'ham', 'beef', 'turkey',
+            'sausage', 'steak', 'meat', 'fish', 'salmon', 'tuna', 'prawn', 'shrimp',
+            'crab', 'egg', 'eggs', 'omelette', 'omelet'
+        ]
+        # Dairy terms (allowed for vegetarian, NOT allowed for vegan).
+        dairy_terms = [
+            'milk', 'cheese', 'paneer', 'curd', 'yogurt', 'yoghurt', 'butter',
+            'ghee', 'buttermilk', 'dahi', 'cream'
+        ]
+
+        if diet_type == 'Vegan':
+            if any(term in combined for term in animal_terms + dairy_terms):
+                return None
+        elif diet_type == 'Vegetarian':
+            if any(term in combined for term in animal_terms):
+                return None
+        elif diet_type == 'Diabetic':
+            # No-added-sugar check: flag obvious sugar sources.
+            if any(term in combined for term in ['sugar', 'sweets', 'dessert', 'jaggery', 'milk shake', 'milkshake', 'soft drink', 'cola']):
+                return None
+
+        # Weight Loss / Weight Gain / Non-Veg / Balanced / others: accept as-is.
+        return plan
 
     def _get_focus_areas(self, health: Dict) -> List[str]:
         """Determine areas the user should focus on."""
