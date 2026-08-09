@@ -1,11 +1,11 @@
-import  { useState, useEffect, useMemo, useCallback } from 'react';
+import  { useState, useEffect, useMemo, useCallback, lazy, Suspense } from 'react';
 import Login from './components/Login';
 import SignUp from './components/SignUp';
 import ForgotPassword from './components/ForgotPassword'; 
-import UserDashboard from './components/UserDashboard';
-import AdminDashboard from './components/AdminDashboard';
 import * as api from './services/api';
 
+const UserDashboard = lazy(() => import('./components/UserDashboard'));
+const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
 // Initial mock data arrays are empty by default so dashboards render without demo data
 const INITIAL_HEALTH_RECORDS = [];
 
@@ -415,51 +415,55 @@ export default function App() {
             {screen === 'forgot_password' && (<ForgotPassword
                 onNavigate={handleNavigate} />)}
 
-            {screen === 'dashboard' && currentUser && (currentUser.role === 'admin' ?
-                (<AdminDashboard
-                    user={currentUser}
-                    onLogout={handleLogout}
-                    allUsers={allUsers}
-                    healthRecords={healthRecords}
-                    risks={risks}
-                    recommendations={recommendations}
-                    sentimentList={sentimentList}
-                    kpis={derivedKpis}
-                    loading={loadingWellnessData}
-                    onAddHealthRecord={handleAddHealthRecord}
-                    isProfileModalOpen={isProfileModalOpen}
-                    setIsProfileModalOpen={setIsProfileModalOpen}
-                    onUpdateAvatar={handleUpdateAvatar}
-                    onUserUpdate={setCurrentUser}
-                    onDeleteHealthRecord={handleDeleteHealthRecord}
-                    onUpdateHealthRecord={handleUpdateUserRecord}
-                    performanceData={performanceData}
-                    loadingPerformance={loadingPerformance}
-                    performanceError={performanceError}
-                     />)
-                :
-                (<UserDashboard
-                    user={currentUser}
-                    onLogout={handleLogout}
-                    healthRecords={healthRecords}
-                    risks={risks}
-                    dailyHabits={dailyHabits} // Pass new state
-                    onAddDailyHabit={handleAddDailyHabit} // Pass new handler
-                    onUpdateDailyHabit={handleUpdateDailyHabit} // Pass new handler
-                    mentalHealthLogs={mentalHealthLogs} // Pass new state
-                    onAddMentalHealthLog={handleAddMentalHealthLog}
-                    onUpdateMentalHealthLog={handleUpdateMentalHealthLog}
-                    onAddRecord={handleAddHealthRecord}
-                    onAddHealthRecord={handleAddHealthRecord} // Pass the add handler
-                    onUpdateUserRecord={handleUpdateUserRecord}
-                    onUpdateSentimentPulse={handleUpdateSentimentPulse}
-                    recommendations={recommendations}
-                    isProfileModalOpen={isProfileModalOpen}
-                    setIsProfileModalOpen={setIsProfileModalOpen}
-                    onUpdateAvatar={handleUpdateAvatar}
-                    onUserUpdate={setCurrentUser}
-                    loading={loadingWellnessData || loadingRecommendations}
-                />)
+            {screen === 'dashboard' && currentUser && (
+                <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#050505] text-[#e0e0e0]"><div>Loading Dashboard...</div></div>}>
+                    {currentUser.role === 'admin' ?
+                        (<AdminDashboard
+                            user={currentUser}
+                            onLogout={handleLogout}
+                            allUsers={allUsers}
+                            healthRecords={healthRecords}
+                            risks={risks}
+                            recommendations={recommendations}
+                            sentimentList={sentimentList}
+                            kpis={derivedKpis}
+                            loading={loadingWellnessData}
+                            onAddHealthRecord={handleAddHealthRecord}
+                            isProfileModalOpen={isProfileModalOpen}
+                            setIsProfileModalOpen={setIsProfileModalOpen}
+                            onUpdateAvatar={handleUpdateAvatar}
+                            onUserUpdate={setCurrentUser}
+                            onDeleteHealthRecord={handleDeleteHealthRecord}
+                            onUpdateHealthRecord={handleUpdateUserRecord}
+                            performanceData={performanceData}
+                            loadingPerformance={loadingPerformance}
+                            performanceError={performanceError}
+                            />)
+                        :
+                        (<UserDashboard
+                            user={currentUser}
+                            onLogout={handleLogout}
+                            healthRecords={healthRecords}
+                            risks={risks}
+                            dailyHabits={dailyHabits} // Pass new state
+                            onAddDailyHabit={handleAddDailyHabit} // Pass new handler
+                            onUpdateDailyHabit={handleUpdateDailyHabit} // Pass new handler
+                            mentalHealthLogs={mentalHealthLogs} // Pass new state
+                            onAddMentalHealthLog={handleAddMentalHealthLog}
+                            onUpdateMentalHealthLog={handleUpdateMentalHealthLog}
+                            onAddRecord={handleAddHealthRecord}
+                            onAddHealthRecord={handleAddHealthRecord} // Pass the add handler
+                            onUpdateUserRecord={handleUpdateUserRecord}
+                            onUpdateSentimentPulse={handleUpdateSentimentPulse}
+                            recommendations={recommendations}
+                            isProfileModalOpen={isProfileModalOpen}
+                            setIsProfileModalOpen={setIsProfileModalOpen}
+                            onUpdateAvatar={handleUpdateAvatar}
+                            onUserUpdate={setCurrentUser}
+                            loading={loadingWellnessData || loadingRecommendations}
+                        />)
+                    }
+                </Suspense>
             )}
         </div>
         )
