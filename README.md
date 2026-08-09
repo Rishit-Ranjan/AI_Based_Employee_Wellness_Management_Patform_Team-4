@@ -115,7 +115,7 @@ ADMIN_EMERGENCY_PHONE="phone_number_to_receive_sos_alerts"
 SMTP_SERVER="smtp.example.com"
 SMTP_PORT=587
 SMTP_USER="your_email@example.com"
-SMTP_PASSWORD="your_email_password"
+SMTP_PASSWORD="your_app_password" #<-- create this from security-> app password
 ```
 
 ### 3. Frontend Setup
