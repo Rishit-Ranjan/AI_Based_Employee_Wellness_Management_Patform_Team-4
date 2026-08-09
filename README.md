@@ -115,7 +115,7 @@ ADMIN_EMERGENCY_PHONE="phone_number_to_receive_sos_alerts"
 SMTP_SERVER="smtp.example.com"
 SMTP_PORT=587
 SMTP_USER="your_email@example.com"
-SMTP_PASSWORD="your_app_password" #<-- create this from security-> app password
+SMTP_PASSWORD="your_app_password" #<-- create this from security & sign-in-> search for "App Password"-> click create new password-> copy and paste the code in the ".env" file
 ```
 
 ### 3. Frontend Setup
@@ -197,13 +197,9 @@ Contributions are welcome! If you have suggestions for improvements or want to f
 ## Software Specification
 
 1. Frontend: React + Vite with Tailwind CSS.
-
 2. Backend: Flask API with Python.
-
 3. Database: MongoDB.
-
 4. Authentication: JWT and bcrypt for secure login and password handling.
-
 5. Tools/Libraries: React Router, Flask-CORS, PyMongo, and ML libraries for wellness analytics.
 
 ## 📄 License
