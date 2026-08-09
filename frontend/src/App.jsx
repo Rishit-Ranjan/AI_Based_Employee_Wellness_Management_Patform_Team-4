@@ -1,11 +1,11 @@
-import  { useState, useEffect, useMemo, useCallback } from 'react';
+import  { useState, useEffect, useMemo, useCallback, lazy, Suspense } from 'react';
 import Login from './components/Login';
 import SignUp from './components/SignUp';
 import ForgotPassword from './components/ForgotPassword'; 
-import UserDashboard from './components/UserDashboard';
-import AdminDashboard from './components/AdminDashboard';
 import * as api from './services/api';
 
+const UserDashboard = lazy(() => import('./components/UserDashboard'));
+const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
 // Initial mock data arrays are empty by default so dashboards render without demo data
 const INITIAL_HEALTH_RECORDS = [];
 
@@ -187,6 +187,20 @@ export default function App() {
             } else {
                 // For regular users, fetch their specific data
                 api.fetchRisks(options).then(risksData => setRisks(risksData || []));
+
+                // Fetch the employee's own sentiment pulses and attach them as feedbackLogs
+                // to their health record so they can view their own mental health & sentiment.
+                api.fetchEmployeeSentimentPulses(userEmpId, options)
+                    .then(pulses => {
+                        setHealthRecords(prevRecords => prevRecords.map(record => {
+                            if (record.employeeId !== userEmpId) return record;
+                            return {
+                                ...record,
+                                feedbackLogs: (pulses || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                            };
+                        }));
+                    })
+                    .catch(err => console.error("Failed to fetch employee sentiment pulses:", err));
             }
 
             // --- Stage 3: Load slower, AI-driven data in the background ---
@@ -319,7 +333,7 @@ export default function App() {
         // 1. Call the backend endpoint to record the pulse. This writes to MongoDB.
         const result = await api.submitSentimentPulse(employeeId, deptName, stressScore, feedbackText);
   
-        // 2. For immediate UI feedback on the admin dashboard, re-fetch all data.
+// 2. For immediate UI feedback on the admin dashboard, re-fetch all data.
         if (currentUser?.role === 'admin') {
             // Re-fetch aggregated sentiments for the department-level card (forceRefresh to bypass GET cache)
             api.fetchSentiments({ forceRefresh: true }).then(sentiments => setSentimentList(sentiments || []));
@@ -332,6 +346,17 @@ export default function App() {
                     return { ...record, feedbackLogs };
                 });
             });
+        } else if (currentUser?.employeeId === employeeId) {
+            // For an employee, refresh their own sentiment pulses so the employee
+            // dashboard's "My Mental Health & Sentiment" section updates immediately.
+            const pulses = await api.fetchEmployeeSentimentPulses(employeeId, { forceRefresh: true });
+            setHealthRecords(prevRecords => prevRecords.map(record => {
+                if (record.employeeId !== employeeId) return record;
+                return {
+                    ...record,
+                    feedbackLogs: (pulses || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                };
+            }));
         }
         return result; // Return the result which contains the sentiment
       } catch (error) {
@@ -390,51 +415,55 @@ export default function App() {
             {screen === 'forgot_password' && (<ForgotPassword
                 onNavigate={handleNavigate} />)}
 
-            {screen === 'dashboard' && currentUser && (currentUser.role === 'admin' ?
-                (<AdminDashboard
-                    user={currentUser}
-                    onLogout={handleLogout}
-                    allUsers={allUsers}
-                    healthRecords={healthRecords}
-                    risks={risks}
-                    recommendations={recommendations}
-                    sentimentList={sentimentList}
-                    kpis={derivedKpis}
-                    loading={loadingWellnessData}
-                    onAddHealthRecord={handleAddHealthRecord}
-                    isProfileModalOpen={isProfileModalOpen}
-                    setIsProfileModalOpen={setIsProfileModalOpen}
-                    onUpdateAvatar={handleUpdateAvatar}
-                    onUserUpdate={setCurrentUser}
-                    onDeleteHealthRecord={handleDeleteHealthRecord}
-                    onUpdateHealthRecord={handleUpdateUserRecord}
-                    performanceData={performanceData}
-                    loadingPerformance={loadingPerformance}
-                    performanceError={performanceError}
-                     />)
-                :
-                (<UserDashboard
-                    user={currentUser}
-                    onLogout={handleLogout}
-                    healthRecords={healthRecords}
-                    risks={risks}
-                    dailyHabits={dailyHabits} // Pass new state
-                    onAddDailyHabit={handleAddDailyHabit} // Pass new handler
-                    onUpdateDailyHabit={handleUpdateDailyHabit} // Pass new handler
-                    mentalHealthLogs={mentalHealthLogs} // Pass new state
-                    onAddMentalHealthLog={handleAddMentalHealthLog}
-                    onUpdateMentalHealthLog={handleUpdateMentalHealthLog}
-                    onAddRecord={handleAddHealthRecord}
-                    onAddHealthRecord={handleAddHealthRecord} // Pass the add handler
-                    onUpdateUserRecord={handleUpdateUserRecord}
-                    onUpdateSentimentPulse={handleUpdateSentimentPulse}
-                    recommendations={recommendations}
-                    isProfileModalOpen={isProfileModalOpen}
-                    setIsProfileModalOpen={setIsProfileModalOpen}
-                    onUpdateAvatar={handleUpdateAvatar}
-                    onUserUpdate={setCurrentUser}
-                    loading={loadingWellnessData || loadingRecommendations}
-                />)
+            {screen === 'dashboard' && currentUser && (
+                <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#050505] text-[#e0e0e0]"><div>Loading Dashboard...</div></div>}>
+                    {currentUser.role === 'admin' ?
+                        (<AdminDashboard
+                            user={currentUser}
+                            onLogout={handleLogout}
+                            allUsers={allUsers}
+                            healthRecords={healthRecords}
+                            risks={risks}
+                            recommendations={recommendations}
+                            sentimentList={sentimentList}
+                            kpis={derivedKpis}
+                            loading={loadingWellnessData}
+                            onAddHealthRecord={handleAddHealthRecord}
+                            isProfileModalOpen={isProfileModalOpen}
+                            setIsProfileModalOpen={setIsProfileModalOpen}
+                            onUpdateAvatar={handleUpdateAvatar}
+                            onUserUpdate={setCurrentUser}
+                            onDeleteHealthRecord={handleDeleteHealthRecord}
+                            onUpdateHealthRecord={handleUpdateUserRecord}
+                            performanceData={performanceData}
+                            loadingPerformance={loadingPerformance}
+                            performanceError={performanceError}
+                            />)
+                        :
+                        (<UserDashboard
+                            user={currentUser}
+                            onLogout={handleLogout}
+                            healthRecords={healthRecords}
+                            risks={risks}
+                            dailyHabits={dailyHabits} // Pass new state
+                            onAddDailyHabit={handleAddDailyHabit} // Pass new handler
+                            onUpdateDailyHabit={handleUpdateDailyHabit} // Pass new handler
+                            mentalHealthLogs={mentalHealthLogs} // Pass new state
+                            onAddMentalHealthLog={handleAddMentalHealthLog}
+                            onUpdateMentalHealthLog={handleUpdateMentalHealthLog}
+                            onAddRecord={handleAddHealthRecord}
+                            onAddHealthRecord={handleAddHealthRecord} // Pass the add handler
+                            onUpdateUserRecord={handleUpdateUserRecord}
+                            onUpdateSentimentPulse={handleUpdateSentimentPulse}
+                            recommendations={recommendations}
+                            isProfileModalOpen={isProfileModalOpen}
+                            setIsProfileModalOpen={setIsProfileModalOpen}
+                            onUpdateAvatar={handleUpdateAvatar}
+                            onUserUpdate={setCurrentUser}
+                            loading={loadingWellnessData || loadingRecommendations}
+                        />)
+                    }
+                </Suspense>
             )}
         </div>
         )

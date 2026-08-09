@@ -62,7 +62,15 @@ const startFrontend = () => {
   });
 };
 
-backendProcess = spawnProcess('waitress-serve', ['--listen=0.0.0.0:8000', 'run_flask:app'], backendDir);
+backendProcess = spawnProcess('waitress-serve', [
+  '--listen=0.0.0.0:8000',
+  // Match backend/waitress.ini so the dev server uses the intended worker
+  // threads and channel timeout (avoids Waitress's default of only 4 threads,
+  // which caused request queue build-up under concurrent load).
+  '--threads=8',
+  '--channel-timeout=20',
+  'run_flask:app'
+], backendDir);
 
 backendProcess.on('exit', (code) => {
   if (!frontendStarted) {

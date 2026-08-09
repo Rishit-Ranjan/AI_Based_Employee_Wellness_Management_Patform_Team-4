@@ -210,7 +210,15 @@ As an AI Wellness Assistant, provide a helpful, concise response (max 150 words)
                     "prompt": prompt,
                     "stream": False
                 },
-                timeout=25
+                # Split timeout: (connect, read). The short connect timeout lets us
+                # fail fast when Ollama is unreachable (host down), freeing the
+                # Waitress worker thread quickly instead of blocking it. The read
+                # timeout stays generous (25s) so a working (but slow) Ollama has
+                # plenty of time to finish generating its response.
+                timeout=(3, 25),
+                headers={
+                    'Connection': 'close'
+                }
             )
             if response.status_code == 200:
                 return response.json().get('response', ''), model_name_to_use
