@@ -1842,6 +1842,7 @@ def generate_diet_plan():
     }
 
     try:
+        ai_wellness_service = get_ai_service(db)
         plan = ai_wellness_service.generate_diet_plan(employee_id, preferences)
         return jsonify(plan), 200
     except Exception as e:
@@ -2092,7 +2093,6 @@ def change_password():
 
 # --- AI Wellness Service Endpoints ---
 from ai_service import get_ai_service
-ai_wellness_service = get_ai_service(db)
 
 @app.route('/api/ai/chat', methods=['POST'])
 @jwt_required(locations=["cookies"])
@@ -2107,6 +2107,7 @@ def ai_chat():
     if not message:
         return jsonify({'detail': 'Message is required'}), 400
     try:
+        ai_wellness_service = get_ai_service(db)
         result = ai_wellness_service.chat(message, employee_id)
         return jsonify(result), 200
     except Exception as e:
@@ -2124,6 +2125,7 @@ def ai_insights(employee_id):
         return jsonify({'detail': 'Forbidden'}), 403
     
     try:
+        ai_wellness_service = get_ai_service(db)
         insights = ai_wellness_service.generate_daily_insights(employee_id)
         return jsonify(insights), 200
     except Exception as e:
@@ -2142,6 +2144,7 @@ def ai_burnout_trend():
     
     department = request.args.get('department')
     try:
+        ai_wellness_service = get_ai_service(db)
         trend = ai_wellness_service.analyze_burnout_trend(department)
         return jsonify(trend), 200
     except Exception as e:
@@ -2160,6 +2163,7 @@ def ai_generate_routine():
     preferences = data.get('preferences', {})
     
     try:
+        ai_wellness_service = get_ai_service(db)
         routine = ai_wellness_service.generate_daily_routine(employee_id, preferences)
         return jsonify(routine), 200
     except Exception as e:
@@ -2509,6 +2513,7 @@ def get_performance_analytics():
     # or if the total number of records has changed (e.g., new employee added/deleted).
     if ai_wellness_service.performance_analytics_cache and \
        ai_wellness_service.performance_analytics_cache.get('timestamp') == max_last_updated_timestamp and \
+       'data' in ai_wellness_service.performance_analytics_cache and \
        ai_wellness_service.performance_analytics_cache.get('totalRecords') == health_records_collection.count_documents({}):
         return jsonify(ai_wellness_service.performance_analytics_cache['data']), 200
 
@@ -2582,6 +2587,7 @@ def get_performance_analytics():
         # Fetch latest burnout trend data from AI wellness service
         burnout_data = {}
         try:
+            ai_wellness_service = get_ai_service(db)
             burnout_data = ai_wellness_service.analyze_burnout_trend()
         except Exception:
             burnout_data = {'highBurnoutCount': 0, 'moderateBurnoutCount': 0, 'lowBurnoutCount': 0,
@@ -2605,7 +2611,7 @@ def get_performance_analytics():
                 'wellnessScore': max(0, min(100, wellness_score))
             })
 
-        return jsonify({
+        response_data = {
             'kpis': {
                 'participationRate': participation_rate,
                 'absenteeismRate': absenteeism_rate,
@@ -2626,15 +2632,18 @@ def get_performance_analytics():
             },
             'totalRecordsAnalyzed': total_employees,
             'generatedAt': datetime.now(timezone.utc).isoformat(),
-            'cacheTimestamp': max_last_updated_timestamp # Store the timestamp used for this cache
-        })
+        }
+
+        response_data['cacheTimestamp'] = max_last_updated_timestamp # Store the timestamp used for this cache
 
         # Update cache
         ai_wellness_service.performance_analytics_cache = {
             'timestamp': max_last_updated_timestamp,
             'totalRecords': total_employees,
             'data': response_data
-        }, 200
+        }
+
+        return jsonify(response_data), 200
 
     except Exception as e:
         app.logger.exception(f"Failed to compute performance analytics: {e}")
