@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev:frontend": "cd frontend && npm run dev -- --host",
-    "dev:backend": "cd backend/src && waitress-serve --listen=0.0.0.0:8000 run_flask:app",
+    "dev:backend": "cd backend/src && python -m venv venv && . venv/bin/activate && pip install -r requirements.txt && waitress-serve --config waitress.ini",
     "dev": "concurrently -k -n BACKEND,FRONTEND -c cyan,green \"npm:dev:backend\" \"npm:dev:frontend\"",
     "dev:backend-first": "node ./scripts/dev-backend-first.cjs"
   },
