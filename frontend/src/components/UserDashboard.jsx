@@ -200,8 +200,13 @@ export function ChatbotModule({ user, isFloating = false, onClose }) {
     };
   }, []);
 
+  const lastSpokenTextRef = useRef('');
+
   const speakText = useCallback((text) => {
-    if (!isSpeechEnabled || !speechSynthRef.current) return;
+    if (!speechSynthRef.current) return;
+    // Remember the last spoken text so it can be replayed if the user mutes/unmutes.
+    lastSpokenTextRef.current = text;
+    if (!isSpeechEnabled) return;
     speechSynthRef.current.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = 1.0;
@@ -213,7 +218,7 @@ const voices = speechSynthRef.current.getVoices();
     speechSynthRef.current.speak(utterance);
   }, [isSpeechEnabled]);
 
-// Toggle voice output: muting cancels the current speech instantly so the
+  // Toggle voice output: muting cancels the current speech instantly so the
   // speaker stops immediately (speechSynthesis.pause() is delayed in browsers).
   const toggleSpeech = useCallback(() => {
     setIsSpeechEnabled((prev) => {
@@ -221,6 +226,20 @@ const voices = speechSynthRef.current.getVoices();
       if (!next) {
         // Muting -> stop the ongoing voice output instantly
         speechSynthRef.current?.cancel();
+      } else {
+        // Unmuting -> resume speaking the last bot message from the start
+        const text = lastSpokenTextRef.current;
+        if (text && speechSynthRef.current) {
+          speechSynthRef.current.cancel();
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.rate = 1.0;
+          utterance.pitch = 1.0;
+          utterance.volume = 1.0;
+          const voices = speechSynthRef.current.getVoices();
+          const femaleVoice = voices.find(v => v.name.includes('Female') || v.name.includes('Zira'));
+          if (femaleVoice) utterance.voice = femaleVoice;
+          speechSynthRef.current.speak(utterance);
+        }
       }
       return next;
     });
