@@ -257,6 +257,15 @@ export const fetchSentiments = (options) => request('/wellness/sentiments', { me
 export const fetchAllSentimentPulses = (options) => request('/wellness/sentiment-pulse/all', { method: 'GET', ...options });
 
 /**
+ * Fetches the sentiment pulses belonging to a single employee.
+ * Allowed for the employee themselves or an admin.
+ * @param {string} employeeId The employee's ID.
+ * @param {Object} options Request options (e.g. forceRefresh).
+ * @returns {Promise<Array<Object>>} A promise resolving to the employee's sentiment pulses.
+ */
+export const fetchEmployeeSentimentPulses = (employeeId, options) => request(`/wellness/sentiment-pulse/${employeeId}`, { method: 'GET', ...options });
+
+/**
  * Fetches real-time performance analytics KPIs from the backend.
  * Admin-only endpoint that computes metrics from MongoDB collections.
  * @returns {Promise<Object>} A promise resolving to { kpis, departmentDetails, burnoutTrend }
@@ -432,6 +441,7 @@ export default {
   fetchUsers, uploadAvatar, updateProfile, changePassword,
   fetchHealthRecords, addHealthRecord, updateHealthRecord, deleteHealthRecord,
   fetchRisks, fetchRecommendations, fetchSentiments, saveSentiments, submitSentimentPulse,
+  fetchAllSentimentPulses, fetchEmployeeSentimentPulses,
   fetchDailyHabits, addDailyHabit, updateDailyHabit,
   fetchMentalHealthLogs, addMentalHealthLog, updateMentalHealthLog,
   fetchCheckups, bookCheckup, deleteCheckup, updateCheckup,

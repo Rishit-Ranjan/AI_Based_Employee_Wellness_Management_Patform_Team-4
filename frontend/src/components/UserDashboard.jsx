@@ -14,6 +14,7 @@ import DietPlanModule from './DietPlanModule';
 import GoalsModule from './GoalsModule'; // Assuming this is a local component
 import ReportsModule from './ReportsModule';
 import NotificationBell from './NotificationBell';
+import EmployeeSentimentModule from './EmployeeSentimentModule';
 import { sendAiChatMessage, fetchAiInsights, generateAiRoutine } from '../services/api';
 
 import PersonalWellnessProfile from './wellness/PersonalWellnessProfile';
@@ -891,6 +892,7 @@ export default function UserDashboard({
 
   const navTabs = [
     { id: 7, label: 'My Wellness Profile', icon: User, desc: 'Health vitals & personalized trackers' },
+    { id: 15, label: 'My Mental Health & Sentiment', icon: Smile, desc: 'Personal stress & sentiment analysis' },
     { id: 3, label: 'Personalized Recommender', icon: Lightbulb, desc: 'Fitness, diet & wellness routines' },
     { id: 14, label: 'AI Wellness Assistant', icon: Brain, desc: 'Daily AI insights & routine engine' },
     { id: 8, label: 'My Insurance', icon: ShieldCheck, desc: 'Coverage details & file claims' },
@@ -1182,10 +1184,11 @@ export default function UserDashboard({
           <div className="mb-6 pb-4 border-b border-slate-200/80 dark:border-slate-700 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800/60 rounded-md text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest font-mono mb-2">
-                {activeTab === 7 ? 'SaaS Portal' : activeTab === 3 ? 'AI Recommender' : activeTab === 14 ? 'AI Coach' : activeTab === 8 ? 'Insurance' : activeTab === 9 ? 'Nutrition' : activeTab === 10 ? 'Goals' : activeTab === 11 ? 'Reports' : activeTab === 12 ? 'Emergency' : 'Financial'}
+                {activeTab === 7 ? 'SaaS Portal' : activeTab === 15 ? 'Mental Wellness' : activeTab === 3 ? 'AI Recommender' : activeTab === 14 ? 'AI Coach' : activeTab === 8 ? 'Insurance' : activeTab === 9 ? 'Nutrition' : activeTab === 10 ? 'Goals' : activeTab === 11 ? 'Reports' : activeTab === 12 ? 'Emergency' : 'Financial'}
               </span>
               <h1 className="font-display text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-50 tracking-tight">
                 {activeTab === 7 && 'My Personal Wellness Profile'}
+                {activeTab === 15 && 'My Mental Health & Sentiment'}
                 {activeTab === 3 && 'Personalized Wellness Recommender'}
                 {activeTab === 14 && 'AI Wellness Assistant'}
                 {activeTab === 8 && 'Insurance Coverage & Claims'}
@@ -1196,7 +1199,8 @@ export default function UserDashboard({
                 {activeTab === 13 && 'Health Expenses Tracker'}
               </h1>
               <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 max-w-2xl font-light">
-                {activeTab === 7 && 'Track health vitals, monitor diagnostics analytics, daily hydration, steps, mood, and stress.'}
+{activeTab === 7 && 'Track health vitals, monitor diagnostics analytics, daily hydration, steps, mood, and stress.'}
+                {activeTab === 15 && 'Your own mental health & sentiment analysis, including stress index, sentiment distribution, and feedback logs.'}
                 {activeTab === 3 && 'Tailored, evidence-based fitness routines, diet schedules, and mental wellbeing recommendations.'}
                 {activeTab === 14 && 'AI-powered daily wellness insights, personalized routines, and intelligent coaching.'}
                 {activeTab === 8 && 'View your current insurance policy, coverage details, and file health claims.'}
@@ -1224,6 +1228,16 @@ export default function UserDashboard({
                 onAddMentalHealthLog={onAddMentalHealthLog}
                 onUpdateMentalHealthLog={onUpdateMentalHealthLog}
                 onUpdateRecord={onUpdateUserRecord}
+                onAddSentimentPulse={onUpdateSentimentPulse}
+              />
+            )}
+
+{activeTab === 15 && (
+              <EmployeeSentimentModule
+                user={user}
+                records={healthRecords}
+                risks={risks}
+                mentalHealthLogs={mentalHealthLogs}
                 onAddSentimentPulse={onUpdateSentimentPulse}
               />
             )}

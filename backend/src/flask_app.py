@@ -2717,6 +2717,35 @@ def get_all_sentiment_pulses():
         app.logger.exception(f"Failed to fetch all sentiment pulses: {e}")
         return jsonify({'detail': 'Internal Server Error'}), 500
 
+
+# --- Get An Individual Employee's Sentiment Pulses ---
+@app.route('/api/wellness/sentiment-pulse/<employee_id>', methods=['GET'])
+@jwt_required(locations=["cookies"])
+def get_employee_sentiment_pulses(employee_id):
+    """ Fetches the sentiment pulses for a single employee.
+
+    An employee can only view their own pulses, while an admin can view any
+    employee's pulses. This powers the employee dashboard's "My Mental Health
+    & Sentiment" section.
+    """
+    jwt_payload = get_jwt()
+    user_info = jwt_payload.get("user_info", {})
+    role = user_info.get('role', '').lower()
+    if role != 'admin' and user_info.get('employeeId') != employee_id:
+        return jsonify({'detail': 'Forbidden: You can only view your own sentiment pulses.'}), 403
+
+    try:
+        pulses_cursor = sentiment_pulses_collection.find({'employeeId': employee_id}).sort('createdAt', -1)
+        pulses = []
+        for pulse in pulses_cursor:
+            pulse['id'] = str(pulse['_id'])
+            del pulse['_id']
+            pulses.append(pulse)
+        return jsonify(pulses), 200
+    except Exception as e:
+        app.logger.exception(f"Failed to fetch sentiment pulses for employee {employee_id}: {e}")
+        return jsonify({'detail': 'Internal Server Error'}), 500
+
 # --- System Settings API ---
 @app.route('/api/settings', methods=['GET'])
 @jwt_required(locations=["cookies"])

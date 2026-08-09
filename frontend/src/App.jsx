@@ -187,6 +187,20 @@ export default function App() {
             } else {
                 // For regular users, fetch their specific data
                 api.fetchRisks(options).then(risksData => setRisks(risksData || []));
+
+                // Fetch the employee's own sentiment pulses and attach them as feedbackLogs
+                // to their health record so they can view their own mental health & sentiment.
+                api.fetchEmployeeSentimentPulses(userEmpId, options)
+                    .then(pulses => {
+                        setHealthRecords(prevRecords => prevRecords.map(record => {
+                            if (record.employeeId !== userEmpId) return record;
+                            return {
+                                ...record,
+                                feedbackLogs: (pulses || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                            };
+                        }));
+                    })
+                    .catch(err => console.error("Failed to fetch employee sentiment pulses:", err));
             }
 
             // --- Stage 3: Load slower, AI-driven data in the background ---
@@ -319,7 +333,7 @@ export default function App() {
         // 1. Call the backend endpoint to record the pulse. This writes to MongoDB.
         const result = await api.submitSentimentPulse(employeeId, deptName, stressScore, feedbackText);
   
-        // 2. For immediate UI feedback on the admin dashboard, re-fetch all data.
+// 2. For immediate UI feedback on the admin dashboard, re-fetch all data.
         if (currentUser?.role === 'admin') {
             // Re-fetch aggregated sentiments for the department-level card (forceRefresh to bypass GET cache)
             api.fetchSentiments({ forceRefresh: true }).then(sentiments => setSentimentList(sentiments || []));
@@ -332,6 +346,17 @@ export default function App() {
                     return { ...record, feedbackLogs };
                 });
             });
+        } else if (currentUser?.employeeId === employeeId) {
+            // For an employee, refresh their own sentiment pulses so the employee
+            // dashboard's "My Mental Health & Sentiment" section updates immediately.
+            const pulses = await api.fetchEmployeeSentimentPulses(employeeId, { forceRefresh: true });
+            setHealthRecords(prevRecords => prevRecords.map(record => {
+                if (record.employeeId !== employeeId) return record;
+                return {
+                    ...record,
+                    feedbackLogs: (pulses || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                };
+            }));
         }
         return result; // Return the result which contains the sentiment
       } catch (error) {
