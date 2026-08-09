@@ -115,7 +115,7 @@ ADMIN_EMERGENCY_PHONE="phone_number_to_receive_sos_alerts"
 SMTP_SERVER="smtp.example.com"
 SMTP_PORT=587
 SMTP_USER="your_email@example.com"
-SMTP_PASSWORD="your_app_password" #<-- create this from manage your google account-> home-> search for "App Passwords"-> create new app name, get the code-> copy and paste the code in the ".env" file
+SMTP_PASSWORD="your_app_password" #<-- create this from manage your google account-> home-> search for "App Passwords"-> create new app name, get the code-> copy and paste that code here
 ```
 
 ### 3. Frontend Setup
