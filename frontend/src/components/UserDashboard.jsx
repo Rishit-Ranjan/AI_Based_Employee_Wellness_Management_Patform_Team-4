@@ -1279,7 +1279,7 @@ export default function UserDashboard({
             )}
 
             {activeTab === 8 && (
-              <InsuranceModule user={user} />
+              <InsuranceModule user={user} options={{ forceRefresh: true }} />
             )}
 
             {activeTab === 9 && (
