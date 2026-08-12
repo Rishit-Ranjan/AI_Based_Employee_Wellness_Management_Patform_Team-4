@@ -1262,7 +1262,9 @@ def get_mental_health_logs(employee_id):
             sort=[('date', -1)]
         )
         if not log_record:
-            return jsonify({'detail': 'Mental health log not found for today'}), 404
+            # Return an empty object instead of 404 if no log is found for today.
+            # This is a more graceful way for the frontend to handle "no data yet".
+            return jsonify({}), 200
         log_record['id'] = str(log_record['_id'])
         del log_record['_id']
         return jsonify(log_record), 200
