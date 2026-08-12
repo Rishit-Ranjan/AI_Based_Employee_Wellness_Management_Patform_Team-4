@@ -939,8 +939,8 @@ export default function UserDashboard({
 
   const navTabs = [
     { id: 7, label: 'My Wellness Profile', icon: User, desc: 'Health vitals & personalized trackers' },
-    { id: 15, label: 'My Mental Health & Sentiment', icon: Smile, desc: 'Personal stress & sentiment analysis' },
     { id: 3, label: 'Personalized Recommender', icon: Lightbulb, desc: 'Fitness, diet & wellness routines' },
+    { id: 15, label: 'My Mental Health & Sentiment', icon: Smile, desc: 'Personal stress & sentiment analysis' },
     { id: 14, label: 'AI Wellness Assistant', icon: Brain, desc: 'Daily AI insights & routine engine' },
     { id: 8, label: 'My Insurance', icon: ShieldCheck, desc: 'Coverage details & file claims' },
     { id: 9, label: 'Diet Plans', icon: Utensils, desc: 'AI-generated meal schedules' },
