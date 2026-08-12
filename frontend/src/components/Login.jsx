@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Activity, Sparkles, Shield, UserCheck, UserCog, Hash } from 'lucide-react';
 import { login as loginApi } from '../services/api';
 import FloatingSupportButton from './FloatingSupportButton';
-import CustomerSupportModal from './CustomerSupportModal';
+import CustomerSupportModal from './CustomerSupportModal'; // This will now import the new styled component
 
 export default function Login({ onNavigate, onLoginSuccess }) {
   const [email, setEmail] = useState('');
