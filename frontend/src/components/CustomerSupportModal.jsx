@@ -5,6 +5,7 @@ import {
   Headphones, BookOpen, Clock, AlertCircle, Sparkles
 } from 'lucide-react';
 import { submitSupportTicket } from '../services/api';
+import LoginSupportChat from './LoginSupportChat';
 
 const SUPPORT_EMAIL = 'support@wellnessplatform.com';
 
@@ -139,28 +140,7 @@ export default function CustomerSupportModal({ user, onClose }) {
         {/* Body */}
         <div className="flex-1 overflow-y-auto p-6">
           {activeTab === 'chat' ? (
-            <div className="flex flex-col items-center justify-center py-8 text-center space-y-4">
-              <Sparkles className="w-10 h-10 text-blue-500" />
-              <div>
-                <h4 className="font-semibold text-slate-800 dark:text-slate-100">Launch AI Chat Assistant</h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
-                  Our AI assistant can answer questions about wellness, recommendations, insurance, and more — instantly.
-                </p>
-              </div>
-              <button
-                onClick={() => {
-                  onClose();
-                  // Let parent open the chatbot
-                  setTimeout(() => {
-                    const event = new CustomEvent('open-ai-chat');
-                    window.dispatchEvent(event);
-                  }, 100);
-                }}
-                className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl transition-all cursor-pointer shadow-sm flex items-center gap-2"
-              >
-                <MessageSquare className="w-4 h-4" /> Open Chat Assistant
-              </button>
-            </div>
+            <LoginSupportChat />
           ) : activeTab === 'faq' ? (
             <div className="space-y-3">
               {FAQS.map((faq, i) => {
