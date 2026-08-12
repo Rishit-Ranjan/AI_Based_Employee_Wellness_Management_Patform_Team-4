@@ -2582,6 +2582,23 @@ def get_all_sentiment_pulses():
         app.logger.exception(f"Failed to fetch all sentiment pulses: {e}")
         return jsonify({'detail': 'Internal Server Error'}), 500
 
+@app.route('/api/wellness/sentiment-pulse/<pulse_id>', methods=['DELETE'])
+@jwt_required(locations=["cookies"])
+def delete_sentiment_pulse(pulse_id):
+    """ Deletes a single sentiment pulse by its ID. Admin-only. """
+    jwt_payload = get_jwt()
+    user_info = jwt_payload.get("user_info", {})
+    if user_info.get('role', '').lower() != 'admin':
+        return jsonify({'detail': 'Forbidden'}), 403
+
+    try:
+        result = sentiment_pulses_collection.delete_one({'_id': ObjectId(pulse_id)})
+        if result.deleted_count == 0:
+            return jsonify({'detail': 'Pulse not found'}), 404
+        return '', 204
+    except Exception as e:
+        app.logger.exception(f"Failed to delete sentiment pulse {pulse_id}: {e}")
+        return jsonify({'detail': 'Internal Server Error'}), 500
 
 # --- Get An Individual Employee's Sentiment Pulses ---
 @app.route('/api/wellness/sentiment-pulse/<employee_id>', methods=['GET'])

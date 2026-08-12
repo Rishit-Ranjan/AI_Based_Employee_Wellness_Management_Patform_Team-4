@@ -365,6 +365,11 @@ export default function App() {
       }
     };
 
+    const handlePulseDeleted = () => {
+      // Force a refresh of sentiment data when a pulse is deleted by an admin
+      api.fetchSentiments({ forceRefresh: true }).then(sentiments => setSentimentList(sentiments || []));
+    };
+
     const handleUpdateAvatar = async (file) => {
         try {
             const response = await api.uploadAvatar(file);
@@ -436,6 +441,7 @@ export default function App() {
                             onDeleteHealthRecord={handleDeleteHealthRecord}
                             onUpdateHealthRecord={handleUpdateUserRecord}
                             performanceData={performanceData}
+                            onPulseDeleted={handlePulseDeleted}
                             loadingPerformance={loadingPerformance}
                             performanceError={performanceError}
                             />)

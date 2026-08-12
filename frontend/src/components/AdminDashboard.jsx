@@ -1012,7 +1012,25 @@ export function RecommendationModule({ recommendations = [], loading }) {
 // ==========================================
 // MODULE 4: MENTAL HEALTH & SENTIMENT
 // ==========================================
-export function SentimentModule({ sentimentList = [], healthRecords = [] }) {
+export function SentimentModule({ sentimentList = [], healthRecords = [], onPulseDeleted }) {
+  const [allPulses, setAllPulses] = useState([]);
+
+  useEffect(() => {
+    api.fetchAllSentimentPulses({ forceRefresh: true }).then(setAllPulses);
+  }, [sentimentList]); // Refresh when sentiment list changes
+
+  const handleDeletePulse = async (pulseId) => {
+    if (window.confirm('Are you sure you want to delete this feedback entry? This action cannot be undone.')) {
+      try {
+        await api.deleteSentimentPulse(pulseId);
+        setAllPulses(prev => prev.filter(p => p.id !== pulseId));
+        if (onPulseDeleted) onPulseDeleted(); // Notify parent to refetch aggregated data
+      } catch (error) {
+        console.error("Failed to delete sentiment pulse:", error);
+        alert('Failed to delete feedback. Please try again.');
+      }
+    }
+  };
   return (
     <div className="space-y-6">
       <div>
@@ -1100,13 +1118,16 @@ export function SentimentModule({ sentimentList = [], healthRecords = [] }) {
                   <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono">Recent Feedback</p>
                   <ul className="space-y-1 mt-1.5">
                     {recentFeedback.length > 0 ? recentFeedback.map((log, idx) => (
-                      <li key={idx} className="text-xs text-slate-500 dark:text-slate-400 font-light flex items-start gap-2">
+                      <li key={idx} className="text-xs text-slate-500 dark:text-slate-400 font-light flex items-start justify-between gap-2 group">
                         <span className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${
                           log.sentiment === 'Positive' ? 'bg-emerald-500' :
                           log.sentiment === 'Negative' ? 'bg-rose-500' :
                           'bg-slate-400'
                         }`} />
                         <span>{log.feedbackText}</span>
+                        <button onClick={() => handleDeletePulse(log.id)} className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-opacity">
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </li>
                     )) : (
                       <li className="text-[11px] text-slate-400 dark:text-slate-500 font-light">

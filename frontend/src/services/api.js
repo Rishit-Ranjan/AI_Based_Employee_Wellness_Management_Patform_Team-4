@@ -286,6 +286,13 @@ export const submitSentimentPulse = (employeeId, department, stressScore, feedba
   });
 };
 
+/**
+ * Deletes a single sentiment pulse. Admin-only.
+ * @param {string} pulseId The ID of the pulse to delete.
+ * @returns {Promise<Object>} A promise that resolves on successful deletion.
+ */
+export const deleteSentimentPulse = (pulseId) => request(`/wellness/sentiment-pulse/${pulseId}`, { method: 'DELETE' });
+
 export const saveSentiments = (sentimentsData) => saveToStorage('wellness_sentiments', sentimentsData);
 
 // --- Profile / Account ---
@@ -441,6 +448,7 @@ export default {
   fetchUsers, uploadAvatar, updateProfile, changePassword,
   fetchHealthRecords, addHealthRecord, updateHealthRecord, deleteHealthRecord,
   fetchRisks, fetchRecommendations, fetchSentiments, saveSentiments, submitSentimentPulse,
+  deleteSentimentPulse,
   fetchAllSentimentPulses, fetchEmployeeSentimentPulses,
   fetchDailyHabits, addDailyHabit, updateDailyHabit,
   fetchMentalHealthLogs, addMentalHealthLog, updateMentalHealthLog,

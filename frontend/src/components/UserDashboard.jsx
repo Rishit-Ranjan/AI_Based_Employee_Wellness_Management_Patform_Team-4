@@ -15,6 +15,7 @@ import GoalsModule from './GoalsModule'; // Assuming this is a local component
 import ReportsModule from './ReportsModule';
 import NotificationBell from './NotificationBell'; 
 import EmployeeSentimentModule from './EmployeeSentimentModule';
+import AchievementsModule from './AchievementsModule';
 import { sendAiChatMessage, fetchAiInsights, generateAiRoutine, triggerSos } from '../services/api';
 
 import PersonalWellnessProfile from './wellness/PersonalWellnessProfile';
@@ -1292,7 +1293,7 @@ export default function UserDashboard({
                 {activeTab === 3 && 'Personalized Wellness Recommender'}
                 {activeTab === 14 && 'AI Wellness Assistant'}
                 {activeTab === 8 && 'Insurance Coverage & Claims'}
-                {activeTab === 9 && 'AI Meal & Diet Plans'}
+                {activeTab === 9 && 'AI Meals & Diet Plans'}
                 {activeTab === 10 && 'My Goals & Achievements'}
                 {activeTab === 11 && 'Health Reports & History'}
                 {activeTab === 12 && 'Health Checkup Scheduler'}

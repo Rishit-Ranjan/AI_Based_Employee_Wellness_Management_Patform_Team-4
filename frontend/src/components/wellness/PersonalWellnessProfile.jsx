@@ -31,6 +31,8 @@ import ProfileCard from './ProfileCard';
 import HealthCard from './HealthCard';
 import HealthChart from './HealthChart';
 import ThemeToggle from './ThemeToggle';
+import AchievementsModule from '../AchievementsModule';
+import WellnessInsightsModule from '../WellnessInsightsModule';
 
 export default function PersonalWellnessProfile({
   user,
@@ -830,6 +832,12 @@ smoker: smoker,
             bp={bp}
             sleepHours={Number(sleep) || 7.5}
           />
+          <WellnessInsightsModule
+            records={records}
+            dailyHabits={dailyHabits}
+            mentalHealthLogs={mentalHealthLogs}
+          />
+          <AchievementsModule user={user} />
         </div>
       </div>
 
