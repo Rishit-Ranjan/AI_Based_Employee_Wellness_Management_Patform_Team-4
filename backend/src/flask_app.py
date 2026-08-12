@@ -1378,7 +1378,9 @@ def get_insurance(employee_id):
 
     policy = insurance_collection.find_one({'employeeId': employee_id})
     if not policy:
-        return jsonify({'detail': 'No insurance policy on file for this employee'}), 404
+        # Return an empty object with a 200 status to handle cases where no policy exists.
+        # This prevents a 404 error on the frontend.
+        return jsonify({}), 200
     return jsonify(_serialize_insurance(policy)), 200
 
 # insurance endpoint (GET all policies) - admin only
