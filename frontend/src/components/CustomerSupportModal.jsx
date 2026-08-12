@@ -140,7 +140,7 @@ export default function CustomerSupportModal({ user, onClose }) {
         {/* Body */}
         <div className="flex-1 overflow-y-auto p-6">
           {activeTab === 'chat' ? (
-            <LoginSupportChat />
+            <LoginSupportChat onEscalate={() => setActiveTab('contact')} />
           ) : activeTab === 'faq' ? (
             <div className="space-y-3">
               {FAQS.map((faq, i) => {

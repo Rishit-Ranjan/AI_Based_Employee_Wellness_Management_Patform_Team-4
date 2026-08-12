@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bot, Send } from 'lucide-react';
+import { Bot, Send, MessageSquare } from 'lucide-react';
 
 const getBotResponse = (message) => {
   const msg = message.toLowerCase();
@@ -18,7 +18,7 @@ const getBotResponse = (message) => {
   return "I can assist with questions about logging in, signing up, or resetting your password. For other issues, please use the 'Contact' tab to submit a support ticket.";
 };
 
-export default function LoginSupportChat() {
+export default function LoginSupportChat({ onEscalate }) {
   const [messages, setMessages] = useState([
     {
       id: 'initial',
@@ -80,6 +80,14 @@ export default function LoginSupportChat() {
               }`}
             >
               <p>{m.text}</p>
+              {m.text.includes("For other issues, please use the 'Contact' tab") && (
+                <button
+                  onClick={onEscalate}
+                  className="mt-3 w-full text-left px-3 py-2 bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-700 rounded-lg text-blue-700 dark:text-blue-300 text-[11px] font-semibold flex items-center gap-2 hover:bg-blue-100 dark:hover:bg-blue-900"
+                >
+                  <MessageSquare className="w-3.5 h-3.5" /> Create Support Ticket
+                </button>
+              )}
             </div>
           </div>
         ))}
