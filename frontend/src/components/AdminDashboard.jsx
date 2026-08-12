@@ -2087,7 +2087,7 @@ export default function AdminDashboard({ user,
             <img src={logo} alt="App Logo" className="w-12 h-10" />
             <div className="hidden sm:block">
               <span className="font-display font-bold text-base tracking-tight block text-slate-900 dark:text-slate-50 leading-none">
-                Employee Wellness Management Analytics
+                AI-Based Employee Wellness Management Platform
               </span>
               <span className="text-[10px] text-slate-400 dark:text-slate-400 font-mono uppercase tracking-widest font-semibold mt-1 block">
                 Wellness Intelligence

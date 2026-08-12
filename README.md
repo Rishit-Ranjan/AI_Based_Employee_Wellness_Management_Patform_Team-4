@@ -1,4 +1,4 @@
-# Employee Wellness Management Analytics Platform
+# AI-Based Employee Wellness Management Platform
 
 <img width="650" height="325" alt="image" src="https://github.com/user-attachments/assets/210737c9-39a6-4c0e-905a-d9a51d0c2a9d" /><br/>
 

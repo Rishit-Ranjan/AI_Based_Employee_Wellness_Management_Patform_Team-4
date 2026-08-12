@@ -1,5 +1,5 @@
 """
-Main Flask application for the Employee Wellness Management Analytics platform.
+Main Flask application for the AI-Based Employee Wellness Management Platform.
 
 This file sets up the Flask server, configures JWT, CORS, and database connections.
 It defines all API endpoints for authentication, wellness data management,
@@ -1864,7 +1864,7 @@ def download_health_report(employee_id):
     story.append(Spacer(1, 20*mm))
 
     # --- Footer ---
-    story.append(Paragraph('Digitally generated — Employee Wellness Management Analytics platform.', styles['Footer']))
+    story.append(Paragraph('Digitally generated — AI-Based Employee Wellness Management Platform.', styles['Footer']))
 
     # Build the PDF
     doc.build(story)
