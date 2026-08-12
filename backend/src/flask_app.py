@@ -134,52 +134,30 @@ def login():
     app.logger.debug(f"Attempting login for email: {email} with role: {role} and ID: {entity_id}")
 
     # Input validation
+    target_collection = admin_collection if role == 'Admin' else users_collection
+    id_field = "adminId" if role == 'Admin' else "employeeId"
+
     try:
-        # Check collection based on role
-        if role == 'Admin':
-            user = admin_collection.find_one({"email": email, "adminId": entity_id})
-        elif role == 'Employee':
-            user = users_collection.find_one({"email": email, "employeeId": entity_id})
-        else:
-            # Fallback for safety, though frontend should prevent this
-            user = admin_collection.find_one({"email": email, "adminId": entity_id}) or \
-                   users_collection.find_one({"email": email, "employeeId": entity_id})
-
+        # 1. Check if a user with the given email exists
+        user = target_collection.find_one({"email": email})
         if not user:
-            app.logger.warning(f"Login failed for {email}: User not found.")
-            return jsonify({'detail': 'Invalid credentials'}), 401
-        
-        # Ensure employeeId is present for employee roles, generate if missing (for legacy users)
-        if role == 'Employee' and not user.get('employeeId'):
-            # Generate a new employeeId based on current user count
-            user_count = users_collection.count_documents({})
-            new_employee_id = f"EMP{user_count + 100}" # Ensure uniqueness, could be more robust
-            users_collection.update_one(
-                {'_id': user['_id']},
-                {'$set': {'employeeId': new_employee_id}}
-            )
-            user['employeeId'] = new_employee_id # Update the user object in memory
+            app.logger.warning(f"Login failed for {email}: Email not found.")
+            # Use a specific error code or message for the frontend to target the email field
+            return jsonify({'detail': 'This email is not registered.', 'field': 'email'}), 404
 
-        # Verify that the user has a password
+        # 2. Check if the entity ID matches for the found user
+        if user.get(id_field) != entity_id:
+            app.logger.warning(f"Login failed for {email}: Incorrect {id_field} ('{entity_id}').")
+            id_name = "Admin ID" if role == 'Admin' else "Employee ID"
+            return jsonify({'detail': f'This {id_name} does not exist or does not match the email.', 'field': 'entityId'}), 401
+
+        # 3. Check password
         password_hash = user.get('password_hash')
-        if not password_hash:
-            app.logger.warning(f"Login failed for {email}: No password hash found for user.")
-            return jsonify({'detail': 'Invalid credentials'}), 401
-
-        # Verify the password using bcrypt
-        try:
-            # Verify the password using bcrypt
-            if not verify_password(password, password_hash):
-                app.logger.warning(f"Login failed for {email}: Incorrect password.")
-                return jsonify({'detail': 'Invalid credentials'}), 401
-            
-        # Handle potential errors in password verification
-        except (ValueError, TypeError):
-            # Catches invalid hash format (e.g., old sha256 hashes, None, etc.)
+        if not password_hash or not verify_password(password, password_hash):
             app.logger.warning(f"Login failed for {email}: Incorrect password.")
-            return jsonify({'detail': 'Invalid credentials'}), 401
+            return jsonify({'detail': 'The password you entered is incorrect.', 'field': 'password'}), 401
 
-        # Prepare user data for the token and response
+        # --- Login Success ---
         user_id_str = str(user['_id'])
         user_info = {
             "id": user_id_str,
