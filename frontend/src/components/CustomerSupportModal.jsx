@@ -42,7 +42,6 @@ export default function CustomerSupportModal({ user, onClose }) {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
   const [openFaq, setOpenFaq] = useState(0);
-  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -79,7 +78,7 @@ export default function CustomerSupportModal({ user, onClose }) {
       icon: MessageSquare,
       title: 'Live Chat',
       desc: 'Chat instantly with our AI wellness assistant.',
-      onClick: () => setIsChatOpen(true),
+      onClick: () => setActiveTab('chat'),
     },
     {
       icon: Mail,
@@ -126,20 +125,20 @@ export default function CustomerSupportModal({ user, onClose }) {
 
         {/* Tabs */}
         <div className="px-6 pt-4 flex items-center gap-2 shrink-0">
-          <button onClick={() => setActiveTab('contact')} className={tabButtonClass('contact')}>
+          <button onClick={() => setActiveTab('contact')} className={tabButtonClass('contact')} >
             <Headphones className="w-3.5 h-3.5" /> Contact
           </button>
-          <button onClick={() => setActiveTab('faq')} className={tabButtonClass('faq')}>
+          <button onClick={() => setActiveTab('faq')} className={tabButtonClass('faq')} >
             <HelpCircle className="w-3.5 h-3.5" /> FAQ
           </button>
-          <button onClick={() => { setIsChatOpen(true); }} className={tabButtonClass('chat')}>
+          <button onClick={() => setActiveTab('chat')} className={tabButtonClass('chat')} >
             <MessageSquare className="w-3.5 h-3.5" /> Live Chat
           </button>
         </div>
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto p-6">
-          {isChatOpen ? (
+          {activeTab === 'chat' ? (
             <div className="flex flex-col items-center justify-center py-8 text-center space-y-4">
               <Sparkles className="w-10 h-10 text-blue-500" />
               <div>
@@ -150,7 +149,6 @@ export default function CustomerSupportModal({ user, onClose }) {
               </div>
               <button
                 onClick={() => {
-                  setIsChatOpen(false);
                   onClose();
                   // Let parent open the chatbot
                   setTimeout(() => {
