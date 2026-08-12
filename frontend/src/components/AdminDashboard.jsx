@@ -2155,8 +2155,8 @@ export default function AdminDashboard({ user,
             title="Edit Profile"
           >
             <div className="hidden sm:block text-right">
-              <span className="block text-xs font-bold text-slate-800 dark:text-slate-100 leading-tight group-hover:text-blue-600 transition-colors">{user.name}</span>
-              <span className="block text-[10px] text-slate-400 font-mono">{user.adminId}</span>
+              <span className="block text-sm font-bold text-slate-800 dark:text-slate-100 leading-tight group-hover:text-blue-600 transition-colors">{user.name}</span>
+              <span className="block text-xs text-slate-400 font-mono">{user.adminId}</span>
               <span className="inline-block mt-1 px-2 py-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[9px] font-mono font-bold rounded uppercase tracking-widest leading-none">
                 Administrator
               </span>
