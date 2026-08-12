@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Target, Award, Plus, Trash2, CheckCircle2 } from 'lucide-react';
-import { fetchGoals, createGoal, updateGoal, deleteGoal, fetchAchievements } from '../services/api';
+import { fetchGoals, createGoal, updateGoal, deleteGoal } from '../services/api';
+import AchievementsModule from './AchievementsModule';
 
 export default function GoalsModule({ user }) {
   const [goals, setGoals] = useState([]);
-  const [achievements, setAchievements] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState('');
@@ -13,8 +13,8 @@ export default function GoalsModule({ user }) {
 
   const load = () => {
     setLoading(true);
-    Promise.all([fetchGoals(user.employeeId), fetchAchievements(user.employeeId)])
-      .then(([g, a]) => { setGoals(g); setAchievements(a); })
+    fetchGoals(user.employeeId)
+      .then(setGoals)
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
   };
@@ -104,18 +104,7 @@ export default function GoalsModule({ user }) {
         )}
       </div>
 
-      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
-        <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2 mb-4"><Award className="w-5 h-5 text-slate-400" /> My Achievements</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {(achievements?.badges || []).map((b, i) => (
-            <div key={i} className="border border-amber-100 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/40 rounded-lg p-3.5 text-center">
-              <Award className="w-6 h-6 text-amber-400 mx-auto mb-1.5" />
-              <div className="text-xs font-bold text-slate-700 dark:text-slate-200">{b.name}</div>
-              <div className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">{b.desc}</div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <AchievementsModule user={user} />
     </div>
   );
 }

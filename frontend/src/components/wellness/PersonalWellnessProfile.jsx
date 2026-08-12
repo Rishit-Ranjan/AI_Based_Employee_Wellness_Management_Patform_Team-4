@@ -31,6 +31,8 @@ import ProfileCard from './ProfileCard';
 import HealthCard from './HealthCard';
 import HealthChart from './HealthChart';
 import ThemeToggle from './ThemeToggle';
+import AchievementsModule from '../AchievementsModule';
+import WellnessInsightsModule from '../WellnessInsightsModule';
 
 export default function PersonalWellnessProfile({
   user,
@@ -137,7 +139,7 @@ setMedicalNotes(currentRecord.medicalNotes || '');
 
   const [waterCups, setWaterCups] = useState(existingDailyHabit?.waterCups || 0);
   const [stepsCount, setStepsCount] = useState(existingDailyHabit?.stepsCount || 0);
-  const [mood, setMood] = useState(existingMentalHealthLog?.mood || 'Calm');
+  const [mood, setMood] = useState(existingMentalHealthLog?.mood || null);
   const [streakDays, setStreakDays] = useState(existingMentalHealthLog?.streakDays || 5);
 
   const [pulseStress, setPulseStress] = useState(1);
@@ -830,6 +832,12 @@ smoker: smoker,
             bp={bp}
             sleepHours={Number(sleep) || 7.5}
           />
+          <WellnessInsightsModule
+            records={records}
+            dailyHabits={dailyHabits}
+            mentalHealthLogs={mentalHealthLogs}
+          />
+          <AchievementsModule user={user} />
         </div>
       </div>
 
@@ -947,7 +955,7 @@ smoker: smoker,
             </div>
 
             <div className="text-center text-[11px] text-slate-500 dark:text-slate-400 font-mono pt-1">
-              Logged state: <span className="font-bold text-slate-800 dark:text-slate-200">{mood}</span>
+              Logged state: <span className="font-bold text-slate-800 dark:text-slate-200">{mood || 'Not logged today'}</span>
             </div>
           </div>
         </ProfileCard>

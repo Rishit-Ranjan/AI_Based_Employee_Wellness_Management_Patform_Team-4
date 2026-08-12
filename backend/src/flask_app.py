@@ -1,5 +1,5 @@
 """
-Main Flask application for the Employee Wellness Management Analytics platform.
+Main Flask application for the AI-Based Employee Wellness Management Platform.
 
 This file sets up the Flask server, configures JWT, CORS, and database connections.
 It defines all API endpoints for authentication, wellness data management,
@@ -28,156 +28,11 @@ from bson import ObjectId
 from dotenv import load_dotenv
 import pandas as pd
 from email_sender import send_email
-import threading
-import joblib
-import cloudpickle
+from model_loader import get_risk_model, get_target_encoder, get_feature_columns, get_recommendation_engine, get_sentiment_analyzer, preload_models
 
 app = Flask(__name__)
 
 load_dotenv()
-
-"""
-Lazy loading utility for AI/ML models.
-
-Models are loaded from disk the first time they are actually needed (i.e. the
-first request to an endpoint that requires them), rather than at application
-startup. This shifts the loading cost from cold-start time to the first feature
-request and keeps the server responsive even when ML artifacts are heavy.
-
-All accessors are thread-safe (double-checked locking) so that a model is only
-loaded once even under concurrent first-access requests.
-"""
-
-# Module-level lock to protect lazy initialization.
-_lock = threading.Lock()
-
-# Cache for loaded model artifacts (None means "not yet loaded").
-_risk_model = None
-_target_encoder = None
-_feature_columns = None
-_recommendation_engine = None
-_sia = None
-
-def _get_models_dir() -> str:
-    """Resolve the absolute path to the backend/models directory."""
-    # This file lives in backend/src, so models dir is one level up.
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    return os.path.join(base_dir, "models")
-
-
-def get_risk_model():
-    """Return the wellness risk classification model, loading on first use."""
-    global _risk_model
-    if _risk_model is None:
-        with _lock:
-            if _risk_model is None:
-                _risk_model = joblib.load(
-                    os.path.join(_get_models_dir(), "wellness_risk_model.pkl")
-                )
-    return _risk_model
-
-def get_target_encoder():
-    """Return the target label encoder, loading on first use."""
-    global _target_encoder
-    if _target_encoder is None:
-        with _lock:
-            if _target_encoder is None:
-                _target_encoder = joblib.load(
-                    os.path.join(_get_models_dir(), "target_encoder.pkl")
-                )
-    return _target_encoder
-
-def get_feature_columns():
-    """Return the feature columns list, loading on first use."""
-    global _feature_columns
-    if _feature_columns is None:
-        with _lock:
-            if _feature_columns is None:
-                _feature_columns = joblib.load(
-                    os.path.join(_get_models_dir(), "feature_columns.pkl")
-                )
-    return _feature_columns
-
-def get_recommendation_engine():
-    """Return the wellness recommendation engine, loading on first use.
-
-    The engine is expected to be a callable function (serialized via cloudpickle).
-    If the loaded artifact is not callable (e.g. a stale ``dict`` or an old
-    class-based object from a previous commit), we return ``None`` instead so the
-    calling code can safely fall back to its built-in rule-based logic rather than
-    crashing with a "'dict' object is not callable" error.
-    """
-    global _recommendation_engine
-    if _recommendation_engine is None:
-        with _lock:
-            if _recommendation_engine is None:
-                try:
-                    with open(
-                        os.path.join(_get_models_dir(), "wellness_recommendation_engine.pkl"),
-                        "rb",
-                    ) as f:
-                        _recommendation_engine = cloudpickle.load(f)
-                    # Guard against a stale/non-callable artifact (dict, class, etc.)
-                    if not callable(_recommendation_engine):
-                        print(
-                            "WARNING: recommendation engine artifact is not callable "
-                            f"(type={type(_recommendation_engine)}). Falling back to "
-                            "rule-based recommendations."
-                        )
-                        _recommendation_engine = None
-                except Exception as e:  # noqa: BLE001 - defensive, never crash startup
-                    print(
-                        "WARNING: failed to load recommendation engine "
-                        f"({e}). Falling back to rule-based recommendations."
-                    )
-                    _recommendation_engine = None
-    return _recommendation_engine
-
-
-def get_sentiment_analyzer():
-    """Return the VADER sentiment analyzer, loading on first use."""
-    global _sia
-    if _sia is None:
-        with _lock:
-            if _sia is None:
-                import nltk
-
-                nltk.download("vader_lexicon", quiet=True)
-                from nltk.sentiment import SentimentIntensityAnalyzer
-
-                _sia = SentimentIntensityAnalyzer()
-    return _sia
-
-
-def preload_models(blocking: bool = False) -> None:
-    """Eagerly load all model artifacts so the first feature request is fast.
-
-    By default this runs in a background daemon thread so server startup is not
-    blocked. Pass ``blocking=True`` to force synchronous loading (useful for
-    smoke tests or ensuring readiness before serving traffic).
-
-    Loading is thread-safe and idempotent: re-running simply returns the already
-    cached artifacts.
-    """
-    def _load_all():
-        get_risk_model()
-        get_target_encoder()
-        get_feature_columns()
-        get_recommendation_engine()
-        get_sentiment_analyzer()
-
-    if blocking:
-        _load_all()
-        return
-
-    try:
-        import threading
-
-        thread = threading.Thread(target=_load_all, name="model-preloader", daemon=True)
-        thread.start()
-    except Exception as e:  # pragma: no cover - defensive
-        print(f"Failed to start model preloader thread: {e}")
-
 
 # --- App Configuration ---
 MONGO_URI = os.getenv('MONGO_URI', 'mongodb://localhost:27017/employee_wellness_analytics')
@@ -279,52 +134,30 @@ def login():
     app.logger.debug(f"Attempting login for email: {email} with role: {role} and ID: {entity_id}")
 
     # Input validation
+    target_collection = admin_collection if role == 'Admin' else users_collection
+    id_field = "adminId" if role == 'Admin' else "employeeId"
+
     try:
-        # Check collection based on role
-        if role == 'Admin':
-            user = admin_collection.find_one({"email": email, "adminId": entity_id})
-        elif role == 'Employee':
-            user = users_collection.find_one({"email": email, "employeeId": entity_id})
-        else:
-            # Fallback for safety, though frontend should prevent this
-            user = admin_collection.find_one({"email": email, "adminId": entity_id}) or \
-                   users_collection.find_one({"email": email, "employeeId": entity_id})
-
+        # 1. Check if a user with the given email exists
+        user = target_collection.find_one({"email": email})
         if not user:
-            app.logger.warning(f"Login failed for {email}: User not found.")
-            return jsonify({'detail': 'Invalid credentials'}), 401
-        
-        # Ensure employeeId is present for employee roles, generate if missing (for legacy users)
-        if role == 'Employee' and not user.get('employeeId'):
-            # Generate a new employeeId based on current user count
-            user_count = users_collection.count_documents({})
-            new_employee_id = f"EMP{user_count + 100}" # Ensure uniqueness, could be more robust
-            users_collection.update_one(
-                {'_id': user['_id']},
-                {'$set': {'employeeId': new_employee_id}}
-            )
-            user['employeeId'] = new_employee_id # Update the user object in memory
+            app.logger.warning(f"Login failed for {email}: Email not found.")
+            # Use a specific error code or message for the frontend to target the email field
+            return jsonify({'detail': 'This email is not registered.', 'field': 'email'}), 404
 
-        # Verify that the user has a password
+        # 2. Check if the entity ID matches for the found user
+        if user.get(id_field) != entity_id:
+            app.logger.warning(f"Login failed for {email}: Incorrect {id_field} ('{entity_id}').")
+            id_name = "Admin ID" if role == 'Admin' else "Employee ID"
+            return jsonify({'detail': f'This {id_name} does not exist or does not match the email.', 'field': 'entityId'}), 401
+
+        # 3. Check password
         password_hash = user.get('password_hash')
-        if not password_hash:
-            app.logger.warning(f"Login failed for {email}: No password hash found for user.")
-            return jsonify({'detail': 'Invalid credentials'}), 401
-
-        # Verify the password using bcrypt
-        try:
-            # Verify the password using bcrypt
-            if not verify_password(password, password_hash):
-                app.logger.warning(f"Login failed for {email}: Incorrect password.")
-                return jsonify({'detail': 'Invalid credentials'}), 401
-            
-        # Handle potential errors in password verification
-        except (ValueError, TypeError):
-            # Catches invalid hash format (e.g., old sha256 hashes, None, etc.)
+        if not password_hash or not verify_password(password, password_hash):
             app.logger.warning(f"Login failed for {email}: Incorrect password.")
-            return jsonify({'detail': 'Invalid credentials'}), 401
+            return jsonify({'detail': 'The password you entered is incorrect.', 'field': 'password'}), 401
 
-        # Prepare user data for the token and response
+        # --- Login Success ---
         user_id_str = str(user['_id'])
         user_info = {
             "id": user_id_str,
@@ -1142,11 +975,12 @@ def get_fallback_video():
 @app.route('/api/wellness/recommendations', methods=['GET'])
 @jwt_required(locations=["cookies"])
 def get_recommendations():
+    # The service now handles its own model loading.
     ai_wellness_service = get_ai_service(db)
     risk_model = get_risk_model()
     target_encoder = get_target_encoder()
     recommendation_engine = get_recommendation_engine()
-    if risk_model is None or target_encoder is None:
+    if not risk_model or not target_encoder:
         return jsonify({"detail": "Risk prediction model is not available."}), 503
 
     jwt_payload = get_jwt()
@@ -1406,7 +1240,9 @@ def get_mental_health_logs(employee_id):
             sort=[('date', -1)]
         )
         if not log_record:
-            return jsonify({'detail': 'Mental health log not found for today'}), 404
+            # Return an empty object instead of 404 if no log is found for today.
+            # This is a more graceful way for the frontend to handle "no data yet".
+            return jsonify({}), 200
         log_record['id'] = str(log_record['_id'])
         del log_record['_id']
         return jsonify(log_record), 200
@@ -1520,7 +1356,9 @@ def get_insurance(employee_id):
 
     policy = insurance_collection.find_one({'employeeId': employee_id})
     if not policy:
-        return jsonify({'detail': 'No insurance policy on file for this employee'}), 404
+        # Return an empty object with a 200 status to handle cases where no policy exists.
+        # This prevents a 404 error on the frontend.
+        return jsonify({}), 200
     return jsonify(_serialize_insurance(policy)), 200
 
 # insurance endpoint (GET all policies) - admin only
@@ -2008,7 +1846,7 @@ def download_health_report(employee_id):
     story.append(Spacer(1, 20*mm))
 
     # --- Footer ---
-    story.append(Paragraph('Digitally generated — Employee Wellness Management Analytics platform.', styles['Footer']))
+    story.append(Paragraph('Digitally generated — AI-Based Employee Wellness Management Platform.', styles['Footer']))
 
     # Build the PDF
     doc.build(story)
@@ -2726,6 +2564,23 @@ def get_all_sentiment_pulses():
         app.logger.exception(f"Failed to fetch all sentiment pulses: {e}")
         return jsonify({'detail': 'Internal Server Error'}), 500
 
+@app.route('/api/wellness/sentiment-pulse/<pulse_id>', methods=['DELETE'])
+@jwt_required(locations=["cookies"])
+def delete_sentiment_pulse(pulse_id):
+    """ Deletes a single sentiment pulse by its ID. Admin-only. """
+    jwt_payload = get_jwt()
+    user_info = jwt_payload.get("user_info", {})
+    if user_info.get('role', '').lower() != 'admin':
+        return jsonify({'detail': 'Forbidden'}), 403
+
+    try:
+        result = sentiment_pulses_collection.delete_one({'_id': ObjectId(pulse_id)})
+        if result.deleted_count == 0:
+            return jsonify({'detail': 'Pulse not found'}), 404
+        return '', 204
+    except Exception as e:
+        app.logger.exception(f"Failed to delete sentiment pulse {pulse_id}: {e}")
+        return jsonify({'detail': 'Internal Server Error'}), 500
 
 # --- Get An Individual Employee's Sentiment Pulses ---
 @app.route('/api/wellness/sentiment-pulse/<employee_id>', methods=['GET'])

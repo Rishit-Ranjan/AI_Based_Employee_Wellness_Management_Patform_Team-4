@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  User, Lightbulb, Bot, X, LogOut, UploadCloud,
+  User, Lightbulb, Bot, X, LogOut,
   Dumbbell, Apple, Brain, Clock, HeartPulse, Sparkles, Check, ShieldAlert, AlertCircle, Smile, Send,
   CalendarCheck, Siren, Receipt, ShieldCheck, Target, FileDown, Utensils, Bell, ExternalLink, PlayCircle,
   Mic, MicOff, Volume2, Sun, Moon, Activity, Trash2, Menu, ChevronLeft, ChevronRight, Calendar
@@ -13,9 +13,10 @@ import VideoPlayerModal from './VideoPlayerModal';
 import DietPlanModule from './DietPlanModule';
 import GoalsModule from './GoalsModule'; // Assuming this is a local component
 import ReportsModule from './ReportsModule';
-import NotificationBell from './NotificationBell';
+import NotificationBell from './NotificationBell'; 
 import EmployeeSentimentModule from './EmployeeSentimentModule';
-import { sendAiChatMessage, fetchAiInsights, generateAiRoutine } from '../services/api';
+import AchievementsModule from './AchievementsModule';
+import { sendAiChatMessage, fetchAiInsights, generateAiRoutine, triggerSos } from '../services/api';
 
 import PersonalWellnessProfile from './wellness/PersonalWellnessProfile';
 import ThemeToggle from './wellness/ThemeToggle';
@@ -839,6 +840,7 @@ export default function UserDashboard({
     const savedTab = localStorage.getItem('userActiveTab');
     return savedTab ? parseInt(savedTab, 10) : 7;
   });
+  const [isSosModalOpen, setIsSosModalOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -905,6 +907,19 @@ export default function UserDashboard({
     }
   }, []);
 
+  const handleTriggerSos = async () => {
+    try {
+      await triggerSos('Emergency SOS triggered from dashboard header.');
+      // You might want to show a success message here
+      alert('SOS Alert has been sent to the administrators.');
+    } catch (error) {
+      console.error('Failed to trigger SOS:', error);
+      alert('Failed to send SOS alert. Please try again or contact support directly.');
+    } finally {
+      setIsSosModalOpen(false);
+    }
+  };
+
   // Greeting helper
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -924,14 +939,14 @@ export default function UserDashboard({
 
   const navTabs = [
     { id: 7, label: 'My Wellness Profile', icon: User, desc: 'Health vitals & personalized trackers' },
-    { id: 15, label: 'My Mental Health & Sentiment', icon: Smile, desc: 'Personal stress & sentiment analysis' },
     { id: 3, label: 'Personalized Recommender', icon: Lightbulb, desc: 'Fitness, diet & wellness routines' },
+    { id: 15, label: 'My Mental Health & Sentiment', icon: Smile, desc: 'Personal stress & sentiment analysis' },
     { id: 14, label: 'AI Wellness Assistant', icon: Brain, desc: 'Daily AI insights & routine engine' },
     { id: 8, label: 'My Insurance', icon: ShieldCheck, desc: 'Coverage details & file claims' },
     { id: 9, label: 'Diet Plans', icon: Utensils, desc: 'AI-generated meal schedules' },
     { id: 10, label: 'My Goals', icon: Target, desc: 'Track achievements & badges' },
-    { id: 11, label: 'Health Reports', icon: FileDown, desc: 'PDF downloads & history log' },
-    { id: 12, label: 'Checkups & SOS', icon: CalendarCheck, desc: 'Schedule checkups & SOS' },
+    { id: 11, label: 'Health Reports', icon: FileDown, desc: 'Download PDF reports & view history' },
+    { id: 12, label: 'Health Checkups', icon: CalendarCheck, desc: 'Schedule & manage appointments' },
     { id: 13, label: 'Expenses', icon: Receipt, desc: 'Track health expense claims' },
   ];
 
@@ -947,6 +962,39 @@ export default function UserDashboard({
             riskLabel={playingVideo.severity}
             onClose={() => setPlayingVideo(null)} 
           />
+        )}
+
+        {/* SOS Confirmation Modal */}
+        {isSosModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setIsSosModalOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: -20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: -20, opacity: 0 }}
+              className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 w-full max-w-md border border-slate-200 dark:border-slate-700"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-red-100 dark:bg-red-950/50 rounded-full flex items-center justify-center text-red-600 dark:text-red-400">
+                  <Siren className="w-6 h-6" />
+                </div>
+                <h2 className="text-xl font-bold font-display text-slate-900 dark:text-slate-100">Confirm Emergency SOS</h2>
+              </div>
+              <p className="text-sm text-slate-600 dark:text-slate-300 mb-6">
+                This will immediately send an emergency alert to the administrators with your location and health details. Are you sure you want to proceed?
+              </p>
+              <div className="flex justify-end gap-3">
+                <button onClick={() => setIsSosModalOpen(false)} className="px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-700 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">Cancel</button>
+                <button onClick={handleTriggerSos} className="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors shadow-md">Yes, Send Alert</button>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
       
@@ -970,7 +1018,7 @@ export default function UserDashboard({
             <img src={logo} alt="App Logo" className="w-15 h-14" />
             <div className="hidden sm:block">
               <span className="font-display font-bold text-base tracking-tight block text-slate-900 dark:text-slate-50 leading-none">
-                Employee Wellness Management Analytics
+                AI-Based Employee Wellness Management Platform
               </span>
               <span className="text-[10px] text-slate-400 dark:text-slate-400 font-mono uppercase tracking-widest font-semibold mt-1 block">
                 Wellness Intelligence
@@ -1001,6 +1049,27 @@ export default function UserDashboard({
           {/* Notification Bell */}
           <NotificationBell user={user} />
 
+          {/* --- NEW: SOS Trigger Button --- */}
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setIsSosModalOpen(true)}
+              className="flex items-center gap-2 pl-3 pr-2 py-2 bg-red-100 hover:bg-red-200 dark:bg-red-950/60 dark:hover:bg-red-900/80 border border-red-200/80 dark:border-red-800 text-red-600 dark:text-red-400 rounded-l-xl transition-all duration-200 cursor-pointer shadow-sm text-xs font-semibold animate-pulse"
+              title="Pressing this immediately alerts the admin/HR team with your emergency contact and known health info (blood group, allergies, conditions)."
+            >
+              <Siren className="w-4 h-4" />
+              <span className="hidden sm:inline">SOS</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab(16)}
+              className="px-2 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-y border-r border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 rounded-r-xl transition-all duration-200 cursor-pointer shadow-sm text-xs font-semibold"
+              title="View SOS History"
+            >
+              <Clock className="w-4 h-4" />
+            </button>
+          </div>
+
           <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block" />
 
           {/* User Profile Info Trigger */}
@@ -1010,10 +1079,10 @@ export default function UserDashboard({
             title="Edit Profile"
           >
             <div className="hidden sm:block text-right">
-              <span className="block text-xs font-bold text-slate-800 dark:text-slate-100 leading-tight group-hover:text-blue-600 transition-colors">
+              <span className="block text-sm font-bold text-slate-800 dark:text-slate-100 leading-tight group-hover:text-blue-600 transition-colors">
                 {user.name}
               </span>
-              <span className="block text-[10px] text-slate-400 font-mono">
+              <span className="block text-xs text-slate-400 font-mono">
                 {user.employeeId}
               </span>
               <span className="inline-block mt-1 px-2 py-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[9px] font-mono font-bold rounded uppercase tracking-widest leading-none">
@@ -1224,10 +1293,11 @@ export default function UserDashboard({
                 {activeTab === 3 && 'Personalized Wellness Recommender'}
                 {activeTab === 14 && 'AI Wellness Assistant'}
                 {activeTab === 8 && 'Insurance Coverage & Claims'}
-                {activeTab === 9 && 'AI Meal & Diet Plans'}
+                {activeTab === 9 && 'AI Meals & Diet Plans'}
                 {activeTab === 10 && 'My Goals & Achievements'}
-                {activeTab === 11 && 'Health Reports & Timeline'}
-                {activeTab === 12 && 'Checkups & Emergency SOS'}
+                {activeTab === 11 && 'Health Reports & History'}
+                {activeTab === 12 && 'Health Checkup Scheduler'}
+                {activeTab === 16 && 'Emergency SOS History'}
                 {activeTab === 13 && 'Health Expenses Tracker'}
               </h1>
               <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 max-w-2xl font-light">
@@ -1239,8 +1309,9 @@ export default function UserDashboard({
                 {activeTab === 9 && 'Personalized meal plans generated by AI based on your health profile.'}
                 {activeTab === 10 && 'Track your wellness goals, achievements, and earn recognition badges.'}
                 {activeTab === 11 && 'Download health reports as PDF and view your complete history.'}
-                {activeTab === 12 && 'Schedule health checkups and trigger emergency SOS alerts.'}
+                {activeTab === 12 && 'Schedule and manage your health checkup appointments.'}
                 {activeTab === 13 && 'Track and manage your health-related expenses.'}
+                {activeTab === 16 && 'Review the history of all emergency SOS alerts you have triggered.'}
               </p>
             </div>
           </div>
@@ -1279,7 +1350,7 @@ export default function UserDashboard({
             )}
 
             {activeTab === 8 && (
-              <InsuranceModule user={user} />
+              <InsuranceModule user={user} options={{ forceRefresh: true }} />
             )}
 
             {activeTab === 9 && (
@@ -1295,10 +1366,7 @@ export default function UserDashboard({
             )}
 
             {activeTab === 12 && (
-              <div className="space-y-6">
-                <CheckupSchedulerModule user={user} />
-                <EmergencySOSModule user={user} />
-              </div>
+              <CheckupSchedulerModule user={user} />
             )}
 
             {activeTab === 13 && (
@@ -1307,6 +1375,10 @@ export default function UserDashboard({
 
             {activeTab === 14 && (
               <WellnessCoachDashboard user={user} healthRecords={healthRecords} />
+            )}
+
+            {activeTab === 16 && (
+              <EmergencySOSModule user={user} />
             )}
           </div>
         </main>

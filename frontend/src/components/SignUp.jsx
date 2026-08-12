@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, User, Hash, Check, AlertCircle, HeartPulse, Sparkles, CheckCircle2 } from 'lucide-react';
 import { signup as signupApi } from '../services/api';
-import { Mail, Lock, Eye, EyeOff, User, ArrowRight, Check, AlertCircle, HeartPulse, Sparkles, CheckCircle2 } from 'lucide-react';
+import FloatingSupportButton from './FloatingSupportButton';
+import CustomerSupportModal from './CustomerSupportModal';
 
-export default function SignUp({ onNavigate, onSignUpSuccess  }) {
+export default function SignUp({ onNavigate, onSignUpSuccess }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -14,6 +16,12 @@ export default function SignUp({ onNavigate, onSignUpSuccess  }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [isSupportOpen, setIsSupportOpen] = useState(false);
+
+  const nameRef = useRef(null);
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
+  const confirmPasswordRef = useRef(null);
 
   // Password strength validation logic
   const getPasswordStrength = () => {
@@ -90,9 +98,12 @@ export default function SignUp({ onNavigate, onSignUpSuccess  }) {
       } else {
         setError(msg ? msg : 'Could not connect to the server. Please try again later.');
       }
-    } finally {
       setLoading(false);
     }
+  };
+
+  const handleSupportClick = () => {
+    setIsSupportOpen(true);
   };
 
   if (success) {
@@ -131,7 +142,7 @@ export default function SignUp({ onNavigate, onSignUpSuccess  }) {
           <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
             <div className="w-4 h-4 bg-slate-900 rounded-sm rotate-45"></div>
           </div>
-          <span className="text-xl font-bold tracking-tighter text-white">Employee Wellness Management analytics</span>
+          <span className="text-xl font-bold tracking-tighter text-white">AI-Based Employee Wellness Management Platform</span>
         </div>
 
         {/* Center quote */}
@@ -175,7 +186,7 @@ export default function SignUp({ onNavigate, onSignUpSuccess  }) {
               <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center">
                 <div className="w-4 h-4 bg-white rounded-sm rotate-45"></div>
               </div>
-              <span className="font-display font-bold text-slate-900 tracking-tighter">Employee Wellness Management analytics</span>
+              <span className="font-display font-bold text-slate-900 tracking-tighter">AI-Based Employee Wellness Management Platform</span>
             </div>
             <h2 className="font-display text-2xl font-semibold text-slate-900 tracking-tight">Create your account</h2>
             <p className="text-slate-500 text-sm mt-1">Deploy wellness metrics and trackers for your team</p>
@@ -348,6 +359,10 @@ export default function SignUp({ onNavigate, onSignUpSuccess  }) {
             </p>
           </div>
         </div>
+
+        {/* Floating Customer Support Button */}
+        <FloatingSupportButton onClick={handleSupportClick} />
+        {isSupportOpen && <CustomerSupportModal user={null} onClose={() => setIsSupportOpen(false)} />}
       </div>
     </div>
   );
