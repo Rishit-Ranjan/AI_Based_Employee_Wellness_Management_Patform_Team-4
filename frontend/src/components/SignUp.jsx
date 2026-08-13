@@ -3,6 +3,8 @@ import { Mail, Lock, Eye, EyeOff, ArrowRight, User, Hash, Check, AlertCircle, He
 import { signup as signupApi } from '../services/api';
 import FloatingSupportButton from './FloatingSupportButton';
 import CustomerSupportModal from './CustomerSupportModal';
+import TermsOfService from './TermsOfService';
+import PrivacyPolicy from './PrivacyPolicy';
 
 export default function SignUp({ onNavigate, onSignUpSuccess }) {
   const [name, setName] = useState('');
@@ -16,6 +18,8 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [isSupportOpen, setIsSupportOpen] = useState(false);
 
   const nameRef = useRef(null);
@@ -104,6 +108,14 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
 
   const handleSupportClick = () => {
     setIsSupportOpen(true);
+  };
+
+  const handleOpenTerms = () => {
+    setShowTermsModal(true);
+  };
+
+  const handleOpenPrivacy = () => {
+    setShowPrivacyModal(true);
   };
 
   if (success) {
@@ -277,7 +289,7 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
                     <div className={`${strength.color} h-full transition-all duration-300`} style={{ width: `${strength.score}%` }} />
                   </div>
                   <div className="grid grid-cols-2 gap-x-2 text-[9px] text-slate-400 mt-1 font-mono">
-                    <span className={password.length >= 8 ? 'text-emerald-600 font-semibold' : ''}>✓ Min 6 chars</span>
+                    <span className={password.length >= 6 ? 'text-emerald-600 font-semibold' : ''}>✓ Min 6 chars</span>
                     <span className={/[A-Z]/.test(password) ? 'text-emerald-600 font-semibold' : ''}>✓ 1 Uppercase</span>
                     <span className={/[0-9]/.test(password) ? 'text-emerald-600 font-semibold' : ''}>✓ 1 Number</span>
                     <span className={/[^A-Za-z0-9]/.test(password) ? 'text-emerald-600 font-semibold' : ''}>✓ 1 Special</span>
@@ -319,13 +331,28 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
                   type="checkbox"
                   checked={termsAccepted}
                   required
-                  onChange={(e) => setTermsAccepted(e.target.checked)}
+                  onChange={(e) => {
+                    setTermsAccepted(e.target.checked);
+                    // Clear error if terms are now accepted
+                    if (e.target.checked && error === 'You must accept the Terms of Service and Privacy Policy.') {
+                      setError('');
+                    }
+                  }}
                   className="w-4 h-4 mt-0.5 rounded bg-slate-50 border-slate-300 text-slate-900 focus:ring-0 accent-slate-950 shrink-0"
                 />
                 <span className="text-xs text-slate-500 font-medium leading-normal">
-                  I agree to the{' '}
-                  <span className="text-slate-900 font-semibold hover:underline underline-offset-2">Terms of Service</span> and{' '}
-                  <span className="text-slate-900 font-semibold hover:underline underline-offset-2">Privacy Policy</span>.
+                  I agree to the
+                  <button
+                    type="button"
+                    onClick={handleOpenTerms}
+                    className="text-slate-900 font-semibold hover:underline underline-offset-2 mx-1"
+                  >Terms of Service</button>
+                  and
+                  <button
+                    type="button"
+                    onClick={handleOpenPrivacy}
+                    className="text-slate-900 font-semibold hover:underline underline-offset-2 ml-1"
+                  >Privacy Policy</button>.
                 </span>
               </label>
             </div>
@@ -362,6 +389,8 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
 
         {/* Floating Customer Support Button */}
         <FloatingSupportButton onClick={handleSupportClick} />
+        {showTermsModal && <TermsOfService onNavigate={() => setShowTermsModal(false)} />}
+        {showPrivacyModal && <PrivacyPolicy onNavigate={() => setShowPrivacyModal(false)} />}
         {isSupportOpen && <CustomerSupportModal user={null} onClose={() => setIsSupportOpen(false)} />}
       </div>
     </div>
