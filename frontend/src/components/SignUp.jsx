@@ -18,8 +18,7 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [showTermsModal, setShowTermsModal] = useState(false);
-  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const [activeModal, setActiveModal] = useState(null); // null, 'terms', 'privacy'
   const [isSupportOpen, setIsSupportOpen] = useState(false);
 
   const nameRef = useRef(null);
@@ -111,11 +110,11 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
   };
 
   const handleOpenTerms = () => {
-    setShowTermsModal(true);
+    setActiveModal('terms');
   };
 
   const handleOpenPrivacy = () => {
-    setShowPrivacyModal(true);
+    setActiveModal('privacy');
   };
 
   if (success) {
@@ -389,8 +388,8 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
 
         {/* Floating Customer Support Button */}
         <FloatingSupportButton onClick={handleSupportClick} />
-        {showTermsModal && <TermsOfService onNavigate={() => setShowTermsModal(false)} />}
-        {showPrivacyModal && <PrivacyPolicy onNavigate={() => setShowPrivacyModal(false)} />}
+        {activeModal === 'terms' && <TermsOfService onNavigate={() => setActiveModal(null)} />}
+        {activeModal === 'privacy' && <PrivacyPolicy onNavigate={() => setActiveModal(null)} />}
         {isSupportOpen && <CustomerSupportModal user={null} onClose={() => setIsSupportOpen(false)} />}
       </div>
     </div>
