@@ -139,6 +139,12 @@ export function logout() {
 export const fetchUsers = () => request('/users');
 
 /**
+ * Deletes a user and all their associated data. Admin-only.
+ * @param {string} employeeId The ID of the employee to delete.
+ * @returns {Promise<Object>} A promise that resolves on successful deletion.
+ */
+export const deleteUser = (employeeId) => request(`/users/${employeeId}`, { method: 'DELETE' });
+/**
  * Uploads a new avatar for the current user.
  * @param {File} file The image file to upload.
  * @returns {Promise<Object>} A promise that resolves to the updated user object.
@@ -444,7 +450,7 @@ export const updateSupportTicket = (ticketId, status) => request(`/support/ticke
 
 // --- Updated Default Export ---
 export default {
-  login, signup, me, logout, forgotPassword, resetPassword,
+  login, signup, me, logout, forgotPassword, resetPassword, deleteUser,
   fetchUsers, uploadAvatar, updateProfile, changePassword,
   fetchHealthRecords, addHealthRecord, updateHealthRecord, deleteHealthRecord,
   fetchRisks, fetchRecommendations, fetchSentiments, saveSentiments, submitSentimentPulse,

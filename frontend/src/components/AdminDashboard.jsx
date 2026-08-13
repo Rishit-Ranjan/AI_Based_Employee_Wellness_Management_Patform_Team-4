@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Edit, MoreHorizontal, Activity, TrendingUp, Lightbulb, Smile, BarChart3, LogOut,
-  Search, Plus, X, ShieldAlert, AlertCircle, Check, Sparkles, Dumbbell, Apple, Brain, Clock, ChevronLeft, ChevronRight, Menu, Calendar,
+  Search, Plus, X, ShieldAlert, AlertCircle, Check, Sparkles, Dumbbell, Apple, Brain, Clock, ChevronLeft, ChevronRight, Menu, Calendar, UserX,
   ShieldCheck, Bell, Receipt, Siren, Zap, Target, Users, LineChart, Cog, Save
 } from 'lucide-react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ScatterChart, Scatter, ResponsiveContainer } from 'recharts';
@@ -274,7 +274,6 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
     setEditingRecord(null);
     setError(''); // Clear error after successful submission
   };
-  // Find users who do not have a health record yet for the dropdown
   const usersWithoutRecords = useMemo(() => {
     return allUsers.filter(
       user => !records.some(record => record.employeeId === user.employeeId)
@@ -597,10 +596,10 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
                         <Edit className="w-3.5 h-3.5" /> Edit
                       </button>
                       <button
-                        onClick={() => { if (window.confirm(`Are you sure?`)) { onDeleteRecord(record.employeeId); } setOpenActionMenu(null); }}
-                        className="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2"
+                        onClick={() => { if (window.confirm(`Are you sure you want to delete the health record for ${record.employeeName}? This only removes the health record, not the user account.`)) { onDeleteRecord(record.employeeId); } setOpenActionMenu(null); }}
+                        className="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/50 flex items-center gap-2"
                       >
-                        <Trash2 className="w-3.5 h-3.5" /> Delete
+                        <Trash2 className="w-3.5 h-3.5" /> Delete Health Record
                       </button>
                     </div>
                   )}
@@ -684,6 +683,115 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
   );
 }
 
+// ==========================================
+// NEW MODULE: USER MANAGEMENT
+// ==========================================
+function UserManagementModule({ allUsers, healthRecords, onDeleteUser, loading }) {
+  const [search, setSearch] = useState('');
+  const [error, setError] = useState('');
+
+  const filteredUsers = useMemo(() => {
+    return allUsers.filter(user =>
+      (user.name?.toLowerCase() || '').includes(search.toLowerCase()) ||
+      (user.employeeId?.toLowerCase() || '').includes(search.toLowerCase()) ||
+      (user.email?.toLowerCase() || '').includes(search.toLowerCase())
+    );
+  }, [allUsers, search]);
+
+  const usersWithDept = useMemo(() => {
+    const recordsMap = new Map(healthRecords.map(r => [r.employeeId, r.department]));
+    return filteredUsers.map(user => ({
+      ...user,
+      department: recordsMap.get(user.employeeId) || 'N/A',
+    }));
+  }, [filteredUsers, healthRecords]);
+
+
+
+  const confirmAndDeleteUser = (employeeId, employeeName) => {
+    if (window.confirm(`Are you sure you want to permanently delete the employee '${employeeName}' (${employeeId}) and all their associated data? This action cannot be undone.`)) {
+      onDeleteUser(employeeId)
+        .catch(err => {
+          setError(`Failed to delete user: ${err.message}`);
+        });
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-white dark:bg-slate-800/50 p-4.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between gap-4">
+        <div className="relative w-full sm:w-72">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search by name, ID, or email..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 outline-none transition-all"
+          />
+        </div>
+      </div>
+
+      {error && (
+        <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-300 text-xs flex items-start gap-2.5 font-medium animate-shake">
+          <ShieldAlert className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+          <span>{error}</span>
+        </div>
+      )}
+
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="bg-slate-50 dark:bg-slate-900/50 text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">
+            <tr>
+              <th className="px-6 py-3 text-left font-semibold">Employee</th>
+              <th className="px-6 py-3 text-left font-semibold">Department</th>
+              <th className="px-6 py-3 text-left font-semibold">Email</th>
+              <th className="px-6 py-3 text-left font-semibold">Role</th>
+              <th className="px-6 py-3 text-left font-semibold">Created At</th>
+              <th className="px-6 py-3 text-right font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+            {loading ? (
+              [...Array(5)].map((_, i) => (
+                <tr key={i}><td colSpan="6" className="p-4"><div className="h-8 bg-slate-100 dark:bg-slate-700 rounded animate-pulse"></div></td></tr>
+              ))
+            ) : usersWithDept.map(user => (
+              <tr key={user.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="font-semibold text-slate-800 dark:text-slate-100">{user.name}</div>
+                  <div className="text-xs text-slate-400 dark:text-slate-500 font-mono">{user.employeeId}</div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-slate-600 dark:text-slate-300">{user.department}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-slate-600 dark:text-slate-300">{user.email}</td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${user.role === 'admin' ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}`}>
+                    {user.role}
+                  </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-slate-500 dark:text-slate-400 text-xs font-mono">
+                  {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-right">
+                  <button
+                    onClick={() => confirmAndDeleteUser(user.employeeId, user.name)}
+                    className="p-2 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/60 text-red-600 dark:text-red-400 rounded-lg transition-colors"
+                    title={`Delete ${user.name}`}
+                  >
+                    <UserX className="w-4 h-4" />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {usersWithDept.length === 0 && !loading && (
+          <div className="p-10 text-center font-mono text-xs text-slate-400 dark:text-slate-500">No users found.</div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 // ==========================================
 // MODULE 2: WELLNESS RISK PREDICTION
@@ -1998,6 +2106,7 @@ export default function AdminDashboard({ user,
   onUpdateAvatar,
   onUserUpdate,
   onAddHealthRecord,
+  onDeleteUser,
   onDeleteHealthRecord,
   onUpdateHealthRecord,
   performanceData,
@@ -2034,13 +2143,14 @@ export default function AdminDashboard({ user,
   }, [sentimentList, adminDepartment]);
 
   const adminNavTabs = [
-    { id: 1, label: 'Health Data Manager', icon: Activity, desc: 'BMI, medical, habits database' },
-    { id: 2, label: 'Wellness Risk Prediction', icon: TrendingUp, desc: 'AI burnout & vitals risk scores' },
-    { id: 3, label: 'Personalized Recommender', icon: Lightbulb, desc: 'Fitness, diet & wellness routines' },
-    { id: 4, label: 'Sentiment & Mental Health', icon: Smile, desc: 'Anonymized stress tracker' },
-    { id: 5, label: 'Performance & AI Analytics', icon: BarChart3, desc: 'KPIs, burnout trends & predictions' },
-    { id: 6, label: 'Insurance Management', icon: ShieldCheck, desc: 'Policies & claims oversight' },
-    { id: 7, label: 'Checkups, SOS & Expenses', icon: Siren, desc: 'Appointments, alerts, claims' }
+    { id: 1, label: 'User Management', icon: Users, desc: 'Manage employee accounts' },
+    { id: 2, label: 'Health Data Manager', icon: Activity, desc: 'BMI, medical, habits database' },
+    { id: 3, label: 'Wellness Risk Prediction', icon: TrendingUp, desc: 'AI burnout & vitals risk scores' },
+    { id: 4, label: 'Personalized Recommender', icon: Lightbulb, desc: 'Fitness, diet & wellness routines' },
+    { id: 5, label: 'Sentiment & Mental Health', icon: Smile, desc: 'Anonymized stress tracker' },
+    { id: 6, label: 'Performance & AI Analytics', icon: BarChart3, desc: 'KPIs, burnout trends & predictions' },
+    { id: 7, label: 'Insurance Management', icon: ShieldCheck, desc: 'Policies & claims oversight' },
+    { id: 8, label: 'Checkups, SOS & Expenses', icon: Siren, desc: 'Appointments, alerts, claims' }
   ];
 
   // Greeting helper
@@ -2195,24 +2305,25 @@ export default function AdminDashboard({ user,
             isSidebarCollapsed ? 'w-20' : 'w-67'
           }`}
         >
-          <div className="space-y-4">
-            <div className="flex items-center justify-between px-2 py-1">
-              {!isSidebarCollapsed && (
-                <span className="text-[13px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest font-mono">
-                  Admin Navigation
-                </span>
-              )}
-              <button
-                type="button"
-                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer border border-slate-200 dark:border-slate-700"
-                title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-              >
-                {isSidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-              </button>
+          <div className="flex-1 flex flex-col min-h-0">
+            <div className="shrink-0">
+              <div className="flex items-center justify-between px-2 py-1 mb-4">
+                {!isSidebarCollapsed && (
+                  <span className="text-[13px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest font-mono">
+                    Admin Navigation
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer border border-slate-200 dark:border-slate-700"
+                  title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+                >
+                  {isSidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
-
-            <nav className="space-y-1.5">
+            <nav className="flex-1 overflow-y-auto space-y-1.5 -mr-2 pr-2">
               {adminNavTabs.map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.id;
@@ -2307,26 +2418,28 @@ export default function AdminDashboard({ user,
           <div className="mb-6 pb-4 border-b border-slate-200/80 dark:border-slate-700 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800/60 rounded-md text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest font-mono mb-2">
-                {activeTab <= 5 ? `Core Module ${activeTab} of 5` : `Extension Module ${activeTab}`}
+                {activeTab <= 6 ? `Core Module ${activeTab} of 6` : `Extension Module ${activeTab}`}
               </div>
               <h1 className="font-display text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-50 tracking-tight">
-                {activeTab === 1 && 'Employee Health Data Management'}
-                {activeTab === 2 && 'Wellness Risk Prediction'}
-                {activeTab === 3 && 'Wellness Recommendation System'}
-                {activeTab === 4 && 'Mental Health & Sentiment Analytics'}
-                {activeTab === 5 && 'Performance & AI Analytics'}
-                {activeTab === 6 && 'Insurance Management'}
-                {activeTab === 7 && 'Checkups, SOS & Expenses'}
+                {activeTab === 1 && 'User Management'}
+                {activeTab === 2 && 'Employee Health Data Management'}
+                {activeTab === 3 && 'Wellness Risk Prediction'}
+                {activeTab === 4 && 'Wellness Recommendation System'}
+                {activeTab === 5 && 'Mental Health & Sentiment Analytics'}
+                {activeTab === 6 && 'Performance & AI Analytics'}
+                {activeTab === 7 && 'Insurance Management'}
+                {activeTab === 8 && 'Checkups, SOS & Expenses'}
                 {activeTab === 10 && 'System Settings'}
               </h1>
               <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 max-w-2xl font-light">
-                {activeTab === 1 && 'Database logs for tracking key metrics including BMI, medical stats, sleep, and lifestyle routines.'}
-                {activeTab === 2 && 'Machine learning assessments predicting health risks, cardiovascular issues, or stress burnout.'}
-                {activeTab === 3 && 'Tailored, evidence-based fitness routines, diet schedules, and mental wellbeing recommendations.'}
-                {activeTab === 4 && 'NLP-driven individual stress analytics collected through fully anonymized feedback pulse-checks.'}
-                {activeTab === 5 && 'High-level dashboard for KPIs, burnout trends, and AI-driven wellness predictions.'}
-                {activeTab === 6 && 'Manage employee insurance policies, claims, and coverage oversight.'}
-                {activeTab === 7 && 'Oversee employee checkup scheduling, SOS alerts, and expense claims.'}
+                {activeTab === 1 && 'Manage all employee user accounts, roles, and access.'}
+                {activeTab === 2 && 'Database logs for tracking key metrics including BMI, medical stats, sleep, and lifestyle routines.'}
+                {activeTab === 3 && 'Machine learning assessments predicting health risks, cardiovascular issues, or stress burnout.'}
+                {activeTab === 4 && 'Tailored, evidence-based fitness routines, diet schedules, and mental wellbeing recommendations.'}
+                {activeTab === 5 && 'NLP-driven individual stress analytics collected through fully anonymized feedback pulse-checks.'}
+                {activeTab === 6 && 'High-level dashboard for KPIs, burnout trends, and AI-driven wellness predictions.'}
+                {activeTab === 7 && 'Manage employee insurance policies, claims, and coverage oversight.'}
+                {activeTab === 8 && 'Oversee employee checkup scheduling, SOS alerts, and expense claims.'}
                 {activeTab === 10 && 'Manage application-wide settings and configurations.'}
               </p>
             </div>
@@ -2346,6 +2459,14 @@ export default function AdminDashboard({ user,
           {/* Render Active Tab Component */}
           <div className="animate-fadeIn">
             {activeTab === 1 && (
+              <UserManagementModule
+                allUsers={allUsers}
+                healthRecords={healthRecords}
+                onDeleteUser={onDeleteUser}
+                loading={loading}
+              />
+            )}
+            {activeTab === 2 && (
               <HealthDataModule
                 records={healthRecords}
                 allUsers={allUsers}
@@ -2356,27 +2477,27 @@ export default function AdminDashboard({ user,
               />
             )}
 
-            {activeTab === 2 && (
+            {activeTab === 3 && (
               <RiskPredictionModule risks={risks} />
             )}
 
-            {activeTab === 3 && (
+            {activeTab === 4 && (
               <RecommendationModule recommendations={recommendations} loading={loading} />
             )}
 
-{activeTab === 4 && (
+{activeTab === 5 && (
               <SentimentModule sentimentList={filteredSentimentList} healthRecords={healthRecords} />
             )}
 
-            {activeTab === 5 && (
+            {activeTab === 6 && (
               <PerformanceDashboard kpis={kpis} records={healthRecords} performanceData={performanceData} loadingPerformance={loadingPerformance} performanceError={performanceError} risks={risks} sentimentList={sentimentList} />
             )}
 
-            {activeTab === 6 && (
+            {activeTab === 7 && (
               <AdminInsuranceModule allUsers={allUsers} />
             )}
 
-            {activeTab === 7 && (
+            {activeTab === 8 && (
               <div className="space-y-8">
                 <AdminCheckupsModule />
                 <AdminSosMonitor />
