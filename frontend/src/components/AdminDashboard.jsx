@@ -824,7 +824,24 @@ export function RiskPredictionModule({ risks }) {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div
+          onClick={() => setFilter('ALL')}
+          className={`bg-white dark:bg-slate-800 border p-4.5 rounded-xl cursor-pointer transition-all hover:bg-slate-50/50 dark:hover:bg-slate-700/50 shadow-sm ${
+            filter === 'ALL' ? 'border-blue-400 dark:border-blue-600 bg-blue-50/50 dark:bg-blue-950/40' : 'border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-700'
+          }`}
+        >
+          <div className="flex justify-between items-start text-slate-400 dark:text-slate-500">
+            <span className="text-[10px] font-bold uppercase tracking-wider font-mono">All Risks</span>
+            <Users className="w-4 h-4 text-blue-500" />
+          </div>
+          <div className="flex items-baseline gap-1.5 mt-2">
+            <span className="text-2xl font-display font-semibold text-slate-800 dark:text-slate-100">{normalizedRisks.length}</span>
+            <span className="text-[10px] text-blue-600 font-mono font-bold">Total Employees</span>
+          </div>
+          <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-2 font-light">Overview of all employees with health records, regardless of risk level.</p>
+        </div>
+
         <div
           onClick={() => setFilter('HIGH')}
           className={`bg-white dark:bg-slate-800 border p-4.5 rounded-xl cursor-pointer transition-all hover:bg-slate-50/50 dark:hover:bg-slate-700/50 shadow-sm ${
