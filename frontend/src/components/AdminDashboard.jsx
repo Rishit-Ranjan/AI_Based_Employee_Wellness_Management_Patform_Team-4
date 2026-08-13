@@ -1107,29 +1107,36 @@ export function RecommendationModule({ recommendations = [], loading }) {
 // ==========================================
 export function SentimentModule({ sentimentList = [], healthRecords = [], onPulseDeleted }) {
   const [allPulses, setAllPulses] = useState([]);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     api.fetchAllSentimentPulses({ forceRefresh: true }).then(setAllPulses);
   }, [sentimentList]); // Refresh when sentiment list changes
 
-  const handleDeletePulse = async (pulseId) => {
-    if (window.confirm('Are you sure you want to delete this feedback entry? This action cannot be undone.')) {
-      try {
-        await api.deleteSentimentPulse(pulseId);
-        setAllPulses(prev => prev.filter(p => p.id !== pulseId));
-        if (onPulseDeleted) onPulseDeleted(); // Notify parent to refetch aggregated data
-      } catch (error) {
-        console.error("Failed to delete sentiment pulse:", error);
-        alert('Failed to delete feedback. Please try again.');
-      }
-    }
-  };
+  const filteredRecords = useMemo(() => {
+    if (!search) return healthRecords;
+    return healthRecords.filter(record =>
+      (record.employeeName?.toLowerCase() || '').includes(search.toLowerCase()) ||
+      (record.employeeId?.toLowerCase() || '').includes(search.toLowerCase())
+    );
+  }, [healthRecords, search]);
+
   return (
     <div className="space-y-6">
-      <div>
-
+      <div className="bg-white dark:bg-slate-800/50 p-4.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between gap-4">
+        <div className="relative w-full sm:w-72">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search by employee name or ID..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 outline-none transition-all"
+          />
+        </div>
+      </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {healthRecords.map((record) => {
+        {filteredRecords.length > 0 ? filteredRecords.map((record) => {
             const stressScore = record.stressScore;
             const stressLevel = record.stressLevel || 'Medium';
             let stressColor = 'text-amber-600';
@@ -1211,16 +1218,9 @@ export function SentimentModule({ sentimentList = [], healthRecords = [], onPuls
                   <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono">Recent Feedback</p>
                   <ul className="space-y-1 mt-1.5">
                     {recentFeedback.length > 0 ? recentFeedback.map((log, idx) => (
-                      <li key={idx} className="text-xs text-slate-500 dark:text-slate-400 font-light flex items-start justify-between gap-2 group">
-                        <span className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${
-                          log.sentiment === 'Positive' ? 'bg-emerald-500' :
-                          log.sentiment === 'Negative' ? 'bg-rose-500' :
-                          'bg-slate-400'
-                        }`} />
-                        <span>{log.feedbackText}</span>
-                        <button onClick={() => handleDeletePulse(log.id)} className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-opacity">
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                      <li key={idx} className="text-xs text-slate-500 dark:text-slate-400 font-light flex items-start gap-2">
+                        <span className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${log.sentiment === 'Positive' ? 'bg-emerald-500' : log.sentiment === 'Negative' ? 'bg-rose-500' : 'bg-slate-400'}`} />
+                        <span className="flex-1">{log.feedbackText}</span>
                       </li>
                     )) : (
                       <li className="text-[11px] text-slate-400 dark:text-slate-500 font-light">
@@ -1231,9 +1231,12 @@ export function SentimentModule({ sentimentList = [], healthRecords = [], onPuls
                 </div>
               </div>
             );
-          })}
+          }) : (
+            <div className="col-span-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-10 text-center font-mono text-xs text-slate-400 dark:text-slate-500 shadow-sm">
+              No employees found matching your search.
+            </div>
+          )}
         </div>
-      </div>
     </div>
   );
 }
