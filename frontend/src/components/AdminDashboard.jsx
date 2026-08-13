@@ -796,8 +796,9 @@ function UserManagementModule({ allUsers, healthRecords, onDeleteUser, loading }
 // ==========================================
 // MODULE 2: WELLNESS RISK PREDICTION
 // ==========================================
-export function RiskPredictionModule({ risks  }) {
+export function RiskPredictionModule({ risks }) {
   const [filter, setFilter] = useState('ALL');
+  const [search, setSearch] = useState('');
 
   const normalizedRisks = (risks || []).map((r) => ({
     ...r,
@@ -810,13 +811,16 @@ export function RiskPredictionModule({ risks  }) {
   const mediumCount = normalizedRisks.filter(r => r.riskScore >= 45 && r.riskScore < 70).length;
   const lowCount = normalizedRisks.filter(r => r.riskScore < 45).length;
 
-
-  const filteredRisks = normalizedRisks.filter(r => {
-    if (filter === 'HIGH') return r.riskScore >= 70;
-    if (filter === 'MEDIUM') return r.riskScore >= 45 && r.riskScore < 70;
-    if (filter === 'LOW') return r.riskScore < 45;
-    return true;
-  });
+  const filteredRisks = useMemo(() => {
+    return normalizedRisks.filter(r => {
+      const matchesFilter = (filter === 'ALL') ||
+        (filter === 'HIGH' && r.riskScore >= 70) ||
+        (filter === 'MEDIUM' && r.riskScore >= 45 && r.riskScore < 70) ||
+        (filter === 'LOW' && r.riskScore < 45);
+      const matchesSearch = search === '' || r.employeeName.toLowerCase().includes(search.toLowerCase()) || r.employeeId.toLowerCase().includes(search.toLowerCase());
+      return matchesFilter && matchesSearch;
+    });
+  }, [normalizedRisks, filter, search]);
 
   return (
     <div className="space-y-6">
@@ -873,59 +877,23 @@ export function RiskPredictionModule({ risks  }) {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3 shadow-sm">
-        <span className="text-xs text-slate-500 dark:text-slate-400 font-medium pl-2">Filter risk records by clinical severity:</span>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setFilter('ALL')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${
-              filter === 'ALL'
-                ? 'bg-slate-900 dark:bg-blue-600 text-white font-bold shadow-sm'
-                : 'bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600'
-            }`}
-          >
-            All Risks ({risks.length})
-          </button>
-          <button
-            onClick={() => setFilter('HIGH')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all flex items-center gap-1.5 ${
-              filter === 'HIGH'
-                ? 'bg-red-50 dark:bg-red-950/60 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 font-bold'
-                : 'bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600'
-            }`}
-          >
-            <span className="w-1.5 h-1.5 bg-red-500 rounded-full" />
-            High ({highCount})
-          </button>
-          <button
-            onClick={() => setFilter('MEDIUM')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all flex items-center gap-1.5 ${
-              filter === 'MEDIUM'
-                ? 'bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 font-bold'
-                : 'bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600'
-            }`}
-          >
-            <span className="w-1.5 h-1.5 bg-amber-500 rounded-full" />
-            Moderate ({mediumCount})
-          </button>
-          <button
-            onClick={() => setFilter('LOW')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all flex items-center gap-1.5 ${
-              filter === 'LOW'
-                ? 'bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 font-bold'
-                : 'bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600'
-            }`}
-          >
-            <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
-            Low ({lowCount})
-          </button>
+      <div className="bg-white dark:bg-slate-800/50 p-4.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between gap-4">
+        <div className="relative w-full sm:w-72">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search by name or ID..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 outline-none transition-all"
+          />
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredRisks.length === 0 ? (
           <div className="col-span-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-10 text-center font-mono text-xs text-slate-400 dark:text-slate-500 shadow-sm">
-            No employees found under the selected {filter.toLowerCase()} severity category.
+            No employees found matching your criteria.
           </div>
         ) : (
           filteredRisks.map((risk) => {
