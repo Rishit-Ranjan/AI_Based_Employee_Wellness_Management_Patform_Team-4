@@ -327,6 +327,18 @@ export default function App() {
         }
     };
 
+    const handleDeleteUser = async (employeeId) => {
+        try {
+            await api.deleteUser(employeeId);
+            // After successful deletion, force a full refresh of all data
+            // to ensure consistency across all modules.
+            await loadAllData(true);
+        } catch (err) {
+            console.error('Failed to delete user:', err);
+            throw err; // Re-throw so the AdminDashboard can display an error
+        }
+    };
+
     // Update department sentiment pulse based on new feedback and persist changes
     const handleUpdateSentimentPulse = async (employeeId, deptName, stressScore, feedbackText) => {
       try {
@@ -439,6 +451,7 @@ export default function App() {
                             onUpdateAvatar={handleUpdateAvatar}
                             onUserUpdate={setCurrentUser}
                             onDeleteHealthRecord={handleDeleteHealthRecord}
+                            onDeleteUser={handleDeleteUser}
                             onUpdateHealthRecord={handleUpdateUserRecord}
                             performanceData={performanceData}
                             onPulseDeleted={handlePulseDeleted}
