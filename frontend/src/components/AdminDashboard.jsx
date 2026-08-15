@@ -83,14 +83,14 @@ const [smoker, setSmoker] = useState(false);
   // Effect to scroll to success message when it appears
   useEffect(() => {
     if (successMessage && successMessageRef.current) {
-      successMessageRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      successMessageRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   }, [successMessage]);
 
   // Effect to scroll to error message when it appears
   useEffect(() => {
     if (error && errorMessageRef.current) {
-      errorMessageRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      errorMessageRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   }, [error]);
 
@@ -322,8 +322,8 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
         sleep_hours: getNumericValue(sleep),
         sleepHoursPerNight: getNumericValue(sleep),
         stressLevel: stress,
-        stressScore: Number(stressScore),
-        attendanceRate: Number(attendanceRate),
+        stressScore: getNumericValue(stressScore),
+        attendanceRate: getNumericValue(attendanceRate),
         medicalNotes: medicalNotes,
         medicalCondition: medicalCondition,
         smoker: smoker,
@@ -362,8 +362,8 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
         sleep_hours: getNumericValue(sleep),
         sleepHoursPerNight: getNumericValue(sleep),
         stressLevel: stress,
-        stressScore: Number(stressScore),
-        attendanceRate: Number(attendanceRate),
+        stressScore: getNumericValue(stressScore),
+        attendanceRate: getNumericValue(attendanceRate),
         medicalNotes: medicalNotes,
         medicalCondition: medicalCondition,
         smoker: smoker,

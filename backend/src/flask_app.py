@@ -513,10 +513,12 @@ def add_health_record():
         new_record['lastUpdated'] = datetime.now(timezone.utc).isoformat() # Ensure lastUpdated is set on creation
 
         result = health_records_collection.insert_one(new_record)
-        # Create a response object from the inserted record, ensuring _id is converted
-        response_record = new_record.copy() # Create a copy to avoid modifying the original in-place
-        response_record['id'] = str(result.inserted_id)
-        del response_record['_id'] # Remove the ObjectId field
+        # Construct the response dictionary explicitly to ensure no ObjectId remains.
+        # MongoDB adds _id to new_record in-place, so we need to handle it.
+        response_record = {
+            k: v for k, v in new_record.items() if k != '_id'
+        }
+        response_record['id'] = str(result.inserted_id) # Add the string version of the ID
         return jsonify(response_record), 201
     except Exception as e:
         app.logger.exception(f"An unexpected error occurred while adding a health record: {e}")
