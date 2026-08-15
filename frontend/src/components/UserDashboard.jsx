@@ -728,8 +728,8 @@ const FloatingBot = ({ onClick, isChatOpen }) => {
 
       {/* overflow="visible" remains to prevent clipping */}
       <svg 
-        width="70"
-        height="100" 
+        width="60"
+        height="90" 
         viewBox="0 0 80 120" 
         overflow="visible"
         xmlns="http://www.w3.org/2000/svg" 
