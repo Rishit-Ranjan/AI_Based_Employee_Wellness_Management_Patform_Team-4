@@ -106,13 +106,16 @@ export function RecommendationModule({ recommendations, loading = false, onPlayV
                   </p>
                   <div className="grid grid-cols-2 gap-2">
                     {rec.videoUrls.map((url, index) => {
-                      const videoId = url.split('v=')[1]?.split('&')[0];
+                      // Handle both 'watch?v=' and 'embed/' URL formats
+                      const videoId = url.includes('embed/')
+                        ? url.split('/embed/')[1]?.split('?')[0]
+                        : url.split('v=')[1]?.split('&')[0];
                       if (!videoId) return null;
                       const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
                       return (
                         <button
                           key={index}
-                          onClick={() => onPlayVideo(url, rec.category, rec.severity)}
+                          onClick={() => onPlayVideo(rec.videoUrls, index, rec.category, rec.severity)}
                           className="relative rounded-lg overflow-hidden group border border-slate-200 dark:border-slate-700 aspect-video"
                         >
                           <img src={thumbnailUrl} alt={`Video thumbnail ${index + 1}`} className="w-full h-full object-cover" />
@@ -911,9 +914,9 @@ export default function UserDashboard({
   }, [recommendations, user]);
 
   // Handler: opens video modal with metadata for auto-fallback
-  const handlePlayVideo = useCallback((videoUrl, category, severity) => {
-    if (videoUrl) {
-      setPlayingVideo({ url: videoUrl, category, severity });
+  const handlePlayVideo = useCallback((videoUrls, initialIndex, category, severity) => {
+    if (videoUrls && videoUrls.length > 0) {
+      setPlayingVideo({ urls: videoUrls, initialIndex, category, severity });
     }
   }, []);
 
@@ -967,7 +970,9 @@ export default function UserDashboard({
       <AnimatePresence>
         {playingVideo && (
           <VideoPlayerModal 
-            videoUrl={playingVideo.url} 
+            videoUrls={playingVideo.urls}
+            initialVideoIndex={playingVideo.initialIndex}
+            // The following props are now less critical as the modal manages its own fallback
             category={playingVideo.category}
             riskLabel={playingVideo.severity}
             onClose={() => setPlayingVideo(null)} 
