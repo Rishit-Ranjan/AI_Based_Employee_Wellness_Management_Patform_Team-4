@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Activity, Sparkles, Shield, UserCheck, UserCog, Hash } from 'lucide-react';
 import { login as loginApi } from '../services/api';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Activity, Sparkles, Shield, UserCheck, UserCog, Hash, HeartPulse } from 'lucide-react';
 import FloatingSupportButton from './FloatingSupportButton';
 import CustomerSupportModal from './CustomerSupportModal'; // This will now import the new styled component
 
@@ -178,7 +178,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
             wellness recommendations in real-time.
           </p>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="p-4 bg-slate-850 border border-slate-800 rounded-xl">
               <Activity className="w-5 h-5 text-indigo-400 mb-2" />
               <div className="text-sm font-semibold text-white">Predictive Analytics</div>
@@ -188,6 +188,16 @@ export default function Login({ onNavigate, onLoginSuccess }) {
               <Shield className="w-5 h-5 text-emerald-400 mb-2" />
               <div className="text-sm font-semibold text-white">Sentiment Tracker</div>
               <p className="text-xs text-slate-400 mt-2">Anonymized surveys tracking organizational mental wellbeing.</p>
+            </div>
+            <div className="p-4 bg-slate-850 border border-slate-800 rounded-xl">
+              <Sparkles className="w-5 h-5 text-purple-400 mb-2" />
+              <div className="text-sm font-semibold text-white">Personalized Recs</div>
+              <p className="text-xs text-slate-400 mt-2">AI-driven suggestions for fitness, diet, and mental peace.</p>
+            </div>
+            <div className="p-4 bg-slate-850 border border-slate-800 rounded-xl">
+              <HeartPulse className="w-5 h-5 text-rose-400 mb-2" />
+              <div className="text-sm font-semibold text-white">Health Data Mgmt</div>
+              <p className="text-xs text-slate-400 mt-2">Comprehensive interface to manage employee health records.</p>
             </div>
           </div>
         </div>
