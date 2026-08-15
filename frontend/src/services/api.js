@@ -243,16 +243,14 @@ export const fetchRecommendations = async (options) => {
 }
 
 /**
- * Requests an alternative video URL when a recommended video is unavailable.
- * @param {string} category - The recommendation category (e.g., 'Fitness', 'Mental Wellness')
- * @param {string} unavailableUrl - The YouTube URL that failed
- * @param {string} riskLabel - The user's risk level ('High', 'Medium', 'Low')
- * @returns {Promise<{alternativeUrl: string, category: string, note: string}>}
+ * Reports a video URL that is no longer available.
+ * @param {string} videoUrl - The YouTube URL that failed.
+ * @returns {Promise<Object>}
  */
-export const fetchAlternativeVideo = async (category, unavailableUrl, riskLabel = 'Low') => {
-  return request('/wellness/recommendation-media/fallback', {
+export const reportUnavailableVideo = (videoUrl) => {
+  return request('/wellness/report-video', {
     method: 'POST',
-    body: JSON.stringify({ category, unavailableUrl, riskLabel }),
+    body: JSON.stringify({ videoUrl }),
   });
 };
 

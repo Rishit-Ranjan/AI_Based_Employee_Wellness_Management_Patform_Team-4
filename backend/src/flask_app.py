@@ -25,6 +25,7 @@ from datetime import datetime, timedelta, timezone
 from pymongo import MongoClient
 from pymongo.errors import ConfigurationError
 from bson import ObjectId
+import requests as http_requests
 from dotenv import load_dotenv
 import pandas as pd
 from email_sender import send_email
@@ -853,72 +854,88 @@ RECOMMENDATION_MEDIA = {
     'Fitness': {
         'image': 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&h=300&fit=crop',
         'videos': [
-            'https://www.youtube.com/watch?v=ml6cT4J3S5I',   # FitnessBlender - 5 Min Walking Warmup
-            'https://www.youtube.com/watch?v=UItWltVZZmE',   # FitnessBlender - 25 Min Cardio
-            'https://www.youtube.com/watch?v=Y6je_wWjFik',   # FitnessBlender - 20 Min Full Body
+            {'url': 'https://www.youtube.com/embed/s-kP52p154c', 'keywords': ['warm up', 'express', '5 min', 'quick workout']},
+            {'url': 'https://www.youtube.com/embed/50kH47ZztHs', 'keywords': ['cardio', 'at home', '30 min', 'full body']},
+            {'url': 'https://www.youtube.com/embed/gC_L9qAHVJ8', 'keywords': ['beginner workout', '30 min', 'full body', 'low impact']},
+            {'url': 'https://www.youtube.com/embed/UItWltVZZmE', 'keywords': ['low impact', 'cardio', '25 min', 'gentle workout']},
         ]
     },
     'Diet': {
         'image': 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&h=300&fit=crop',
         'videos': [
-            'https://www.youtube.com/watch?v=qXjGzgLJVuk',   # TED-Ed - How to make healthy eating unbelievably easy
-            'https://www.youtube.com/watch?v=xyQY8a4Lr9g',   # Nutrition basics
-            'https://www.youtube.com/watch?v=1V8g3y3vG9s',   # Healthy meal prep
+            {'url': 'https://www.youtube.com/embed/wBmcM3_Z9gA', 'keywords': ['healthy eating', 'easy diet', 'nutrition basics']},
+            {'url': 'https://www.youtube.com/embed/Gmh_xMMJ2Pw', 'keywords': ['nutrition basics', 'healthy food', 'diet guide']},
+            {'url': 'https://www.youtube.com/embed/1V8g3y3vG9s', 'keywords': ['meal prep', 'healthy meals', 'cooking']},
+            {'url': 'https://www.youtube.com/embed/v8g1m6_m62Y', 'keywords': ['what i eat', 'healthy day', 'balanced diet']},
         ]
     },
     'Mental Wellness': {
         'image': 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&h=300&fit=crop',
         'videos': [
-            'https://www.youtube.com/watch?v=inpok4MKVLM',   # Great Meditation - 10 min Mindfulness
-            'https://www.youtube.com/watch?v=ZToicYbHMgU',   # Mindful Movement - Morning Meditation
-            'https://www.youtube.com/watch?v=jNhaOeeg0EQ',   # Headspace - Meditation Basics
+            {'url': 'https://www.youtube.com/embed/O-6f5wQXSu8', 'keywords': ['anxiety relief', '5 min', 'quick meditation', 'calming']},
+            {'url': 'https://www.youtube.com/embed/z6X5oEIg6Ak', 'keywords': ['mindfulness', 'meditation', 'stress relief', '10 min', 'guided']},
+            {'url': 'https://www.youtube.com/embed/86x-u-tz0MA', 'keywords': ['morning meditation', 'calm', 'focus', 'positive energy']},
+            {'url': 'https://www.youtube.com/embed/a-cNvI79Y4U', 'keywords': ['meditation basics', 'beginner meditation', 'mental health']},
         ]
     },
     'Yoga': {
         'image': 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&h=300&fit=crop',
         'videos': [
-            'https://www.youtube.com/watch?v=7Xr3Fq3qOXA',   # Yoga With Adriene - 20 Min Yoga for Complete Beginners
-            'https://www.youtube.com/watch?v=4pKly2JojMw',   # Yoga With Adriene - 15 Min Yoga for Stress Relief
-            'https://www.youtube.com/watch?v=9XwPcJhXjJ4',   # Yoga With Adriene - Desk Yoga
+            {'url': 'https://www.youtube.com/embed/v7AYKMP6rOE', 'keywords': ['yoga', 'full body', 'stretch', 'beginners', 'flexibility']},
+            {'url': 'https://www.youtube.com/embed/4pKly2JojMw', 'keywords': ['yoga', 'stress relief', '15 min', 'relaxation']},
+            {'url': 'https://www.youtube.com/embed/9XwPcJhXjJ4', 'keywords': ['desk yoga', 'office stretch', 'quick yoga', 'posture']},
+            {'url': 'https://www.youtube.com/embed/VaoV1PrYft4', 'keywords': ['morning yoga', '10 min', 'energy boost']},
         ]
     },
     'Lifestyle': {
         'image': 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&h=300&fit=crop',
         'videos': [
-            'https://www.youtube.com/watch?v=WjQnzB3UO5s',   # Healthy daily habits
-            'https://www.youtube.com/watch?v=pUAN2jP6E9g',   # Morning routine tips
-            'https://www.youtube.com/watch?v=iLWzJ8Ow7FE',   # Productivity & wellness
+            {'url': 'https://www.youtube.com/embed/d_22-X364qU', 'keywords': ['productivity tips', 'time management', 'focus', 'work-life balance']},
+            {'url': 'https://www.youtube.com/embed/wBmcM3_Z9gA', 'keywords': ['healthy habits', 'daily routine', 'wellness', 'lifestyle change']},
+            {'url': 'https://www.youtube.com/embed/pUAN2jP6E9g', 'keywords': ['morning routine', 'productivity', 'healthy start']},
+            {'url': 'https://www.youtube.com/embed/0e3gV1g22wQ', 'keywords': ['building habits', 'good habits', 'consistency']},
         ]
     },
     'Sleep': {
         'image': 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=600&h=300&fit=crop',
         'videos': [
-            'https://www.youtube.com/watch?v=iLWzJ8Ow7FE',   # Sleep hygiene tips
-            'https://www.youtube.com/watch?v=pUAN2jP6E9g',   # Better sleep routine
+            {'url': 'https://www.youtube.com/embed/3hHn34M9ICE', 'keywords': ['sleep hygiene', 'better sleep', 'sleep tips', 'insomnia']},
+            {'url': 'https://www.youtube.com/embed/aEqlQv6L2sI', 'keywords': ['guided sleep', 'meditation', 'sleep aid', 'relaxation']},
+            {'url': 'https://www.youtube.com/embed/r0w_uQ_Xg1Y', 'keywords': ['sleep music', 'relaxing sounds', 'deep sleep', 'ambient']},
+            {'url': 'https://www.youtube.com/embed/5mS2n2S_oO8', 'keywords': ['sleep story', 'bedtime story', 'wind down']},
         ]
     },
     'Stress': {
         'image': 'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=600&h=300&fit=crop',
         'videos': [
-            'https://www.youtube.com/watch?v=inpok4MKVLM',   # 10 min Stress Relief Meditation
-            'https://www.youtube.com/watch?v=ZToicYbHMgU',   # Stress Management
+            {'url': 'https://www.youtube.com/embed/l_g2Y-18v3g', 'keywords': ['deep breathing', 'stress reduction', 'relaxation', 'anxiety']},
+            {'url': 'https://www.youtube.com/embed/z6X5oEIg6Ak', 'keywords': ['stress relief', 'meditation', 'mindfulness', '10 min']},
+            {'url': 'https://www.youtube.com/embed/86x-u-tz0MA', 'keywords': ['stress management', 'calm', 'anxiety', 'morning meditation']},
+            {'url': 'https://www.youtube.com/embed/O-6f5wQXSu8', 'keywords': ['quick stress relief', 'instant calm', 'breathing exercise', '5 min']},
         ]
     },
     'Nutrition': {
         'image': 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=600&h=300&fit=crop',
         'videos': [
-            'https://www.youtube.com/watch?v=qXjGzgLJVuk',   # TED-Ed - Nutrition
-            'https://www.youtube.com/watch?v=xyQY8a4Lr9g',   # Healthy eating guide
+            {'url': 'https://www.youtube.com/embed/Gmh_xMMJ2Pw', 'keywords': ['nutrition', 'healthy eating', 'diet science']},
+            {'url': 'https://www.youtube.com/embed/wBmcM3_Z9gA', 'keywords': ['healthy eating guide', 'balanced diet', 'food choices']},
+            {'url': 'https://www.youtube.com/embed/a_FN022_b2c', 'keywords': ['macros', 'understanding macros', 'nutrition science']},
+            {'url': 'https://www.youtube.com/embed/Yw1-FfRj35g', 'keywords': ['healthy food swaps', 'diet tips', 'eating healthy']},
         ]
     },
 }
+
+# Define the ultimate fallback video URL outside of any dynamic lists
+ULTIMATE_FALLBACK_VIDEO_URL = "https://www.youtube.com/embed/BHACKCNDMW8" # A generic, stable nature video (embed format)
 
 # Default media fallback for unknown categories - using most universally reliable videos
 DEFAULT_REC_MEDIA = {
     'image': 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&h=300&fit=crop',
     'videos': [
-        'https://www.youtube.com/watch?v=inpok4MKVLM',
-        'https://www.youtube.com/watch?v=7Xr3Fq3qOXA',
+        {'url': 'https://www.youtube.com/embed/v7AYKMP6rOE', 'keywords': ['yoga', 'meditation', 'relaxation', 'general wellness']},
+        {'url': 'https://www.youtube.com/embed/z6X5oEIg6Ak', 'keywords': ['meditation', 'mindfulness', 'stress relief', 'calm']},
+        {'url': 'https://www.youtube.com/embed/Gmh_xMMJ2Pw', 'keywords': ['nutrition', 'healthy eating', 'diet tips', 'general wellness']},
+        {'url': 'https://www.youtube.com/embed/UItWltVZZmE', 'keywords': ['fitness', 'workout', 'exercise', 'general wellness']},
     ]
 }
 
@@ -935,90 +952,138 @@ def _resolve_media_category(category):
         if key.lower() in category.lower() or category.lower() in key.lower():
             return key
     return 'Lifestyle'
-
-def _get_alternative_video(category, unavailable_url=None, risk_label='Low'):
+    
+def _is_video_available(video_id: str) -> bool: # No longer uses API key
     """
-    Smart fallback: given a category and (optionally) the URL that failed,
-    return an alternative video URL that has NOT been marked unavailable.
-    Prioritization:
-      - High risk → first available video (most impactful)
-      - Medium risk → middle video
-      - Low risk → last video (least intensive)
-    Falls back to the default media if all videos for category are exhausted.
+    Checks if a YouTube video is available by pinging its oEmbed endpoint.
+    This is a public endpoint and does not require an API key.
     """
-    if unavailable_url:
-        _UNAVAILABLE_VIDEOS.add(unavailable_url)
+    # oEmbed URL for checking video existence.
+    oembed_url = f"https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v={video_id}&format=json"
     
-    category_key = _resolve_media_category(category)
-    media = RECOMMENDATION_MEDIA.get(category_key, DEFAULT_REC_MEDIA)
-    
-    # Get available videos (not marked unavailable)
-    available_videos = [v for v in media['videos'] if v not in _UNAVAILABLE_VIDEOS]
-    
-    # If all videos exhausted, reset the unavailable set for this category (full refresh)
-    # and try again, but make sure not to return the same failing URL.
-    if not available_videos:
-        _UNAVAILABLE_VIDEOS.difference_update(media['videos'])
-        available_videos = [v for v in media['videos'] if v != unavailable_url]
-        # If all videos are the same as the failing one, we have no choice but to try it again.
-        if not available_videos:
-            available_videos = list(media['videos'])
+    try:
+        # A short timeout is used to fail fast if the network is slow.
+        response = http_requests.get(oembed_url, timeout=3)
+        # If the video is private or deleted, YouTube returns 404 or 403.
+        # A successful 200 response means the video is public.
+        return response.status_code == 200
+    except http_requests.RequestException:
+        # If the request fails for any reason (timeout, network error), assume unavailable.
+        return True
 
 
-    # Choose based on risk label
-    if risk_label == 'High':
-        index = 0
-    elif risk_label == 'Medium':
-        index = len(available_videos) // 2
-    else:  # Low
-        index = len(available_videos) - 1
+def _get_all_available_videos(recommendation: dict, max_videos: int = 4) -> list:
+    """
+    Gets a list of suitable video URLs for a given recommendation.
+    It scores videos based on keyword matching and category relevance,
+    filters out unavailable videos, and supplements from default categories if needed.
+    """
+    rec_category = recommendation.get('category', 'Lifestyle')
+    rec_title = recommendation.get('title', '').lower()
+    rec_description = recommendation.get('description', '').lower()
     
-    index = min(index, len(available_videos) - 1)
-    return available_videos[index] if available_videos else DEFAULT_REC_MEDIA['videos'][0]
+    all_potential_videos = []
 
+    # Add category-specific videos
+    for cat_key, media_data in RECOMMENDATION_MEDIA.items():
+        for video_entry in media_data.get('videos', []):
+            all_potential_videos.append({
+                'url': video_entry['url'],
+                'keywords': video_entry['keywords'],
+                'source_category': cat_key
+            })
+    
+    # Add default videos
+    for video_entry in DEFAULT_REC_MEDIA.get('videos', []):
+        all_potential_videos.append({
+            'url': video_entry['url'],
+            'keywords': video_entry['keywords'],
+            'source_category': 'Default' # Mark as default for lower priority
+        })
+
+    scored_videos = []
+    for video in all_potential_videos:
+        if video['url'] in _UNAVAILABLE_VIDEOS:
+            continue # Skip videos marked as unavailable
+
+        score = 0
+        # Boost score for category match
+        if video['source_category'] == rec_category:
+            score += 10
+        
+        # Score based on keyword overlap with recommendation title and description
+        for keyword in video['keywords']:
+            if keyword.lower() in rec_title:
+                score += 3
+            if keyword.lower() in rec_description:
+                score += 2
+        
+        scored_videos.append({'url': video['url'], 'score': score})
+
+    # Sort by score (descending) and then randomly for ties to ensure variety
+    scored_videos.sort(key=lambda x: (x['score'], random.random()), reverse=True)
+    
+    # Live validation and collection of available videos
+    verified_videos = []
+    seen_urls = set()
+    for video in scored_videos:
+        url = video['url']
+        if url in seen_urls:
+            continue
+        
+        video_id = url.split('/embed/')[-1].split('?')[0]
+        if _is_video_available(video_id):
+            verified_videos.append(url)
+            seen_urls.add(url)
+        else:
+            # If unavailable, add to runtime blocklist to avoid re-checking
+            _UNAVAILABLE_VIDEOS.add(url)
+            app.logger.warning(f"Video {url} is unavailable. Skipping.")
+
+        if len(verified_videos) >= max_videos:
+            break
+            
+    # If no verified videos were found, return the ultimate fallback
+    return verified_videos if verified_videos else [ULTIMATE_FALLBACK_VIDEO_URL]
 
 def _add_media_to_recommendations(recommendations):
-    """Attach image and video URLs to each recommendation based on category and severity."""
+    """Attach image and a list of video URLs to each recommendation."""
     enriched = []
     for rec in recommendations:
-        category = rec.get('category', 'Lifestyle')
-        category_key = _resolve_media_category(category)
-        media = RECOMMENDATION_MEDIA.get(category_key, DEFAULT_REC_MEDIA)
-        
-        # Pick video based on severity/score for variety
-        score = rec.get('score', 5) if isinstance(rec.get('score'), (int, float)) else 5
-        video_index = min(int(score) % len(media['videos']), len(media['videos']) - 1)
+        category = rec.get('category', 'Lifestyle') # Default to 'Lifestyle' if category is missing
+
+        # Determine the media source for the image
+        media_source = RECOMMENDATION_MEDIA.get(_resolve_media_category(category), DEFAULT_REC_MEDIA)
+
+        # Get a list of suitable videos instead of a single one, passing the full rec object
+        video_urls = _get_all_available_videos(rec) # Pass the full recommendation object
         
         enriched_rec = {
             **rec,
             'id': rec.get('recommendation_id', rec.get('id', str(random.randint(1000, 9999)))),
-            'imageUrl': media['image'],
-            'videoUrl': media['videos'][video_index],
+            'imageUrl': media_source['image'],
+            'videoUrls': video_urls,
         }
         enriched.append(enriched_rec)
     return enriched
 
-# --- Video Fallback Endpoint (for when a video is unavailable) ---
-@app.route('/api/wellness/recommendation-media/fallback', methods=['POST'])
+@app.route('/api/wellness/report-video', methods=['POST'])
 @jwt_required(locations=["cookies"])
-def get_fallback_video():
-    """
-    When the frontend detects a YouTube video is unavailable (removed/privated),
-    it reports the failed URL here and receives an alternative video URL.
-    The alternative is selected intelligently based on the user's risk profile.
-    """
+def report_unavailable_video():
+    """Endpoint for the frontend to report a video that is no longer available."""
     data = request.get_json() or {}
-    category = data.get('category', 'Lifestyle')
-    unavailable_url = data.get('unavailableUrl')
-    risk_label = data.get('riskLabel', 'Low')
-    
-    alternative_url = _get_alternative_video(category, unavailable_url, risk_label)
-    
-    return jsonify({
-        'alternativeUrl': alternative_url,
-        'category': category,
-        'note': 'Alternative video selected based on availability and risk profile.'
-    }), 200
+    video_url = data.get('videoUrl')
+
+    if not video_url:
+        return jsonify({'detail': 'Missing videoUrl'}), 400
+
+    # Add the broken video to the runtime blocklist
+    _UNAVAILABLE_VIDEOS.add(video_url)
+    app.logger.info(f"Video marked as unavailable: {video_url}")
+
+    return jsonify({'detail': 'Video reported successfully'}), 200
+
+
 
 
 # --- Wellness Recommendations Endpoint ---
@@ -1062,7 +1127,6 @@ def get_recommendations():
                     if cached_entry.get('timestamp') == last_updated:
                         all_recommendations.append(cached_entry['data'])
                         continue  # Skip re-computation
-
 
                 # 1. Get risk profile from the classification model
                 model_input_df = map_health_record_to_model_input(record)
@@ -1167,7 +1231,6 @@ def get_recommendations():
                     'data': employee_recs
                 }
 
-
             except Exception as e:
                 app.logger.error(f"Failed to generate recommendations for {record.get('employeeId')}: {e}")
                 # Add a placeholder recommendation for the employee if an error occurred
@@ -1191,7 +1254,6 @@ def get_recommendations():
     except Exception as e:
         app.logger.exception(f"An unexpected error occurred while generating recommendations: {e}")
         return jsonify({'detail': 'Internal Server Error'}), 500
-
 
 # --- Daily Habits API Endpoints (GET) ---
 @app.route('/api/wellness/daily-habits/<employee_id>', methods=['GET'])

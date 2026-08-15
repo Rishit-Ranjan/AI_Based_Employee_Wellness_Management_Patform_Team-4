@@ -74,20 +74,8 @@ export function RecommendationModule({ recommendations, loading = false, onPlayV
 
           return (
             <div key={rec.id} className="bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl flex flex-col justify-between hover:shadow-xl transition-all duration-300 shadow-sm overflow-hidden">
-              {rec.imageUrl && (
-                <div className="relative h-40">
-                  <img src={rec.imageUrl} alt={rec.title} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  {rec.videoUrl && (
-                    <button 
-                      onClick={() => onPlayVideo(rec.videoUrl, rec.category, rec.severity)}
-                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-3 bg-white/20 backdrop-blur-sm rounded-full text-white hover:bg-white/40 transition-all"
-                    >
-                      <PlayCircle className="w-8 h-8" />
-                    </button>
-                  )}
-                </div>
-              )}
+              {/* The main image container height is increased to show more of the image */}
+              {rec.imageUrl && <img src={rec.imageUrl} alt={rec.title} className="w-full h-full object-cover" />}
 
               <div className="p-5 flex flex-col flex-grow space-y-4">
               <div className="space-y-3">
@@ -110,17 +98,66 @@ export function RecommendationModule({ recommendations, loading = false, onPlayV
 
               <div className="flex-grow" />
 
+              {/* NEW: Display multiple video thumbnails */}
+              {rec.videoUrls && rec.videoUrls.length > 0 && (
+                <div className="pt-3">
+                  <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono mb-2">
+                    Watch a Video
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {rec.videoUrls.map((videoUrl, index) => {
+                      // Handle both 'watch?v=' and 'embed/' URL formats to extract video ID
+                      const videoId = videoUrl.includes('embed/')
+                        ? videoUrl.split('/embed/')[1]?.split('?')[0]
+                        : videoUrl.split('v=')[1]?.split('&')[0];
+                      if (!videoId) return null; // Don't render if no valid videoId
+
+                      // State for each thumbnail's source, allowing fallback
+                      const [thumbSrc, setThumbSrc] = useState(`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`);
+
+                      // Reset thumbSrc if the videoId for this button changes (unlikely but good practice)
+                      useEffect(() => {
+                        setThumbSrc(`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`);
+                      }, [videoId]);
+
+                      const handleThumbError = (e) => {
+                        // If hqdefault fails, try mqdefault
+                        if (e.target.src.includes('hqdefault.jpg')) {
+                          e.target.src = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+                        } else if (e.target.src.includes('mqdefault.jpg')) {
+                          // If mqdefault also fails, use a generic placeholder
+                          e.target.src = 'https://via.placeholder.com/160x90?text=Video+Unavailable';
+                        } else {
+                          e.target.onerror = null; // Prevent infinite loop if placeholder also fails
+                        }
+                      };
+                      return (
+                        <button
+                          key={index}
+                          onClick={() => onPlayVideo(rec.videoUrls, index, rec.category, rec.severity)}
+                          className="relative rounded-lg overflow-hidden group border border-slate-200 dark:border-slate-700 aspect-video"
+                        >
+                          <img
+                            src={thumbSrc} // Use state-managed source
+                            alt={`Video thumbnail ${index + 1}`}
+                            className="w-full h-full object-cover"
+                            onError={handleThumbError} // Add error handler
+                          />
+                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <PlayCircle className="w-6 h-6 text-white" />
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700/60">
                 <div className="flex items-center gap-1.5">
                   <span className={`w-2 h-2 rounded-full ${rec.severity === 'High' ? 'bg-red-500' : rec.severity === 'Medium' ? 'bg-amber-500' : 'bg-blue-500'}`} />
                   <span className="text-[13px] font-bold text-slate-500 dark:text-slate-400 uppercase font-mono">{rec.severity} Severity</span>
                 </div>
-                {rec.videoUrl && (
-                  <a href={rec.videoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-500 transition-colors">
-                    <ExternalLink className="w-5 h-5" />
-                    Watch on YouTube
-                  </a>
-                )}
               </div>
 
               {rec.reasons && rec.reasons.length > 0 && (
@@ -901,9 +938,9 @@ export default function UserDashboard({
   }, [recommendations, user]);
 
   // Handler: opens video modal with metadata for auto-fallback
-  const handlePlayVideo = useCallback((videoUrl, category, severity) => {
-    if (videoUrl) {
-      setPlayingVideo({ url: videoUrl, category, severity });
+  const handlePlayVideo = useCallback((videoUrls, initialIndex, category, severity) => {
+    if (videoUrls && videoUrls.length > 0) {
+      setPlayingVideo({ urls: videoUrls, initialIndex, category, severity });
     }
   }, []);
 
@@ -957,7 +994,9 @@ export default function UserDashboard({
       <AnimatePresence>
         {playingVideo && (
           <VideoPlayerModal 
-            videoUrl={playingVideo.url} 
+            videoUrls={playingVideo.urls}
+            initialVideoIndex={playingVideo.initialIndex}
+            // The following props are now less critical as the modal manages its own fallback
             category={playingVideo.category}
             riskLabel={playingVideo.severity}
             onClose={() => setPlayingVideo(null)} 
