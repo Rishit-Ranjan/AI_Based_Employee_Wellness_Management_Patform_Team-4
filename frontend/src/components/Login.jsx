@@ -182,18 +182,18 @@ export default function Login({ onNavigate, onLoginSuccess }) {
             <div className="p-4 bg-slate-850 border border-slate-800 rounded-xl">
               <Activity className="w-5 h-5 text-indigo-400 mb-2" />
               <div className="text-sm font-semibold text-white">Predictive Analytics</div>
-              <p className="text-xs text-slate-400 mt-1">Machine learning assessments for health and burnout risks.</p>
+              <p className="text-xs text-slate-400 mt-2">Machine learning assessments for health and burnout risks.</p>
             </div>
             <div className="p-4 bg-slate-850 border border-slate-800 rounded-xl">
               <Shield className="w-5 h-5 text-emerald-400 mb-2" />
               <div className="text-sm font-semibold text-white">Sentiment Tracker</div>
-              <p className="text-xs text-slate-400 mt-1">Anonymized surveys tracking organizational mental wellbeing.</p>
+              <p className="text-xs text-slate-400 mt-2">Anonymized surveys tracking organizational mental wellbeing.</p>
             </div>
           </div>
         </div>
 
         {/* Footer info */}
-        <div className="text-xs text-slate-500 flex items-center justify-between relative z-10 font-mono">
+        <div className="text-sm text-slate-500 flex items-center justify-between relative z-10 font-mono mt-8">
           <span>© 2026 Employee Wellness Inc.</span>
           <span className="flex items-center gap-1.5 text-slate-400">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>

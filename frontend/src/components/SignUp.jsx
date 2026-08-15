@@ -172,7 +172,7 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
               'Direct AI-assisted personalized action plans',
               'Granular real-time team feedback widgets'
             ].map((benefit, idx) => (
-              <li key={idx} className="flex items-center gap-2.5 text-sm text-slate-300">
+              <li key={idx} className="flex items-center gap-2.5 text-base text-slate-300">
                 <div className="p-0.5 bg-slate-800 border border-slate-700 text-emerald-400 rounded-md">
                   <Check className="w-3.5 h-3.5" />
                 </div>
@@ -183,7 +183,7 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
         </div>
 
         {/* Footer info */}
-        <div className="text-sm text-slate-500 flex items-center justify-between relative z-10 font-mono">
+        <div className="text-base text-slate-500 flex items-center justify-between relative z-10 font-mono">
           <span>© 2026 Employee Wellness Inc.</span>
         </div>
       </div>
