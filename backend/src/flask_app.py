@@ -853,62 +853,73 @@ RECOMMENDATION_MEDIA = {
     'Fitness': {
         'image': 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&h=300&fit=crop',
         'videos': [
-            'https://www.youtube.com/watch?v=s-kP52p154c',   # FitnessBlender - 5 Min Express Warm Up
-            'https://www.youtube.com/watch?v=50kH47ZztHs',   # FitnessBlender - 30 Min At Home Cardio
-            'https://www.youtube.com/watch?v=gC_L9qAHVJ8',   # FitnessBlender - 30 Min Beginner Workout
+            'https://www.youtube.com/watch?v=s-kP52p154c',    # FitnessBlender - 5 Min Express Warm Up
+            'https://www.youtube.com/watch?v=50kH47ZztHs',    # FitnessBlender - 30 Min At Home Cardio
+            'https://www.youtube.com/watch?v=gC_L9qAHVJ8',    # FitnessBlender - 30 Min Beginner Workout
+            'https://www.youtube.com/watch?v=ml6cT4J3S5I',    # FitnessBlender - 10 Min Low Impact Cardio
         ]
     },
     'Diet': {
         'image': 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&h=300&fit=crop',
         'videos': [
-            'https://www.youtube.com/watch?v=qXjGzgLJVuk',   # TED-Ed - How to make healthy eating unbelievably easy
-            'https://www.youtube.com/watch?v=xyQY8a4Lr9g',   # Nutrition basics
-            'https://www.youtube.com/watch?v=1V8g3y3vG9s',   # Healthy meal prep
+            'https://www.youtube.com/watch?v=qXjGzgLJVuk',    # TED-Ed - How to make healthy eating unbelievably easy
+            'https://www.youtube.com/watch?v=xyQY8a4Lr9g',    # Nutrition basics
+            'https://www.youtube.com/watch?v=1V8g3y3vG9s',    # Healthy meal prep
+            'https://www.youtube.com/watch?v=v8g1m6_m62Y',    # What I Eat in a Day - Healthy & Balanced
         ]
     },
     'Mental Wellness': {
         'image': 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&h=300&fit=crop',
         'videos': [
-            'https://www.youtube.com/watch?v=inpok4MKVLM',   # Great Meditation - 10 min Mindfulness
-            'https://www.youtube.com/watch?v=ZToicYbHMgU',   # Mindful Movement - Morning Meditation
-            'https://www.youtube.com/watch?v=jNhaOeeg0EQ',   # Headspace - Meditation Basics
+            'https://www.youtube.com/watch?v=inpok4MKVLM',    # Great Meditation - 10 min Mindfulness
+            'https://www.youtube.com/watch?v=ZToicYbHMgU',    # Mindful Movement - Morning Meditation
+            'https://www.youtube.com/watch?v=jNhaOeeg0EQ',    # Headspace - Meditation Basics
+            'https://www.youtube.com/watch?v=wfK_g_Y190',    # 5-Minute Meditation for Anxiety
         ]
     },
     'Yoga': {
         'image': 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&h=300&fit=crop',
         'videos': [
-            'https://www.youtube.com/watch?v=7Xr3Fq3qOXA',   # Yoga With Adriene - 20 Min Yoga for Complete Beginners
-            'https://www.youtube.com/watch?v=4pKly2JojMw',   # Yoga With Adriene - 15 Min Yoga for Stress Relief
-            'https://www.youtube.com/watch?v=9XwPcJhXjJ4',   # Yoga With Adriene - Desk Yoga
+            'https://www.youtube.com/watch?v=7Xr3Fq3qOXA',    # Yoga With Adriene - 20 Min Yoga for Complete Beginners
+            'https://www.youtube.com/watch?v=4pKly2JojMw',    # Yoga With Adriene - 15 Min Yoga for Stress Relief
+            'https://www.youtube.com/watch?v=9XwPcJhXjJ4',    # Yoga With Adriene - Desk Yoga
+            'https://www.youtube.com/watch?v=v7AYKMP6rOE',    # Yoga for Beginners - Full Body Stretch
         ]
     },
     'Lifestyle': {
         'image': 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&h=300&fit=crop',
         'videos': [
-            'https://www.youtube.com/watch?v=WjQnzB3UO5s',   # Healthy daily habits
-            'https://www.youtube.com/watch?v=pUAN2jP6E9g',   # Morning routine tips
-            'https://www.youtube.com/watch?v=a3gq_I61s1s',   # Productivity tips
+            'https://www.youtube.com/watch?v=WjQnzB3UO5s',    # Healthy daily habits
+            'https://www.youtube.com/watch?v=pUAN2jP6E9g',    # Morning routine tips
+            'https://www.youtube.com/watch?v=a3gq_I61s1s',    # Productivity tips
+            'https://www.youtube.com/watch?v=0e3gV1g22wQ',    # Building good habits
         ]
     },
     'Sleep': {
         'image': 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=600&h=300&fit=crop',
         'videos': [
-            'https://www.youtube.com/watch?v=aXmInS7h-3c',   # Sleep hygiene tips
-            'https://www.youtube.com/watch?v=pUAN2jP6E9g',   # Better sleep routine
+            'https://www.youtube.com/watch?v=aXmInS7h-3c',    # Sleep hygiene tips
+            'https://www.youtube.com/watch?v=pUAN2jP6E9g',    # Better sleep routine
+            'https://www.youtube.com/watch?v=N_jG_g_Y190',    # Guided sleep meditation
+            'https://www.youtube.com/watch?v=r0w_uQ_Xg1Y',    # Sleep music
         ]
     },
     'Stress': {
         'image': 'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=600&h=300&fit=crop',
         'videos': [
-            'https://www.youtube.com/watch?v=inpok4MKVLM',   # 10 min Stress Relief Meditation
-            'https://www.youtube.com/watch?v=ZToicYbHMgU',   # Stress Management
+            'https://www.youtube.com/watch?v=inpok4MKVLM',    # 10 min Stress Relief Meditation
+            'https://www.youtube.com/watch?v=ZToicYbHMgU',    # Stress Management
+            'https://www.youtube.com/watch?v=h_X1r4y-E4I',    # Quick stress relief
+            'https://www.youtube.com/watch?v=l_g2Y-18v3g',    # Deep breathing for stress
         ]
     },
     'Nutrition': {
         'image': 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=600&h=300&fit=crop',
         'videos': [
-            'https://www.youtube.com/watch?v=qXjGzgLJVuk',   # TED-Ed - Nutrition
-            'https://www.youtube.com/watch?v=xyQY8a4Lr9g',   # Healthy eating guide
+            'https://www.youtube.com/watch?v=qXjGzgLJVuk',    # TED-Ed - Nutrition
+            'https://www.youtube.com/watch?v=xyQY8a4Lr9g',    # Healthy eating guide
+            'https://www.youtube.com/watch?v=a_FN022_b2c',    # Understanding macros
+            'https://www.youtube.com/watch?v=Yw1-FfRj35g',    # Healthy food swaps
         ]
     },
 }
@@ -920,9 +931,10 @@ ULTIMATE_FALLBACK_VIDEO_URL = "https://www.youtube.com/watch?v=BHACKCNDMW8" # A 
 DEFAULT_REC_MEDIA = {
     'image': 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&h=300&fit=crop',
     'videos': [
-        'https://www.youtube.com/watch?v=7Xr3Fq3qOXA', # Yoga
-        'https://www.youtube.com/watch?v=ZToicYbHMgU', # Meditation
-        'https://www.youtube.com/watch?v=xyQY8a4Lr9g', # Nutrition
+        'https://www.youtube.com/watch?v=7Xr3Fq3qOXA',    # Yoga
+        'https://www.youtube.com/watch?v=ZToicYbHMgU',    # Meditation
+        'https://www.youtube.com/watch?v=xyQY8a4Lr9g',    # Nutrition
+        'https://www.youtube.com/watch?v=ml6cT4J3S5I',    # General fitness
     ]
 }
 
@@ -940,7 +952,7 @@ def _resolve_media_category(category):
             return key
     return 'Lifestyle'
     
-def _get_all_available_videos(category: str, max_videos: int = 3) -> list:
+def _get_all_available_videos(category: str, max_videos: int = 4) -> list:
     """
     Gets a list of available video URLs for a given category.
     It filters out unavailable videos and supplements from default categories if needed.
