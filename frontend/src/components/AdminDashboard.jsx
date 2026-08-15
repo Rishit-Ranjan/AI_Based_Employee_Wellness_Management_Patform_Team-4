@@ -83,14 +83,14 @@ const [smoker, setSmoker] = useState(false);
   // Effect to scroll to success message when it appears
   useEffect(() => {
     if (successMessage && successMessageRef.current) {
-      successMessageRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      successMessageRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, [successMessage]);
 
   // Effect to scroll to error message when it appears
   useEffect(() => {
     if (error && errorMessageRef.current) {
-      errorMessageRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      errorMessageRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, [error]);
 
@@ -232,7 +232,7 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
     setExistingDiseases(Math.random() > 0.6 ? 'None' : 'Hypertension');
 
     setSuccessMessage('Form autofilled with random data!');
-    setTimeout(() => setSuccessMessage(''), 7000);
+    setTimeout(() => setSuccessMessage(''), 7000); // Already set to 7 seconds
   };
   
   const filtered = records.filter(r => {
@@ -392,8 +392,8 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
     if (!submissionError) {
       // On success, display message for 5s, then close form and clear message
       setTimeout(() => {
-        setSuccessMessage(''); // Clear success message after 7s
-        setIsAddOpen(false);   // Close the form after 7s
+        setSuccessMessage(''); // Clear success message after 7s (already set)
+        setIsAddOpen(false);   // Close the form after 7s (already set)
         // Reset Form (only if successfully closed)
         setSelectedEmployee('');
         setAge(''); setGender('Male'); setHeightCm(''); setWeightKg('');
@@ -403,10 +403,10 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
         setEmergencyContactName(''); setEmergencyContactPhone(''); setBloodGroup(''); setAllergies(''); setExistingDiseases('');
         setEditingRecord(null);
         setError(''); // Ensure error is cleared on successful submission
-      }, 7000);
+      }, 7000); // Already set to 7 seconds
     } else {
       // On error, display error message for 5s, and keep the form open
-      setTimeout(() => setError(''), 7000);
+      setTimeout(() => setError(''), 7000); // Already set to 7 seconds
     }
   }
 };
