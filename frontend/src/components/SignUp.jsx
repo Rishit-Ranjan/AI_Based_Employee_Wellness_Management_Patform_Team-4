@@ -153,15 +153,15 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
           <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
             <div className="w-4 h-4 bg-slate-900 rounded-sm rotate-45"></div>
           </div>
-          <span className="text-xl font-bold tracking-tighter text-white">AI-Based Employee Wellness Management Platform</span>
+          <span className="text-2xl font-extrabold tracking-tighter text-white">AI-Based Employee Wellness Management Platform</span>
         </div>
 
         {/* Center quote */}
         <div className="my-auto relative z-10 max-w-md">
-          <h1 className="font-display text-4xl font-light tracking-tight leading-tight mb-6 text-white">
+          <h1 className="font-display text-5xl font-normal tracking-tight leading-tight mb-6 text-white">
             Join thousands of teams <br/><span className="italic font-serif text-slate-300">prioritizing employee</span> health.
           </h1>
-          <p className="text-slate-400 text-sm leading-relaxed mb-6 font-light">
+          <p className="text-slate-400 text-base leading-relaxed mb-6 font-normal">
             Establishing a wellness program can reduce absenteeism by 25% and increase overall workspace productivity. Get started with custom employee health indexing today.
           </p>
 
@@ -172,7 +172,7 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
               'Direct AI-assisted personalized action plans',
               'Granular real-time team feedback widgets'
             ].map((benefit, idx) => (
-              <li key={idx} className="flex items-center gap-2.5 text-xs text-slate-300">
+              <li key={idx} className="flex items-center gap-2.5 text-base text-slate-300">
                 <div className="p-0.5 bg-slate-800 border border-slate-700 text-emerald-400 rounded-md">
                   <Check className="w-3.5 h-3.5" />
                 </div>
@@ -183,9 +183,8 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
         </div>
 
         {/* Footer info */}
-        <div className="text-xs text-slate-500 flex items-center justify-between relative z-10 font-mono">
+        <div className="text-base text-slate-500 flex items-center justify-between relative z-10 font-mono">
           <span>© 2026 Employee Wellness Inc.</span>
-          <span>Security Certified SHA-256</span>
         </div>
       </div>
 
@@ -197,7 +196,7 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
               <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center">
                 <div className="w-4 h-4 bg-white rounded-sm rotate-45"></div>
               </div>
-              <span className="font-display font-bold text-slate-900 tracking-tighter">AI-Based Employee Wellness Management Platform</span>
+              <span className="font-display font-semibold text-lg text-slate-900 tracking-tighter">AI-Based Employee Wellness Management Platform</span>
             </div>
             <h2 className="font-display text-2xl font-semibold text-slate-900 tracking-tight">Create your account</h2>
             <p className="text-slate-500 text-sm mt-1">Deploy wellness metrics and trackers for your team</p>

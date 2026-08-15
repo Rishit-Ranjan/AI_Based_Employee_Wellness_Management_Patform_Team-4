@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Edit, MoreHorizontal, Activity, TrendingUp, Lightbulb, Smile, BarChart3, LogOut,
-  Search, Plus, X, ShieldAlert, AlertCircle, Check, Sparkles, Dumbbell, Apple, Brain, Clock, ChevronLeft, ChevronRight, Menu, Calendar, UserX,
+  Search, Plus, X, ShieldAlert, AlertCircle, Check, Sparkles, Dumbbell, Apple, Brain, Clock, ChevronLeft, ChevronRight, Menu, Calendar, UserX, Eye,
   ShieldCheck, Bell, Receipt, Siren, Zap, Target, Users, LineChart, Cog, Save
 } from 'lucide-react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ScatterChart, Scatter, ResponsiveContainer } from 'recharts';
@@ -31,6 +31,8 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null); // Track which record is being edited
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const [isViewDetailsOpen, setIsViewDetailsOpen] = useState(false); // New state for view details modal
+  const [viewingRecord, setViewingRecord] = useState(null); // Track which record is being viewed
   const [openActionMenu, setOpenActionMenu] = useState(null); // Track which action menu is open
   
   // Form states (using selectedEmployee to hold "employeeId|employeeName")
@@ -61,6 +63,8 @@ const [smoker, setSmoker] = useState(false);
 
   const [successMessage, setSuccessMessage] = useState('');
   const [error, setError] = useState(''); // State for form errors
+  const successMessageRef = useRef(null); // Ref for success message div
+  const errorMessageRef = useRef(null); // Ref for error message div
   const actionMenuRef = useRef(null);
 
   // Close menu when clicking outside
@@ -74,8 +78,30 @@ const [smoker, setSmoker] = useState(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [openActionMenu]); // Add openActionMenu to dependencies
 
+  // Effect to scroll to success message when it appears
+  useEffect(() => {
+    if (successMessage && successMessageRef.current) {
+      successMessageRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [successMessage]);
+
+  // Effect to scroll to error message when it appears
+  useEffect(() => {
+    if (error && errorMessageRef.current) {
+      errorMessageRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [error]);
+
+  // Helper to safely convert to number or return null
+  const getNumericValue = (value) => {
+    if (value === '' || value === null || value === undefined) {
+      return null;
+    }
+    const num = Number(value);
+    return isNaN(num) ? null : num;
+  };
   const formatLastSync = (value) => {
     if (!value) return 'Unknown';
     const parsed = new Date(value);
@@ -95,18 +121,18 @@ const [smoker, setSmoker] = useState(false);
     setEditingRecord(record);
     setSelectedEmployee(`${record.employeeId}|${record.employeeName}`); // Store combined ID and Name for pre-filling dropdown
     setDept(record.department);
-    setAge(String(record.age));
+    setAge(String(record.age || ''));
     setGender(record.gender);
-    setHeightCm(String(record.heightCm));
-    setWeightKg(String(record.weightKg));
-    setBmi(String(record.bmi));
+    setHeightCm(String(record.heightCm || ''));
+    setWeightKg(String(record.weightKg || ''));
+    setBmi(String(record.bmi || ''));
     setBp(record.bloodPressure);
-    setExerciseDaysPerWeek(String(record.exerciseDaysPerWeek));
-    setExercise(String(record.exerciseHoursPerWeek));
-    setSleep(String(record.sleepHoursPerNight));
+    setExerciseDaysPerWeek(String(record.exerciseDaysPerWeek || ''));
+    setExercise(String(record.exerciseHoursPerWeek || ''));
+    setSleep(String(record.sleepHoursPerNight || ''));
     setStress(record.stressLevel);
-    setStressScore(String(record.stressScore));
-    setAttendanceRate(String(record.attendanceRate));
+    setStressScore(String(record.stressScore || ''));
+    setAttendanceRate(String(record.attendanceRate || ''));
     setMedicalNotes(record.medicalNotes);
     setMedicalCondition(record.medicalCondition);
 setSmoker(record.smoker);
@@ -122,6 +148,7 @@ setSmoker(record.smoker);
   };
 
   const handleMenuToggle = (e, recordId) => {
+    e.stopPropagation(); // Prevent the click from bubbling up to the document and immediately closing the menu
     // Toggle the menu for the clicked record. If it's already open, close it.
     setOpenActionMenu(openActionMenu === recordId ? null : recordId);
     // No need to calculate position anymore as it will be relative to the button's parent
@@ -146,6 +173,68 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
     setIsAddOpen(true);
     setError(''); // Clear any previous errors when opening modal
   };
+
+
+  const handleAutofill = () => {
+    // Pick a random user without a record
+    if (usersWithoutRecords.length > 0) {
+      const randomUser = usersWithoutRecords[Math.floor(Math.random() * usersWithoutRecords.length)];
+      setSelectedEmployee(`${randomUser.employeeId}|${randomUser.name}`);
+    } else {
+      setError('No available users to autofill. All users already have health records.');
+      setTimeout(() => setError(''), 5000);
+      return;
+    }
+
+    // Generate random data
+    const randomAge = Math.floor(Math.random() * (45 - 20 + 1)) + 20; // 20-45
+    const randomGender = ['Male', 'Female', 'Other'][Math.floor(Math.random() * 3)];
+    const randomHeightCm = Math.floor(Math.random() * (190 - 150 + 1)) + 150; // 150-190 cm
+    const randomWeightKg = Math.floor(Math.random() * (90 - 50 + 1)) + 50; // 50-90 kg
+    const randomDept = ['Engineering', 'Sales', 'Marketing', 'Product', 'Operations'][Math.floor(Math.random() * 5)];
+    const calculatedBmi = Number((randomWeightKg / ((randomHeightCm / 100) ** 2)).toFixed(1));
+    const randomBpSystolic = Math.floor(Math.random() * (140 - 100 + 1)) + 100; // 100-140
+    const randomBpDiastolic = Math.floor(Math.random() * (90 - 60 + 1)) + 60; // 60-90
+    const randomExerciseDays = Math.floor(Math.random() * (6 - 2 + 1)) + 2; // 2-6 days
+    const randomExerciseHours = Number((Math.random() * (8 - 2) + 2).toFixed(1)); // 2-8 hours
+    const randomSleepHours = Number((Math.random() * (9 - 5) + 5).toFixed(1)); // 5-9 hours
+    const randomStressLevel = ['Low', 'Medium', 'High'][Math.floor(Math.random() * 3)];
+    const randomStressScore = Number((Math.random() * (9 - 2) + 2).toFixed(1)); // 2-9
+    const randomAttendanceRate = Number((Math.random() * (100 - 90) + 90).toFixed(1)); // 90-100%
+    const randomMedicalCondition = ['No major condition', 'Mild fatigue', 'Allergies', 'Other'][Math.floor(Math.random() * 4)];
+    const randomSmoker = Math.random() > 0.8; // 20% chance
+    const randomAlcoholUse = Math.random() > 0.7; // 30% chance
+    const randomGlucose = Math.floor(Math.random() * (120 - 70 + 1)) + 70; // 70-120
+    const randomBloodGroup = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'][Math.floor(Math.random() * 8)];
+
+    setAge(String(randomAge));
+    setGender(randomGender || 'Male');
+    setHeightCm(String(randomHeightCm));
+    setWeightKg(String(randomWeightKg));
+    setDept(randomDept || 'Engineering');
+    setBmi(String(calculatedBmi));
+    setBp(`${randomBpSystolic}/${randomBpDiastolic}`);
+    setExerciseDaysPerWeek(String(randomExerciseDays));
+    setExercise(String(randomExerciseHours));
+    setSleep(String(randomSleepHours));
+    setStress(randomStressLevel || 'Medium');
+    setStressScore(String(randomStressScore));
+    setAttendanceRate(String(randomAttendanceRate));
+    setMedicalNotes(randomMedicalCondition === 'Other' ? 'Random notes for other condition.' : '' || '');
+    setMedicalCondition(randomMedicalCondition);
+    setSmoker(randomSmoker);
+    setAlcoholUse(randomAlcoholUse);
+    setGlucoseLevel(String(randomGlucose));
+    setEmergencyContactName('Jane Doe');
+    setEmergencyContactPhone('+1 555 123 4567');
+    setBloodGroup(randomBloodGroup);
+    setAllergies(Math.random() > 0.7 ? 'Pollen, Dust' : '');
+    setExistingDiseases(Math.random() > 0.6 ? 'None' : 'Hypertension');
+
+    setSuccessMessage('Form autofilled with random data!');
+    setTimeout(() => setSuccessMessage(''), 7000); // Already set to 7 seconds
+  };
+  
   const filtered = records.filter(r => {
     const matchSearch = r.employeeName.toLowerCase().includes(search.toLowerCase()) ||
                         r.employeeId.toLowerCase().includes(search.toLowerCase());
@@ -155,13 +244,34 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
 
 
   const handleFormSubmit = async (e) => {
-    e.preventDefault();
-    if (!selectedEmployee || !age || !gender || !heightCm || !weightKg || !dept || !bmi || !bp || !exerciseDaysPerWeek || !exercise || !sleep || !stress || !stressScore || !attendanceRate || !medicalCondition || !glucoseLevel) {
+  e.preventDefault();
+  let submissionError = null;
+
+  try {
+    if (
+      !selectedEmployee ||
+      !age ||
+      !gender ||
+      !heightCm ||
+      !weightKg ||
+      !dept ||
+      !bmi ||
+      !bp ||
+      !exerciseDaysPerWeek ||
+      !exercise ||
+      !sleep ||
+      !stress ||
+      !stressScore ||
+      !attendanceRate ||
+      !medicalCondition ||
+      !glucoseLevel
+    ) {
       setError('Please fill in all required fields.');
       return;
     }
+
     // Derive simple assessments based on inputs
-    const calculatedBmi = Number(bmi); 
+    const calculatedBmi = Number(bmi);
 
     // Determine health assessment based on BMI, BP, sleep, and stress
     let assessment = 'Good';
@@ -169,7 +279,14 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
 
     if (stress === 'High' || Number(stressScore) >= 7 || sys >= 140 || calculatedBmi >= 30) {
       assessment = 'Needs Attention';
-    } else if (stress === 'Low' && Number(stressScore) <= 3 && calculatedBmi < 25 && calculatedBmi >= 18.5 && Number(sleep) >= 7 && Number(exerciseDaysPerWeek) >= 3) {
+    } else if (
+      stress === 'Low' &&
+      Number(stressScore) <= 3 &&
+      calculatedBmi < 25 &&
+      calculatedBmi >= 18.5 &&
+      Number(sleep) >= 7 &&
+      Number(exerciseDaysPerWeek) >= 3
+    ) {
       assessment = 'Excellent';
     } else if (Number(attendanceRate) < 85) {
       assessment = 'Fair';
@@ -191,65 +308,27 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
       const [empId, empName] = selectedEmployee.split('|');
       const updatedRec = {
         ...editingRecord,
-        // Ensure employeeId and employeeName are from the selected employee,
-        // or keep original if not changed (though dropdown forces selection)
-        employeeId: empId,
-        employeeName: empName,
-        age: Number(age),
+        employeeId: empId || '',
+        employeeName: empName || '',
+        age: getNumericValue(age),
         gender: gender,
-        heightCm: Number(heightCm),
-        weightKg: Number(weightKg),
+        heightCm: getNumericValue(heightCm),
+        weightKg: getNumericValue(weightKg),
         department: dept,
         bmi: calculatedBmi,
         bloodPressure: bp,
-        exerciseDaysPerWeek: Number(exerciseDaysPerWeek),
-        exerciseHoursPerWeek: Number(exercise) || 0,
-        sleep_hours: Number(sleep) || 0,
-        sleepHoursPerNight: Number(sleep),
+        exerciseDaysPerWeek: getNumericValue(exerciseDaysPerWeek),
+        exerciseHoursPerWeek: getNumericValue(exercise),
+        sleep_hours: getNumericValue(sleep),
+        sleepHoursPerNight: getNumericValue(sleep),
         stressLevel: stress,
-        stressScore: Number(stressScore),
-        attendanceRate: Number(attendanceRate),
-        medicalNotes: medicalNotes,
-        medicalCondition: medicalCondition,
-smoker: smoker,
-        alcoholUse: alcoholUse,
-        glucoseLevel: Number(glucoseLevel),
-        emergencyContactName: emergencyContactName,
-        emergencyContactPhone: emergencyContactPhone,
-        bloodGroup: bloodGroup,
-        allergies: allergies,
-        existingDiseases: existingDiseases,
-        healthAssessment: assessment,
-        lastUpdated: new Date().toISOString().split('T')[0]
-      };
-      await onUpdateRecord(updatedRec);
-      setSuccessMessage('Health record updated successfully!');
-      setTimeout(() => setSuccessMessage(''), 3000);
-    } else {
-      // Add new record
-      const [empId, empName] = selectedEmployee.split('|');
-      const newRec = {
-        employeeId: empId,
-        employeeName: empName,
-        age: Number(age),
-        gender: gender,
-        heightCm: Number(heightCm),
-        weightKg: Number(weightKg),
-        department: dept,
-        bmi: calculatedBmi,
-        bloodPressure: bp,
-        exerciseHoursPerWeek: Number(exercise),
-        exerciseDaysPerWeek: Number(exerciseDaysPerWeek),
-        sleep_hours: Number(sleep) || 0,
-        sleepHoursPerNight: Number(sleep) || 0,
-        stressLevel: stress,
-        stressScore: Number(stressScore),
-        attendanceRate: Number(attendanceRate),
+        stressScore: getNumericValue(stressScore),
+        attendanceRate: getNumericValue(attendanceRate),
         medicalNotes: medicalNotes,
         medicalCondition: medicalCondition,
         smoker: smoker,
         alcoholUse: alcoholUse,
-        glucoseLevel: Number(glucoseLevel),
+        glucoseLevel: getNumericValue(glucoseLevel),
         emergencyContactName: emergencyContactName,
         emergencyContactPhone: emergencyContactPhone,
         bloodGroup: bloodGroup,
@@ -258,22 +337,80 @@ smoker: smoker,
         healthAssessment: assessment,
         lastUpdated: new Date().toISOString().split('T')[0]
       };
-      await onAddRecord(newRec);
-      setSuccessMessage('Health record added successfully!');
-      setTimeout(() => setSuccessMessage(''), 3000);
+      try {
+        await onUpdateRecord(updatedRec);
+        setSuccessMessage(`Health record for ${empName} (${empId}) updated successfully!`);
+      } catch (err) {
+        submissionError = err.message || 'Failed to update record.';
+        setError(submissionError);
+      }
+    } else {
+      // Add new record
+      const [empId, empName] = selectedEmployee.split('|');
+      const newRec = {
+        employeeId: empId || '',
+        employeeName: empName || '',
+        age: getNumericValue(age),
+        gender: gender,
+        heightCm: getNumericValue(heightCm),
+        weightKg: getNumericValue(weightKg),
+        department: dept,
+        bmi: calculatedBmi,
+        bloodPressure: bp,
+        exerciseHoursPerWeek: getNumericValue(exercise),
+        exerciseDaysPerWeek: getNumericValue(exerciseDaysPerWeek),
+        sleep_hours: getNumericValue(sleep),
+        sleepHoursPerNight: getNumericValue(sleep),
+        stressLevel: stress,
+        stressScore: getNumericValue(stressScore),
+        attendanceRate: getNumericValue(attendanceRate),
+        medicalNotes: medicalNotes,
+        medicalCondition: medicalCondition,
+        smoker: smoker,
+        alcoholUse: alcoholUse,
+        glucoseLevel: getNumericValue(glucoseLevel),
+        emergencyContactName: emergencyContactName,
+        emergencyContactPhone: emergencyContactPhone,
+        bloodGroup: bloodGroup,
+        allergies: allergies,
+        existingDiseases: existingDiseases,
+        healthAssessment: assessment,
+        lastUpdated: new Date().toISOString().split('T')[0]
+      };
+      try {
+        await onAddRecord(newRec);
+        setSuccessMessage(`Health record for ${empName} (${empId}) added successfully!`);
+      } catch (err) {
+        submissionError = err.message || 'Failed to add record.';
+        setError(submissionError);
+      }
     }
-
-    setIsAddOpen(false);
-    // Reset Form
-    setSelectedEmployee('');
-    setAge(''); setGender('Male'); setHeightCm(''); setWeightKg('');
-    setBmi(''); setBp(''); setExerciseDaysPerWeek(''); setExercise(''); setSleep('');
-    setStress('Medium'); setStressScore(''); setAttendanceRate('');
-setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false); setAlcoholUse(false); setGlucoseLevel('');
-    setEmergencyContactName(''); setEmergencyContactPhone(''); setBloodGroup(''); setAllergies(''); setExistingDiseases('');
-    setEditingRecord(null);
-    setError(''); // Clear error after successful submission
-  };
+  } catch (err) {
+    submissionError = err.message || 'An unexpected error occurred during form submission.';
+    setError(submissionError);
+  } finally {
+    if (!submissionError) {
+      // On success, display message for 5s, then close form and clear message
+      setTimeout(() => {
+        setSuccessMessage(''); // Clear success message after 7s (already set)
+        setIsAddOpen(false);   // Close the form after 7s (already set)
+        // Reset Form (only if successfully closed)
+        setSelectedEmployee('');
+        setAge(''); setGender('Male'); setHeightCm(''); setWeightKg('');
+        setBmi(''); setBp(''); setExerciseDaysPerWeek(''); setExercise(''); setSleep('');
+        setStress('Medium'); setStressScore(''); setAttendanceRate('');
+        setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false); setAlcoholUse(false); setGlucoseLevel('');
+        setEmergencyContactName(''); setEmergencyContactPhone(''); setBloodGroup(''); setAllergies(''); setExistingDiseases('');
+        setEditingRecord(null);
+        setError(''); // Ensure error is cleared on successful submission
+      }, 7000); // Already set to 7 seconds
+    } else {
+      // On error, display error message for 5s, and keep the form open
+      setTimeout(() => setError(''), 7000); // Already set to 7 seconds
+    }
+  }
+};
+  
   const usersWithoutRecords = useMemo(() => {
     return allUsers.filter(
       user => !records.some(record => record.employeeId === user.employeeId)
@@ -321,20 +458,6 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
         </button>
       </div>
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-300 text-xs flex items-start gap-2.5 font-medium animate-shake">
-          <ShieldAlert className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
-          <span>{error}</span>
-        </div>
-      )}
-      
-      {successMessage && (
-        <div className="mb-4 p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-700 dark:text-emerald-300 text-xs flex items-start gap-2.5 font-medium animate-fadeIn">
-          <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-          <span>{successMessage}</span>
-        </div>
-      )}
-
       {/* Add Record Modal Popup */}
       {isAddOpen && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fadeIn">
@@ -355,7 +478,23 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
             </div>
 
             <form onSubmit={handleFormSubmit} className="flex-1 overflow-y-auto p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              {error && (
+                <div ref={errorMessageRef} className="mb-4 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-300 text-xs flex items-start gap-2.5 font-medium animate-shake">
+                  <ShieldAlert className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                  <span>{error}</span>
+                </div>
+              )}
+              
+              {successMessage && (
+                <div ref={successMessageRef} className="mb-4 p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-700 dark:text-emerald-300 text-xs flex items-start gap-2.5 font-medium animate-fadeIn">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                  <span>{successMessage}</span>
+                </div>
+              )}
+
+
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {editingRecord ? (
                   <div className="col-span-2">
                     <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Employee</label>
@@ -552,13 +691,167 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
                   Cancel
                 </button>
                 <button
+                  type="button"
+                  onClick={handleAutofill}
+                  className="px-4.5 py-2.5 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-blue-600 dark:text-blue-300 text-xs font-semibold rounded-lg transition-colors border border-blue-200 dark:border-blue-800"
+                >
+                  Autofill
+                </button>
+                <button
                   type="submit"
                   className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg transition-all shadow-sm"
                 >
                   {editingRecord ? 'Update Profile' : 'Save Profile'}
                 </button>
               </div>
+
+              {error && (
+                <div className="mt-4 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-300 text-xs flex items-start gap-2.5 font-medium animate-shake">
+                  <ShieldAlert className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                  <span>{error}</span>
+                </div>
+              )}
+              
+              {successMessage && (
+                <div className="mt-4 p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-700 dark:text-emerald-300 text-xs flex items-start gap-2.5 font-medium animate-fadeIn">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                  <span>{successMessage}</span>
+                </div>
+              )}
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* View Details Modal Popup */}
+      {isViewDetailsOpen && viewingRecord && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fadeIn">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh]">
+            <div className="bg-slate-50 dark:bg-slate-900 border-b border-slate-100 dark:border-slate-700 px-6 py-4 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2">
+                <Activity className="w-5 h-5 text-slate-800 dark:text-slate-100" />
+                <h3 className="font-display font-semibold text-sm text-slate-800 dark:text-slate-100">
+                  Health Record Details for {viewingRecord.employeeName}
+                </h3>
+              </div>
+              <button
+                onClick={() => { setIsViewDetailsOpen(false); setViewingRecord(null); }}
+                className="text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                {/* Employee Info */}
+                <div className="col-span-full">
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Employee</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.employeeName} ({viewingRecord.employeeId})</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Department</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.department}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Age</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.age}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Gender</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.gender}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Height (cm)</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.heightCm}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Weight (kg)</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.weightKg}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">BMI Value</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.bmi}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Blood Pressure</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.bloodPressure}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Exercise (Days/wk)</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.exerciseDaysPerWeek}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Exercise (Hours/wk)</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.exerciseHoursPerWeek}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Sleep (Hours/night)</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.sleepHoursPerNight}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Self-Reported Stress</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.stressLevel}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Stress Score (1-10)</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.stressScore}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Attendance Rate (%)</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.attendanceRate}</p>
+                </div>
+                <div className="col-span-full">
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Medical Condition</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.medicalCondition}</p>
+                </div>
+                <div className="col-span-full">
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Medical Notes</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.medicalNotes || 'N/A'}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Smoker</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.smoker ? 'Yes' : 'No'}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Alcohol User</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.alcoholUse ? 'Yes' : 'No'}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Glucose Level</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.glucoseLevel}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Blood Group</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.bloodGroup || 'N/A'}</p>
+                </div>
+                <div className="col-span-full">
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Allergies</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.allergies || 'N/A'}</p>
+                </div>
+                <div className="col-span-full">
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Existing Diseases</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.existingDiseases || 'N/A'}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Emergency Contact Name</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.emergencyContactName || 'N/A'}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Emergency Contact Phone</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.emergencyContactPhone || 'N/A'}</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-3 justify-end pt-5 border-t border-slate-200 dark:border-slate-700 shrink-0 px-6 py-4">
+              <button
+                type="button"
+                onClick={() => { setIsViewDetailsOpen(false); setViewingRecord(null); }}
+                className="px-4.5 py-2.5 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 text-xs font-semibold rounded-lg transition-colors border border-slate-200 dark:border-slate-600"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -596,6 +889,13 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
                         <Edit className="w-3.5 h-3.5" /> Edit
                       </button>
                       <button
+                        onClick={() => { setViewingRecord(record); setIsViewDetailsOpen(true); setOpenActionMenu(null); }}
+                        className="w-full text-left px-4 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600 flex items-center gap-2"
+                      >
+                        <Eye className="w-3.5 h-3.5" /> View Details
+                      </button>
+
+                      <button
                         onClick={() => { if (window.confirm(`Are you sure you want to delete the health record for ${record.employeeName}? This only removes the health record, not the user account.`)) { onDeleteRecord(record.employeeId); } setOpenActionMenu(null); }}
                         className="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/50 flex items-center gap-2"
                       >
@@ -615,7 +915,7 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-slate-600 dark:text-slate-300">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-xs text-slate-600 dark:text-slate-300">
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-slate-500 dark:text-slate-400">Dept:</span>
                     <span className="font-semibold">{record.department}</span>
@@ -1046,8 +1346,8 @@ export function RecommendationModule({ recommendations = [], loading }) {
           <div key={empRec.employeeId} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-sm">
             <div className="flex justify-between items-start pb-4 border-b border-slate-100 dark:border-slate-700 mb-4">
               <div>
-                <h4 className="font-display font-semibold text-slate-800 dark:text-slate-100">{empRec.employeeName}</h4>
-                <p className="text-xs text-slate-400 dark:text-slate-500 font-mono">{empRec.employeeId}</p>
+                <h4 className="text-[18.5px] font-display font-semibold text-slate-800 dark:text-slate-100">{empRec.employeeName}</h4>
+                <p className="text-[14.5px] text-slate-400 dark:text-slate-500 font-mono">{empRec.employeeId}</p>
               </div>
               <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold ${
                 empRec.riskProfile.riskType === 'High' ? 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border border-red-100 dark:border-red-800' :
@@ -1073,15 +1373,15 @@ export function RecommendationModule({ recommendations = [], loading }) {
                         </span>
                       </div>
                       <div>
-                        <h5 className=" text-[13px] font-semibold text-xs text-slate-800 dark:text-slate-100">{rec.title}</h5>
-                        <p className="text-[12px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed font-light">{rec.description}</p>
+                        <h5 className=" text-[14px] font-semibold text-xs text-slate-800 dark:text-slate-100">{rec.title}</h5>
+                        <p className="text-[13px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed font-light">{rec.description}</p>
                       </div>
                       {rec.reasons && rec.reasons.length > 0 && (
                         <div className="pt-2 border-t border-slate-200 dark:border-slate-600">
-                           <p className="text-[12px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Reasons:</p>
+                           <p className="text-[13px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Reasons:</p>
                            <ul className="list-disc list-inside space-y-0.5 mt-1">
                             {rec.reasons.map((reason, i) => (
-                              <li key={i} className="text-[12px] text-slate-500 dark:text-slate-400">{reason}</li>
+                              <li key={i} className="text-[13px] text-slate-500 dark:text-slate-400">{reason}</li>
                             ))}
                            </ul>
                         </div>
@@ -1111,7 +1411,7 @@ export function SentimentModule({ sentimentList = [], healthRecords = [], onPuls
 
   useEffect(() => {
     api.fetchAllSentimentPulses({ forceRefresh: true }).then(setAllPulses);
-  }, [sentimentList]); // Refresh when sentiment list changes
+  }, [sentimentList, onPulseDeleted]); // Refresh when sentiment list or onPulseDeleted changes
 
   const filteredRecords = useMemo(() => {
     if (!search) return healthRecords;
@@ -2406,7 +2706,7 @@ export default function AdminDashboard({ user,
           <div className="mb-6 pb-4 border-b border-slate-200/80 dark:border-slate-700 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800/60 rounded-md text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest font-mono mb-2">
-                {activeTab <= 6 ? `Core Module ${activeTab} of 6` : `Extension Module ${activeTab}`}
+                {adminNavTabs.find(tab => tab.id === activeTab)?.label || 'Admin Module'}
               </div>
               <h1 className="font-display text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-50 tracking-tight">
                 {activeTab === 1 && 'User Management'}
