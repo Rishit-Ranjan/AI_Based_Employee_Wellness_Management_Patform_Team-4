@@ -853,9 +853,9 @@ RECOMMENDATION_MEDIA = {
     'Fitness': {
         'image': 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&h=300&fit=crop',
         'videos': [
-            'https://www.youtube.com/watch?v=ml6cT4J3S5I',   # FitnessBlender - 5 Min Walking Warmup
-            'https://www.youtube.com/watch?v=UItWltVZZmE',   # FitnessBlender - 25 Min Cardio
-            'https://www.youtube.com/watch?v=Y6je_wWjFik',   # FitnessBlender - 20 Min Full Body
+            'https://www.youtube.com/watch?v=s-kP52p154c',   # FitnessBlender - 5 Min Express Warm Up
+            'https://www.youtube.com/watch?v=50kH47ZztHs',   # FitnessBlender - 30 Min At Home Cardio
+            'https://www.youtube.com/watch?v=gC_L9qAHVJ8',   # FitnessBlender - 30 Min Beginner Workout
         ]
     },
     'Diet': {
@@ -887,13 +887,13 @@ RECOMMENDATION_MEDIA = {
         'videos': [
             'https://www.youtube.com/watch?v=WjQnzB3UO5s',   # Healthy daily habits
             'https://www.youtube.com/watch?v=pUAN2jP6E9g',   # Morning routine tips
-            'https://www.youtube.com/watch?v=iLWzJ8Ow7FE',   # Productivity & wellness
+            'https://www.youtube.com/watch?v=a3gq_I61s1s',   # Productivity tips
         ]
     },
     'Sleep': {
         'image': 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=600&h=300&fit=crop',
         'videos': [
-            'https://www.youtube.com/watch?v=iLWzJ8Ow7FE',   # Sleep hygiene tips
+            'https://www.youtube.com/watch?v=aXmInS7h-3c',   # Sleep hygiene tips
             'https://www.youtube.com/watch?v=pUAN2jP6E9g',   # Better sleep routine
         ]
     },
@@ -913,12 +913,16 @@ RECOMMENDATION_MEDIA = {
     },
 }
 
+# Define the ultimate fallback video URL outside of any dynamic lists
+ULTIMATE_FALLBACK_VIDEO_URL = "https://www.youtube.com/watch?v=BHACKCNDMW8" # A generic, stable nature video
+
 # Default media fallback for unknown categories - using most universally reliable videos
 DEFAULT_REC_MEDIA = {
     'image': 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&h=300&fit=crop',
     'videos': [
-        'https://www.youtube.com/watch?v=inpok4MKVLM',
-        'https://www.youtube.com/watch?v=7Xr3Fq3qOXA',
+        'https://www.youtube.com/watch?v=7Xr3Fq3qOXA', # Yoga
+        'https://www.youtube.com/watch?v=ZToicYbHMgU', # Meditation
+        'https://www.youtube.com/watch?v=xyQY8a4Lr9g', # Nutrition
     ]
 }
 
@@ -947,53 +951,67 @@ def _get_alternative_video(category, unavailable_url=None, risk_label='Low'):
     Falls back to the default media if all videos for category are exhausted.
     """
     if unavailable_url:
-        _UNAVAILABLE_VIDEOS.add(unavailable_url)
+        # Only add to unavailable list if it's not the ultimate fallback itself
+        if unavailable_url != ULTIMATE_FALLBACK_VIDEO_URL:
+            _UNAVAILABLE_VIDEOS.add(unavailable_url)
     
-    category_key = _resolve_media_category(category)
-    media = RECOMMENDATION_MEDIA.get(category_key, DEFAULT_REC_MEDIA)
+    category_key = _resolve_media_category(category) # Resolve category to a known key
     
-    # Get available videos (not marked unavailable)
-    available_videos = [v for v in media['videos'] if v not in _UNAVAILABLE_VIDEOS]
-    
-    # If all videos exhausted, reset the unavailable set for this category (full refresh)
-    # and try again, but make sure not to return the same failing URL.
+    # 1. Try to find an available video within the specific category
+    candidate_videos_in_category = RECOMMENDATION_MEDIA.get(category_key, {}).get('videos', [])
+    available_videos = [v for v in candidate_videos_in_category if v not in _UNAVAILABLE_VIDEOS and v != ULTIMATE_FALLBACK_VIDEO_URL]
+
     if not available_videos:
-        _UNAVAILABLE_VIDEOS.difference_update(media['videos'])
-        available_videos = [v for v in media['videos'] if v != unavailable_url]
-        # If all videos are the same as the failing one, we have no choice but to try it again.
-        if not available_videos:
-            available_videos = list(media['videos'])
+        # 2. If no videos are available in the specific category, try the DEFAULT_REC_MEDIA explicitly.
+        candidate_videos_from_default = DEFAULT_REC_MEDIA['videos']
+        available_videos = [v for v in candidate_videos_from_default if v not in _UNAVAILABLE_VIDEOS and v != ULTIMATE_FALLBACK_VIDEO_URL]
 
+    if available_videos:
+        # If we found available videos, select one based on risk label
+        # Choose based on risk label from the available videos
+        if risk_label == 'High':
+            index = 0
+        elif risk_label == 'Medium':
+            index = len(available_videos) // 2
+        else:  # Low
+            index = len(available_videos) - 1
+        index = min(index, len(available_videos) - 1)
+        return available_videos[index]
+    else:
+        # 3. If still no available videos (meaning all category and default videos are marked unavailable),
+        #    aggressively clear the unavailable status for DEFAULT_REC_MEDIA videos
+        #    (excluding the ultimate fallback) to give them another chance.
+        #    This handles cases where YouTube might have temporary issues.
+        _UNAVAILABLE_VIDEOS.difference_update([v for v in DEFAULT_REC_MEDIA['videos'] if v != ULTIMATE_FALLBACK_VIDEO_URL])
+        available_videos = [v for v in DEFAULT_REC_MEDIA['videos'] if v not in _UNAVAILABLE_VIDEOS and v != ULTIMATE_FALLBACK_VIDEO_URL]
 
-    # Choose based on risk label
-    if risk_label == 'High':
-        index = 0
-    elif risk_label == 'Medium':
-        index = len(available_videos) // 2
-    else:  # Low
-        index = len(available_videos) - 1
-    
-    index = min(index, len(available_videos) - 1)
-    return available_videos[index] if available_videos else DEFAULT_REC_MEDIA['videos'][0]
+        if available_videos:
+            # If clearing helped, pick one from the default videos
+            index = min(len(available_videos) - 1, 0 if risk_label == 'High' else len(available_videos) // 2 if risk_label == 'Medium' else len(available_videos) - 1)
+            return available_videos[index]
+        else:
+            # 4. Absolute last resort: return the generic, very stable wellness video.
+            return ULTIMATE_FALLBACK_VIDEO_URL
 
 
 def _add_media_to_recommendations(recommendations):
     """Attach image and video URLs to each recommendation based on category and severity."""
     enriched = []
     for rec in recommendations:
-        category = rec.get('category', 'Lifestyle')
-        category_key = _resolve_media_category(category)
-        media = RECOMMENDATION_MEDIA.get(category_key, DEFAULT_REC_MEDIA)
-        
-        # Pick video based on severity/score for variety
-        score = rec.get('score', 5) if isinstance(rec.get('score'), (int, float)) else 5
-        video_index = min(int(score) % len(media['videos']), len(media['videos']) - 1)
+        category = rec.get('category', 'Lifestyle') # Default to 'Lifestyle' if category is missing
+        risk_label = rec.get('severity', 'Low') # Use severity from recommendation for fallback logic
+
+        # Determine the media source for the image
+        media_source = RECOMMENDATION_MEDIA.get(_resolve_media_category(category), DEFAULT_REC_MEDIA)
+
+        # Use the robust fallback function to get a video URL
+        video_url = _get_alternative_video(category, None, risk_label)
         
         enriched_rec = {
             **rec,
             'id': rec.get('recommendation_id', rec.get('id', str(random.randint(1000, 9999)))),
-            'imageUrl': media['image'],
-            'videoUrl': media['videos'][video_index],
+            'imageUrl': media_source['image'],
+            'videoUrl': video_url,
         }
         enriched.append(enriched_rec)
     return enriched
@@ -1062,7 +1080,6 @@ def get_recommendations():
                     if cached_entry.get('timestamp') == last_updated:
                         all_recommendations.append(cached_entry['data'])
                         continue  # Skip re-computation
-
 
                 # 1. Get risk profile from the classification model
                 model_input_df = map_health_record_to_model_input(record)
@@ -1167,7 +1184,6 @@ def get_recommendations():
                     'data': employee_recs
                 }
 
-
             except Exception as e:
                 app.logger.error(f"Failed to generate recommendations for {record.get('employeeId')}: {e}")
                 # Add a placeholder recommendation for the employee if an error occurred
@@ -1191,7 +1207,6 @@ def get_recommendations():
     except Exception as e:
         app.logger.exception(f"An unexpected error occurred while generating recommendations: {e}")
         return jsonify({'detail': 'Internal Server Error'}), 500
-
 
 # --- Daily Habits API Endpoints (GET) ---
 @app.route('/api/wellness/daily-habits/<employee_id>', methods=['GET'])
