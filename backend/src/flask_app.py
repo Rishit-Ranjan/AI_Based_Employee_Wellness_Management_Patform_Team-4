@@ -513,8 +513,11 @@ def add_health_record():
         new_record['lastUpdated'] = datetime.now(timezone.utc).isoformat() # Ensure lastUpdated is set on creation
 
         result = health_records_collection.insert_one(new_record)
-        new_record['id'] = str(result.inserted_id)
-        return jsonify(new_record), 201
+        # Create a response object from the inserted record, ensuring _id is converted
+        response_record = new_record.copy() # Create a copy to avoid modifying the original in-place
+        response_record['id'] = str(result.inserted_id)
+        del response_record['_id'] # Remove the ObjectId field
+        return jsonify(response_record), 201
     except Exception as e:
         app.logger.exception(f"An unexpected error occurred while adding a health record: {e}")
         return jsonify({'detail': 'Internal Server Error'}), 500

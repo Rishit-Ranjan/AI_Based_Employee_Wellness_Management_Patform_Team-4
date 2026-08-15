@@ -63,6 +63,8 @@ const [smoker, setSmoker] = useState(false);
 
   const [successMessage, setSuccessMessage] = useState('');
   const [error, setError] = useState(''); // State for form errors
+  const successMessageRef = useRef(null); // Ref for success message div
+  const errorMessageRef = useRef(null); // Ref for error message div
   const actionMenuRef = useRef(null);
 
   // Close menu when clicking outside
@@ -78,6 +80,28 @@ const [smoker, setSmoker] = useState(false);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [openActionMenu]); // Add openActionMenu to dependencies
 
+  // Effect to scroll to success message when it appears
+  useEffect(() => {
+    if (successMessage && successMessageRef.current) {
+      successMessageRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [successMessage]);
+
+  // Effect to scroll to error message when it appears
+  useEffect(() => {
+    if (error && errorMessageRef.current) {
+      errorMessageRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [error]);
+
+  // Helper to safely convert to number or return null
+  const getNumericValue = (value) => {
+    if (value === '' || value === null || value === undefined) {
+      return null;
+    }
+    const num = Number(value);
+    return isNaN(num) ? null : num;
+  };
   const formatLastSync = (value) => {
     if (!value) return 'Unknown';
     const parsed = new Date(value);
@@ -97,18 +121,18 @@ const [smoker, setSmoker] = useState(false);
     setEditingRecord(record);
     setSelectedEmployee(`${record.employeeId}|${record.employeeName}`); // Store combined ID and Name for pre-filling dropdown
     setDept(record.department);
-    setAge(String(record.age));
+    setAge(String(record.age || ''));
     setGender(record.gender);
-    setHeightCm(String(record.heightCm));
-    setWeightKg(String(record.weightKg));
-    setBmi(String(record.bmi));
+    setHeightCm(String(record.heightCm || ''));
+    setWeightKg(String(record.weightKg || ''));
+    setBmi(String(record.bmi || ''));
     setBp(record.bloodPressure);
-    setExerciseDaysPerWeek(String(record.exerciseDaysPerWeek));
-    setExercise(String(record.exerciseHoursPerWeek));
-    setSleep(String(record.sleepHoursPerNight));
+    setExerciseDaysPerWeek(String(record.exerciseDaysPerWeek || ''));
+    setExercise(String(record.exerciseHoursPerWeek || ''));
+    setSleep(String(record.sleepHoursPerNight || ''));
     setStress(record.stressLevel);
-    setStressScore(String(record.stressScore));
-    setAttendanceRate(String(record.attendanceRate));
+    setStressScore(String(record.stressScore || ''));
+    setAttendanceRate(String(record.attendanceRate || ''));
     setMedicalNotes(record.medicalNotes);
     setMedicalCondition(record.medicalCondition);
 setSmoker(record.smoker);
@@ -184,19 +208,19 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
     const randomBloodGroup = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'][Math.floor(Math.random() * 8)];
 
     setAge(String(randomAge));
-    setGender(randomGender);
+    setGender(randomGender || 'Male');
     setHeightCm(String(randomHeightCm));
     setWeightKg(String(randomWeightKg));
-    setDept(randomDept);
+    setDept(randomDept || 'Engineering');
     setBmi(String(calculatedBmi));
     setBp(`${randomBpSystolic}/${randomBpDiastolic}`);
     setExerciseDaysPerWeek(String(randomExerciseDays));
     setExercise(String(randomExerciseHours));
     setSleep(String(randomSleepHours));
-    setStress(randomStressLevel);
+    setStress(randomStressLevel || 'Medium');
     setStressScore(String(randomStressScore));
     setAttendanceRate(String(randomAttendanceRate));
-    setMedicalNotes(randomMedicalCondition === 'Other' ? 'Random notes for other condition.' : '');
+    setMedicalNotes(randomMedicalCondition === 'Other' ? 'Random notes for other condition.' : '' || '');
     setMedicalCondition(randomMedicalCondition);
     setSmoker(randomSmoker);
     setAlcoholUse(randomAlcoholUse);
@@ -208,7 +232,7 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
     setExistingDiseases(Math.random() > 0.6 ? 'None' : 'Hypertension');
 
     setSuccessMessage('Form autofilled with random data!');
-    setTimeout(() => setSuccessMessage(''), 3000);
+    setTimeout(() => setSuccessMessage(''), 5000);
   };
   
   const filtered = records.filter(r => {
@@ -284,19 +308,19 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
       const [empId, empName] = selectedEmployee.split('|');
       const updatedRec = {
         ...editingRecord,
-        employeeId: empId,
-        employeeName: empName,
-        age: Number(age),
+        employeeId: empId || '',
+        employeeName: empName || '',
+        age: getNumericValue(age),
         gender: gender,
-        heightCm: Number(heightCm),
-        weightKg: Number(weightKg),
+        heightCm: getNumericValue(heightCm),
+        weightKg: getNumericValue(weightKg),
         department: dept,
         bmi: calculatedBmi,
         bloodPressure: bp,
-        exerciseDaysPerWeek: Number(exerciseDaysPerWeek),
-        exerciseHoursPerWeek: Number(exercise) || 0,
-        sleep_hours: Number(sleep) || 0,
-        sleepHoursPerNight: Number(sleep),
+        exerciseDaysPerWeek: getNumericValue(exerciseDaysPerWeek),
+        exerciseHoursPerWeek: getNumericValue(exercise),
+        sleep_hours: getNumericValue(sleep),
+        sleepHoursPerNight: getNumericValue(sleep),
         stressLevel: stress,
         stressScore: Number(stressScore),
         attendanceRate: Number(attendanceRate),
@@ -304,7 +328,7 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
         medicalCondition: medicalCondition,
         smoker: smoker,
         alcoholUse: alcoholUse,
-        glucoseLevel: Number(glucoseLevel),
+        glucoseLevel: getNumericValue(glucoseLevel),
         emergencyContactName: emergencyContactName,
         emergencyContactPhone: emergencyContactPhone,
         bloodGroup: bloodGroup,
@@ -324,19 +348,19 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
       // Add new record
       const [empId, empName] = selectedEmployee.split('|');
       const newRec = {
-        employeeId: empId,
-        employeeName: empName,
-        age: Number(age),
+        employeeId: empId || '',
+        employeeName: empName || '',
+        age: getNumericValue(age),
         gender: gender,
-        heightCm: Number(heightCm),
-        weightKg: Number(weightKg),
+        heightCm: getNumericValue(heightCm),
+        weightKg: getNumericValue(weightKg),
         department: dept,
         bmi: calculatedBmi,
         bloodPressure: bp,
-        exerciseHoursPerWeek: Number(exercise),
-        exerciseDaysPerWeek: Number(exerciseDaysPerWeek),
-        sleep_hours: Number(sleep) || 0,
-        sleepHoursPerNight: Number(sleep) || 0,
+        exerciseHoursPerWeek: getNumericValue(exercise),
+        exerciseDaysPerWeek: getNumericValue(exerciseDaysPerWeek),
+        sleep_hours: getNumericValue(sleep),
+        sleepHoursPerNight: getNumericValue(sleep),
         stressLevel: stress,
         stressScore: Number(stressScore),
         attendanceRate: Number(attendanceRate),
@@ -344,7 +368,7 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
         medicalCondition: medicalCondition,
         smoker: smoker,
         alcoholUse: alcoholUse,
-        glucoseLevel: Number(glucoseLevel),
+        glucoseLevel: getNumericValue(glucoseLevel),
         emergencyContactName: emergencyContactName,
         emergencyContactPhone: emergencyContactPhone,
         bloodGroup: bloodGroup,
@@ -366,20 +390,24 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
     setError(submissionError);
   } finally {
     if (!submissionError) {
-      setIsAddOpen(false);
-      // Reset Form
-      setSelectedEmployee('');
-      setAge(''); setGender('Male'); setHeightCm(''); setWeightKg('');
-      setBmi(''); setBp(''); setExerciseDaysPerWeek(''); setExercise(''); setSleep('');
-      setStress('Medium'); setStressScore(''); setAttendanceRate('');
-      setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false); setAlcoholUse(false); setGlucoseLevel('');
-      setEmergencyContactName(''); setEmergencyContactPhone(''); setBloodGroup(''); setAllergies(''); setExistingDiseases('');
-      setEditingRecord(null);
-      setError('');
+      // On success, display message for 5s, then close form and clear message
+      setTimeout(() => {
+        setSuccessMessage(''); // Clear success message
+        setIsAddOpen(false);   // Close the form
+        // Reset Form (only if successfully closed)
+        setSelectedEmployee('');
+        setAge(''); setGender('Male'); setHeightCm(''); setWeightKg('');
+        setBmi(''); setBp(''); setExerciseDaysPerWeek(''); setExercise(''); setSleep('');
+        setStress('Medium'); setStressScore(''); setAttendanceRate('');
+        setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false); setAlcoholUse(false); setGlucoseLevel('');
+        setEmergencyContactName(''); setEmergencyContactPhone(''); setBloodGroup(''); setAllergies(''); setExistingDiseases('');
+        setEditingRecord(null);
+        setError(''); // Ensure error is cleared on successful submission
+      }, 5000);
+    } else {
+      // On error, display error message for 5s, and keep the form open
+      setTimeout(() => setError(''), 5000);
     }
-
-    setTimeout(() => setSuccessMessage(''), 5000);
-    if (submissionError) setTimeout(() => setError(''), 5000);
   }
 };
   
@@ -430,20 +458,6 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
         </button>
       </div>
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-300 text-xs flex items-start gap-2.5 font-medium animate-shake">
-          <ShieldAlert className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
-          <span>{error}</span>
-        </div>
-      )}
-      
-      {successMessage && (
-        <div className="mb-4 p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-700 dark:text-emerald-300 text-xs flex items-start gap-2.5 font-medium animate-fadeIn">
-          <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-          <span>{successMessage}</span>
-        </div>
-      )}
-
       {/* Add Record Modal Popup */}
       {isAddOpen && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fadeIn">
@@ -464,7 +478,23 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
             </div>
 
             <form onSubmit={handleFormSubmit} className="flex-1 overflow-y-auto p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              {error && (
+                <div ref={errorMessageRef} className="mb-4 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-300 text-xs flex items-start gap-2.5 font-medium animate-shake">
+                  <ShieldAlert className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                  <span>{error}</span>
+                </div>
+              )}
+              
+              {successMessage && (
+                <div ref={successMessageRef} className="mb-4 p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-700 dark:text-emerald-300 text-xs flex items-start gap-2.5 font-medium animate-fadeIn">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                  <span>{successMessage}</span>
+                </div>
+              )}
+
+
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {editingRecord ? (
                   <div className="col-span-2">
                     <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Employee</label>
@@ -674,6 +704,20 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
                   {editingRecord ? 'Update Profile' : 'Save Profile'}
                 </button>
               </div>
+
+              {error && (
+                <div className="mt-4 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-300 text-xs flex items-start gap-2.5 font-medium animate-shake">
+                  <ShieldAlert className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                  <span>{error}</span>
+                </div>
+              )}
+              
+              {successMessage && (
+                <div className="mt-4 p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-700 dark:text-emerald-300 text-xs flex items-start gap-2.5 font-medium animate-fadeIn">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                  <span>{successMessage}</span>
+                </div>
+              )}
             </form>
           </div>
         </div>
