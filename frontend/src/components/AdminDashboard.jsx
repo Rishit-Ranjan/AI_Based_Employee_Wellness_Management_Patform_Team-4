@@ -220,14 +220,34 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
 
 
   const handleFormSubmit = async (e) => {
-    e.preventDefault();
-    try {
-    if (!selectedEmployee || !age || !gender || !heightCm || !weightKg || !dept || !bmi || !bp || !exerciseDaysPerWeek || !exercise || !sleep || !stress || !stressScore || !attendanceRate || !medicalCondition || !glucoseLevel) {
+  e.preventDefault();
+  let submissionError = null;
+
+  try {
+    if (
+      !selectedEmployee ||
+      !age ||
+      !gender ||
+      !heightCm ||
+      !weightKg ||
+      !dept ||
+      !bmi ||
+      !bp ||
+      !exerciseDaysPerWeek ||
+      !exercise ||
+      !sleep ||
+      !stress ||
+      !stressScore ||
+      !attendanceRate ||
+      !medicalCondition ||
+      !glucoseLevel
+    ) {
       setError('Please fill in all required fields.');
       return;
     }
+
     // Derive simple assessments based on inputs
-    const calculatedBmi = Number(bmi); 
+    const calculatedBmi = Number(bmi);
 
     // Determine health assessment based on BMI, BP, sleep, and stress
     let assessment = 'Good';
@@ -235,7 +255,14 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
 
     if (stress === 'High' || Number(stressScore) >= 7 || sys >= 140 || calculatedBmi >= 30) {
       assessment = 'Needs Attention';
-    } else if (stress === 'Low' && Number(stressScore) <= 3 && calculatedBmi < 25 && calculatedBmi >= 18.5 && Number(sleep) >= 7 && Number(exerciseDaysPerWeek) >= 3) {
+    } else if (
+      stress === 'Low' &&
+      Number(stressScore) <= 3 &&
+      calculatedBmi < 25 &&
+      calculatedBmi >= 18.5 &&
+      Number(sleep) >= 7 &&
+      Number(exerciseDaysPerWeek) >= 3
+    ) {
       assessment = 'Excellent';
     } else if (Number(attendanceRate) < 85) {
       assessment = 'Fair';
@@ -257,8 +284,6 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
       const [empId, empName] = selectedEmployee.split('|');
       const updatedRec = {
         ...editingRecord,
-        // Ensure employeeId and employeeName are from the selected employee,
-        // or keep original if not changed (though dropdown forces selection)
         employeeId: empId,
         employeeName: empName,
         age: Number(age),
@@ -277,7 +302,7 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
         attendanceRate: Number(attendanceRate),
         medicalNotes: medicalNotes,
         medicalCondition: medicalCondition,
-smoker: smoker,
+        smoker: smoker,
         alcoholUse: alcoholUse,
         glucoseLevel: Number(glucoseLevel),
         emergencyContactName: emergencyContactName,
@@ -292,7 +317,8 @@ smoker: smoker,
         await onUpdateRecord(updatedRec);
         setSuccessMessage(`Health record for ${empName} (${empId}) updated successfully!`);
       } catch (err) {
-        setError(err.message || 'Failed to update record.');
+        submissionError = err.message || 'Failed to update record.';
+        setError(submissionError);
       }
     } else {
       // Add new record
@@ -331,11 +357,15 @@ smoker: smoker,
         await onAddRecord(newRec);
         setSuccessMessage(`Health record for ${empName} (${empId}) added successfully!`);
       } catch (err) {
-        setError(err.message || 'Failed to add record.');
+        submissionError = err.message || 'Failed to add record.';
+        setError(submissionError);
       }
     }
+  } catch (err) {
+    submissionError = err.message || 'An unexpected error occurred during form submission.';
+    setError(submissionError);
   } finally {
-    if (!error) { // Only close and reset if there was no error
+    if (!submissionError) {
       setIsAddOpen(false);
       // Reset Form
       setSelectedEmployee('');
@@ -345,11 +375,14 @@ smoker: smoker,
       setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false); setAlcoholUse(false); setGlucoseLevel('');
       setEmergencyContactName(''); setEmergencyContactPhone(''); setBloodGroup(''); setAllergies(''); setExistingDiseases('');
       setEditingRecord(null);
+      setError('');
     }
-    // Set timers to clear messages after a delay
-    if (successMessage) setTimeout(() => setSuccessMessage(''), 5000);
-    if (error) setTimeout(() => setError(''), 5000);
-  };
+
+    setTimeout(() => setSuccessMessage(''), 5000);
+    if (submissionError) setTimeout(() => setError(''), 5000);
+  }
+};
+  
   const usersWithoutRecords = useMemo(() => {
     return allUsers.filter(
       user => !records.some(record => record.employeeId === user.employeeId)
@@ -1334,7 +1367,7 @@ export function SentimentModule({ sentimentList = [], healthRecords = [], onPuls
 
   useEffect(() => {
     api.fetchAllSentimentPulses({ forceRefresh: true }).then(setAllPulses);
-  }, [sentimentList]); // Refresh when sentiment list changes
+  }, [sentimentList, onPulseDeleted]); // Refresh when sentiment list or onPulseDeleted changes
 
   const filteredRecords = useMemo(() => {
     if (!search) return healthRecords;
@@ -2724,4 +2757,4 @@ export default function AdminDashboard({ user,
       </div>
     </div>
   );
-}}
+}
