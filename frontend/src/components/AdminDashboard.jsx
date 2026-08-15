@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Edit, MoreHorizontal, Activity, TrendingUp, Lightbulb, Smile, BarChart3, LogOut,
-  Search, Plus, X, ShieldAlert, AlertCircle, Check, Sparkles, Dumbbell, Apple, Brain, Clock, ChevronLeft, ChevronRight, Menu, Calendar, UserX,
+  Search, Plus, X, ShieldAlert, AlertCircle, Check, Sparkles, Dumbbell, Apple, Brain, Clock, ChevronLeft, ChevronRight, Menu, Calendar, UserX, Eye,
   ShieldCheck, Bell, Receipt, Siren, Zap, Target, Users, LineChart, Cog, Save
 } from 'lucide-react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ScatterChart, Scatter, ResponsiveContainer } from 'recharts';
@@ -31,6 +31,8 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null); // Track which record is being edited
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const [isViewDetailsOpen, setIsViewDetailsOpen] = useState(false); // New state for view details modal
+  const [viewingRecord, setViewingRecord] = useState(null); // Track which record is being viewed
   const [openActionMenu, setOpenActionMenu] = useState(null); // Track which action menu is open
   
   // Form states (using selectedEmployee to hold "employeeId|employeeName")
@@ -74,7 +76,7 @@ const [smoker, setSmoker] = useState(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [openActionMenu]); // Add openActionMenu to dependencies
 
   const formatLastSync = (value) => {
     if (!value) return 'Unknown';
@@ -122,6 +124,7 @@ setSmoker(record.smoker);
   };
 
   const handleMenuToggle = (e, recordId) => {
+    e.stopPropagation(); // Prevent the click from bubbling up to the document and immediately closing the menu
     // Toggle the menu for the clicked record. If it's already open, close it.
     setOpenActionMenu(openActionMenu === recordId ? null : recordId);
     // No need to calculate position anymore as it will be relative to the button's parent
@@ -223,7 +226,7 @@ smoker: smoker,
         lastUpdated: new Date().toISOString().split('T')[0]
       };
       await onUpdateRecord(updatedRec);
-      setSuccessMessage('Health record updated successfully!');
+      setSuccessMessage(`Health record for ${empName} (${empId}) updated successfully!`);
       setTimeout(() => setSuccessMessage(''), 3000);
     } else {
       // Add new record
@@ -259,7 +262,7 @@ smoker: smoker,
         lastUpdated: new Date().toISOString().split('T')[0]
       };
       await onAddRecord(newRec);
-      setSuccessMessage('Health record added successfully!');
+      setSuccessMessage(`Health record for ${empName} (${empId}) added successfully!`);
       setTimeout(() => setSuccessMessage(''), 3000);
     }
 
@@ -563,6 +566,139 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
         </div>
       )}
 
+      {/* View Details Modal Popup */}
+      {isViewDetailsOpen && viewingRecord && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fadeIn">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh]">
+            <div className="bg-slate-50 dark:bg-slate-900 border-b border-slate-100 dark:border-slate-700 px-6 py-4 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2">
+                <Activity className="w-5 h-5 text-slate-800 dark:text-slate-100" />
+                <h3 className="font-display font-semibold text-sm text-slate-800 dark:text-slate-100">
+                  Health Record Details for {viewingRecord.employeeName}
+                </h3>
+              </div>
+              <button
+                onClick={() => { setIsViewDetailsOpen(false); setViewingRecord(null); }}
+                className="text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                {/* Employee Info */}
+                <div className="col-span-full">
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Employee</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.employeeName} ({viewingRecord.employeeId})</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Department</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.department}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Age</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.age}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Gender</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.gender}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Height (cm)</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.heightCm}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Weight (kg)</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.weightKg}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">BMI Value</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.bmi}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Blood Pressure</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.bloodPressure}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Exercise (Days/wk)</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.exerciseDaysPerWeek}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Exercise (Hours/wk)</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.exerciseHoursPerWeek}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Sleep (Hours/night)</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.sleepHoursPerNight}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Self-Reported Stress</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.stressLevel}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Stress Score (1-10)</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.stressScore}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Attendance Rate (%)</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.attendanceRate}</p>
+                </div>
+                <div className="col-span-full">
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Medical Condition</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.medicalCondition}</p>
+                </div>
+                <div className="col-span-full">
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Medical Notes</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.medicalNotes || 'N/A'}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Smoker</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.smoker ? 'Yes' : 'No'}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Alcohol User</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.alcoholUse ? 'Yes' : 'No'}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Glucose Level</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.glucoseLevel}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Blood Group</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.bloodGroup || 'N/A'}</p>
+                </div>
+                <div className="col-span-full">
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Allergies</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.allergies || 'N/A'}</p>
+                </div>
+                <div className="col-span-full">
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Existing Diseases</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.existingDiseases || 'N/A'}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Emergency Contact Name</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.emergencyContactName || 'N/A'}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Emergency Contact Phone</label>
+                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.emergencyContactPhone || 'N/A'}</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-3 justify-end pt-5 border-t border-slate-200 dark:border-slate-700 shrink-0 px-6 py-4">
+              <button
+                type="button"
+                onClick={() => { setIsViewDetailsOpen(false); setViewingRecord(null); }}
+                className="px-4.5 py-2.5 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 text-xs font-semibold rounded-lg transition-colors border border-slate-200 dark:border-slate-600"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Health records Card View */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {loading ? (
@@ -596,6 +732,13 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
                         <Edit className="w-3.5 h-3.5" /> Edit
                       </button>
                       <button
+                        onClick={() => { setViewingRecord(record); setIsViewDetailsOpen(true); setOpenActionMenu(null); }}
+                        className="w-full text-left px-4 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600 flex items-center gap-2"
+                      >
+                        <Eye className="w-3.5 h-3.5" /> View Details
+                      </button>
+
+                      <button
                         onClick={() => { if (window.confirm(`Are you sure you want to delete the health record for ${record.employeeName}? This only removes the health record, not the user account.`)) { onDeleteRecord(record.employeeId); } setOpenActionMenu(null); }}
                         className="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/50 flex items-center gap-2"
                       >
@@ -615,7 +758,7 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-slate-600 dark:text-slate-300">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-xs text-slate-600 dark:text-slate-300">
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-slate-500 dark:text-slate-400">Dept:</span>
                     <span className="font-semibold">{record.department}</span>
@@ -2406,7 +2549,7 @@ export default function AdminDashboard({ user,
           <div className="mb-6 pb-4 border-b border-slate-200/80 dark:border-slate-700 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800/60 rounded-md text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest font-mono mb-2">
-                {activeTab <= 6 ? `Core Module ${activeTab} of 6` : `Extension Module ${activeTab}`}
+                {adminNavTabs.find(tab => tab.id === activeTab)?.label || 'Admin Module'}
               </div>
               <h1 className="font-display text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-50 tracking-tight">
                 {activeTab === 1 && 'User Management'}
