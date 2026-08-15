@@ -74,8 +74,8 @@ export function RecommendationModule({ recommendations, loading = false, onPlayV
 
           return (
             <div key={rec.id} className="bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl flex flex-col justify-between hover:shadow-xl transition-all duration-300 shadow-sm overflow-hidden">
-              {/* The main image is now just a static image without a play button overlay */}
-              {rec.imageUrl && <img src={rec.imageUrl} alt={rec.title} className="w-full h-40 object-cover" />}
+              {/* The main image container height is increased to show more of the image */}
+              {rec.imageUrl && <img src={rec.imageUrl} alt={rec.title} className="w-full h-full object-cover" />}
 
               <div className="p-5 flex flex-col flex-grow space-y-4">
               <div className="space-y-3">
