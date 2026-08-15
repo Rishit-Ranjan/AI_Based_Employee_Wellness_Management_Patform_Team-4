@@ -953,41 +953,23 @@ def _resolve_media_category(category):
             return key
     return 'Lifestyle'
     
-def _is_video_available(video_id: str) -> bool:
+def _is_video_available(video_id: str) -> bool: # No longer uses API key
     """
-    Checks if a YouTube video is available and embeddable using the YouTube Data API v3.
-    Requires YOUTUBE_API_KEY to be set in the environment.
+    Checks if a YouTube video is available by pinging its oEmbed endpoint.
+    This is a public endpoint and does not require an API key.
     """
-    api_key = os.getenv('YOUTUBE_API_KEY')
-    if not api_key:
-        # If no API key, assume all videos are available to avoid blocking the feature.
-        # The frontend fallback will handle any genuinely broken videos.
-        return True
-
-    url = f"https://www.googleapis.com/youtube/v3/videos?id={video_id}&key={api_key}&part=status"
+    # oEmbed URL for checking video existence.
+    oembed_url = f"https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v={video_id}&format=json"
     
     try:
-        response = http_requests.get(url, timeout=5)
-        response.raise_for_status()
-        data = response.json()
-        
-        if not data.get('items'):
-            return False # Video does not exist
-
-        status = data['items'][0].get('status', {})
-        if status.get('uploadStatus') != 'processed' or status.get('privacyStatus') == 'private' or not status.get('embeddable'):
-            return False # Video is private, unlisted, deleted, or not embeddable
-
+        # A short timeout is used to fail fast if the network is slow.
+        response = http_requests.get(oembed_url, timeout=3)
+        # If the video is private or deleted, YouTube returns 404 or 403.
+        # A successful 200 response means the video is public.
+        return response.status_code == 200
+    except http_requests.RequestException:
+        # If the request fails for any reason (timeout, network error), assume unavailable.
         return True
-    except http_requests.RequestException as e:
-        # If the error is a 400/403, it's likely a bad API key.
-        # In this case, we should bypass the check to avoid failing all videos.
-        if e.response is not None and e.response.status_code in [400, 403]:
-            app.logger.warning(f"YouTube API key is likely invalid (status {e.response.status_code}). Bypassing video availability check.")
-            return True
-        
-        app.logger.error(f"YouTube API check failed for video ID {video_id}: {e}")
-        return False # For other errors (e.g., network timeout), treat as unavailable.
 
 
 def _get_all_available_videos(recommendation: dict, max_videos: int = 4) -> list:
