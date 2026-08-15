@@ -164,7 +164,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
         </div>
 
         {/* Dynamic Centerpiece Quote / Info */}
-        <div className="my-auto relative z-10 max-w-md">
+        <div className="my-auto relative z-10 max-w-md mt-8">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-850 border border-slate-800 rounded-full text-xs text-slate-300 mb-6 font-medium">
             <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
             Empowering Healthy & Engaged Workforces
