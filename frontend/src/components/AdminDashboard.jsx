@@ -149,6 +149,68 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
     setIsAddOpen(true);
     setError(''); // Clear any previous errors when opening modal
   };
+
+
+  const handleAutofill = () => {
+    // Pick a random user without a record
+    if (usersWithoutRecords.length > 0) {
+      const randomUser = usersWithoutRecords[Math.floor(Math.random() * usersWithoutRecords.length)];
+      setSelectedEmployee(`${randomUser.employeeId}|${randomUser.name}`);
+    } else {
+      setError('No available users to autofill. All users already have health records.');
+      setTimeout(() => setError(''), 5000);
+      return;
+    }
+
+    // Generate random data
+    const randomAge = Math.floor(Math.random() * (45 - 20 + 1)) + 20; // 20-45
+    const randomGender = ['Male', 'Female', 'Other'][Math.floor(Math.random() * 3)];
+    const randomHeightCm = Math.floor(Math.random() * (190 - 150 + 1)) + 150; // 150-190 cm
+    const randomWeightKg = Math.floor(Math.random() * (90 - 50 + 1)) + 50; // 50-90 kg
+    const randomDept = ['Engineering', 'Sales', 'Marketing', 'Product', 'Operations'][Math.floor(Math.random() * 5)];
+    const calculatedBmi = Number((randomWeightKg / ((randomHeightCm / 100) ** 2)).toFixed(1));
+    const randomBpSystolic = Math.floor(Math.random() * (140 - 100 + 1)) + 100; // 100-140
+    const randomBpDiastolic = Math.floor(Math.random() * (90 - 60 + 1)) + 60; // 60-90
+    const randomExerciseDays = Math.floor(Math.random() * (6 - 2 + 1)) + 2; // 2-6 days
+    const randomExerciseHours = Number((Math.random() * (8 - 2) + 2).toFixed(1)); // 2-8 hours
+    const randomSleepHours = Number((Math.random() * (9 - 5) + 5).toFixed(1)); // 5-9 hours
+    const randomStressLevel = ['Low', 'Medium', 'High'][Math.floor(Math.random() * 3)];
+    const randomStressScore = Number((Math.random() * (9 - 2) + 2).toFixed(1)); // 2-9
+    const randomAttendanceRate = Number((Math.random() * (100 - 90) + 90).toFixed(1)); // 90-100%
+    const randomMedicalCondition = ['No major condition', 'Mild fatigue', 'Allergies', 'Other'][Math.floor(Math.random() * 4)];
+    const randomSmoker = Math.random() > 0.8; // 20% chance
+    const randomAlcoholUse = Math.random() > 0.7; // 30% chance
+    const randomGlucose = Math.floor(Math.random() * (120 - 70 + 1)) + 70; // 70-120
+    const randomBloodGroup = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'][Math.floor(Math.random() * 8)];
+
+    setAge(String(randomAge));
+    setGender(randomGender);
+    setHeightCm(String(randomHeightCm));
+    setWeightKg(String(randomWeightKg));
+    setDept(randomDept);
+    setBmi(String(calculatedBmi));
+    setBp(`${randomBpSystolic}/${randomBpDiastolic}`);
+    setExerciseDaysPerWeek(String(randomExerciseDays));
+    setExercise(String(randomExerciseHours));
+    setSleep(String(randomSleepHours));
+    setStress(randomStressLevel);
+    setStressScore(String(randomStressScore));
+    setAttendanceRate(String(randomAttendanceRate));
+    setMedicalNotes(randomMedicalCondition === 'Other' ? 'Random notes for other condition.' : '');
+    setMedicalCondition(randomMedicalCondition);
+    setSmoker(randomSmoker);
+    setAlcoholUse(randomAlcoholUse);
+    setGlucoseLevel(String(randomGlucose));
+    setEmergencyContactName('Jane Doe');
+    setEmergencyContactPhone('+1 555 123 4567');
+    setBloodGroup(randomBloodGroup);
+    setAllergies(Math.random() > 0.7 ? 'Pollen, Dust' : '');
+    setExistingDiseases(Math.random() > 0.6 ? 'None' : 'Hypertension');
+
+    setSuccessMessage('Form autofilled with random data!');
+    setTimeout(() => setSuccessMessage(''), 3000);
+  };
+  
   const filtered = records.filter(r => {
     const matchSearch = r.employeeName.toLowerCase().includes(search.toLowerCase()) ||
                         r.employeeId.toLowerCase().includes(search.toLowerCase());
@@ -159,6 +221,7 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    try {
     if (!selectedEmployee || !age || !gender || !heightCm || !weightKg || !dept || !bmi || !bp || !exerciseDaysPerWeek || !exercise || !sleep || !stress || !stressScore || !attendanceRate || !medicalCondition || !glucoseLevel) {
       setError('Please fill in all required fields.');
       return;
@@ -225,9 +288,12 @@ smoker: smoker,
         healthAssessment: assessment,
         lastUpdated: new Date().toISOString().split('T')[0]
       };
-      await onUpdateRecord(updatedRec);
-      setSuccessMessage(`Health record for ${empName} (${empId}) updated successfully!`);
-      setTimeout(() => setSuccessMessage(''), 3000);
+      try {
+        await onUpdateRecord(updatedRec);
+        setSuccessMessage(`Health record for ${empName} (${empId}) updated successfully!`);
+      } catch (err) {
+        setError(err.message || 'Failed to update record.');
+      }
     } else {
       // Add new record
       const [empId, empName] = selectedEmployee.split('|');
@@ -261,21 +327,28 @@ smoker: smoker,
         healthAssessment: assessment,
         lastUpdated: new Date().toISOString().split('T')[0]
       };
-      await onAddRecord(newRec);
-      setSuccessMessage(`Health record for ${empName} (${empId}) added successfully!`);
-      setTimeout(() => setSuccessMessage(''), 3000);
+      try {
+        await onAddRecord(newRec);
+        setSuccessMessage(`Health record for ${empName} (${empId}) added successfully!`);
+      } catch (err) {
+        setError(err.message || 'Failed to add record.');
+      }
     }
-
-    setIsAddOpen(false);
-    // Reset Form
-    setSelectedEmployee('');
-    setAge(''); setGender('Male'); setHeightCm(''); setWeightKg('');
-    setBmi(''); setBp(''); setExerciseDaysPerWeek(''); setExercise(''); setSleep('');
-    setStress('Medium'); setStressScore(''); setAttendanceRate('');
-setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false); setAlcoholUse(false); setGlucoseLevel('');
-    setEmergencyContactName(''); setEmergencyContactPhone(''); setBloodGroup(''); setAllergies(''); setExistingDiseases('');
-    setEditingRecord(null);
-    setError(''); // Clear error after successful submission
+  } finally {
+    if (!error) { // Only close and reset if there was no error
+      setIsAddOpen(false);
+      // Reset Form
+      setSelectedEmployee('');
+      setAge(''); setGender('Male'); setHeightCm(''); setWeightKg('');
+      setBmi(''); setBp(''); setExerciseDaysPerWeek(''); setExercise(''); setSleep('');
+      setStress('Medium'); setStressScore(''); setAttendanceRate('');
+      setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false); setAlcoholUse(false); setGlucoseLevel('');
+      setEmergencyContactName(''); setEmergencyContactPhone(''); setBloodGroup(''); setAllergies(''); setExistingDiseases('');
+      setEditingRecord(null);
+    }
+    // Set timers to clear messages after a delay
+    if (successMessage) setTimeout(() => setSuccessMessage(''), 5000);
+    if (error) setTimeout(() => setError(''), 5000);
   };
   const usersWithoutRecords = useMemo(() => {
     return allUsers.filter(
@@ -553,6 +626,13 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
                   className="px-4.5 py-2.5 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 text-xs font-semibold rounded-lg transition-colors border border-slate-200 dark:border-slate-600"
                 >
                   Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAutofill}
+                  className="px-4.5 py-2.5 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-blue-600 dark:text-blue-300 text-xs font-semibold rounded-lg transition-colors border border-blue-200 dark:border-blue-800"
+                >
+                  Autofill
                 </button>
                 <button
                   type="submit"
@@ -2644,4 +2724,4 @@ export default function AdminDashboard({ user,
       </div>
     </div>
   );
-}
+}}
