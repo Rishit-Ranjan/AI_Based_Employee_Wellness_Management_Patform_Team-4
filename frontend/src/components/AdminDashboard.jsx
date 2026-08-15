@@ -1189,8 +1189,8 @@ export function RecommendationModule({ recommendations = [], loading }) {
           <div key={empRec.employeeId} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-sm">
             <div className="flex justify-between items-start pb-4 border-b border-slate-100 dark:border-slate-700 mb-4">
               <div>
-                <h4 className="font-display font-semibold text-slate-800 dark:text-slate-100">{empRec.employeeName}</h4>
-                <p className="text-xs text-slate-400 dark:text-slate-500 font-mono">{empRec.employeeId}</p>
+                <h4 className="text-[18.5px] font-display font-semibold text-slate-800 dark:text-slate-100">{empRec.employeeName}</h4>
+                <p className="text-[14.5px] text-slate-400 dark:text-slate-500 font-mono">{empRec.employeeId}</p>
               </div>
               <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold ${
                 empRec.riskProfile.riskType === 'High' ? 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border border-red-100 dark:border-red-800' :
@@ -1216,15 +1216,15 @@ export function RecommendationModule({ recommendations = [], loading }) {
                         </span>
                       </div>
                       <div>
-                        <h5 className=" text-[13px] font-semibold text-xs text-slate-800 dark:text-slate-100">{rec.title}</h5>
-                        <p className="text-[12px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed font-light">{rec.description}</p>
+                        <h5 className=" text-[14px] font-semibold text-xs text-slate-800 dark:text-slate-100">{rec.title}</h5>
+                        <p className="text-[13px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed font-light">{rec.description}</p>
                       </div>
                       {rec.reasons && rec.reasons.length > 0 && (
                         <div className="pt-2 border-t border-slate-200 dark:border-slate-600">
-                           <p className="text-[12px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Reasons:</p>
+                           <p className="text-[13px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Reasons:</p>
                            <ul className="list-disc list-inside space-y-0.5 mt-1">
                             {rec.reasons.map((reason, i) => (
-                              <li key={i} className="text-[12px] text-slate-500 dark:text-slate-400">{reason}</li>
+                              <li key={i} className="text-[13px] text-slate-500 dark:text-slate-400">{reason}</li>
                             ))}
                            </ul>
                         </div>
