@@ -178,7 +178,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
             wellness recommendations in real-time.
           </p>
 
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             <div className="p-4 bg-slate-850 border border-slate-800 rounded-xl">
               <Activity className="w-5 h-5 text-indigo-400 mb-2" />
               <div className="text-sm font-semibold text-white">Predictive Analytics</div>
