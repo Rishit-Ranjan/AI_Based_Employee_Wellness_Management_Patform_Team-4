@@ -939,104 +939,56 @@ def _resolve_media_category(category):
         if key.lower() in category.lower() or category.lower() in key.lower():
             return key
     return 'Lifestyle'
-
-def _get_alternative_video(category, unavailable_url=None, risk_label='Low'):
-    """
-    Smart fallback: given a category and (optionally) the URL that failed,
-    return an alternative video URL that has NOT been marked unavailable.
-    Prioritization:
-      - High risk → first available video (most impactful)
-      - Medium risk → middle video
-      - Low risk → last video (least intensive)
-    Falls back to the default media if all videos for category are exhausted.
-    """
-    if unavailable_url:
-        # Only add to unavailable list if it's not the ultimate fallback itself
-        if unavailable_url != ULTIMATE_FALLBACK_VIDEO_URL:
-            _UNAVAILABLE_VIDEOS.add(unavailable_url)
     
-    category_key = _resolve_media_category(category) # Resolve category to a known key
+def _get_all_available_videos(category: str, max_videos: int = 3) -> list:
+    """
+    Gets a list of available video URLs for a given category.
+    It filters out unavailable videos and supplements from default categories if needed.
+    """
+    category_key = _resolve_media_category(category)
     
-    # 1. Try to find an available video within the specific category
-    candidate_videos_in_category = RECOMMENDATION_MEDIA.get(category_key, {}).get('videos', [])
-    available_videos = [v for v in candidate_videos_in_category if v not in _UNAVAILABLE_VIDEOS and v != ULTIMATE_FALLBACK_VIDEO_URL]
+    # 1. Get available videos from the specific category
+    candidate_videos = RECOMMENDATION_MEDIA.get(category_key, {}).get('videos', [])
+    available_videos = [v for v in candidate_videos if v not in _UNAVAILABLE_VIDEOS and v != ULTIMATE_FALLBACK_VIDEO_URL]
+    
+    # 2. If not enough videos, supplement from the default list
+    if len(available_videos) < max_videos:
+        default_videos = DEFAULT_REC_MEDIA.get('videos', [])
+        # Get unique default videos that are not already in the list
+        supplement_videos = [v for v in default_videos if v not in available_videos and v not in _UNAVAILABLE_VIDEOS and v != ULTIMATE_FALLBACK_VIDEO_URL]
+        available_videos.extend(supplement_videos)
 
-    if not available_videos:
-        # 2. If no videos are available in the specific category, try the DEFAULT_REC_MEDIA explicitly.
-        candidate_videos_from_default = DEFAULT_REC_MEDIA['videos']
-        available_videos = [v for v in candidate_videos_from_default if v not in _UNAVAILABLE_VIDEOS and v != ULTIMATE_FALLBACK_VIDEO_URL]
+    # 3. Ensure uniqueness and limit to max_videos
+    unique_videos = list(dict.fromkeys(available_videos))
+    
+    # 4. If still no videos, use the ultimate fallback
+    if not unique_videos:
+        return [ULTIMATE_FALLBACK_VIDEO_URL]
+        
+    return unique_videos[:max_videos]
 
-    if available_videos:
-        # If we found available videos, select one based on risk label
-        # Choose based on risk label from the available videos
-        if risk_label == 'High':
-            index = 0
-        elif risk_label == 'Medium':
-            index = len(available_videos) // 2
-        else:  # Low
-            index = len(available_videos) - 1
-        index = min(index, len(available_videos) - 1)
-        return available_videos[index]
-    else:
-        # 3. If still no available videos (meaning all category and default videos are marked unavailable),
-        #    aggressively clear the unavailable status for DEFAULT_REC_MEDIA videos
-        #    (excluding the ultimate fallback) to give them another chance.
-        #    This handles cases where YouTube might have temporary issues.
-        _UNAVAILABLE_VIDEOS.difference_update([v for v in DEFAULT_REC_MEDIA['videos'] if v != ULTIMATE_FALLBACK_VIDEO_URL])
-        available_videos = [v for v in DEFAULT_REC_MEDIA['videos'] if v not in _UNAVAILABLE_VIDEOS and v != ULTIMATE_FALLBACK_VIDEO_URL]
-
-        if available_videos:
-            # If clearing helped, pick one from the default videos
-            index = min(len(available_videos) - 1, 0 if risk_label == 'High' else len(available_videos) // 2 if risk_label == 'Medium' else len(available_videos) - 1)
-            return available_videos[index]
-        else:
-            # 4. Absolute last resort: return the generic, very stable wellness video.
-            return ULTIMATE_FALLBACK_VIDEO_URL
 
 
 def _add_media_to_recommendations(recommendations):
-    """Attach image and video URLs to each recommendation based on category and severity."""
+    """Attach image and a list of video URLs to each recommendation."""
     enriched = []
     for rec in recommendations:
         category = rec.get('category', 'Lifestyle') # Default to 'Lifestyle' if category is missing
-        risk_label = rec.get('severity', 'Low') # Use severity from recommendation for fallback logic
 
         # Determine the media source for the image
         media_source = RECOMMENDATION_MEDIA.get(_resolve_media_category(category), DEFAULT_REC_MEDIA)
 
-        # Use the robust fallback function to get a video URL
-        video_url = _get_alternative_video(category, None, risk_label)
+        # Get a list of available videos instead of a single one
+        video_urls = _get_all_available_videos(category)
         
         enriched_rec = {
             **rec,
             'id': rec.get('recommendation_id', rec.get('id', str(random.randint(1000, 9999)))),
             'imageUrl': media_source['image'],
-            'videoUrl': video_url,
+            'videoUrls': video_urls,
         }
         enriched.append(enriched_rec)
     return enriched
-
-# --- Video Fallback Endpoint (for when a video is unavailable) ---
-@app.route('/api/wellness/recommendation-media/fallback', methods=['POST'])
-@jwt_required(locations=["cookies"])
-def get_fallback_video():
-    """
-    When the frontend detects a YouTube video is unavailable (removed/privated),
-    it reports the failed URL here and receives an alternative video URL.
-    The alternative is selected intelligently based on the user's risk profile.
-    """
-    data = request.get_json() or {}
-    category = data.get('category', 'Lifestyle')
-    unavailable_url = data.get('unavailableUrl')
-    risk_label = data.get('riskLabel', 'Low')
-    
-    alternative_url = _get_alternative_video(category, unavailable_url, risk_label)
-    
-    return jsonify({
-        'alternativeUrl': alternative_url,
-        'category': category,
-        'note': 'Alternative video selected based on availability and risk profile.'
-    }), 200
 
 
 # --- Wellness Recommendations Endpoint ---

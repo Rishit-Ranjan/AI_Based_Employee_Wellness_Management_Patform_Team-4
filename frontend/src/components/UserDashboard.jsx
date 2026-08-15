@@ -74,20 +74,8 @@ export function RecommendationModule({ recommendations, loading = false, onPlayV
 
           return (
             <div key={rec.id} className="bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl flex flex-col justify-between hover:shadow-xl transition-all duration-300 shadow-sm overflow-hidden">
-              {rec.imageUrl && (
-                <div className="relative h-40">
-                  <img src={rec.imageUrl} alt={rec.title} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  {rec.videoUrl && (
-                    <button 
-                      onClick={() => onPlayVideo(rec.videoUrl, rec.category, rec.severity)}
-                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-3 bg-white/20 backdrop-blur-sm rounded-full text-white hover:bg-white/40 transition-all"
-                    >
-                      <PlayCircle className="w-8 h-8" />
-                    </button>
-                  )}
-                </div>
-              )}
+              {/* The main image is now just a static image without a play button overlay */}
+              {rec.imageUrl && <img src={rec.imageUrl} alt={rec.title} className="w-full h-40 object-cover" />}
 
               <div className="p-5 flex flex-col flex-grow space-y-4">
               <div className="space-y-3">
@@ -110,17 +98,39 @@ export function RecommendationModule({ recommendations, loading = false, onPlayV
 
               <div className="flex-grow" />
 
+              {/* NEW: Display multiple video thumbnails */}
+              {rec.videoUrls && rec.videoUrls.length > 0 && (
+                <div className="pt-3">
+                  <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono mb-2">
+                    Watch a Video
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {rec.videoUrls.map((url, index) => {
+                      const videoId = url.split('v=')[1]?.split('&')[0];
+                      if (!videoId) return null;
+                      const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+                      return (
+                        <button
+                          key={index}
+                          onClick={() => onPlayVideo(url, rec.category, rec.severity)}
+                          className="relative rounded-lg overflow-hidden group border border-slate-200 dark:border-slate-700 aspect-video"
+                        >
+                          <img src={thumbnailUrl} alt={`Video thumbnail ${index + 1}`} className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <PlayCircle className="w-6 h-6 text-white" />
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700/60">
                 <div className="flex items-center gap-1.5">
                   <span className={`w-2 h-2 rounded-full ${rec.severity === 'High' ? 'bg-red-500' : rec.severity === 'Medium' ? 'bg-amber-500' : 'bg-blue-500'}`} />
                   <span className="text-[13px] font-bold text-slate-500 dark:text-slate-400 uppercase font-mono">{rec.severity} Severity</span>
                 </div>
-                {rec.videoUrl && (
-                  <a href={rec.videoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-500 transition-colors">
-                    <ExternalLink className="w-5 h-5" />
-                    Watch on YouTube
-                  </a>
-                )}
               </div>
 
               {rec.reasons && rec.reasons.length > 0 && (
