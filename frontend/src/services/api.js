@@ -242,6 +242,18 @@ export const fetchRecommendations = async (options) => {
   return response;
 }
 
+/**
+ * Reports a video URL that is no longer available.
+ * @param {string} videoUrl - The YouTube URL that failed.
+ * @returns {Promise<Object>}
+ */
+export const reportUnavailableVideo = (videoUrl) => {
+  return request('/wellness/report-video', {
+    method: 'POST',
+    body: JSON.stringify({ videoUrl }),
+  });
+};
+
 // New function to fetch sentiment data
 export const fetchSentiments = (options) => request('/wellness/sentiments', { method: 'GET', ...options });
 

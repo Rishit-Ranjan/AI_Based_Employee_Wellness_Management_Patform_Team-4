@@ -1,13 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
+import { reportUnavailableVideo } from '../services/api';
 
 export default function VideoPlayerModal({ videoUrl, onClose, category, riskLabel }) {
   const [currentUrl, setCurrentUrl] = useState(videoUrl);
+  const [hasError, setHasError] = useState(false);
 
   // The frontend video availability check was unreliable and causing loops.
   // This has been removed. We now trust the backend to provide a working URL.
   // If a video is truly unavailable, the YouTube iframe will display its own
   // error, which is a more stable and acceptable user experience.
+
+  // NEW: Report broken videos to the backend when the iframe fails.
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.source === window && event.data === 'youtubeError') {
+        setHasError(true);
+        reportUnavailableVideo(currentUrl).catch(err => console.error("Failed to report video:", err));
+      }
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [currentUrl]);
   
   if (!currentUrl) return null;
   // Extract YouTube video ID from URL
@@ -30,12 +44,22 @@ export default function VideoPlayerModal({ videoUrl, onClose, category, riskLabe
           <X className="w-5 h-5" />
         </button>
 
+        {hasError && (
+          <div className="absolute inset-0 flex items-center justify-center bg-slate-900 z-10">
+            <div className="text-center text-white p-4">
+              <p className="font-semibold">Video unavailable</p>
+              <p className="text-sm text-slate-400 mt-1">This video could not be loaded. An alternative will be suggested next time.</p>
+            </div>
+          </div>
+        )}
+
         <iframe
           className="w-full h-full"
           src={embedUrl}
           title="YouTube video player"
           frameBorder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          onError={() => window.postMessage('youtubeError', '*')}
           allowFullScreen
         ></iframe>
       </div>

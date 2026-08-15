@@ -874,7 +874,7 @@ RECOMMENDATION_MEDIA = {
             'https://www.youtube.com/watch?v=inpok4MKVLM',    # Great Meditation - 10 min Mindfulness
             'https://www.youtube.com/watch?v=ZToicYbHMgU',    # Mindful Movement - Morning Meditation
             'https://www.youtube.com/watch?v=jNhaOeeg0EQ',    # Headspace - Meditation Basics
-            'https://www.youtube.com/watch?v=wfK_g_Y190',    # 5-Minute Meditation for Anxiety
+            'https://www.youtube.com/watch?v=O-6f5wQXSu8',    # 5-Minute Meditation for Anxiety
         ]
     },
     'Yoga': {
@@ -900,7 +900,7 @@ RECOMMENDATION_MEDIA = {
         'videos': [
             'https://www.youtube.com/watch?v=aXmInS7h-3c',    # Sleep hygiene tips
             'https://www.youtube.com/watch?v=pUAN2jP6E9g',    # Better sleep routine
-            'https://www.youtube.com/watch?v=N_jG_g_Y190',    # Guided sleep meditation
+            'https://www.youtube.com/watch?v=aEqlQv6L2sI',    # Guided sleep meditation
             'https://www.youtube.com/watch?v=r0w_uQ_Xg1Y',    # Sleep music
         ]
     },
@@ -1001,6 +1001,24 @@ def _add_media_to_recommendations(recommendations):
         }
         enriched.append(enriched_rec)
     return enriched
+
+@app.route('/api/wellness/report-video', methods=['POST'])
+@jwt_required(locations=["cookies"])
+def report_unavailable_video():
+    """Endpoint for the frontend to report a video that is no longer available."""
+    data = request.get_json() or {}
+    video_url = data.get('videoUrl')
+
+    if not video_url:
+        return jsonify({'detail': 'Missing videoUrl'}), 400
+
+    # Add the broken video to the runtime blocklist
+    _UNAVAILABLE_VIDEOS.add(video_url)
+    app.logger.info(f"Video marked as unavailable: {video_url}")
+
+    return jsonify({'detail': 'Video reported successfully'}), 200
+
+
 
 
 # --- Wellness Recommendations Endpoint ---
