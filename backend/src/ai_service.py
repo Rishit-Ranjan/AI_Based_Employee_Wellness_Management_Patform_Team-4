@@ -226,9 +226,10 @@ As an AI Wellness Assistant, provide a helpful, concise response (max 150 words)
                 return "I'm having trouble connecting to the AI service right now. Please try again in a moment.", "Service Error"
             
         except http_requests.exceptions.ConnectionError as e:
-            error_msg = f"Could not connect to Ollama server at {ollama_base_url}. Is Ollama running and '{model_name_to_use}' downloaded?"
+            error_msg = f"Could not connect to Ollama server at {ollama_base_url}. Please ensure the Ollama application is running and your respective AI model is downloaded."
+
             print(f"Ollama API error: {error_msg} - {e}")
-            return "The AI assistant is currently unavailable. Please ensure that Ollama is running.", "Service Unavailable"
+            return "The AI assistant is currently unavailable. Please ensure the Ollama application is running.", "Service Unavailable"
         
         except http_requests.exceptions.Timeout as e:
             error_msg = f"Ollama API request timed out after 30 seconds."
