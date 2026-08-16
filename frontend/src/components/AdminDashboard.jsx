@@ -636,6 +636,7 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
                   <select value={medicalCondition} onChange={(e) => setMedicalCondition(e.target.value)} className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none">
                     <option value="No major condition">No major condition</option>
                     <option value="Stress-related fatigue">Stress-related fatigue</option>
+                    <option value="Dental Check-up">Dental Check-up</option>
                     <option value="Mild fatigue">Mild fatigue</option>
                     <option value="Chronic pain">Chronic pain</option>
                     <option value="Allergies">Allergies</option>

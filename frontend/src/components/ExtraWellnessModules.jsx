@@ -40,6 +40,7 @@ export function CheckupSchedulerModule() {
               <option>Eye Checkup</option>
               <option>Vaccination</option>
               <option>General Physician Visit</option>
+              <option>Others</option>
             </select>
           </div>
           <div className="sm:col-span-2">
