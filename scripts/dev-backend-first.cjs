@@ -6,7 +6,7 @@ const projectRoot = path.resolve(__dirname, '..');
 const backendDir = path.resolve(projectRoot, 'backend', 'src');
 const frontendDir = path.resolve(projectRoot, 'frontend');
 const backendUrl = 'http://127.0.0.1:8000';
-const backendReadyTimeoutMs = Number(process.env.BACKEND_READY_TIMEOUT_MS) || 20000; // 15 secs timeout
+const backendReadyTimeoutMs = Number(process.env.BACKEND_READY_TIMEOUT_MS) || 20000; // 20 secs timeout
 const backendReadyIntervalMs = Number(process.env.BACKEND_READY_INTERVAL_MS) || 1000;
 let frontendProcess;
 let backendProcess;
