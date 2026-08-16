@@ -143,6 +143,7 @@ From the root directory of the project, run the concurrent script to start both 
 
 ```bash
 # From the project root directory
+npm install
 npm run dev
 ```
 
