@@ -26,6 +26,7 @@ from pymongo import MongoClient
 from pymongo.errors import ConfigurationError
 from bson import ObjectId
 import requests as http_requests
+import concurrent.futures
 from dotenv import load_dotenv
 import pandas as pd
 from email_sender import send_email
@@ -975,75 +976,67 @@ def _is_video_available(video_id: str) -> bool: # No longer uses API key
 def _get_all_available_videos(recommendation: dict, max_videos: int = 4) -> list:
     """
     Gets a list of suitable video URLs for a given recommendation.
-    It scores videos based on keyword matching and category relevance,
-    filters out unavailable videos, and supplements from default categories if needed.
+    It scores videos based on keyword matching and category relevance, then uses a
+    parallel batching approach to efficiently check for video availability.
     """
     rec_category = recommendation.get('category', 'Lifestyle')
     rec_title = recommendation.get('title', '').lower()
     rec_description = recommendation.get('description', '').lower()
     
     all_potential_videos = []
-
-    # Add category-specific videos
+    
+    # Gather all potential videos from all categories and defaults
     for cat_key, media_data in RECOMMENDATION_MEDIA.items():
         for video_entry in media_data.get('videos', []):
-            all_potential_videos.append({
-                'url': video_entry['url'],
-                'keywords': video_entry['keywords'],
-                'source_category': cat_key
-            })
-    
-    # Add default videos
+            all_potential_videos.append({'url': video_entry['url'], 'keywords': video_entry['keywords'], 'source_category': cat_key})
     for video_entry in DEFAULT_REC_MEDIA.get('videos', []):
-        all_potential_videos.append({
-            'url': video_entry['url'],
-            'keywords': video_entry['keywords'],
-            'source_category': 'Default' # Mark as default for lower priority
-        })
+        all_potential_videos.append({'url': video_entry['url'], 'keywords': video_entry['keywords'], 'source_category': 'Default'})
 
     scored_videos = []
     for video in all_potential_videos:
         if video['url'] in _UNAVAILABLE_VIDEOS:
-            continue # Skip videos marked as unavailable
+            continue
 
         score = 0
-        # Boost score for category match
         if video['source_category'] == rec_category:
             score += 10
-        
-        # Score based on keyword overlap with recommendation title and description
         for keyword in video['keywords']:
             if keyword.lower() in rec_title:
                 score += 3
             if keyword.lower() in rec_description:
                 score += 2
-        
         scored_videos.append({'url': video['url'], 'score': score})
 
     # Sort by score (descending) and then randomly for ties to ensure variety
     scored_videos.sort(key=lambda x: (x['score'], random.random()), reverse=True)
     
-    # Live validation and collection of available videos
+    # --- Parallel Video Availability Check ---
     verified_videos = []
     seen_urls = set()
-    for video in scored_videos:
-        url = video['url']
-        if url in seen_urls:
-            continue
-        
-        video_id = url.split('/embed/')[-1].split('?')[0]
-        if _is_video_available(video_id):
-            verified_videos.append(url)
-            seen_urls.add(url)
-        else:
-            # If unavailable, add to runtime blocklist to avoid re-checking
-            _UNAVAILABLE_VIDEOS.add(url)
-            app.logger.warning(f"Video {url} is unavailable. Skipping.")
+    candidate_urls = [v['url'] for v in scored_videos if v['url'] not in seen_urls]
 
-        if len(verified_videos) >= max_videos:
-            break
-            
-    # If no verified videos were found, return the ultimate fallback
+    # Use ThreadPoolExecutor to check videos in parallel
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_videos * 2) as executor:
+        future_to_url = {executor.submit(_is_video_available, url.split('/embed/')[-1].split('?')[0]): url for url in candidate_urls}
+        
+        for future in concurrent.futures.as_completed(future_to_url):
+            url = future_to_url[future]
+            try:
+                is_available = future.result()
+                if is_available:
+                    if url not in seen_urls:
+                        verified_videos.append(url)
+                        seen_urls.add(url)
+                        if len(verified_videos) >= max_videos:
+                            # Once we have enough, cancel remaining checks
+                            executor.shutdown(wait=False, cancel_futures=True)
+                            break
+                else:
+                    _UNAVAILABLE_VIDEOS.add(url)
+                    app.logger.warning(f"Video {url} is unavailable. Skipping.")
+            except Exception as exc:
+                app.logger.error(f'Video check for {url} generated an exception: {exc}')
+
     return verified_videos if verified_videos else [ULTIMATE_FALLBACK_VIDEO_URL]
 
 def _add_media_to_recommendations(recommendations):
