@@ -418,7 +418,7 @@ def logout():
 
 # --- Avatar Upload Endpoint ---
 @app.route('/api/users/avatar', methods=['POST'])
-@jwt_required(locations=["cookies"])
+#@jwt_required(locations=["cookies"])
 def upload_avatar():
     """Uploads a new avatar for the current user."""
     user_id = get_jwt_identity()
@@ -1075,9 +1075,6 @@ def report_unavailable_video():
 
     return jsonify({'detail': 'Video reported successfully'}), 200
 
-
-
-
 # --- Wellness Recommendations Endpoint ---
 @app.route('/api/wellness/recommendations', methods=['GET'])
 @jwt_required(locations=["cookies"])
@@ -1271,7 +1268,7 @@ def get_daily_habits(employee_id):
 
 # Daily Habits API Endpoints (POST)
 @app.route('/api/wellness/daily-habits', methods=['POST'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"])
 def add_daily_habit():
     """Adds a new daily habit record."""
     jwt_payload = get_jwt()
@@ -1300,7 +1297,7 @@ def add_daily_habit():
 
 # --- Daily Habit endpoint (PUT) ---
 @app.route('/api/wellness/daily-habits/<employee_id>', methods=['PUT'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"])
 def update_daily_habit(employee_id):
     """Updates an existing daily habit record for a given employeeId."""
     jwt_payload = get_jwt()
@@ -1622,7 +1619,7 @@ def _serialize_notification(doc, employee_id=None):
 
 # notifications endpoint (GET) - employees see broadcast + targeted; admins can see all sent
 @app.route('/api/notifications', methods=['GET'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"])
 def get_notifications():
     """Employees see broadcast notifications + ones targeted at them.
     Admins can pass ?all=1 to see everything they've sent."""
@@ -1642,7 +1639,7 @@ def get_notifications():
 
 # notificaions endpoint (POST) - admin only
 @app.route('/api/notifications', methods=['POST'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"])
 def create_notification():
     """Admin-only: broadcast to everyone (omit targetEmployeeId) or target one employee."""
     jwt_payload = get_jwt()
@@ -1672,7 +1669,7 @@ def create_notification():
 
 # notification (PUT)
 @app.route('/api/notifications/<notification_id>/read', methods=['PUT'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"])
 def mark_notification_read(notification_id):
     jwt_payload = get_jwt()
     user_info = jwt_payload.get("user_info")
@@ -1689,7 +1686,7 @@ def mark_notification_read(notification_id):
 
 # notifications (DELETE) endpoint
 @app.route('/api/notifications/<notification_id>', methods=['DELETE'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"])
 def delete_notification(notification_id):
     jwt_payload = get_jwt()
     user_info = jwt_payload.get("user_info")
@@ -1761,7 +1758,7 @@ def update_goal(goal_id):
         return jsonify({'detail': 'Goal not found'}), 404
     return jsonify({'detail': 'Goal updated'}), 200
 
-# 
+# <--- goals API endpoint (DELETE) --->
 @app.route('/api/goals/<goal_id>', methods=['DELETE'])
 # @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def delete_goal(goal_id):
