@@ -118,6 +118,16 @@ SMTP_USER="your_email@example.com"
 SMTP_PASSWORD="your_app_password" #<-- create this from manage your google account-> home-> search for "App Passwords"-> create new app name, get the code-> copy and paste that code here
 ```
 
+## Get the JWT Secret Key
+
+Run this command in the terminal:
+
+```bash
+python3 -c "import secrets; print(secrets.token_hex(32))"
+```
+
+paste the string in the JWT_SECRET_KEY in .env file.
+
 ### 3. Frontend Setup
 
 Open a new terminal, navigate to the frontend directory, and install the dependencies.
@@ -168,17 +178,17 @@ The application has two primary roles with default credentials of Admin for demo
 
 ### Employee Role
 
-- **Role:** 'User'
-- **EMP ID:** E.g. EMP101
-- **Email:** personal email is preferred
-- **Password:** set your 6-digit password
+- **Role:** `User`
+- **EMP ID:** `E.g. EMP101`
+- **Email:** `personal email is preferred`
+- **Password:** `set your 6-digit password`
 
 #### Administrator Access
 
 - **Role:** `Admin`
 - **Admin ID:** `ADM001`
 - **Email:** `admin@platform.com`
-- **Password:** `password`
+- **Password:** `AdminPass123`
 
 ---
 
