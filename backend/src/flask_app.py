@@ -137,9 +137,27 @@ FRONTEND_DIST = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), 'fronte
 def _frontend_dist_exists() -> bool:
     return os.path.isdir(FRONTEND_DIST) and os.path.isfile(os.path.join(FRONTEND_DIST, 'index.html'))
 
-@app.route('/', defaults={'path': ''})
+FRONTEND_DIST = os.path.join(
+    os.path.dirname(os.path.dirname(BASE_DIR)),
+    'frontend',
+    'dist'
+)
+
+@app.route('/')
+def serve_root():
+    return send_from_directory(FRONTEND_DIST, 'index.html')
+
 @app.route('/<path:path>')
 def serve_frontend(path):
+    if path.startswith('api/'):
+        return jsonify({'detail': 'Not found'}), 404
+
+    file_path = os.path.join(FRONTEND_DIST, path)
+
+    if os.path.isfile(file_path):
+        return send_from_directory(FRONTEND_DIST, path)
+
+    return send_from_directory(FRONTEND_DIST, 'index.html')
     if path.startswith('api/'):
         return jsonify({'detail': 'Not found'}), 404
     if not _frontend_dist_exists():
