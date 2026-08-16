@@ -196,7 +196,6 @@ export function ChatbotModule({ user, isFloating = false, onClose }) {
   const [isTyping, setIsTyping] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isSpeechEnabled, setIsSpeechEnabled] = useState(true); 
-  const [isSpeechPaused, setIsSpeechPaused] = useState(false);
   const [isVoiceInput, setIsVoiceInput] = useState(false);
   const scrollRef = useRef(null);
   const recognitionRef = useRef(null);
@@ -245,42 +244,40 @@ export function ChatbotModule({ user, isFloating = false, onClose }) {
     if (!speechSynthRef.current) return;
     // Remember the last spoken text so it can be replayed if the user mutes/unmutes.
     lastSpokenTextRef.current = text;
-    setIsSpeechPaused(false);
     if (!isSpeechEnabled) return;
     speechSynthRef.current.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = 1.0;
     utterance.pitch = 1.0;
     utterance.volume = 1.0;
-    const voices = speechSynthRef.current.getVoices();
+const voices = speechSynthRef.current.getVoices();
     const femaleVoice = voices.find(v => v.name.includes('Female') || v.name.includes('Zira'));
     if (femaleVoice) utterance.voice = femaleVoice;
     speechSynthRef.current.speak(utterance);
   }, [isSpeechEnabled]);
 
-  const handleVoiceControlClick = () => {
-    if (!speechSynthRef.current) return;
-
-    if (speechSynthRef.current.speaking) {
-      if (isSpeechPaused) {
-        speechSynthRef.current.resume();
-        setIsSpeechPaused(false);
-      } else {
-        speechSynthRef.current.pause();
-        setIsSpeechPaused(true);
-      }
-    } else if (isSpeechEnabled && lastSpokenTextRef.current) {
-      // If not speaking, replay the last message
-      speakText(lastSpokenTextRef.current);
-    }
-  };
-
-  const handleMuteToggle = useCallback(() => {
-    setIsSpeechEnabled(prev => {
+  // Toggle voice output: muting cancels the current speech instantly so the
+  // speaker stops immediately (speechSynthesis.pause() is delayed in browsers).
+  const toggleSpeech = useCallback(() => {
+    setIsSpeechEnabled((prev) => {
       const next = !prev;
       if (!next) {
+        // Muting -> stop the ongoing voice output instantly
         speechSynthRef.current?.cancel();
-        setIsSpeechPaused(false);
+      } else {
+        // Unmuting -> resume speaking the last bot message from the start
+        const text = lastSpokenTextRef.current;
+        if (text && speechSynthRef.current) {
+          speechSynthRef.current.cancel();
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.rate = 1.0;
+          utterance.pitch = 1.0;
+          utterance.volume = 1.0;
+          const voices = speechSynthRef.current.getVoices();
+          const femaleVoice = voices.find(v => v.name.includes('Female') || v.name.includes('Zira'));
+          if (femaleVoice) utterance.voice = femaleVoice;
+          speechSynthRef.current.speak(utterance);
+        }
       }
       return next;
     });
@@ -431,12 +428,11 @@ export function ChatbotModule({ user, isFloating = false, onClose }) {
             >
               <Trash2 className="w-3.5 h-3.5" />
             </button>
-            <button
+<button
               type="button"
-              onClick={handleVoiceControlClick}
-              onContextMenu={(e) => { e.preventDefault(); handleMuteToggle(); }}
+              onClick={toggleSpeech}
               className={`p-1.5 rounded-lg border text-xs transition-all cursor-pointer ${isSpeechEnabled ? 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-950/60 dark:text-blue-400 dark:border-blue-800' : 'bg-slate-100 text-slate-400 border-slate-200 dark:bg-slate-800 dark:border-slate-700'}`}
-              title={isSpeechEnabled ? (isSpeechPaused ? "Resume Voice (Right-click to Mute)" : "Pause Voice (Right-click to Mute)") : "Voice Muted (Right-click to Unmute)"}
+              title={isSpeechEnabled ? "Voice Output Active" : "Voice Output Muted"}
             >
               <Volume2 className="w-3.5 h-3.5" />
             </button>
