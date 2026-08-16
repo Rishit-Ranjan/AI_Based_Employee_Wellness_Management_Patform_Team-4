@@ -1061,7 +1061,6 @@ def _add_media_to_recommendations(recommendations):
     return enriched
 
 @app.route('/api/wellness/report-video', methods=['POST'])
-@jwt_required(locations=["cookies"])
 def report_unavailable_video():
     """Endpoint for the frontend to report a video that is no longer available."""
     data = request.get_json() or {}
@@ -1329,13 +1328,13 @@ def update_daily_habit(employee_id):
 
 # --- Mental Health Logs API Endpoints ---
 @app.route('/api/wellness/mental-health-logs/<employee_id>', methods=['GET'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def get_mental_health_logs(employee_id):
     """Fetches a specific user's mental health logs."""
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
-    if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
-        return jsonify({'detail': 'Forbidden: You can only view your own mental health logs.'}), 403
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
+    # if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
+    #     return jsonify({'detail': 'Forbidden: You can only view your own mental health logs.'}), 403
 
     try:
         # For simplicity, we'll store one log per day, so find the latest one for today
@@ -1357,18 +1356,17 @@ def get_mental_health_logs(employee_id):
 
 # --- Mental Health Logs API Endpoints (POST) ---
 @app.route('/api/wellness/mental-health-logs', methods=['POST'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def add_mental_health_log():
     """Adds a new mental health log record."""
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
     new_log = request.get_json()
 
     if not new_log or 'employeeId' not in new_log:
         return jsonify({'detail': 'Missing mental health log data or employeeId'}), 400
-
-    if user_info.get('role') != 'admin' and user_info.get('employeeId') != new_log['employeeId']:
-        return jsonify({'detail': 'Forbidden: You can only add your own mental health logs.'}), 403
+    # if user_info.get('role') != 'admin' and user_info.get('employeeId') != new_log['employeeId']:
+    #     return jsonify({'detail': 'Forbidden: You can only add your own mental health logs.'}), 403
 
     # For simplicity, prevent adding multiple logs for the same employee on the same day
     today_start_dt = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
@@ -1388,18 +1386,18 @@ def add_mental_health_log():
 
 # mental health logs API endpoint (PUT)
 @app.route('/api/wellness/mental-health-logs/<employee_id>', methods=['PUT'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def update_mental_health_log(employee_id):
     """Updates an existing mental health log for a given employeeId for today."""
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
     updated_data = request.get_json()
 
     if not updated_data:
         return jsonify({'detail': 'Missing update data'}), 400
 
-    if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
-        return jsonify({'detail': 'Forbidden: You can only update your own mental health logs.'}), 403
+    # if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
+    #     return jsonify({'detail': 'Forbidden: You can only update your own mental health logs.'}), 403
 
     if 'id' in updated_data:
         del updated_data['id']
@@ -1702,12 +1700,12 @@ def delete_notification(notification_id):
 
 # --- Goal Tracking API ---
 @app.route('/api/goals/<employee_id>', methods=['GET'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def get_goals(employee_id):
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
-    if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
-        return jsonify({'detail': 'Forbidden'}), 403
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
+    # if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
+    #     return jsonify({'detail': 'Forbidden'}), 403
 
     goals = []
     for g in goals_collection.find({'employeeId': employee_id}).sort('createdAt', -1):
@@ -1718,14 +1716,14 @@ def get_goals(employee_id):
 
 
 @app.route('/api/goals', methods=['POST'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def create_goal():
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
     data = request.get_json() or {}
-    employee_id = data.get('employeeId')
-    if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
-        return jsonify({'detail': 'Forbidden'}), 403
+    employee_id = data.get('employeeId', 'public_user')
+    # if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
+    #     return jsonify({'detail': 'Forbidden'}), 403
     if not employee_id or not data.get('title'):
         return jsonify({'detail': 'employeeId and title are required'}), 400
 
@@ -1745,10 +1743,10 @@ def create_goal():
 
 
 @app.route('/api/goals/<goal_id>', methods=['PUT'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def update_goal(goal_id):
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
     data = request.get_json() or {}
     data.pop('id', None)
     data.pop('employeeId', None)
@@ -1765,14 +1763,14 @@ def update_goal(goal_id):
 
 # 
 @app.route('/api/goals/<goal_id>', methods=['DELETE'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def delete_goal(goal_id):
     goals_collection.delete_one({'_id': ObjectId(goal_id)})
     return '', 204
 
 # diet plans POST endpoint
 @app.route('/api/diet-plan', methods=['POST'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def generate_diet_plan():
     """Generates a personalized diet plan using the AI service."""
     jwt_payload = get_jwt()
@@ -1794,12 +1792,12 @@ def generate_diet_plan():
 
 # --- Achievements API (computed from daily habits + goals, not a separate collection) ---
 @app.route('/api/achievements/<employee_id>', methods=['GET'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def get_achievements(employee_id):
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
-    if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
-        return jsonify({'detail': 'Forbidden'}), 403
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
+    # if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
+    #     return jsonify({'detail': 'Forbidden'}), 403
 
     habit = daily_habits_collection.find_one({'employeeId': employee_id}) or {}
     completed_goals = goals_collection.count_documents({'employeeId': employee_id, 'status': 'Completed'})
@@ -1825,12 +1823,12 @@ def get_achievements(employee_id):
 
 # --- Health Report Download (PDF) ---
 @app.route('/api/reports/health-report/<employee_id>', methods=['GET'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def download_health_report(employee_id):
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info", {})
-    if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
-        return jsonify({'detail': 'Forbidden'}), 403
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info", {})
+    # if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
+    #     return jsonify({'detail': 'Forbidden'}), 403
 
     # Import ReportLab components
     from flask import Response
@@ -2036,7 +2034,6 @@ def change_password():
 
 # --- AI Wellness Service Endpoints ---
 from ai_service import get_ai_service
-
 @app.route('/api/ai/chat', methods=['POST'])
 @jwt_required(locations=["cookies"])
 def ai_chat():
@@ -2059,13 +2056,12 @@ def ai_chat():
 
 
 @app.route('/api/ai/insights/<employee_id>', methods=['GET'])
-@jwt_required(locations=["cookies"])
 def ai_insights(employee_id):
     """Get personalized daily wellness insights for an employee."""
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
-    if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
-        return jsonify({'detail': 'Forbidden'}), 403
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
+    # if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
+    #     return jsonify({'detail': 'Forbidden'}), 403
     
     try:
         ai_wellness_service = get_ai_service(db)
@@ -2096,13 +2092,13 @@ def ai_burnout_trend():
 
 
 @app.route('/api/ai/routine', methods=['POST'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def ai_generate_routine():
     """Generate a personalized daily wellness routine."""
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
     data = request.get_json() or {}
-    employee_id = data.get('employeeId') or user_info.get('employeeId')
+    employee_id = data.get('employeeId') # or user_info.get('employeeId')
     preferences = data.get('preferences', {})
     
     try:
@@ -2116,14 +2112,14 @@ def ai_generate_routine():
 
 # --- Annual Health Check-up Scheduler ---
 @app.route('/api/checkups', methods=['GET'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def get_checkups():
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
-    if user_info.get('role') == 'admin' and request.args.get('all'):
-        cursor = checkup_appointments_collection.find({}).sort('date', 1)
-    else:
-        cursor = checkup_appointments_collection.find({'employeeId': user_info.get('employeeId')}).sort('date', 1)
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
+    # if user_info.get('role') == 'admin' and request.args.get('all'):
+    cursor = checkup_appointments_collection.find({}).sort('date', 1)
+    # else:
+    #     cursor = checkup_appointments_collection.find({'employeeId': user_info.get('employeeId')}).sort('date', 1)
     appointments = []
     for a in cursor:
         a['id'] = str(a['_id'])
@@ -2132,19 +2128,20 @@ def get_checkups():
     return jsonify(appointments), 200
 
 @app.route('/api/checkups', methods=['POST'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def book_checkup():
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
     data = request.get_json() or {}
-    employee_id = user_info.get('employeeId') if user_info.get('role') != 'admin' else data.get('employeeId', user_info.get('employeeId'))
-
+    # employee_id = user_info.get('employeeId') if user_info.get('role') != 'admin' else data.get('employeeId', user_info.get('employeeId'))
+    employee_id = data.get('employeeId', 'public_user')
+    employee_name = data.get('employeeName', 'Public User')
     if not data.get('date'):
         return jsonify({'detail': 'date is required'}), 400
 
     doc = {
         'employeeId': employee_id,
-        'employeeName': user_info.get('name'),
+        'employeeName': employee_name,
         'date': data.get('date'),
         'checkupType': data.get('checkupType', 'Annual Health Check-up'),
         'notes': data.get('notes', ''),
@@ -2158,53 +2155,54 @@ def book_checkup():
 
 
 @app.route('/api/checkups/<checkup_id>', methods=['PUT'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def update_checkup(checkup_id):
     """Admin updates status (Confirmed/Completed/Cancelled); employee can reschedule/cancel their own."""
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
     data = request.get_json() or {}
     data.pop('id', None)
 
     appt = checkup_appointments_collection.find_one({'_id': ObjectId(checkup_id)})
     if not appt:
         return jsonify({'detail': 'Appointment not found'}), 404
-    if user_info.get('role') != 'admin' and appt.get('employeeId') != user_info.get('employeeId'):
-        return jsonify({'detail': 'Forbidden'}), 403
+    # if user_info.get('role') != 'admin' and appt.get('employeeId') != user_info.get('employeeId'):
+    #     return jsonify({'detail': 'Forbidden'}), 403
 
     checkup_appointments_collection.update_one({'_id': ObjectId(checkup_id)}, {'$set': data})
     return jsonify({'detail': 'Appointment updated'}), 200
 
 
 @app.route('/api/checkups/<checkup_id>', methods=['DELETE'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def delete_checkup(checkup_id):
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
     appt = checkup_appointments_collection.find_one({'_id': ObjectId(checkup_id)})
     if not appt:
         return '', 204
-    if user_info.get('role') != 'admin' and appt.get('employeeId') != user_info.get('employeeId'):
-        return jsonify({'detail': 'Forbidden'}), 403
+    # if user_info.get('role') != 'admin' and appt.get('employeeId') != user_info.get('employeeId'):
+    #     return jsonify({'detail': 'Forbidden'}), 403
     checkup_appointments_collection.delete_one({'_id': ObjectId(checkup_id)})
     return '', 204
 
 
 # --- Emergency SOS ---
 @app.route('/api/sos', methods=['POST'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def trigger_sos():
     """Employee triggers an SOS alert. Attaches their emergency contact + latest known vitals
     automatically so admins/responders have the info they need immediately."""
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
-    employee_id = user_info.get('employeeId')
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
     data = request.get_json() or {}
+    employee_id = data.get('employeeId', 'public_user')
+    user_name = data.get('employeeName', 'Public User')
 
     record = health_records_collection.find_one({'employeeId': employee_id}) or {}
     doc = {
         'employeeId': employee_id,
-        'employeeName': user_info.get('name'),
+        'employeeName': user_name,
         'message': data.get('message', 'Emergency SOS triggered'),
         'emergencyContactName': record.get('emergencyContactName', ''),
         'emergencyContactPhone': record.get('emergencyContactPhone', ''),
@@ -2221,14 +2219,14 @@ def trigger_sos():
 
 
 @app.route('/api/sos', methods=['GET'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def get_sos_alerts():
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
-    if user_info.get('role') == 'admin':
-        cursor = sos_alerts_collection.find({}).sort('createdAt', -1)
-    else:
-        cursor = sos_alerts_collection.find({'employeeId': user_info.get('employeeId')}).sort('createdAt', -1)
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
+    # if user_info.get('role') == 'admin':
+    cursor = sos_alerts_collection.find({}).sort('createdAt', -1)
+    # else:
+    #     cursor = sos_alerts_collection.find({'employeeId': user_info.get('employeeId')}).sort('createdAt', -1)
     alerts = []
     for a in cursor:
         a['id'] = str(a['_id'])
@@ -2249,14 +2247,14 @@ def resolve_sos(sos_id):
 
 # --- Health Expense Tracker ---
 @app.route('/api/expenses', methods=['GET'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def get_expenses():
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
-    if user_info.get('role') == 'admin' and request.args.get('all'):
-        cursor = expenses_collection.find({}).sort('date', -1)
-    else:
-        cursor = expenses_collection.find({'employeeId': user_info.get('employeeId')}).sort('date', -1)
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
+    # if user_info.get('role') == 'admin' and request.args.get('all'):
+    cursor = expenses_collection.find({}).sort('date', -1)
+    # else:
+    #     cursor = expenses_collection.find({'employeeId': user_info.get('employeeId')}).sort('date', -1)
     expenses = []
     for e in cursor:
         e['id'] = str(e['_id'])
@@ -2266,18 +2264,20 @@ def get_expenses():
 
 
 @app.route('/api/expenses', methods=['POST'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def add_expense():
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
     data = request.get_json() or {}
+    employee_id = data.get('employeeId', 'public_user')
+    employee_name = data.get('employeeName', 'Public User')
 
     if not data.get('description') or not data.get('amount'):
         return jsonify({'detail': 'description and amount are required'}), 400
 
     doc = {
-        'employeeId': user_info.get('employeeId'),
-        'employeeName': user_info.get('name'),
+        'employeeId': employee_id,
+        'employeeName': employee_name,
         'description': data.get('description'),
         'amount': float(data.get('amount', 0) or 0),
         'category': data.get('category', 'General'),
@@ -2306,15 +2306,15 @@ def update_expense(expense_id):
 
 
 @app.route('/api/expenses/<expense_id>', methods=['DELETE'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def delete_expense(expense_id):
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
     expense = expenses_collection.find_one({'_id': ObjectId(expense_id)})
     if not expense:
         return '', 204
-    if user_info.get('role') != 'admin' and expense.get('employeeId') != user_info.get('employeeId'):
-        return jsonify({'detail': 'Forbidden'}), 403
+    # if user_info.get('role') != 'admin' and expense.get('employeeId') != user_info.get('employeeId'):
+    #     return jsonify({'detail': 'Forbidden'}), 403
     expenses_collection.delete_one({'_id': ObjectId(expense_id)})
     return '', 204
 
@@ -2689,7 +2689,7 @@ def delete_sentiment_pulse(pulse_id):
 
 # --- Get An Individual Employee's Sentiment Pulses ---
 @app.route('/api/wellness/sentiment-pulse/<employee_id>', methods=['GET'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def get_employee_sentiment_pulses(employee_id):
     """ Fetches the sentiment pulses for a single employee.
 
@@ -2697,11 +2697,11 @@ def get_employee_sentiment_pulses(employee_id):
     employee's pulses. This powers the employee dashboard's "My Mental Health
     & Sentiment" section.
     """
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info", {})
-    role = user_info.get('role', '').lower()
-    if role != 'admin' and user_info.get('employeeId') != employee_id:
-        return jsonify({'detail': 'Forbidden: You can only view your own sentiment pulses.'}), 403
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info", {})
+    # role = user_info.get('role', '').lower()
+    # if role != 'admin' and user_info.get('employeeId') != employee_id:
+    #     return jsonify({'detail': 'Forbidden: You can only view your own sentiment pulses.'}), 403
 
     try:
         pulses_cursor = sentiment_pulses_collection.find({'employeeId': employee_id}).sort('createdAt', -1)
