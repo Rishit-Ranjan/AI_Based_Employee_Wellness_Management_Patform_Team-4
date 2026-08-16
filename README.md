@@ -118,7 +118,7 @@ SMTP_USER="your_email@example.com"
 SMTP_PASSWORD="your_app_password" #<-- create this from manage your google account-> home-> search for "App Passwords"-> create new app name, get the code-> copy and paste that code here
 ```
 
-## Get the JWT Secret Key
+### Get the JWT Secret Key
 
 Run this command in the terminal:
 
@@ -126,7 +126,7 @@ Run this command in the terminal:
 python3 -c "import secrets; print(secrets.token_hex(32))"
 ```
 
-paste the string in the JWT_SECRET_KEY in .env file.
+Paste the result string into the JWT_SECRET_KEY in ".env" file.
 
 ### 3. Frontend Setup
 
