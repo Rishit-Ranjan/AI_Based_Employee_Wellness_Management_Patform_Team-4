@@ -6,7 +6,7 @@ const DEPARTMENTS = ['Engineering', 'Sales', 'Marketing', 'Product', 'Operations
 
 export default function ProfileEditModal({ user, isAdmin = false, onClose, onUpdated, onUpdateAvatar }) {
   const [name, setName] = useState(user.name || '');
-  const [phone, setPhone] = useState(user.phone || ''); // Re-add phone state
+  const [phone, setPhone] = useState(user.phone || '');
   const [department, setDepartment] = useState(user.department || 'Engineering');
   const [avatarUrl, setAvatarUrl] = useState(user.avatarUrl || '');
   const [saving, setSaving] = useState(false);
