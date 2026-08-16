@@ -173,6 +173,47 @@ This gives a backend-first flow without blocking the web app entirely if backend
 
 ---
 
+## ☁️ Deploying to Render
+
+The project is configured to deploy as a **single Render Web Service** (Python runtime).
+The built React app (`frontend/dist`, committed to the repo) is served by Flask from
+the same origin as the API, so cookie-based JWT authentication keeps working and no
+CORS issues arise.
+
+### Quick start (Blueprint)
+
+1. Push this repository to GitHub.
+2. In the [Render Dashboard](https://dashboard.render.com), click **New → Blueprint** and select the repo.
+   The included `render.yaml` provisions the web service and its environment variables.
+3. Fill in the secrets marked as required (Render prompts for them):
+   - `MONGO_URI` — your MongoDB Atlas connection string.
+   - `JWT_SECRET_KEY` — a strong random secret. Generate with:
+     ```bash
+     python -c "import secrets; print(secrets.token_hex(32))"
+     ```
+   - `SMTP_USERNAME` / `SMTP_PASSWORD` / `EMAIL_FROM` — for password-reset emails (optional).
+4. Deploy. On first boot the default admin is seeded automatically:
+   - **Admin ID:** `ADM001` · **Email:** `admin@platform.com` · **Password:** `AdminPass123`
+
+### Manual setup (alternative)
+
+Create a new **Web Service** pointing at the repo with:
+
+- **Runtime:** `Python 3` (version pinned by `.python-version`)
+- **Build command:** `pip install -r backend/requirements.txt`
+- **Start command:** `gunicorn --chdir backend/src --workers 1 --timeout 120 --bind 0.0.0.0:$PORT flask_app:app`
+- **Health check path:** `/api/health`
+- Set the same environment variables listed above (`MONGO_URI`, `JWT_SECRET_KEY`, etc.) in the **Environment** tab.
+
+### Notes
+
+- The AI chat falls back to rule-based responses because Ollama (a local model server) is not
+  available on Render. The app handles this gracefully.
+- ML model artifacts are committed and loaded lazily; the first ML request may be slow on free instances.
+- Avatar uploads are stored on the instance's local disk and reset on each deploy.
+
+---
+
 ## ⚙️ Usage
 
 The application has two primary roles with default credentials of Admin for demonstration:

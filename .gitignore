@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# The built frontend is committed so the Flask (Python) service can serve it
+# on Render without needing a Node.js build step in the deploy pipeline.
+!frontend/dist/
+!frontend/dist/**
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

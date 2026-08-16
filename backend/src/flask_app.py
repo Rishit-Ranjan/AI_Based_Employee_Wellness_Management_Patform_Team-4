@@ -6,7 +6,7 @@ It defines all API endpoints for authentication, wellness data management,
 AI services, and other platform features.
 License: MIT License. See LICENSE file for details.
 """
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, request, jsonify, make_response, send_from_directory
 from flask_cors import CORS 
 from werkzeug.utils import secure_filename
 import bcrypt
@@ -27,6 +27,7 @@ from pymongo.errors import ConfigurationError
 from bson import ObjectId
 import requests as http_requests
 import concurrent.futures
+import threading
 from dotenv import load_dotenv
 import pandas as pd
 from email_sender import send_email
@@ -120,10 +121,33 @@ def get_full_avatar_url(avatar_path):
     return f"{base_url}{avatar_path}"
 
 # --- Health Check Endpoint ---
-@app.route('/')
-def index():
+@app.route('/api/health')
+def health():
     """A simple health check endpoint for service readiness."""
     return jsonify({'status': 'ok', 'message': 'Backend is running.'})
+
+# --- Frontend Static Serving (production) ---
+# The built React app (frontend/dist) is served by Flask so the frontend and
+# backend share the same origin. This keeps the cookie-based JWT auth working
+# and avoids cross-origin CORS pitfalls. The SPA catch-all below lets React
+# Router handle client-side routes (any non-API, non-asset path serves
+# index.html).
+FRONTEND_DIST = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), 'frontend', 'dist')
+
+def _frontend_dist_exists() -> bool:
+    return os.path.isdir(FRONTEND_DIST) and os.path.isfile(os.path.join(FRONTEND_DIST, 'index.html'))
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve_frontend(path):
+    if path.startswith('api/'):
+        return jsonify({'detail': 'Not found'}), 404
+    if not _frontend_dist_exists():
+        # Frontend not built (e.g. dev mode) - respond with backend liveness info.
+        return jsonify({'status': 'ok', 'message': 'Backend is running.', 'frontend': 'not-built'})
+    if path and os.path.isfile(os.path.join(FRONTEND_DIST, path)):
+        return send_from_directory(FRONTEND_DIST, path)
+    return send_from_directory(FRONTEND_DIST, 'index.html')
 
 # login API endpoint
 @app.route('/api/auth/login', methods=['POST'])
@@ -2838,6 +2862,19 @@ def update_support_ticket(ticket_id):
     if result.matched_count == 0:
         return jsonify({'detail': 'Ticket not found'}), 404
     return jsonify({'detail': f'Ticket marked as {status}'}), 200
+
+# --- Production Bootstrap: seed default admin on startup (idempotent) ---
+# Ensures the default admin (admin@platform.com / AdminPass123) exists in a
+# freshly-provisioned database so the app is usable immediately after deploy.
+# Runs in a background thread so it never delays server startup.
+def _seed_admin_on_startup():
+    try:
+        from seed_admin import seed
+        seed()
+    except Exception as e:  # noqa: BLE001 - defensive, never crash startup
+        print(f"[startup] Admin seeding skipped: {e}")
+
+threading.Thread(target=_seed_admin_on_startup, name="admin-seed", daemon=True).start()
 
 # --- Main Entry Point ---
 if __name__ == '__main__':

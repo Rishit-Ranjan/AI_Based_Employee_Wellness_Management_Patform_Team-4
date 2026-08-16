@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# The production build is committed and served by the Flask backend on Render.
+!dist/
+!dist/**
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
