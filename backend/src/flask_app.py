@@ -1619,7 +1619,7 @@ def _serialize_notification(doc, employee_id=None):
 
 # notifications endpoint (GET) - employees see broadcast + targeted; admins can see all sent
 @app.route('/api/notifications', methods=['GET'])
-# @jwt_required(locations=["cookies"])
+@jwt_required(locations=["cookies"])
 def get_notifications():
     """Employees see broadcast notifications + ones targeted at them.
     Admins can pass ?all=1 to see everything they've sent."""
