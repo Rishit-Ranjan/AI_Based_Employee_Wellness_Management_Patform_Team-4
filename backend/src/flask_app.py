@@ -6,7 +6,7 @@ It defines all API endpoints for authentication, wellness data management,
 AI services, and other platform features.
 License: MIT License. See LICENSE file for details.
 """
-from flask import Flask, request, jsonify, make_response, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory, make_response
 from flask_cors import CORS 
 from werkzeug.utils import secure_filename
 import bcrypt
@@ -139,25 +139,26 @@ def _frontend_dist_exists() -> bool:
 
 FRONTEND_DIST = os.path.join(
     os.path.dirname(os.path.dirname(BASE_DIR)),
-    'frontend',
-    'dist'
+    "frontend",
+    "dist"
 )
 
-@app.route('/')
+@app.route("/")
 def serve_root():
-    return send_from_directory(FRONTEND_DIST, 'index.html')
+    return send_from_directory(FRONTEND_DIST, "index.html")
 
-@app.route('/<path:path>')
+@app.route("/<path:path>")
 def serve_frontend(path):
-    if path.startswith('api/'):
-        return jsonify({'detail': 'Not found'}), 404
+    if path.startswith("api/"):
+        return jsonify({"detail": "Not found"}), 404
 
     file_path = os.path.join(FRONTEND_DIST, path)
 
     if os.path.isfile(file_path):
         return send_from_directory(FRONTEND_DIST, path)
 
-    return send_from_directory(FRONTEND_DIST, 'index.html')
+    # Only non-API routes fall back to React
+    return send_from_directory(FRONTEND_DIST, "index.html")
     if path.startswith('api/'):
         return jsonify({'detail': 'Not found'}), 404
     if not _frontend_dist_exists():
