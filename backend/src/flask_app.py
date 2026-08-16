@@ -1770,11 +1770,10 @@ def delete_goal(goal_id):
 # @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def generate_diet_plan():
     """Generates a personalized diet plan using the AI service."""
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info", {})
-    employee_id = user_info.get('employeeId')
-    
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info", {})
     data = request.get_json() or {}
+    employee_id = data.get('employeeId') # Get employeeId from request body
     preferences = {
         'dietType': data.get('dietType', 'Balanced')
     }
