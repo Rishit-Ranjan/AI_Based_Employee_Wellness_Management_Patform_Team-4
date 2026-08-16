@@ -6,6 +6,8 @@ import { Trash2, Edit, MoreHorizontal, Activity, TrendingUp, Lightbulb, Smile, B
 } from 'lucide-react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ScatterChart, Scatter, ResponsiveContainer } from 'recharts';
 
+const DEPARTMENTS = ['Engineering', 'Sales', 'Marketing', 'Product', 'Operations', 'IT', 'Customer Support', 'HR', 'Finance'];
+
 const PIE_COLOR_MAP = {
   High: '#ef4444',
   Moderate: '#f59e0b',
@@ -441,11 +443,9 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
             className="w-full sm:w-44 px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none transition-all cursor-pointer"
           >
             <option value="">All Departments</option>
-            <option value="Engineering">Engineering</option>
-            <option value="Sales">Sales</option>
-            <option value="Marketing">Marketing</option>
-            <option value="Product">Product</option>
-            <option value="Operations">Operations</option>
+            {DEPARTMENTS.map(dept => (
+              <option key={dept} value={dept}>{dept}</option>
+            ))}
           </select>
         </div>
 
@@ -549,11 +549,9 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
                     onChange={(e) => setDept(e.target.value)}
                     className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none"
                   >
-                    <option value="Engineering">Engineering</option>
-                    <option value="Sales">Sales</option>
-                    <option value="Marketing">Marketing</option>
-                    <option value="Product">Product</option>
-                    <option value="Operations">Operations</option>
+                    {DEPARTMENTS.map(dept => (
+                      <option key={dept} value={dept}>{dept}</option>
+                    ))}
                   </select>
                 </div>
 
