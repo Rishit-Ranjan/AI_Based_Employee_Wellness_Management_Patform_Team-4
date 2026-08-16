@@ -221,19 +221,19 @@ As an AI Wellness Assistant, provide a helpful, concise response (max 150 words)
             if response.status_code == 200:
                 return response.json().get('response', ''), model_name_to_use
             else:
-                error_msg = f"Ollama API returned status {response.status_code}: {response.text}"
-                print(f"Ollama API error: {error_msg}")
-                return f"Ollama model failed to respond. Please ensure the Ollama server is running and the '{model_name_to_use}' model is downloaded.", "Ollama Error"
+                print(f"Ollama API error: Returned status {response.status_code}: {response.text}")
+                # Return a generic error to the user
+                return "I'm having trouble connecting to the AI service right now. Please try again in a moment.", "Service Error"
             
         except http_requests.exceptions.ConnectionError as e:
             error_msg = f"Could not connect to Ollama server at {ollama_base_url}. Is Ollama running and '{model_name_to_use}' downloaded?"
             print(f"Ollama API error: {error_msg} - {e}")
-            return f"Ollama model failed: {error_msg}", "Ollama Error"
+            return "The AI assistant is currently unavailable. Please ensure the backend services are running.", "Service Unavailable"
         
         except http_requests.exceptions.Timeout as e:
             error_msg = f"Ollama API request timed out after 30 seconds."
             print(f"Ollama API error: {error_msg}")
-            return f"Ollama model failed: {error_msg}. The model may be taking too long to respond.", "Ollama Error"
+            return "The AI assistant is taking too long to respond. Please try again in a moment.", "Service Timeout"
 
         except Exception as e: # Catch any other unexpected errors during the API call
             error_msg = f"An unexpected error occurred during Ollama API call: {e}"
