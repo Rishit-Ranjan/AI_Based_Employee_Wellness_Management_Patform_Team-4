@@ -5,6 +5,7 @@ import {
   Headphones, BookOpen, Clock, AlertCircle, Sparkles
 } from 'lucide-react';
 import { submitSupportTicket } from '../services/api';
+import LoginSupportChat from './LoginSupportChat';
 
 const SUPPORT_EMAIL = 'support@wellnessplatform.com';
 
@@ -27,7 +28,7 @@ const FAQS = [
   },
   {
     q: 'How do I trigger an emergency SOS?',
-    a: 'Open the "Checkups & SOS" module and click the "Emergency SOS" button. Your emergency contact details and latest vitals will be shared with administrators automatically.',
+    a: 'The SOS button is in the main header. Pressing it immediately alerts the admin/HR team with your emergency contact and known health info.',
   },
   {
     q: 'How are my wellness recommendations generated?',
@@ -42,7 +43,6 @@ export default function CustomerSupportModal({ user, onClose }) {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
   const [openFaq, setOpenFaq] = useState(0);
-  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -68,7 +68,7 @@ export default function CustomerSupportModal({ user, onClose }) {
   };
 
   const tabButtonClass = (tab) =>
-    `px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 border ${
+    `px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 border ${
       activeTab === tab
         ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
         : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700'
@@ -79,7 +79,7 @@ export default function CustomerSupportModal({ user, onClose }) {
       icon: MessageSquare,
       title: 'Live Chat',
       desc: 'Chat instantly with our AI wellness assistant.',
-      onClick: () => setIsChatOpen(true),
+      onClick: () => setActiveTab('chat'),
     },
     {
       icon: Mail,
@@ -105,64 +105,42 @@ export default function CustomerSupportModal({ user, onClose }) {
         className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-2xl shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[90vh] flex flex-col overflow-hidden"
       >
         {/* Header */}
-        <div className="px-6 py-5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex items-center justify-between shrink-0">
+        <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-white/15 rounded-xl">
-              <LifeBuoy className="w-6 h-6" />
+            <div className="w-10 h-10 bg-blue-100 dark:bg-blue-950/50 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400">
+              <LifeBuoy className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-display font-semibold text-lg leading-tight">Customer Support</h3>
-              <p className="text-[11px] text-blue-100 font-mono mt-0.5">How can we help you today?</p>
+              <h3 className="font-display font-semibold text-lg leading-tight text-slate-900 dark:text-slate-100">Customer Support</h3>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">How can we help you today?</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors cursor-pointer"
+            className="p-1.5 rounded-full text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
             title="Close Support"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Tabs */}
         <div className="px-6 pt-4 flex items-center gap-2 shrink-0">
-          <button onClick={() => setActiveTab('contact')} className={tabButtonClass('contact')}>
+          <button onClick={() => setActiveTab('contact')} className={tabButtonClass('contact')} >
             <Headphones className="w-3.5 h-3.5" /> Contact
           </button>
-          <button onClick={() => setActiveTab('faq')} className={tabButtonClass('faq')}>
+          <button onClick={() => setActiveTab('faq')} className={tabButtonClass('faq')} >
             <HelpCircle className="w-3.5 h-3.5" /> FAQ
           </button>
-          <button onClick={() => { setIsChatOpen(true); }} className={tabButtonClass('chat')}>
+          <button onClick={() => setActiveTab('chat')} className={tabButtonClass('chat')} >
             <MessageSquare className="w-3.5 h-3.5" /> Live Chat
           </button>
         </div>
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto p-6">
-          {isChatOpen ? (
-            <div className="flex flex-col items-center justify-center py-8 text-center space-y-4">
-              <Sparkles className="w-10 h-10 text-blue-500" />
-              <div>
-                <h4 className="font-semibold text-slate-800 dark:text-slate-100">Launch AI Chat Assistant</h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
-                  Our AI assistant can answer questions about wellness, recommendations, insurance, and more — instantly.
-                </p>
-              </div>
-              <button
-                onClick={() => {
-                  setIsChatOpen(false);
-                  onClose();
-                  // Let parent open the chatbot
-                  setTimeout(() => {
-                    const event = new CustomEvent('open-ai-chat');
-                    window.dispatchEvent(event);
-                  }, 100);
-                }}
-                className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl transition-all cursor-pointer shadow-sm flex items-center gap-2"
-              >
-                <MessageSquare className="w-4 h-4" /> Open Chat Assistant
-              </button>
-            </div>
+          {activeTab === 'chat' ? (
+            <LoginSupportChat onEscalate={() => setActiveTab('contact')} />
           ) : activeTab === 'faq' ? (
             <div className="space-y-3">
               {FAQS.map((faq, i) => {
@@ -215,8 +193,8 @@ export default function CustomerSupportModal({ user, onClose }) {
                       <div className="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-blue-600 dark:text-blue-400 w-fit group-hover:bg-blue-50 dark:group-hover:bg-blue-950/40 transition-colors">
                         <Icon className="w-4 h-4" />
                       </div>
-                      <div className="mt-3 text-xs font-semibold text-slate-800 dark:text-slate-100">{action.title}</div>
-                      <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed font-light">{action.desc}</div>
+                      <div className="mt-3 text-sm font-semibold text-slate-800 dark:text-slate-100">{action.title}</div>
+                      <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed font-light">{action.desc}</div>
                     </button>
                   );
                 })}
@@ -236,13 +214,13 @@ export default function CustomerSupportModal({ user, onClose }) {
                     <div className="w-12 h-12 mx-auto bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-100 dark:border-emerald-800 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                       <Check className="w-6 h-6" />
                     </div>
-                    <h5 className="font-semibold text-slate-800 dark:text-slate-100">Ticket Submitted!</h5>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 font-light">
+                    <h5 className="font-semibold text-base text-slate-800 dark:text-slate-100">Ticket Submitted!</h5>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 font-light">
                       Our support team has received your request and will get back to you within 24 hours.
                     </p>
                   </div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="space-y-4">
+                  <form onSubmit={handleSubmit} className="space-y-5">
                     {error && (
                       <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-lg text-xs text-red-700 dark:text-red-300 flex items-start gap-2">
                         <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
@@ -250,7 +228,7 @@ export default function CustomerSupportModal({ user, onClose }) {
                       </div>
                     )}
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
+                      <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
                         Subject
                       </label>
                       <input
@@ -258,11 +236,11 @@ export default function CustomerSupportModal({ user, onClose }) {
                         value={form.subject}
                         onChange={(e) => setForm({ ...form, subject: e.target.value })}
                         placeholder="e.g. Trouble scheduling a checkup"
-                        className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 outline-none transition-all"
+                        className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 outline-none transition-all"
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
+                      <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
                         Message
                       </label>
                       <textarea
@@ -270,7 +248,7 @@ export default function CustomerSupportModal({ user, onClose }) {
                         value={form.message}
                         onChange={(e) => setForm({ ...form, message: e.target.value })}
                         placeholder="Describe the issue you're facing..."
-                        className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 outline-none transition-all resize-none"
+                        className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 outline-none transition-all resize-none"
                       />
                     </div>
                     <button
@@ -297,4 +275,3 @@ export default function CustomerSupportModal({ user, onClose }) {
     </div>
   );
 }
-

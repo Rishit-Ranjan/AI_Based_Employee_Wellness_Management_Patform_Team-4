@@ -1,5 +1,4 @@
 import os
-import sys
 from flask_app import app
 from waitress import serve
 

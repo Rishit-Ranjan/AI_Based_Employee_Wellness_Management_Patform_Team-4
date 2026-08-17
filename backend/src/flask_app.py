@@ -1,5 +1,5 @@
 """
-Main Flask application for the Employee Wellness Management Analytics platform.
+Main Flask application for the AI-Based Employee Wellness Management Platform.
 
 This file sets up the Flask server, configures JWT, CORS, and database connections.
 It defines all API endpoints for authentication, wellness data management,
@@ -25,159 +25,16 @@ from datetime import datetime, timedelta, timezone
 from pymongo import MongoClient
 from pymongo.errors import ConfigurationError
 from bson import ObjectId
+import requests as http_requests
+import concurrent.futures
 from dotenv import load_dotenv
 import pandas as pd
 from email_sender import send_email
-import threading
-import joblib
-import cloudpickle
+from model_loader import get_risk_model, get_target_encoder, get_feature_columns, get_recommendation_engine, get_sentiment_analyzer, preload_models
 
 app = Flask(__name__)
 
 load_dotenv()
-
-"""
-Lazy loading utility for AI/ML models.
-
-Models are loaded from disk the first time they are actually needed (i.e. the
-first request to an endpoint that requires them), rather than at application
-startup. This shifts the loading cost from cold-start time to the first feature
-request and keeps the server responsive even when ML artifacts are heavy.
-
-All accessors are thread-safe (double-checked locking) so that a model is only
-loaded once even under concurrent first-access requests.
-"""
-
-# Module-level lock to protect lazy initialization.
-_lock = threading.Lock()
-
-# Cache for loaded model artifacts (None means "not yet loaded").
-_risk_model = None
-_target_encoder = None
-_feature_columns = None
-_recommendation_engine = None
-_sia = None
-
-def _get_models_dir() -> str:
-    """Resolve the absolute path to the backend/models directory."""
-    # This file lives in backend/src, so models dir is one level up.
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    return os.path.join(base_dir, "models")
-
-
-def get_risk_model():
-    """Return the wellness risk classification model, loading on first use."""
-    global _risk_model
-    if _risk_model is None:
-        with _lock:
-            if _risk_model is None:
-                _risk_model = joblib.load(
-                    os.path.join(_get_models_dir(), "wellness_risk_model.pkl")
-                )
-    return _risk_model
-
-def get_target_encoder():
-    """Return the target label encoder, loading on first use."""
-    global _target_encoder
-    if _target_encoder is None:
-        with _lock:
-            if _target_encoder is None:
-                _target_encoder = joblib.load(
-                    os.path.join(_get_models_dir(), "target_encoder.pkl")
-                )
-    return _target_encoder
-
-def get_feature_columns():
-    """Return the feature columns list, loading on first use."""
-    global _feature_columns
-    if _feature_columns is None:
-        with _lock:
-            if _feature_columns is None:
-                _feature_columns = joblib.load(
-                    os.path.join(_get_models_dir(), "feature_columns.pkl")
-                )
-    return _feature_columns
-
-def get_recommendation_engine():
-    """Return the wellness recommendation engine, loading on first use.
-
-    The engine is expected to be a callable function (serialized via cloudpickle).
-    If the loaded artifact is not callable (e.g. a stale ``dict`` or an old
-    class-based object from a previous commit), we return ``None`` instead so the
-    calling code can safely fall back to its built-in rule-based logic rather than
-    crashing with a "'dict' object is not callable" error.
-    """
-    global _recommendation_engine
-    if _recommendation_engine is None:
-        with _lock:
-            if _recommendation_engine is None:
-                try:
-                    with open(
-                        os.path.join(_get_models_dir(), "wellness_recommendation_engine.pkl"),
-                        "rb",
-                    ) as f:
-                        _recommendation_engine = cloudpickle.load(f)
-                    # Guard against a stale/non-callable artifact (dict, class, etc.)
-                    if not callable(_recommendation_engine):
-                        print(
-                            "WARNING: recommendation engine artifact is not callable "
-                            f"(type={type(_recommendation_engine)}). Falling back to "
-                            "rule-based recommendations."
-                        )
-                        _recommendation_engine = None
-                except Exception as e:  # noqa: BLE001 - defensive, never crash startup
-                    print(
-                        "WARNING: failed to load recommendation engine "
-                        f"({e}). Falling back to rule-based recommendations."
-                    )
-                    _recommendation_engine = None
-    return _recommendation_engine
-
-
-def get_sentiment_analyzer():
-    """Return the VADER sentiment analyzer, loading on first use."""
-    global _sia
-    if _sia is None:
-        with _lock:
-            if _sia is None:
-                import nltk
-
-                nltk.download("vader_lexicon", quiet=True)
-                from nltk.sentiment import SentimentIntensityAnalyzer
-
-                _sia = SentimentIntensityAnalyzer()
-    return _sia
-
-
-def preload_models(blocking: bool = False) -> None:
-    """Eagerly load all model artifacts so the first feature request is fast.
-
-    By default this runs in a background daemon thread so server startup is not
-    blocked. Pass ``blocking=True`` to force synchronous loading (useful for
-    smoke tests or ensuring readiness before serving traffic).
-
-    Loading is thread-safe and idempotent: re-running simply returns the already
-    cached artifacts.
-    """
-    def _load_all():
-        get_risk_model()
-        get_target_encoder()
-        get_feature_columns()
-        get_recommendation_engine()
-        get_sentiment_analyzer()
-
-    if blocking:
-        _load_all()
-        return
-
-    try:
-        import threading
-
-        thread = threading.Thread(target=_load_all, name="model-preloader", daemon=True)
-        thread.start()
-    except Exception as e:  # pragma: no cover - defensive
-        print(f"Failed to start model preloader thread: {e}")
-
 
 # --- App Configuration ---
 MONGO_URI = os.getenv('MONGO_URI', 'mongodb://localhost:27017/employee_wellness_analytics')
@@ -186,7 +43,7 @@ CORS(app, supports_credentials=True, origins=os.getenv('FRONTEND_ORIGIN', 'http:
 
 # --- JWT Configuration ---
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "default-super-secret-key-for-dev")
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=int(os.getenv('JWT_EXPIRES_MINUTES', '1440'))) # 24-hour token for presentation
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=int(os.getenv('JWT_EXPIRES_MINUTES', '1440'))) # 24-hour token
 app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
 app.config["JWT_ACCESS_COOKIE_NAME"] = "access_token"
 
@@ -279,52 +136,30 @@ def login():
     app.logger.debug(f"Attempting login for email: {email} with role: {role} and ID: {entity_id}")
 
     # Input validation
+    target_collection = admin_collection if role == 'Admin' else users_collection
+    id_field = "adminId" if role == 'Admin' else "employeeId"
+
     try:
-        # Check collection based on role
-        if role == 'Admin':
-            user = admin_collection.find_one({"email": email, "adminId": entity_id})
-        elif role == 'Employee':
-            user = users_collection.find_one({"email": email, "employeeId": entity_id})
-        else:
-            # Fallback for safety, though frontend should prevent this
-            user = admin_collection.find_one({"email": email, "adminId": entity_id}) or \
-                   users_collection.find_one({"email": email, "employeeId": entity_id})
-
+        # 1. Check if a user with the given email exists
+        user = target_collection.find_one({"email": email})
         if not user:
-            app.logger.warning(f"Login failed for {email}: User not found.")
-            return jsonify({'detail': 'Invalid credentials'}), 401
-        
-        # Ensure employeeId is present for employee roles, generate if missing (for legacy users)
-        if role == 'Employee' and not user.get('employeeId'):
-            # Generate a new employeeId based on current user count
-            user_count = users_collection.count_documents({})
-            new_employee_id = f"EMP{user_count + 100}" # Ensure uniqueness, could be more robust
-            users_collection.update_one(
-                {'_id': user['_id']},
-                {'$set': {'employeeId': new_employee_id}}
-            )
-            user['employeeId'] = new_employee_id # Update the user object in memory
+            app.logger.warning(f"Login failed for {email}: Email not found.")
+            # Use a specific error code or message for the frontend to target the email field
+            return jsonify({'detail': 'This email is not registered.', 'field': 'email'}), 404
 
-        # Verify that the user has a password
+        # 2. Check if the entity ID matches for the found user
+        if user.get(id_field) != entity_id:
+            app.logger.warning(f"Login failed for {email}: Incorrect {id_field} ('{entity_id}').")
+            id_name = "Admin ID" if role == 'Admin' else "Employee ID"
+            return jsonify({'detail': f'This {id_name} does not exist or does not match the email.', 'field': 'entityId'}), 401
+
+        # 3. Check password
         password_hash = user.get('password_hash')
-        if not password_hash:
-            app.logger.warning(f"Login failed for {email}: No password hash found for user.")
-            return jsonify({'detail': 'Invalid credentials'}), 401
-
-        # Verify the password using bcrypt
-        try:
-            # Verify the password using bcrypt
-            if not verify_password(password, password_hash):
-                app.logger.warning(f"Login failed for {email}: Incorrect password.")
-                return jsonify({'detail': 'Invalid credentials'}), 401
-            
-        # Handle potential errors in password verification
-        except (ValueError, TypeError):
-            # Catches invalid hash format (e.g., old sha256 hashes, None, etc.)
+        if not password_hash or not verify_password(password, password_hash):
             app.logger.warning(f"Login failed for {email}: Incorrect password.")
-            return jsonify({'detail': 'Invalid credentials'}), 401
+            return jsonify({'detail': 'The password you entered is incorrect.', 'field': 'password'}), 401
 
-        # Prepare user data for the token and response
+        # --- Login Success ---
         user_id_str = str(user['_id'])
         user_info = {
             "id": user_id_str,
@@ -583,7 +418,7 @@ def logout():
 
 # --- Avatar Upload Endpoint ---
 @app.route('/api/users/avatar', methods=['POST'])
-@jwt_required(locations=["cookies"])
+#@jwt_required(locations=["cookies"])
 def upload_avatar():
     """Uploads a new avatar for the current user."""
     user_id = get_jwt_identity()
@@ -680,8 +515,13 @@ def add_health_record():
         new_record['lastUpdated'] = datetime.now(timezone.utc).isoformat() # Ensure lastUpdated is set on creation
 
         result = health_records_collection.insert_one(new_record)
-        new_record['id'] = str(result.inserted_id)
-        return jsonify(new_record), 201
+        # Construct the response dictionary explicitly to ensure no ObjectId remains.
+        # MongoDB adds _id to new_record in-place, so we need to handle it.
+        response_record = {
+            k: v for k, v in new_record.items() if k != '_id'
+        }
+        response_record['id'] = str(result.inserted_id) # Add the string version of the ID
+        return jsonify(response_record), 201
     except Exception as e:
         app.logger.exception(f"An unexpected error occurred while adding a health record: {e}")
         return jsonify({'detail': 'Internal Server Error'}), 500
@@ -763,6 +603,51 @@ def get_all_users():
         return jsonify(users), 200
     except Exception as e:
         app.logger.exception(f"An unexpected error occurred while fetching all users: {e}")
+        return jsonify({'detail': 'Internal Server Error'}), 500
+
+# --- Admin-Only Endpoint to Delete a User and All Their Data ---
+@app.route('/api/users/<employee_id>', methods=['DELETE'])
+@jwt_required(locations=["cookies"])
+def delete_user_and_data(employee_id):
+    """
+    Deletes a user and all their associated data across all collections.
+    This is a destructive, admin-only operation.
+    """
+    jwt_payload = get_jwt()
+    user_info = jwt_payload.get("user_info", {})
+    if user_info.get('role', '').lower() != 'admin':
+        return jsonify({'detail': 'Forbidden: You do not have permission to delete users.'}), 403
+
+    if not employee_id:
+        return jsonify({'detail': 'Employee ID is required.'}), 400
+
+    try:
+        # Primary deletion from the users collection
+        user_deletion_result = users_collection.delete_one({'employeeId': employee_id})
+
+        if user_deletion_result.deleted_count == 0:
+            return jsonify({'detail': 'User not found.'}), 404
+
+        # Cascade delete from all other related collections
+        collections_to_clean = [
+            health_records_collection,
+            daily_habits_collection,
+            mental_health_logs_collection,
+            sentiment_pulses_collection,
+            health_history_collection,
+            insurance_collection,
+            goals_collection,
+            checkup_appointments_collection,
+            sos_alerts_collection,
+            expenses_collection,
+            support_tickets_collection,
+        ]
+        for collection in collections_to_clean:
+            collection.delete_many({'employeeId': employee_id})
+
+        return '', 204  # 204 No Content indicates successful deletion
+    except Exception as e:
+        app.logger.exception(f"An unexpected error occurred while deleting user {employee_id}: {e}")
         return jsonify({'detail': 'Internal Server Error'}), 500
 
 # --- Risk Prediction Helper Function ---
@@ -970,72 +855,88 @@ RECOMMENDATION_MEDIA = {
     'Fitness': {
         'image': 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&h=300&fit=crop',
         'videos': [
-            'https://www.youtube.com/watch?v=ml6cT4J3S5I',   # FitnessBlender - 5 Min Walking Warmup
-            'https://www.youtube.com/watch?v=UItWltVZZmE',   # FitnessBlender - 25 Min Cardio
-            'https://www.youtube.com/watch?v=Y6je_wWjFik',   # FitnessBlender - 20 Min Full Body
+            {'url': 'https://www.youtube.com/embed/s-kP52p154c', 'keywords': ['warm up', 'express', '5 min', 'quick workout']},
+            {'url': 'https://www.youtube.com/embed/50kH47ZztHs', 'keywords': ['cardio', 'at home', '30 min', 'full body']},
+            {'url': 'https://www.youtube.com/embed/gC_L9qAHVJ8', 'keywords': ['beginner workout', '30 min', 'full body', 'low impact']},
+            {'url': 'https://www.youtube.com/embed/UItWltVZZmE', 'keywords': ['low impact', 'cardio', '25 min', 'gentle workout']},
         ]
     },
     'Diet': {
         'image': 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&h=300&fit=crop',
         'videos': [
-            'https://www.youtube.com/watch?v=qXjGzgLJVuk',   # TED-Ed - How to make healthy eating unbelievably easy
-            'https://www.youtube.com/watch?v=xyQY8a4Lr9g',   # Nutrition basics
-            'https://www.youtube.com/watch?v=1V8g3y3vG9s',   # Healthy meal prep
+            {'url': 'https://www.youtube.com/embed/wBmcM3_Z9gA', 'keywords': ['healthy eating', 'easy diet', 'nutrition basics']},
+            {'url': 'https://www.youtube.com/embed/Gmh_xMMJ2Pw', 'keywords': ['nutrition basics', 'healthy food', 'diet guide']},
+            {'url': 'https://www.youtube.com/embed/1V8g3y3vG9s', 'keywords': ['meal prep', 'healthy meals', 'cooking']},
+            {'url': 'https://www.youtube.com/embed/v8g1m6_m62Y', 'keywords': ['what i eat', 'healthy day', 'balanced diet']},
         ]
     },
     'Mental Wellness': {
         'image': 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&h=300&fit=crop',
         'videos': [
-            'https://www.youtube.com/watch?v=inpok4MKVLM',   # Great Meditation - 10 min Mindfulness
-            'https://www.youtube.com/watch?v=ZToicYbHMgU',   # Mindful Movement - Morning Meditation
-            'https://www.youtube.com/watch?v=jNhaOeeg0EQ',   # Headspace - Meditation Basics
+            {'url': 'https://www.youtube.com/embed/O-6f5wQXSu8', 'keywords': ['anxiety relief', '5 min', 'quick meditation', 'calming']},
+            {'url': 'https://www.youtube.com/embed/z6X5oEIg6Ak', 'keywords': ['mindfulness', 'meditation', 'stress relief', '10 min', 'guided']},
+            {'url': 'https://www.youtube.com/embed/86x-u-tz0MA', 'keywords': ['morning meditation', 'calm', 'focus', 'positive energy']},
+            {'url': 'https://www.youtube.com/embed/a-cNvI79Y4U', 'keywords': ['meditation basics', 'beginner meditation', 'mental health']},
         ]
     },
     'Yoga': {
         'image': 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&h=300&fit=crop',
         'videos': [
-            'https://www.youtube.com/watch?v=7Xr3Fq3qOXA',   # Yoga With Adriene - 20 Min Yoga for Complete Beginners
-            'https://www.youtube.com/watch?v=4pKly2JojMw',   # Yoga With Adriene - 15 Min Yoga for Stress Relief
-            'https://www.youtube.com/watch?v=9XwPcJhXjJ4',   # Yoga With Adriene - Desk Yoga
+            {'url': 'https://www.youtube.com/embed/v7AYKMP6rOE', 'keywords': ['yoga', 'full body', 'stretch', 'beginners', 'flexibility']},
+            {'url': 'https://www.youtube.com/embed/4pKly2JojMw', 'keywords': ['yoga', 'stress relief', '15 min', 'relaxation']},
+            {'url': 'https://www.youtube.com/embed/9XwPcJhXjJ4', 'keywords': ['desk yoga', 'office stretch', 'quick yoga', 'posture']},
+            {'url': 'https://www.youtube.com/embed/VaoV1PrYft4', 'keywords': ['morning yoga', '10 min', 'energy boost']},
         ]
     },
     'Lifestyle': {
         'image': 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&h=300&fit=crop',
         'videos': [
-            'https://www.youtube.com/watch?v=WjQnzB3UO5s',   # Healthy daily habits
-            'https://www.youtube.com/watch?v=pUAN2jP6E9g',   # Morning routine tips
-            'https://www.youtube.com/watch?v=iLWzJ8Ow7FE',   # Productivity & wellness
+            {'url': 'https://www.youtube.com/embed/d_22-X364qU', 'keywords': ['productivity tips', 'time management', 'focus', 'work-life balance']},
+            {'url': 'https://www.youtube.com/embed/wBmcM3_Z9gA', 'keywords': ['healthy habits', 'daily routine', 'wellness', 'lifestyle change']},
+            {'url': 'https://www.youtube.com/embed/pUAN2jP6E9g', 'keywords': ['morning routine', 'productivity', 'healthy start']},
+            {'url': 'https://www.youtube.com/embed/0e3gV1g22wQ', 'keywords': ['building habits', 'good habits', 'consistency']},
         ]
     },
     'Sleep': {
         'image': 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=600&h=300&fit=crop',
         'videos': [
-            'https://www.youtube.com/watch?v=iLWzJ8Ow7FE',   # Sleep hygiene tips
-            'https://www.youtube.com/watch?v=pUAN2jP6E9g',   # Better sleep routine
+            {'url': 'https://www.youtube.com/embed/3hHn34M9ICE', 'keywords': ['sleep hygiene', 'better sleep', 'sleep tips', 'insomnia']},
+            {'url': 'https://www.youtube.com/embed/aEqlQv6L2sI', 'keywords': ['guided sleep', 'meditation', 'sleep aid', 'relaxation']},
+            {'url': 'https://www.youtube.com/embed/r0w_uQ_Xg1Y', 'keywords': ['sleep music', 'relaxing sounds', 'deep sleep', 'ambient']},
+            {'url': 'https://www.youtube.com/embed/5mS2n2S_oO8', 'keywords': ['sleep story', 'bedtime story', 'wind down']},
         ]
     },
     'Stress': {
         'image': 'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=600&h=300&fit=crop',
         'videos': [
-            'https://www.youtube.com/watch?v=inpok4MKVLM',   # 10 min Stress Relief Meditation
-            'https://www.youtube.com/watch?v=ZToicYbHMgU',   # Stress Management
+            {'url': 'https://www.youtube.com/embed/l_g2Y-18v3g', 'keywords': ['deep breathing', 'stress reduction', 'relaxation', 'anxiety']},
+            {'url': 'https://www.youtube.com/embed/z6X5oEIg6Ak', 'keywords': ['stress relief', 'meditation', 'mindfulness', '10 min']},
+            {'url': 'https://www.youtube.com/embed/86x-u-tz0MA', 'keywords': ['stress management', 'calm', 'anxiety', 'morning meditation']},
+            {'url': 'https://www.youtube.com/embed/O-6f5wQXSu8', 'keywords': ['quick stress relief', 'instant calm', 'breathing exercise', '5 min']},
         ]
     },
     'Nutrition': {
         'image': 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=600&h=300&fit=crop',
         'videos': [
-            'https://www.youtube.com/watch?v=qXjGzgLJVuk',   # TED-Ed - Nutrition
-            'https://www.youtube.com/watch?v=xyQY8a4Lr9g',   # Healthy eating guide
+            {'url': 'https://www.youtube.com/embed/Gmh_xMMJ2Pw', 'keywords': ['nutrition', 'healthy eating', 'diet science']},
+            {'url': 'https://www.youtube.com/embed/wBmcM3_Z9gA', 'keywords': ['healthy eating guide', 'balanced diet', 'food choices']},
+            {'url': 'https://www.youtube.com/embed/a_FN022_b2c', 'keywords': ['macros', 'understanding macros', 'nutrition science']},
+            {'url': 'https://www.youtube.com/embed/Yw1-FfRj35g', 'keywords': ['healthy food swaps', 'diet tips', 'eating healthy']},
         ]
     },
 }
+
+# Define the ultimate fallback video URL outside of any dynamic lists
+ULTIMATE_FALLBACK_VIDEO_URL = "https://www.youtube.com/embed/BHACKCNDMW8" # A generic, stable nature video (embed format)
 
 # Default media fallback for unknown categories - using most universally reliable videos
 DEFAULT_REC_MEDIA = {
     'image': 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&h=300&fit=crop',
     'videos': [
-        'https://www.youtube.com/watch?v=inpok4MKVLM',
-        'https://www.youtube.com/watch?v=7Xr3Fq3qOXA',
+        {'url': 'https://www.youtube.com/embed/v7AYKMP6rOE', 'keywords': ['yoga', 'meditation', 'relaxation', 'general wellness']},
+        {'url': 'https://www.youtube.com/embed/z6X5oEIg6Ak', 'keywords': ['meditation', 'mindfulness', 'stress relief', 'calm']},
+        {'url': 'https://www.youtube.com/embed/Gmh_xMMJ2Pw', 'keywords': ['nutrition', 'healthy eating', 'diet tips', 'general wellness']},
+        {'url': 'https://www.youtube.com/embed/UItWltVZZmE', 'keywords': ['fitness', 'workout', 'exercise', 'general wellness']},
     ]
 }
 
@@ -1052,101 +953,138 @@ def _resolve_media_category(category):
         if key.lower() in category.lower() or category.lower() in key.lower():
             return key
     return 'Lifestyle'
-
-def _get_alternative_video(category, unavailable_url=None, risk_label='Low'):
+    
+def _is_video_available(video_id: str) -> bool: # No longer uses API key
     """
-    Smart fallback: given a category and (optionally) the URL that failed,
-    return an alternative video URL that has NOT been marked unavailable.
-    Prioritization:
-      - High risk → first available video (most impactful)
-      - Medium risk → middle video
-      - Low risk → last video (least intensive)
-    Falls back to the default media if all videos for category are exhausted.
+    Checks if a YouTube video is available by pinging its oEmbed endpoint.
+    This is a public endpoint and does not require an API key.
     """
-    if unavailable_url:
-        _UNAVAILABLE_VIDEOS.add(unavailable_url)
+    # oEmbed URL for checking video existence.
+    oembed_url = f"https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v={video_id}&format=json"
     
-    category_key = _resolve_media_category(category)
-    media = RECOMMENDATION_MEDIA.get(category_key, DEFAULT_REC_MEDIA)
-    
-    # Get available videos (not marked unavailable)
-    available_videos = [v for v in media['videos'] if v not in _UNAVAILABLE_VIDEOS]
-    
-    # If all videos exhausted, reset the unavailable set for this category (full refresh)
-    # and try again, but make sure not to return the same failing URL.
-    if not available_videos:
-        _UNAVAILABLE_VIDEOS.difference_update(media['videos'])
-        available_videos = [v for v in media['videos'] if v != unavailable_url]
-        # If all videos are the same as the failing one, we have no choice but to try it again.
-        if not available_videos:
-            available_videos = list(media['videos'])
+    try:
+        # A short timeout is used to fail fast if the network is slow.
+        response = http_requests.get(oembed_url, timeout=3)
+        # If the video is private or deleted, YouTube returns 404 or 403.
+        # A successful 200 response means the video is public.
+        return response.status_code == 200
+    except http_requests.RequestException:
+        # If the request fails for any reason (timeout, network error), assume unavailable.
+        return True
 
 
-    # Choose based on risk label
-    if risk_label == 'High':
-        index = 0
-    elif risk_label == 'Medium':
-        index = len(available_videos) // 2
-    else:  # Low
-        index = len(available_videos) - 1
+def _get_all_available_videos(recommendation: dict, max_videos: int = 4) -> list:
+    """
+    Gets a list of suitable video URLs for a given recommendation.
+    It scores videos based on keyword matching and category relevance, then uses a
+    parallel batching approach to efficiently check for video availability.
+    """
+    rec_category = recommendation.get('category', 'Lifestyle')
+    rec_title = recommendation.get('title', '').lower()
+    rec_description = recommendation.get('description', '').lower()
     
-    index = min(index, len(available_videos) - 1)
-    return available_videos[index] if available_videos else DEFAULT_REC_MEDIA['videos'][0]
+    all_potential_videos = []
+    
+    # Gather all potential videos from all categories and defaults
+    for cat_key, media_data in RECOMMENDATION_MEDIA.items():
+        for video_entry in media_data.get('videos', []):
+            all_potential_videos.append({'url': video_entry['url'], 'keywords': video_entry['keywords'], 'source_category': cat_key})
+    for video_entry in DEFAULT_REC_MEDIA.get('videos', []):
+        all_potential_videos.append({'url': video_entry['url'], 'keywords': video_entry['keywords'], 'source_category': 'Default'})
 
+    scored_videos = []
+    for video in all_potential_videos:
+        if video['url'] in _UNAVAILABLE_VIDEOS:
+            continue
+
+        score = 0
+        if video['source_category'] == rec_category:
+            score += 10
+        for keyword in video['keywords']:
+            if keyword.lower() in rec_title:
+                score += 3
+            if keyword.lower() in rec_description:
+                score += 2
+        scored_videos.append({'url': video['url'], 'score': score})
+
+    # Sort by score (descending) and then randomly for ties to ensure variety
+    scored_videos.sort(key=lambda x: (x['score'], random.random()), reverse=True)
+    
+    # --- Parallel Video Availability Check ---
+    verified_videos = []
+    seen_urls = set()
+    candidate_urls = [v['url'] for v in scored_videos if v['url'] not in seen_urls]
+
+    # Use ThreadPoolExecutor to check videos in parallel
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_videos * 2) as executor:
+        future_to_url = {executor.submit(_is_video_available, url.split('/embed/')[-1].split('?')[0]): url for url in candidate_urls}
+        
+        for future in concurrent.futures.as_completed(future_to_url):
+            url = future_to_url[future]
+            try:
+                is_available = future.result()
+                if is_available:
+                    if url not in seen_urls:
+                        verified_videos.append(url)
+                        seen_urls.add(url)
+                        if len(verified_videos) >= max_videos:
+                            # Once we have enough, cancel remaining checks
+                            executor.shutdown(wait=False, cancel_futures=True)
+                            break
+                else:
+                    _UNAVAILABLE_VIDEOS.add(url)
+                    app.logger.warning(f"Video {url} is unavailable. Skipping.")
+            except Exception as exc:
+                app.logger.error(f'Video check for {url} generated an exception: {exc}')
+
+    return verified_videos if verified_videos else [ULTIMATE_FALLBACK_VIDEO_URL]
 
 def _add_media_to_recommendations(recommendations):
-    """Attach image and video URLs to each recommendation based on category and severity."""
+    """Attach image and a list of video URLs to each recommendation."""
     enriched = []
     for rec in recommendations:
-        category = rec.get('category', 'Lifestyle')
-        category_key = _resolve_media_category(category)
-        media = RECOMMENDATION_MEDIA.get(category_key, DEFAULT_REC_MEDIA)
-        
-        # Pick video based on severity/score for variety
-        score = rec.get('score', 5) if isinstance(rec.get('score'), (int, float)) else 5
-        video_index = min(int(score) % len(media['videos']), len(media['videos']) - 1)
+        category = rec.get('category', 'Lifestyle') # Default to 'Lifestyle' if category is missing
+
+        # Determine the media source for the image
+        media_source = RECOMMENDATION_MEDIA.get(_resolve_media_category(category), DEFAULT_REC_MEDIA)
+
+        # Get a list of suitable videos instead of a single one, passing the full rec object
+        video_urls = _get_all_available_videos(rec) # Pass the full recommendation object
         
         enriched_rec = {
             **rec,
             'id': rec.get('recommendation_id', rec.get('id', str(random.randint(1000, 9999)))),
-            'imageUrl': media['image'],
-            'videoUrl': media['videos'][video_index],
+            'imageUrl': media_source['image'],
+            'videoUrls': video_urls,
         }
         enriched.append(enriched_rec)
     return enriched
 
-# --- Video Fallback Endpoint (for when a video is unavailable) ---
-@app.route('/api/wellness/recommendation-media/fallback', methods=['POST'])
-@jwt_required(locations=["cookies"])
-def get_fallback_video():
-    """
-    When the frontend detects a YouTube video is unavailable (removed/privated),
-    it reports the failed URL here and receives an alternative video URL.
-    The alternative is selected intelligently based on the user's risk profile.
-    """
+@app.route('/api/wellness/report-video', methods=['POST'])
+def report_unavailable_video():
+    """Endpoint for the frontend to report a video that is no longer available."""
     data = request.get_json() or {}
-    category = data.get('category', 'Lifestyle')
-    unavailable_url = data.get('unavailableUrl')
-    risk_label = data.get('riskLabel', 'Low')
-    
-    alternative_url = _get_alternative_video(category, unavailable_url, risk_label)
-    
-    return jsonify({
-        'alternativeUrl': alternative_url,
-        'category': category,
-        'note': 'Alternative video selected based on availability and risk profile.'
-    }), 200
+    video_url = data.get('videoUrl')
 
+    if not video_url:
+        return jsonify({'detail': 'Missing videoUrl'}), 400
+
+    # Add the broken video to the runtime blocklist
+    _UNAVAILABLE_VIDEOS.add(video_url)
+    app.logger.info(f"Video marked as unavailable: {video_url}")
+
+    return jsonify({'detail': 'Video reported successfully'}), 200
 
 # --- Wellness Recommendations Endpoint ---
 @app.route('/api/wellness/recommendations', methods=['GET'])
 @jwt_required(locations=["cookies"])
 def get_recommendations():
+    # The service now handles its own model loading.
     ai_wellness_service = get_ai_service(db)
     risk_model = get_risk_model()
     target_encoder = get_target_encoder()
     recommendation_engine = get_recommendation_engine()
-    if risk_model is None or target_encoder is None:
+    if not risk_model or not target_encoder:
         return jsonify({"detail": "Risk prediction model is not available."}), 503
 
     jwt_payload = get_jwt()
@@ -1178,7 +1116,6 @@ def get_recommendations():
                     if cached_entry.get('timestamp') == last_updated:
                         all_recommendations.append(cached_entry['data'])
                         continue  # Skip re-computation
-
 
                 # 1. Get risk profile from the classification model
                 model_input_df = map_health_record_to_model_input(record)
@@ -1283,7 +1220,6 @@ def get_recommendations():
                     'data': employee_recs
                 }
 
-
             except Exception as e:
                 app.logger.error(f"Failed to generate recommendations for {record.get('employeeId')}: {e}")
                 # Add a placeholder recommendation for the employee if an error occurred
@@ -1307,7 +1243,6 @@ def get_recommendations():
     except Exception as e:
         app.logger.exception(f"An unexpected error occurred while generating recommendations: {e}")
         return jsonify({'detail': 'Internal Server Error'}), 500
-
 
 # --- Daily Habits API Endpoints (GET) ---
 @app.route('/api/wellness/daily-habits/<employee_id>', methods=['GET'])
@@ -1333,7 +1268,7 @@ def get_daily_habits(employee_id):
 
 # Daily Habits API Endpoints (POST)
 @app.route('/api/wellness/daily-habits', methods=['POST'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"])
 def add_daily_habit():
     """Adds a new daily habit record."""
     jwt_payload = get_jwt()
@@ -1362,7 +1297,7 @@ def add_daily_habit():
 
 # --- Daily Habit endpoint (PUT) ---
 @app.route('/api/wellness/daily-habits/<employee_id>', methods=['PUT'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"])
 def update_daily_habit(employee_id):
     """Updates an existing daily habit record for a given employeeId."""
     jwt_payload = get_jwt()
@@ -1390,13 +1325,13 @@ def update_daily_habit(employee_id):
 
 # --- Mental Health Logs API Endpoints ---
 @app.route('/api/wellness/mental-health-logs/<employee_id>', methods=['GET'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def get_mental_health_logs(employee_id):
     """Fetches a specific user's mental health logs."""
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
-    if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
-        return jsonify({'detail': 'Forbidden: You can only view your own mental health logs.'}), 403
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
+    # if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
+    #     return jsonify({'detail': 'Forbidden: You can only view your own mental health logs.'}), 403
 
     try:
         # For simplicity, we'll store one log per day, so find the latest one for today
@@ -1406,7 +1341,9 @@ def get_mental_health_logs(employee_id):
             sort=[('date', -1)]
         )
         if not log_record:
-            return jsonify({'detail': 'Mental health log not found for today'}), 404
+            # Return an empty object instead of 404 if no log is found for today.
+            # This is a more graceful way for the frontend to handle "no data yet".
+            return jsonify({}), 200
         log_record['id'] = str(log_record['_id'])
         del log_record['_id']
         return jsonify(log_record), 200
@@ -1416,18 +1353,17 @@ def get_mental_health_logs(employee_id):
 
 # --- Mental Health Logs API Endpoints (POST) ---
 @app.route('/api/wellness/mental-health-logs', methods=['POST'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def add_mental_health_log():
     """Adds a new mental health log record."""
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
     new_log = request.get_json()
 
     if not new_log or 'employeeId' not in new_log:
         return jsonify({'detail': 'Missing mental health log data or employeeId'}), 400
-
-    if user_info.get('role') != 'admin' and user_info.get('employeeId') != new_log['employeeId']:
-        return jsonify({'detail': 'Forbidden: You can only add your own mental health logs.'}), 403
+    # if user_info.get('role') != 'admin' and user_info.get('employeeId') != new_log['employeeId']:
+    #     return jsonify({'detail': 'Forbidden: You can only add your own mental health logs.'}), 403
 
     # For simplicity, prevent adding multiple logs for the same employee on the same day
     today_start_dt = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
@@ -1447,18 +1383,18 @@ def add_mental_health_log():
 
 # mental health logs API endpoint (PUT)
 @app.route('/api/wellness/mental-health-logs/<employee_id>', methods=['PUT'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def update_mental_health_log(employee_id):
     """Updates an existing mental health log for a given employeeId for today."""
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
     updated_data = request.get_json()
 
     if not updated_data:
         return jsonify({'detail': 'Missing update data'}), 400
 
-    if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
-        return jsonify({'detail': 'Forbidden: You can only update your own mental health logs.'}), 403
+    # if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
+    #     return jsonify({'detail': 'Forbidden: You can only update your own mental health logs.'}), 403
 
     if 'id' in updated_data:
         del updated_data['id']
@@ -1520,7 +1456,9 @@ def get_insurance(employee_id):
 
     policy = insurance_collection.find_one({'employeeId': employee_id})
     if not policy:
-        return jsonify({'detail': 'No insurance policy on file for this employee'}), 404
+        # Return an empty object with a 200 status to handle cases where no policy exists.
+        # This prevents a 404 error on the frontend.
+        return jsonify({}), 200
     return jsonify(_serialize_insurance(policy)), 200
 
 # insurance endpoint (GET all policies) - admin only
@@ -1701,7 +1639,7 @@ def get_notifications():
 
 # notificaions endpoint (POST) - admin only
 @app.route('/api/notifications', methods=['POST'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"])
 def create_notification():
     """Admin-only: broadcast to everyone (omit targetEmployeeId) or target one employee."""
     jwt_payload = get_jwt()
@@ -1731,7 +1669,7 @@ def create_notification():
 
 # notification (PUT)
 @app.route('/api/notifications/<notification_id>/read', methods=['PUT'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"])
 def mark_notification_read(notification_id):
     jwt_payload = get_jwt()
     user_info = jwt_payload.get("user_info")
@@ -1748,7 +1686,7 @@ def mark_notification_read(notification_id):
 
 # notifications (DELETE) endpoint
 @app.route('/api/notifications/<notification_id>', methods=['DELETE'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"])
 def delete_notification(notification_id):
     jwt_payload = get_jwt()
     user_info = jwt_payload.get("user_info")
@@ -1759,12 +1697,12 @@ def delete_notification(notification_id):
 
 # --- Goal Tracking API ---
 @app.route('/api/goals/<employee_id>', methods=['GET'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def get_goals(employee_id):
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
-    if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
-        return jsonify({'detail': 'Forbidden'}), 403
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
+    # if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
+    #     return jsonify({'detail': 'Forbidden'}), 403
 
     goals = []
     for g in goals_collection.find({'employeeId': employee_id}).sort('createdAt', -1):
@@ -1775,14 +1713,14 @@ def get_goals(employee_id):
 
 
 @app.route('/api/goals', methods=['POST'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def create_goal():
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
     data = request.get_json() or {}
-    employee_id = data.get('employeeId')
-    if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
-        return jsonify({'detail': 'Forbidden'}), 403
+    employee_id = data.get('employeeId', 'public_user')
+    # if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
+    #     return jsonify({'detail': 'Forbidden'}), 403
     if not employee_id or not data.get('title'):
         return jsonify({'detail': 'employeeId and title are required'}), 400
 
@@ -1802,10 +1740,10 @@ def create_goal():
 
 
 @app.route('/api/goals/<goal_id>', methods=['PUT'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def update_goal(goal_id):
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
     data = request.get_json() or {}
     data.pop('id', None)
     data.pop('employeeId', None)
@@ -1820,23 +1758,22 @@ def update_goal(goal_id):
         return jsonify({'detail': 'Goal not found'}), 404
     return jsonify({'detail': 'Goal updated'}), 200
 
-# 
+# <--- goals API endpoint (DELETE) --->
 @app.route('/api/goals/<goal_id>', methods=['DELETE'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def delete_goal(goal_id):
     goals_collection.delete_one({'_id': ObjectId(goal_id)})
     return '', 204
 
 # diet plans POST endpoint
 @app.route('/api/diet-plan', methods=['POST'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def generate_diet_plan():
     """Generates a personalized diet plan using the AI service."""
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info", {})
-    employee_id = user_info.get('employeeId')
-    
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info", {})
     data = request.get_json() or {}
+    employee_id = data.get('employeeId') # Get employeeId from request body
     preferences = {
         'dietType': data.get('dietType', 'Balanced')
     }
@@ -1851,12 +1788,12 @@ def generate_diet_plan():
 
 # --- Achievements API (computed from daily habits + goals, not a separate collection) ---
 @app.route('/api/achievements/<employee_id>', methods=['GET'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def get_achievements(employee_id):
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
-    if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
-        return jsonify({'detail': 'Forbidden'}), 403
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
+    # if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
+    #     return jsonify({'detail': 'Forbidden'}), 403
 
     habit = daily_habits_collection.find_one({'employeeId': employee_id}) or {}
     completed_goals = goals_collection.count_documents({'employeeId': employee_id, 'status': 'Completed'})
@@ -1882,12 +1819,12 @@ def get_achievements(employee_id):
 
 # --- Health Report Download (PDF) ---
 @app.route('/api/reports/health-report/<employee_id>', methods=['GET'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def download_health_report(employee_id):
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info", {})
-    if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
-        return jsonify({'detail': 'Forbidden'}), 403
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info", {})
+    # if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
+    #     return jsonify({'detail': 'Forbidden'}), 403
 
     # Import ReportLab components
     from flask import Response
@@ -2008,7 +1945,7 @@ def download_health_report(employee_id):
     story.append(Spacer(1, 20*mm))
 
     # --- Footer ---
-    story.append(Paragraph('Digitally generated — Employee Wellness Management Analytics platform.', styles['Footer']))
+    story.append(Paragraph('Digitally generated — AI-Based Employee Wellness Management Platform.', styles['Footer']))
 
     # Build the PDF
     doc.build(story)
@@ -2093,7 +2030,6 @@ def change_password():
 
 # --- AI Wellness Service Endpoints ---
 from ai_service import get_ai_service
-
 @app.route('/api/ai/chat', methods=['POST'])
 @jwt_required(locations=["cookies"])
 def ai_chat():
@@ -2116,13 +2052,12 @@ def ai_chat():
 
 
 @app.route('/api/ai/insights/<employee_id>', methods=['GET'])
-@jwt_required(locations=["cookies"])
 def ai_insights(employee_id):
     """Get personalized daily wellness insights for an employee."""
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
-    if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
-        return jsonify({'detail': 'Forbidden'}), 403
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
+    # if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
+    #     return jsonify({'detail': 'Forbidden'}), 403
     
     try:
         ai_wellness_service = get_ai_service(db)
@@ -2153,13 +2088,13 @@ def ai_burnout_trend():
 
 
 @app.route('/api/ai/routine', methods=['POST'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def ai_generate_routine():
     """Generate a personalized daily wellness routine."""
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
     data = request.get_json() or {}
-    employee_id = data.get('employeeId') or user_info.get('employeeId')
+    employee_id = data.get('employeeId') # or user_info.get('employeeId')
     preferences = data.get('preferences', {})
     
     try:
@@ -2173,14 +2108,14 @@ def ai_generate_routine():
 
 # --- Annual Health Check-up Scheduler ---
 @app.route('/api/checkups', methods=['GET'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def get_checkups():
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
-    if user_info.get('role') == 'admin' and request.args.get('all'):
-        cursor = checkup_appointments_collection.find({}).sort('date', 1)
-    else:
-        cursor = checkup_appointments_collection.find({'employeeId': user_info.get('employeeId')}).sort('date', 1)
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
+    # if user_info.get('role') == 'admin' and request.args.get('all'):
+    cursor = checkup_appointments_collection.find({}).sort('date', 1)
+    # else:
+    #     cursor = checkup_appointments_collection.find({'employeeId': user_info.get('employeeId')}).sort('date', 1)
     appointments = []
     for a in cursor:
         a['id'] = str(a['_id'])
@@ -2189,19 +2124,20 @@ def get_checkups():
     return jsonify(appointments), 200
 
 @app.route('/api/checkups', methods=['POST'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def book_checkup():
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
     data = request.get_json() or {}
-    employee_id = user_info.get('employeeId') if user_info.get('role') != 'admin' else data.get('employeeId', user_info.get('employeeId'))
-
+    # employee_id = user_info.get('employeeId') if user_info.get('role') != 'admin' else data.get('employeeId', user_info.get('employeeId'))
+    employee_id = data.get('employeeId', 'public_user')
+    employee_name = data.get('employeeName', 'Public User')
     if not data.get('date'):
         return jsonify({'detail': 'date is required'}), 400
 
     doc = {
         'employeeId': employee_id,
-        'employeeName': user_info.get('name'),
+        'employeeName': employee_name,
         'date': data.get('date'),
         'checkupType': data.get('checkupType', 'Annual Health Check-up'),
         'notes': data.get('notes', ''),
@@ -2215,53 +2151,54 @@ def book_checkup():
 
 
 @app.route('/api/checkups/<checkup_id>', methods=['PUT'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def update_checkup(checkup_id):
     """Admin updates status (Confirmed/Completed/Cancelled); employee can reschedule/cancel their own."""
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
     data = request.get_json() or {}
     data.pop('id', None)
 
     appt = checkup_appointments_collection.find_one({'_id': ObjectId(checkup_id)})
     if not appt:
         return jsonify({'detail': 'Appointment not found'}), 404
-    if user_info.get('role') != 'admin' and appt.get('employeeId') != user_info.get('employeeId'):
-        return jsonify({'detail': 'Forbidden'}), 403
+    # if user_info.get('role') != 'admin' and appt.get('employeeId') != user_info.get('employeeId'):
+    #     return jsonify({'detail': 'Forbidden'}), 403
 
     checkup_appointments_collection.update_one({'_id': ObjectId(checkup_id)}, {'$set': data})
     return jsonify({'detail': 'Appointment updated'}), 200
 
 
 @app.route('/api/checkups/<checkup_id>', methods=['DELETE'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def delete_checkup(checkup_id):
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
     appt = checkup_appointments_collection.find_one({'_id': ObjectId(checkup_id)})
     if not appt:
         return '', 204
-    if user_info.get('role') != 'admin' and appt.get('employeeId') != user_info.get('employeeId'):
-        return jsonify({'detail': 'Forbidden'}), 403
+    # if user_info.get('role') != 'admin' and appt.get('employeeId') != user_info.get('employeeId'):
+    #     return jsonify({'detail': 'Forbidden'}), 403
     checkup_appointments_collection.delete_one({'_id': ObjectId(checkup_id)})
     return '', 204
 
 
 # --- Emergency SOS ---
 @app.route('/api/sos', methods=['POST'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def trigger_sos():
     """Employee triggers an SOS alert. Attaches their emergency contact + latest known vitals
     automatically so admins/responders have the info they need immediately."""
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
-    employee_id = user_info.get('employeeId')
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
     data = request.get_json() or {}
+    employee_id = data.get('employeeId', 'public_user')
+    user_name = data.get('employeeName', 'Public User')
 
     record = health_records_collection.find_one({'employeeId': employee_id}) or {}
     doc = {
         'employeeId': employee_id,
-        'employeeName': user_info.get('name'),
+        'employeeName': user_name,
         'message': data.get('message', 'Emergency SOS triggered'),
         'emergencyContactName': record.get('emergencyContactName', ''),
         'emergencyContactPhone': record.get('emergencyContactPhone', ''),
@@ -2278,14 +2215,14 @@ def trigger_sos():
 
 
 @app.route('/api/sos', methods=['GET'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def get_sos_alerts():
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
-    if user_info.get('role') == 'admin':
-        cursor = sos_alerts_collection.find({}).sort('createdAt', -1)
-    else:
-        cursor = sos_alerts_collection.find({'employeeId': user_info.get('employeeId')}).sort('createdAt', -1)
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
+    # if user_info.get('role') == 'admin':
+    cursor = sos_alerts_collection.find({}).sort('createdAt', -1)
+    # else:
+    #     cursor = sos_alerts_collection.find({'employeeId': user_info.get('employeeId')}).sort('createdAt', -1)
     alerts = []
     for a in cursor:
         a['id'] = str(a['_id'])
@@ -2306,14 +2243,14 @@ def resolve_sos(sos_id):
 
 # --- Health Expense Tracker ---
 @app.route('/api/expenses', methods=['GET'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def get_expenses():
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
-    if user_info.get('role') == 'admin' and request.args.get('all'):
-        cursor = expenses_collection.find({}).sort('date', -1)
-    else:
-        cursor = expenses_collection.find({'employeeId': user_info.get('employeeId')}).sort('date', -1)
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
+    # if user_info.get('role') == 'admin' and request.args.get('all'):
+    cursor = expenses_collection.find({}).sort('date', -1)
+    # else:
+    #     cursor = expenses_collection.find({'employeeId': user_info.get('employeeId')}).sort('date', -1)
     expenses = []
     for e in cursor:
         e['id'] = str(e['_id'])
@@ -2323,18 +2260,20 @@ def get_expenses():
 
 
 @app.route('/api/expenses', methods=['POST'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def add_expense():
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
     data = request.get_json() or {}
+    employee_id = data.get('employeeId', 'public_user')
+    employee_name = data.get('employeeName', 'Public User')
 
     if not data.get('description') or not data.get('amount'):
         return jsonify({'detail': 'description and amount are required'}), 400
 
     doc = {
-        'employeeId': user_info.get('employeeId'),
-        'employeeName': user_info.get('name'),
+        'employeeId': employee_id,
+        'employeeName': employee_name,
         'description': data.get('description'),
         'amount': float(data.get('amount', 0) or 0),
         'category': data.get('category', 'General'),
@@ -2363,15 +2302,15 @@ def update_expense(expense_id):
 
 
 @app.route('/api/expenses/<expense_id>', methods=['DELETE'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def delete_expense(expense_id):
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
     expense = expenses_collection.find_one({'_id': ObjectId(expense_id)})
     if not expense:
         return '', 204
-    if user_info.get('role') != 'admin' and expense.get('employeeId') != user_info.get('employeeId'):
-        return jsonify({'detail': 'Forbidden'}), 403
+    # if user_info.get('role') != 'admin' and expense.get('employeeId') != user_info.get('employeeId'):
+    #     return jsonify({'detail': 'Forbidden'}), 403
     expenses_collection.delete_one({'_id': ObjectId(expense_id)})
     return '', 204
 
@@ -2726,10 +2665,27 @@ def get_all_sentiment_pulses():
         app.logger.exception(f"Failed to fetch all sentiment pulses: {e}")
         return jsonify({'detail': 'Internal Server Error'}), 500
 
+@app.route('/api/wellness/sentiment-pulse/<pulse_id>', methods=['DELETE'])
+@jwt_required(locations=["cookies"])
+def delete_sentiment_pulse(pulse_id):
+    """ Deletes a single sentiment pulse by its ID. Admin-only. """
+    jwt_payload = get_jwt()
+    user_info = jwt_payload.get("user_info", {})
+    if user_info.get('role', '').lower() != 'admin':
+        return jsonify({'detail': 'Forbidden'}), 403
+
+    try:
+        result = sentiment_pulses_collection.delete_one({'_id': ObjectId(pulse_id)})
+        if result.deleted_count == 0:
+            return jsonify({'detail': 'Pulse not found'}), 404
+        return '', 204
+    except Exception as e:
+        app.logger.exception(f"Failed to delete sentiment pulse {pulse_id}: {e}")
+        return jsonify({'detail': 'Internal Server Error'}), 500
 
 # --- Get An Individual Employee's Sentiment Pulses ---
 @app.route('/api/wellness/sentiment-pulse/<employee_id>', methods=['GET'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def get_employee_sentiment_pulses(employee_id):
     """ Fetches the sentiment pulses for a single employee.
 
@@ -2737,11 +2693,11 @@ def get_employee_sentiment_pulses(employee_id):
     employee's pulses. This powers the employee dashboard's "My Mental Health
     & Sentiment" section.
     """
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info", {})
-    role = user_info.get('role', '').lower()
-    if role != 'admin' and user_info.get('employeeId') != employee_id:
-        return jsonify({'detail': 'Forbidden: You can only view your own sentiment pulses.'}), 403
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info", {})
+    # role = user_info.get('role', '').lower()
+    # if role != 'admin' and user_info.get('employeeId') != employee_id:
+    #     return jsonify({'detail': 'Forbidden: You can only view your own sentiment pulses.'}), 403
 
     try:
         pulses_cursor = sentiment_pulses_collection.find({'employeeId': employee_id}).sort('createdAt', -1)

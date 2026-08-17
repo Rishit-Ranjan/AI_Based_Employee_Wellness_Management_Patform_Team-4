@@ -1,4 +1,4 @@
-# Employee Wellness Management Analytics Platform
+# AI-Based Employee Wellness Management Platform
 
 <img width="650" height="325" alt="image" src="https://github.com/user-attachments/assets/210737c9-39a6-4c0e-905a-d9a51d0c2a9d" /><br/>
 
@@ -118,6 +118,16 @@ SMTP_USER="your_email@example.com"
 SMTP_PASSWORD="your_app_password" #<-- create this from manage your google account-> home-> search for "App Passwords"-> create new app name, get the code-> copy and paste that code here
 ```
 
+### Get the JWT Secret Key
+
+Run this command in the terminal:
+
+```bash
+python3 -c "import secrets; print(secrets.token_hex(32))"
+```
+
+Paste the result string into the JWT_SECRET_KEY in ".env" file.
+
 ### 3. Frontend Setup
 
 Open a new terminal, navigate to the frontend directory, and install the dependencies.
@@ -133,6 +143,7 @@ From the root directory of the project, run the concurrent script to start both 
 
 ```bash
 # From the project root directory
+npm install
 npm run dev
 ```
 
@@ -168,17 +179,17 @@ The application has two primary roles with default credentials of Admin for demo
 
 ### Employee Role
 
-- **Role:** 'User'
-- **EMP ID:** E.g. EMP101
-- **Email:** personal email is preferred
-- **Password:** set your 6-digit password
+- **Role:** `User`
+- **EMP ID:** `E.g. EMP101`
+- **Email:** `personal email is preferred`
+- **Password:** `set your 6-digit password`
 
 #### Administrator Access
 
 - **Role:** `Admin`
 - **Admin ID:** `ADM001`
 - **Email:** `admin@platform.com`
-- **Password:** `password`
+- **Password:** `AdminPass123`
 
 ---
 

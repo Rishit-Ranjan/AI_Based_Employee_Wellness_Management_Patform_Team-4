@@ -139,6 +139,12 @@ export function logout() {
 export const fetchUsers = () => request('/users');
 
 /**
+ * Deletes a user and all their associated data. Admin-only.
+ * @param {string} employeeId The ID of the employee to delete.
+ * @returns {Promise<Object>} A promise that resolves on successful deletion.
+ */
+export const deleteUser = (employeeId) => request(`/users/${employeeId}`, { method: 'DELETE' });
+/**
  * Uploads a new avatar for the current user.
  * @param {File} file The image file to upload.
  * @returns {Promise<Object>} A promise that resolves to the updated user object.
@@ -237,16 +243,14 @@ export const fetchRecommendations = async (options) => {
 }
 
 /**
- * Requests an alternative video URL when a recommended video is unavailable.
- * @param {string} category - The recommendation category (e.g., 'Fitness', 'Mental Wellness')
- * @param {string} unavailableUrl - The YouTube URL that failed
- * @param {string} riskLabel - The user's risk level ('High', 'Medium', 'Low')
- * @returns {Promise<{alternativeUrl: string, category: string, note: string}>}
+ * Reports a video URL that is no longer available.
+ * @param {string} videoUrl - The YouTube URL that failed.
+ * @returns {Promise<Object>}
  */
-export const fetchAlternativeVideo = async (category, unavailableUrl, riskLabel = 'Low') => {
-  return request('/wellness/recommendation-media/fallback', {
+export const reportUnavailableVideo = (videoUrl) => {
+  return request('/wellness/report-video', {
     method: 'POST',
-    body: JSON.stringify({ category, unavailableUrl, riskLabel }),
+    body: JSON.stringify({ videoUrl }),
   });
 };
 
@@ -285,6 +289,13 @@ export const submitSentimentPulse = (employeeId, department, stressScore, feedba
     body: JSON.stringify({ employeeId, department, stressScore, feedbackText }),
   });
 };
+
+/**
+ * Deletes a single sentiment pulse. Admin-only.
+ * @param {string} pulseId The ID of the pulse to delete.
+ * @returns {Promise<Object>} A promise that resolves on successful deletion.
+ */
+export const deleteSentimentPulse = (pulseId) => request(`/wellness/sentiment-pulse/${pulseId}`, { method: 'DELETE' });
 
 export const saveSentiments = (sentimentsData) => saveToStorage('wellness_sentiments', sentimentsData);
 
@@ -437,10 +448,11 @@ export const updateSupportTicket = (ticketId, status) => request(`/support/ticke
 
 // --- Updated Default Export ---
 export default {
-  login, signup, me, logout, forgotPassword, resetPassword,
+  login, signup, me, logout, forgotPassword, resetPassword, deleteUser,
   fetchUsers, uploadAvatar, updateProfile, changePassword,
   fetchHealthRecords, addHealthRecord, updateHealthRecord, deleteHealthRecord,
   fetchRisks, fetchRecommendations, fetchSentiments, saveSentiments, submitSentimentPulse,
+  deleteSentimentPulse,
   fetchAllSentimentPulses, fetchEmployeeSentimentPulses,
   fetchDailyHabits, addDailyHabit, updateDailyHabit,
   fetchMentalHealthLogs, addMentalHealthLog, updateMentalHealthLog,

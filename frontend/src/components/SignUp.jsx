@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, User, Hash, Check, AlertCircle, HeartPulse, Sparkles, CheckCircle2 } from 'lucide-react';
 import { signup as signupApi } from '../services/api';
-import { Mail, Lock, Eye, EyeOff, User, ArrowRight, Check, AlertCircle, HeartPulse, Sparkles, CheckCircle2 } from 'lucide-react';
+import FloatingSupportButton from './FloatingSupportButton';
+import CustomerSupportModal from './CustomerSupportModal';
+import TermsOfService from './TermsOfService';
+import PrivacyPolicy from './PrivacyPolicy';
 
-export default function SignUp({ onNavigate, onSignUpSuccess  }) {
+export default function SignUp({ onNavigate, onSignUpSuccess }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -14,6 +18,13 @@ export default function SignUp({ onNavigate, onSignUpSuccess  }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [activeModal, setActiveModal] = useState(null); // null, 'terms', 'privacy'
+  const [isSupportOpen, setIsSupportOpen] = useState(false);
+
+  const nameRef = useRef(null);
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
+  const confirmPasswordRef = useRef(null);
 
   // Password strength validation logic
   const getPasswordStrength = () => {
@@ -90,9 +101,20 @@ export default function SignUp({ onNavigate, onSignUpSuccess  }) {
       } else {
         setError(msg ? msg : 'Could not connect to the server. Please try again later.');
       }
-    } finally {
       setLoading(false);
     }
+  };
+
+  const handleSupportClick = () => {
+    setIsSupportOpen(true);
+  };
+
+  const handleOpenTerms = () => {
+    setActiveModal('terms');
+  };
+
+  const handleOpenPrivacy = () => {
+    setActiveModal('privacy');
   };
 
   if (success) {
@@ -131,15 +153,15 @@ export default function SignUp({ onNavigate, onSignUpSuccess  }) {
           <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
             <div className="w-4 h-4 bg-slate-900 rounded-sm rotate-45"></div>
           </div>
-          <span className="text-xl font-bold tracking-tighter text-white">Employee Wellness Management analytics</span>
+          <span className="text-2xl font-extrabold tracking-tighter text-white">AI-Based Employee Wellness Management Platform</span>
         </div>
 
         {/* Center quote */}
         <div className="my-auto relative z-10 max-w-md">
-          <h1 className="font-display text-4xl font-light tracking-tight leading-tight mb-6 text-white">
+          <h1 className="font-display text-5xl font-normal tracking-tight leading-tight mb-6 text-white">
             Join thousands of teams <br/><span className="italic font-serif text-slate-300">prioritizing employee</span> health.
           </h1>
-          <p className="text-slate-400 text-sm leading-relaxed mb-6 font-light">
+          <p className="text-slate-400 text-base leading-relaxed mb-6 font-normal">
             Establishing a wellness program can reduce absenteeism by 25% and increase overall workspace productivity. Get started with custom employee health indexing today.
           </p>
 
@@ -150,7 +172,7 @@ export default function SignUp({ onNavigate, onSignUpSuccess  }) {
               'Direct AI-assisted personalized action plans',
               'Granular real-time team feedback widgets'
             ].map((benefit, idx) => (
-              <li key={idx} className="flex items-center gap-2.5 text-xs text-slate-300">
+              <li key={idx} className="flex items-center gap-2.5 text-base text-slate-300">
                 <div className="p-0.5 bg-slate-800 border border-slate-700 text-emerald-400 rounded-md">
                   <Check className="w-3.5 h-3.5" />
                 </div>
@@ -161,9 +183,8 @@ export default function SignUp({ onNavigate, onSignUpSuccess  }) {
         </div>
 
         {/* Footer info */}
-        <div className="text-xs text-slate-500 flex items-center justify-between relative z-10 font-mono">
+        <div className="text-base text-slate-500 flex items-center justify-between relative z-10 font-mono">
           <span>© 2026 Employee Wellness Inc.</span>
-          <span>Security Certified SHA-256</span>
         </div>
       </div>
 
@@ -175,7 +196,7 @@ export default function SignUp({ onNavigate, onSignUpSuccess  }) {
               <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center">
                 <div className="w-4 h-4 bg-white rounded-sm rotate-45"></div>
               </div>
-              <span className="font-display font-bold text-slate-900 tracking-tighter">Employee Wellness Management analytics</span>
+              <span className="font-display font-semibold text-lg text-slate-900 tracking-tighter">AI-Based Employee Wellness Management Platform</span>
             </div>
             <h2 className="font-display text-2xl font-semibold text-slate-900 tracking-tight">Create your account</h2>
             <p className="text-slate-500 text-sm mt-1">Deploy wellness metrics and trackers for your team</p>
@@ -266,7 +287,7 @@ export default function SignUp({ onNavigate, onSignUpSuccess  }) {
                     <div className={`${strength.color} h-full transition-all duration-300`} style={{ width: `${strength.score}%` }} />
                   </div>
                   <div className="grid grid-cols-2 gap-x-2 text-[9px] text-slate-400 mt-1 font-mono">
-                    <span className={password.length >= 8 ? 'text-emerald-600 font-semibold' : ''}>✓ Min 6 chars</span>
+                    <span className={password.length >= 6 ? 'text-emerald-600 font-semibold' : ''}>✓ Min 6 chars</span>
                     <span className={/[A-Z]/.test(password) ? 'text-emerald-600 font-semibold' : ''}>✓ 1 Uppercase</span>
                     <span className={/[0-9]/.test(password) ? 'text-emerald-600 font-semibold' : ''}>✓ 1 Number</span>
                     <span className={/[^A-Za-z0-9]/.test(password) ? 'text-emerald-600 font-semibold' : ''}>✓ 1 Special</span>
@@ -308,13 +329,28 @@ export default function SignUp({ onNavigate, onSignUpSuccess  }) {
                   type="checkbox"
                   checked={termsAccepted}
                   required
-                  onChange={(e) => setTermsAccepted(e.target.checked)}
+                  onChange={(e) => {
+                    setTermsAccepted(e.target.checked);
+                    // Clear error if terms are now accepted
+                    if (e.target.checked && error === 'You must accept the Terms of Service and Privacy Policy.') {
+                      setError('');
+                    }
+                  }}
                   className="w-4 h-4 mt-0.5 rounded bg-slate-50 border-slate-300 text-slate-900 focus:ring-0 accent-slate-950 shrink-0"
                 />
                 <span className="text-xs text-slate-500 font-medium leading-normal">
-                  I agree to the{' '}
-                  <span className="text-slate-900 font-semibold hover:underline underline-offset-2">Terms of Service</span> and{' '}
-                  <span className="text-slate-900 font-semibold hover:underline underline-offset-2">Privacy Policy</span>.
+                  I agree to the
+                  <button
+                    type="button"
+                    onClick={handleOpenTerms}
+                    className="text-slate-900 font-semibold hover:underline underline-offset-2 mx-1"
+                  >Terms of Service</button>
+                  and
+                  <button
+                    type="button"
+                    onClick={handleOpenPrivacy}
+                    className="text-slate-900 font-semibold hover:underline underline-offset-2 ml-1"
+                  >Privacy Policy</button>.
                 </span>
               </label>
             </div>
@@ -348,6 +384,12 @@ export default function SignUp({ onNavigate, onSignUpSuccess  }) {
             </p>
           </div>
         </div>
+
+        {/* Floating Customer Support Button */}
+        <FloatingSupportButton onClick={handleSupportClick} />
+        {activeModal === 'terms' && <TermsOfService onNavigate={() => setActiveModal(null)} />}
+        {activeModal === 'privacy' && <PrivacyPolicy onNavigate={() => setActiveModal(null)} />}
+        {isSupportOpen && <CustomerSupportModal user={null} onClose={() => setIsSupportOpen(false)} />}
       </div>
     </div>
   );

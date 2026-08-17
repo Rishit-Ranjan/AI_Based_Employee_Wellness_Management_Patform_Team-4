@@ -10,6 +10,7 @@ import requests as http_requests
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, List, Any
 from dotenv import load_dotenv
+from model_loader import get_risk_model, get_recommendation_engine, get_target_encoder, get_feature_columns
 load_dotenv()
 
 
@@ -22,11 +23,8 @@ IMPORTANT: Your role is strictly to be a wellness coach. If the user asks about 
 class AIWellnessService:
     """AI-powered wellness assistant service."""
 
-    def __init__(self, db=None, risk_model=None, recommendation_engine=None):
+    def __init__(self, db=None):
         self.db = db
-        self.risk_model = risk_model
-        self.recommendation_engine = recommendation_engine
-        
         self.recommendation_cache = {} # Cache for recommendations
         self.risk_prediction_cache = {} # Cache for risk predictions
         self.performance_analytics_cache = {} # Cache for performance analytics
@@ -223,19 +221,20 @@ As an AI Wellness Assistant, provide a helpful, concise response (max 150 words)
             if response.status_code == 200:
                 return response.json().get('response', ''), model_name_to_use
             else:
-                error_msg = f"Ollama API returned status {response.status_code}: {response.text}"
-                print(f"Ollama API error: {error_msg}")
-                return f"Ollama model failed to respond. Please ensure the Ollama server is running and the '{model_name_to_use}' model is downloaded.", "Ollama Error"
+                print(f"Ollama API error: Returned status {response.status_code}: {response.text}")
+                # Return a generic error to the user
+                return "I'm having trouble connecting to the AI service right now. Please try again in a moment.", "Service Error"
             
         except http_requests.exceptions.ConnectionError as e:
-            error_msg = f"Could not connect to Ollama server at {ollama_base_url}. Is Ollama running and '{model_name_to_use}' downloaded?"
+            error_msg = f"Could not connect to Ollama server at {ollama_base_url}. Please ensure the Ollama application is running and your respective AI model is downloaded."
+
             print(f"Ollama API error: {error_msg} - {e}")
-            return f"Ollama model failed: {error_msg}", "Ollama Error"
+            return "The AI assistant is currently unavailable. Please ensure the Ollama application is running and the respective AI model is downloaded.", "Service Unavailable"
         
         except http_requests.exceptions.Timeout as e:
             error_msg = f"Ollama API request timed out after 30 seconds."
             print(f"Ollama API error: {error_msg}")
-            return f"Ollama model failed: {error_msg}. The model may be taking too long to respond.", "Ollama Error"
+            return "The AI assistant is taking too long to respond. Please try again in a moment.", "Service Timeout"
 
         except Exception as e: # Catch any other unexpected errors during the API call
             error_msg = f"An unexpected error occurred during Ollama API call: {e}"
@@ -322,6 +321,11 @@ Your wellness journey is about health, not just numbers! What aspect would you l
 
     def chat(self, message: str, employee_id: str = None, ai_model_name: Optional[str] = None) -> Dict[str, Any]:
         """Main chat handler - tries LLM first, falls back to rule-based."""
+        # Lazily get models when needed
+        self.risk_model = get_risk_model()
+        self.recommendation_engine = get_recommendation_engine()
+        self.target_encoder = get_target_encoder()
+        self.feature_columns = get_feature_columns()
         
         # Get health context if employee_id is provided
         context = {}
@@ -962,11 +966,11 @@ Focus on whole foods. Be specific with meal items and ensure they respect the di
 # Singleton instance
 _ai_service_instance = None
 
-def get_ai_service(db=None, risk_model=None, recommendation_engine=None):
+def get_ai_service(db=None):
     """Get or create the AI Wellness service singleton."""
     global _ai_service_instance
     if _ai_service_instance is None:
-        _ai_service_instance = AIWellnessService(db, risk_model, recommendation_engine)
+        _ai_service_instance = AIWellnessService(db)
     return _ai_service_instance
 
 def get_ai_diet_plan(employee_id: str, preferences: Dict = None) -> Dict[str, Any]:

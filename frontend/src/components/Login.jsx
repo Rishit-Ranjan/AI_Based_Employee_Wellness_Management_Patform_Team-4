@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Activity, Sparkles, Shield, UserCheck, UserCog, Hash } from 'lucide-react';
 import { login as loginApi } from '../services/api';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Activity, Sparkles, Shield, UserCheck, UserCog, Hash, HeartPulse } from 'lucide-react';
 import FloatingSupportButton from './FloatingSupportButton';
-import CustomerSupportModal from './CustomerSupportModal';
+import CustomerSupportModal from './CustomerSupportModal'; // This will now import the new styled component
 
 export default function Login({ onNavigate, onLoginSuccess }) {
   const [email, setEmail] = useState('');
@@ -105,43 +105,24 @@ export default function Login({ onNavigate, onLoginSuccess }) {
       // Attempt to map server error to specific field errors when possible
       const serverBody = err?.body || {};
       const message = String(err?.message || '').toLowerCase();
-
       const nextFieldErrors = { email: '', password: '', entityId: '' };
 
-      // If backend returns structured field info
-      if (serverBody?.field && serverBody?.message) {
-        const f = serverBody.field;
-        if (f === 'email' || f === 'user' || f === 'entityId') nextFieldErrors.email = serverBody.message;
-        if (f === 'password') nextFieldErrors.password = serverBody.message;
-      }
-
-      // If backend returns per-field errors object
-      if (serverBody?.errors && typeof serverBody.errors === 'object') {
-        Object.keys(serverBody.errors).forEach((k) => {
-          if (k.toLowerCase().includes('email') || k.toLowerCase().includes('user')) nextFieldErrors.email = serverBody.errors[k];
-          if (k.toLowerCase().includes('password')) nextFieldErrors.password = serverBody.errors[k];
-          if (k.toLowerCase().includes('entity') || k.toLowerCase().includes('id')) nextFieldErrors.entityId = serverBody.errors[k];
-        });
-      }
-
-      // Common HTTP status heuristics
-      if (!nextFieldErrors.email && !nextFieldErrors.password && !nextFieldErrors.entityId) {
-        if (err?.status === 404) {
-          nextFieldErrors.email = 'No account found with this email.';
-        } else if (err?.status === 401) {
-          // If message mentions password, point to password; if mentions email/user point to email;
-          // otherwise treat as a generic credential failure and show a top-level error banner.
-          if (message.includes('password')) nextFieldErrors.password = 'Incorrect password.';
-          else if (message.includes('email') || message.includes('user') || message.includes('account')) nextFieldErrors.email = 'No account found with this email.';
-          else setError(serverBody?.message || 'Incorrect password or email. Please verify your credentials.');
-        } else if (message.includes('password')) {
-          nextFieldErrors.password = serverBody?.message || 'Incorrect password.';
-        } else if (message.includes('email') || message.includes('user') || message.includes('account')) {
-          nextFieldErrors.email = serverBody?.message || 'No account found with this email.';
+      // New logic to handle specific backend error messages
+      if (serverBody.field) {
+        if (serverBody.field === 'email') {
+          nextFieldErrors.email = serverBody.detail;
+        } else if (serverBody.field === 'entityId') {
+          nextFieldErrors.entityId = serverBody.detail;
+        } else if (serverBody.field === 'password') {
+          nextFieldErrors.password = serverBody.detail;
+        } else {
+          setError(serverBody.detail);
         }
+      } else if (serverBody.detail) {
+        setError(serverBody.detail);
       }
 
-      // If we computed any field-level errors, set them and focus the first one.
+      // If we computed any field-level errors, set them and focus the first one
       if (nextFieldErrors.email || nextFieldErrors.password || nextFieldErrors.entityId) {
         setFieldErrors(nextFieldErrors);
         if (nextFieldErrors.entityId && entityRef.current) entityRef.current.focus();
@@ -179,40 +160,50 @@ export default function Login({ onNavigate, onLoginSuccess }) {
           <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
             <div className="w-4 h-4 bg-slate-900 rounded-sm rotate-45"></div>
           </div>
-          <span className="text-xl font-bold tracking-tighter text-white">Employee Wellness Management Analytics</span>
+          <span className="text-2xl font-extrabold tracking-tighter text-white">AI-Based Employee Wellness Management Platform</span>
         </div>
 
         {/* Dynamic Centerpiece Quote / Info */}
-        <div className="my-auto relative z-10 max-w-md">
+        <div className="my-auto relative z-10 max-w-md mt-8">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-850 border border-slate-800 rounded-full text-xs text-slate-300 mb-6 font-medium">
             <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
             Empowering Healthy & Engaged Workforces
           </div>
-          <h1 className="font-display text-5xl font-light leading-[1.1] tracking-tight text-white mb-6">
+          <h1 className="font-display text-6xl font-normal leading-[1.1] tracking-tight text-white mb-6">
             Transform your workplace <br />
             <span className="italic font-serif text-slate-300">with health</span> intelligence.
           </h1>
-          <p className="text-slate-400 text-base leading-relaxed mb-8 font-light">
+          <p className="text-slate-400 text-lg leading-relaxed mb-8 font-normal">
             Manage employee health records, monitor burnout risks, analyze organization sentiment, and provide personalized mental and physical
             wellness recommendations in real-time.
           </p>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             <div className="p-4 bg-slate-850 border border-slate-800 rounded-xl">
               <Activity className="w-5 h-5 text-indigo-400 mb-2" />
-              <div className="text-xs font-semibold text-white">Predictive Analytics</div>
-              <p className="text-[10px] text-slate-400 mt-1">Machine learning assessments for health and burnout risks.</p>
+              <div className="text-sm font-semibold text-white">Predictive Analytics</div>
+              <p className="text-xs text-slate-400 mt-2">Machine learning assessments for health and burnout risks.</p>
             </div>
             <div className="p-4 bg-slate-850 border border-slate-800 rounded-xl">
               <Shield className="w-5 h-5 text-emerald-400 mb-2" />
-              <div className="text-xs font-semibold text-white">Sentiment Tracker</div>
-              <p className="text-[10px] text-slate-400 mt-1">Anonymized surveys tracking organizational mental wellbeing.</p>
+              <div className="text-sm font-semibold text-white">Sentiment Tracker</div>
+              <p className="text-xs text-slate-400 mt-2">Anonymized surveys tracking organizational mental wellbeing.</p>
+            </div>
+            <div className="p-4 bg-slate-850 border border-slate-800 rounded-xl">
+              <Sparkles className="w-5 h-5 text-purple-400 mb-2" />
+              <div className="text-sm font-semibold text-white">Personalized Recs</div>
+              <p className="text-xs text-slate-400 mt-2">AI-driven suggestions for fitness, diet, and mental peace.</p>
+            </div>
+            <div className="p-4 bg-slate-850 border border-slate-800 rounded-xl">
+              <HeartPulse className="w-5 h-5 text-rose-400 mb-2" />
+              <div className="text-sm font-semibold text-white">Health Data Mgmt</div>
+              <p className="text-xs text-slate-400 mt-2">Comprehensive interface to manage employee health records.</p>
             </div>
           </div>
         </div>
 
         {/* Footer info */}
-        <div className="text-xs text-slate-500 flex items-center justify-between relative z-10 font-mono">
+        <div className="text-sm text-slate-500 flex items-center justify-between relative z-10 font-mono mt-8">
           <span>© 2026 Employee Wellness Inc.</span>
           <span className="flex items-center gap-1.5 text-slate-400">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -229,12 +220,12 @@ export default function Login({ onNavigate, onLoginSuccess }) {
               <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center">
                 <div className="w-4 h-4 bg-white rounded-sm rotate-45"></div>
               </div>
-              <span className="font-display font-bold text-slate-900 tracking-tighter">Employee Wellness Management Analytics</span>
+              <span className="font-display font-semibold text-lg text-slate-900 tracking-tighter">AI-Based Employee Wellness Management Platform</span>
             </div>
-            <h2 className="font-display text-3xl font-semibold text-slate-900 mb-2 tracking-tight">
+            <h2 className="font-display text-4xl font-semibold text-slate-900 mb-2 tracking-tight">
               {role === 'Admin' ? 'Admin Sign In' : 'Employee Sign In'}
             </h2>
-            <p className="text-slate-500 text-sm">
+            <p className="text-slate-500 text-base">
               {role === 'Admin' ? 'Restricted access for authorized administrators only.' : 'Use your registered employee credentials.'}
             </p>
           </div>
@@ -311,20 +302,22 @@ export default function Login({ onNavigate, onLoginSuccess }) {
               <label htmlFor="entityId" className="block text-[11px] uppercase tracking-widest text-slate-500 font-bold mb-1.5">
                 {role === 'Admin' ? 'Admin ID' : 'Employee ID'}
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <Hash className="w-4 h-4" />
+              <div>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <Hash className="w-4 h-4" />
+                  </div>
+                  <input
+                    id="entityId"
+                    ref={entityRef}
+                    type="text"
+                    required
+                    value={entityId}
+                    onChange={(e) => setEntityId(e.target.value)}
+                    placeholder={role === 'Admin' ? 'e.g. ADM001' : 'e.g. EMP101'}
+                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-indigo-500 focus:bg-white transition-all"
+                  />
                 </div>
-                <input
-                  id="entityId"
-                  ref={entityRef}
-                  type="text"
-                  required
-                  value={entityId}
-                  onChange={(e) => setEntityId(e.target.value)}
-                  placeholder={role === 'Admin' ? 'e.g. ADM001' : 'e.g. EMP101'}
-                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-indigo-500 focus:bg-white transition-all"
-                />
                 {fieldErrors.entityId && (
                   <div className="text-[12px] text-rose-600 mt-2 font-medium">{fieldErrors.entityId}</div>
                 )}
@@ -335,20 +328,22 @@ export default function Login({ onNavigate, onLoginSuccess }) {
               <label htmlFor="email" className="block text-[11px] uppercase tracking-widest text-slate-500 font-bold mb-1.5">
                 Email Address
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <Mail className="w-4 h-4" />
+              <div>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <Mail className="w-4 h-4" />
+                  </div>
+                  <input
+                    id="email"
+                    ref={emailRef}
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@company.com"
+                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-indigo-500 focus:bg-white transition-all"
+                  />
                 </div>
-                <input
-                  id="email"
-                  ref={emailRef}
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@company.com"
-                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-indigo-500 focus:bg-white transition-all"
-                />
                 {fieldErrors.email && (
                   <div className="text-[12px] text-rose-600 mt-2 font-medium">{fieldErrors.email}</div>
                 )}
@@ -368,27 +363,29 @@ export default function Login({ onNavigate, onLoginSuccess }) {
                   Forgot password?
                 </button>
               </div>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <Lock className="w-4 h-4" />
+              <div>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <Lock className="w-4 h-4" />
+                  </div>
+                  <input
+                    id="password"
+                    ref={passwordRef}
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••••••"
+                    className="w-full pl-10 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-indigo-500 focus:bg-white transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
-                <input
-                  id="password"
-                  ref={passwordRef}
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••••••"
-                  className="w-full pl-10 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-indigo-500 focus:bg-white transition-all"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
                 {fieldErrors.password && (
                   <div className="text-[12px] text-rose-600 mt-2 font-medium">{fieldErrors.password}</div>
                 )}
