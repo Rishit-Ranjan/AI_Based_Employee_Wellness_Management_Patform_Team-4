@@ -88,18 +88,20 @@ pip install -r requirements.txt
 Create a `.env` file inside the `backend/src` directory and populate it with your configuration. Use the following template:
 
 ```env
-# backend/src/.env
+# backend/.env
 
 # --- Core ---
 MONGO_URI="your_mongodb_connection_string"
 MONGO_DB_NAME="employee_wellness_analytics"
 JWT_SECRET_KEY="a-very-strong-and-secret-key-for-jwt"
+
 FRONTEND_ORIGIN="http://localhost:5173"
 
 # --- AI Services (Optional) ---
 # AI Provider is fixed to Ollama for local development.
 
 # For Ollama, this should be the model tag (e.g., "qwen3:1.7b", "llama3:8b")
+AI_LLM_PROVIDER=ollama
 AI_MODEL_NAME="qwen3:1.7b"
 
 # Ollama Base URL
@@ -112,9 +114,10 @@ TWILIO_PHONE_NUMBER="your_twilio_phone_number"
 ADMIN_EMERGENCY_PHONE="phone_number_to_receive_sos_alerts"
 
 # --- Email Notifications (Optional) ---
-SMTP_SERVER="smtp.example.com"
+SMTP_HOST="smtp.example.com"
 SMTP_PORT=587
-SMTP_USER="your_email@example.com"
+SMTP_USE_TLS=true
+SMTP_USERNAME="your_email@example.com"
 SMTP_PASSWORD="your_app_password" #<-- create this from manage your google account-> home-> search for "App Passwords"-> create new app name, get the code-> copy and paste that code here
 ```
 
