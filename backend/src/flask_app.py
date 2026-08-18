@@ -855,19 +855,19 @@ RECOMMENDATION_MEDIA = {
     'Fitness': {
         'image': 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&h=300&fit=crop',
         'videos': [
-            {'url': 'https://www.youtube.com/embed/s-kP52p154c', 'keywords': ['warm up', 'express', '5 min', 'quick workout']},
             {'url': 'https://www.youtube.com/embed/50kH47ZztHs', 'keywords': ['cardio', 'at home', '30 min', 'full body']},
             {'url': 'https://www.youtube.com/embed/gC_L9qAHVJ8', 'keywords': ['beginner workout', '30 min', 'full body', 'low impact']},
             {'url': 'https://www.youtube.com/embed/UItWltVZZmE', 'keywords': ['low impact', 'cardio', '25 min', 'gentle workout']},
+            {'url': 'https://www.youtube.com/embed/v7AYKMP6rOE', 'keywords': ['yoga', 'stretch', 'beginners', 'flexibility']},
         ]
     },
     'Diet': {
         'image': 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&h=300&fit=crop',
         'videos': [
-            {'url': 'https://www.youtube.com/embed/wBmcM3_Z9gA', 'keywords': ['healthy eating', 'easy diet', 'nutrition basics']},
-            {'url': 'https://www.youtube.com/embed/Gmh_xMMJ2Pw', 'keywords': ['nutrition basics', 'healthy food', 'diet guide']},
-            {'url': 'https://www.youtube.com/embed/1V8g3y3vG9s', 'keywords': ['meal prep', 'healthy meals', 'cooking']},
-            {'url': 'https://www.youtube.com/embed/v8g1m6_m62Y', 'keywords': ['what i eat', 'healthy day', 'balanced diet']},
+            {'url': 'https://www.youtube.com/embed/inpok4MKVLM', 'keywords': ['mindful eating', 'healthy habits', 'wellness basics']},
+            {'url': 'https://www.youtube.com/embed/ZToicYcHIOU', 'keywords': ['stress relief', 'healthy routine', 'self care']},
+            {'url': 'https://www.youtube.com/embed/50kH47ZztHs', 'keywords': ['active lifestyle', 'cardio', 'health']},
+            {'url': 'https://www.youtube.com/embed/UItWltVZZmE', 'keywords': ['low impact', 'gentle workout', 'health']},
         ]
     },
     'Mental Wellness': {
@@ -876,7 +876,7 @@ RECOMMENDATION_MEDIA = {
             {'url': 'https://www.youtube.com/embed/O-6f5wQXSu8', 'keywords': ['anxiety relief', '5 min', 'quick meditation', 'calming']},
             {'url': 'https://www.youtube.com/embed/z6X5oEIg6Ak', 'keywords': ['mindfulness', 'meditation', 'stress relief', '10 min', 'guided']},
             {'url': 'https://www.youtube.com/embed/86x-u-tz0MA', 'keywords': ['morning meditation', 'calm', 'focus', 'positive energy']},
-            {'url': 'https://www.youtube.com/embed/a-cNvI79Y4U', 'keywords': ['meditation basics', 'beginner meditation', 'mental health']},
+            {'url': 'https://www.youtube.com/embed/inpok4MKVLM', 'keywords': ['meditation basics', 'beginner meditation', 'mental health']},
         ]
     },
     'Yoga': {
@@ -884,32 +884,32 @@ RECOMMENDATION_MEDIA = {
         'videos': [
             {'url': 'https://www.youtube.com/embed/v7AYKMP6rOE', 'keywords': ['yoga', 'full body', 'stretch', 'beginners', 'flexibility']},
             {'url': 'https://www.youtube.com/embed/4pKly2JojMw', 'keywords': ['yoga', 'stress relief', '15 min', 'relaxation']},
-            {'url': 'https://www.youtube.com/embed/9XwPcJhXjJ4', 'keywords': ['desk yoga', 'office stretch', 'quick yoga', 'posture']},
             {'url': 'https://www.youtube.com/embed/VaoV1PrYft4', 'keywords': ['morning yoga', '10 min', 'energy boost']},
+            {'url': 'https://www.youtube.com/embed/ZToicYcHIOU', 'keywords': ['stress relief', 'breathing', 'relaxation']},
         ]
     },
     'Lifestyle': {
         'image': 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&h=300&fit=crop',
         'videos': [
-            {'url': 'https://www.youtube.com/embed/d_22-X364qU', 'keywords': ['productivity tips', 'time management', 'focus', 'work-life balance']},
-            {'url': 'https://www.youtube.com/embed/wBmcM3_Z9gA', 'keywords': ['healthy habits', 'daily routine', 'wellness', 'lifestyle change']},
-            {'url': 'https://www.youtube.com/embed/pUAN2jP6E9g', 'keywords': ['morning routine', 'productivity', 'healthy start']},
-            {'url': 'https://www.youtube.com/embed/0e3gV1g22wQ', 'keywords': ['building habits', 'good habits', 'consistency']},
+            {'url': 'https://www.youtube.com/embed/inpok4MKVLM', 'keywords': ['healthy habits', 'daily routine', 'wellness', 'lifestyle change']},
+            {'url': 'https://www.youtube.com/embed/ZToicYcHIOU', 'keywords': ['focus', 'work-life balance', 'stress relief']},
+            {'url': 'https://www.youtube.com/embed/86x-u-tz0MA', 'keywords': ['morning routine', 'healthy start', 'positive energy']},
+            {'url': 'https://www.youtube.com/embed/v7AYKMP6rOE', 'keywords': ['movement', 'stretch', 'wellness routine']},
         ]
     },
     'Sleep': {
         'image': 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=600&h=300&fit=crop',
         'videos': [
-            {'url': 'https://www.youtube.com/embed/3hHn34M9ICE', 'keywords': ['sleep hygiene', 'better sleep', 'sleep tips', 'insomnia']},
-            {'url': 'https://www.youtube.com/embed/aEqlQv6L2sI', 'keywords': ['guided sleep', 'meditation', 'sleep aid', 'relaxation']},
-            {'url': 'https://www.youtube.com/embed/r0w_uQ_Xg1Y', 'keywords': ['sleep music', 'relaxing sounds', 'deep sleep', 'ambient']},
-            {'url': 'https://www.youtube.com/embed/5mS2n2S_oO8', 'keywords': ['sleep story', 'bedtime story', 'wind down']},
+            {'url': 'https://www.youtube.com/embed/inpok4MKVLM', 'keywords': ['sleep hygiene', 'wind down', 'relaxation']},
+            {'url': 'https://www.youtube.com/embed/z6X5oEIg6Ak', 'keywords': ['guided meditation', 'sleep aid', 'relaxation']},
+            {'url': 'https://www.youtube.com/embed/O-6f5wQXSu8', 'keywords': ['calming', 'breathing', 'bedtime']},
+            {'url': 'https://www.youtube.com/embed/BHACKCNDMW8', 'keywords': ['nature', 'relaxing sounds', 'calm']},
         ]
     },
     'Stress': {
         'image': 'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=600&h=300&fit=crop',
         'videos': [
-            {'url': 'https://www.youtube.com/embed/l_g2Y-18v3g', 'keywords': ['deep breathing', 'stress reduction', 'relaxation', 'anxiety']},
+            {'url': 'https://www.youtube.com/embed/ZToicYcHIOU', 'keywords': ['deep breathing', 'stress reduction', 'relaxation', 'anxiety']},
             {'url': 'https://www.youtube.com/embed/z6X5oEIg6Ak', 'keywords': ['stress relief', 'meditation', 'mindfulness', '10 min']},
             {'url': 'https://www.youtube.com/embed/86x-u-tz0MA', 'keywords': ['stress management', 'calm', 'anxiety', 'morning meditation']},
             {'url': 'https://www.youtube.com/embed/O-6f5wQXSu8', 'keywords': ['quick stress relief', 'instant calm', 'breathing exercise', '5 min']},
@@ -918,10 +918,10 @@ RECOMMENDATION_MEDIA = {
     'Nutrition': {
         'image': 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=600&h=300&fit=crop',
         'videos': [
-            {'url': 'https://www.youtube.com/embed/Gmh_xMMJ2Pw', 'keywords': ['nutrition', 'healthy eating', 'diet science']},
-            {'url': 'https://www.youtube.com/embed/wBmcM3_Z9gA', 'keywords': ['healthy eating guide', 'balanced diet', 'food choices']},
-            {'url': 'https://www.youtube.com/embed/a_FN022_b2c', 'keywords': ['macros', 'understanding macros', 'nutrition science']},
-            {'url': 'https://www.youtube.com/embed/Yw1-FfRj35g', 'keywords': ['healthy food swaps', 'diet tips', 'eating healthy']},
+            {'url': 'https://www.youtube.com/embed/inpok4MKVLM', 'keywords': ['nutrition', 'healthy eating', 'mindful eating']},
+            {'url': 'https://www.youtube.com/embed/ZToicYcHIOU', 'keywords': ['healthy routine', 'wellness', 'self care']},
+            {'url': 'https://www.youtube.com/embed/50kH47ZztHs', 'keywords': ['active lifestyle', 'health', 'fitness']},
+            {'url': 'https://www.youtube.com/embed/UItWltVZZmE', 'keywords': ['gentle workout', 'health', 'wellness']},
         ]
     },
 }
@@ -935,7 +935,7 @@ DEFAULT_REC_MEDIA = {
     'videos': [
         {'url': 'https://www.youtube.com/embed/v7AYKMP6rOE', 'keywords': ['yoga', 'meditation', 'relaxation', 'general wellness']},
         {'url': 'https://www.youtube.com/embed/z6X5oEIg6Ak', 'keywords': ['meditation', 'mindfulness', 'stress relief', 'calm']},
-        {'url': 'https://www.youtube.com/embed/Gmh_xMMJ2Pw', 'keywords': ['nutrition', 'healthy eating', 'diet tips', 'general wellness']},
+        {'url': 'https://www.youtube.com/embed/inpok4MKVLM', 'keywords': ['mindful eating', 'healthy habits', 'general wellness']},
         {'url': 'https://www.youtube.com/embed/UItWltVZZmE', 'keywords': ['fitness', 'workout', 'exercise', 'general wellness']},
     ]
 }
