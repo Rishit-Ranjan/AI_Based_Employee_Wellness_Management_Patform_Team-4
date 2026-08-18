@@ -111,7 +111,7 @@ const waitForBackend = async (timeoutMs = backendReadyTimeoutMs, intervalMs = ba
     const spinnerChars = ['|', '/', '-', '\\'];
     const spinnerChar = spinnerChars[elapsedSeconds % spinnerChars.length];
     if (process.stdout.isTTY) {
-      process.stdout.write(`\rWaiting for backend to become ready... (${elapsedSeconds}s) ${spinnerChar}`);
+      process.stdout.write(`\rWaiting for server to become ready... (${elapsedSeconds}s) ${spinnerChar}`);
     } else {
       console.log(`Starting the server... (${elapsedSeconds}s) ${spinnerChar}`);
     }
