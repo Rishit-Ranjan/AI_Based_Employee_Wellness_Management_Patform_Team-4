@@ -159,7 +159,7 @@ Open your browser and navigate to **http://localhost:5173**.
 If you want the backend to attempt startup first, use:
 
 ```bash
-npm run dev:backend-first
+npm run dev:server
 ```
 
 This command will:

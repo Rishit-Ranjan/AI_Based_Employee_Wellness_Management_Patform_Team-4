@@ -8,7 +8,7 @@
     "dev:frontend": "cd frontend && npm run dev -- --host",
     "dev:backend": "cd backend/src && python -m venv venv && . venv/bin/activate && pip install -r requirements.txt && waitress-serve --config waitress.ini",
     "dev": "concurrently -k -n BACKEND,FRONTEND -c cyan,green \"npm:dev:backend\" \"npm:dev:frontend\"",
-    "dev:backend-first": "node ./scripts/dev-backend-first.cjs"
+    "dev:server": "node ./scripts/dev-backend-first.cjs"
   },
   "devDependencies": {
     "concurrently": "^9.0.0",
