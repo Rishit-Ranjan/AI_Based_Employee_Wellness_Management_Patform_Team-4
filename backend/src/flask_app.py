@@ -143,20 +143,17 @@ def login():
         # 1. Check if a user with the given email exists
         user = target_collection.find_one({"email": email})
         if not user:
-            app.logger.warning(f"Login failed for {email}: Email not found.")
             # Use a specific error code or message for the frontend to target the email field
             return jsonify({'detail': 'This email is not registered.', 'field': 'email'}), 404
 
         # 2. Check if the entity ID matches for the found user
         if user.get(id_field) != entity_id:
-            app.logger.warning(f"Login failed for {email}: Incorrect {id_field} ('{entity_id}').")
             id_name = "Admin ID" if role == 'Admin' else "Employee ID"
             return jsonify({'detail': f'This {id_name} does not exist or does not match the email.', 'field': 'entityId'}), 401
 
         # 3. Check password
         password_hash = user.get('password_hash')
         if not password_hash or not verify_password(password, password_hash):
-            app.logger.warning(f"Login failed for {email}: Incorrect password.")
             return jsonify({'detail': 'The password you entered is incorrect.', 'field': 'password'}), 401
 
         # --- Login Success ---
