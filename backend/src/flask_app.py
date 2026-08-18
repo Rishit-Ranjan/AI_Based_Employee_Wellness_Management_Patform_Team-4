@@ -1075,6 +1075,123 @@ def report_unavailable_video():
 
     return jsonify({'detail': 'Video reported successfully'}), 200
 
+def _run_recommendation_engine(engine, employee_profile, top_n=3):
+    """Safely invoke the recommendation engine without ever crashing the request.
+
+    The engine artifact is expected to be a callable (cloudpickle'd function).
+    A stale artifact (e.g. an old ``dict`` or class instance) or an engine that
+    raises at runtime must never break an employee's recommendations, so any
+    problem degrades to the rule-based fallback instead.
+
+    Returns a list of recommendation dicts (may be empty).
+    """
+    if engine is not None and callable(engine):
+        try:
+            app.logger.debug(
+                "Recommendation engine is callable (type: %s). Attempting to use it.",
+                type(engine).__name__,
+            )
+            result = engine(employee_profile, top_n=top_n)
+            # Some stale engine builds return a bare dict instead of a list.
+            if isinstance(result, dict):
+                app.logger.warning(
+                    "Recommendation engine returned a dict (keys=%s). Coercing to a single-item list.",
+                    list(result.keys())[:6],
+                )
+                return [result]
+            if isinstance(result, list):
+                return result
+            app.logger.warning(
+                "Recommendation engine returned unexpected type %s; using fallback.",
+                type(result).__name__,
+            )
+        except Exception as e:  # noqa: BLE001 - a broken engine must never take down an employee's recommendations
+            app.logger.error(
+                "Recommendation engine failed (engine type=%s): %s. Using rule-based fallback.",
+                type(engine).__name__,
+                e,
+            )
+        return []
+    app.logger.warning(
+        "Recommendation engine is not callable or is None (type=%s). Using rule-based fallback.",
+        type(engine).__name__ if engine is not None else None,
+    )
+    return []
+
+
+def _rule_based_recommendations(employee_profile, top_n=3):
+    """Rule-based fallback that mirrors the recommendation engine's output schema."""
+    top_recs = []
+
+    if employee_profile["stress_score"] >= 8:
+        top_recs.append({
+            "recommendation_id": "REC002",
+            "title": "Guided Meditation Routine",
+            "category": "Mental Wellness",
+            "description": "Practice 10-15 minutes of guided meditation. Focus on the 4-7-8 breathing technique to calm your nervous system and reduce cortisol levels. This can significantly improve focus and reduce feelings of being overwhelmed.",
+            "score": 9.0,
+            "reasons": ["Stress score is very high"],
+        })
+    elif employee_profile["stress_score"] >= 5:
+        top_recs.append({
+            "recommendation_id": "REC006",
+            "title": "Desk Yoga and Stretching",
+            "category": "Yoga",
+            "description": "Incorporate short, guided desk yoga sessions. Focus on neck rolls, shoulder shrugs, and spinal twists to alleviate physical tension from prolonged sitting and reduce mental fatigue.",
+            "score": 6.0,
+            "reasons": ["Stress score is moderately elevated"],
+        })
+
+    if employee_profile["sleepHoursPerNight"] < 6:
+        top_recs.append({
+            "recommendation_id": "REC003",
+            "title": "Sleep Hygiene Program",
+            "category": "Lifestyle",
+            "description": "Establish a consistent bedtime and wake-up time, even on weekends. Avoid screens 60 minutes before bed to allow for natural melatonin production. A cool, dark room is essential for deep, restorative sleep.",
+            "score": 8.5,
+            "reasons": ["Sleep hours are below healthy range"],
+        })
+
+    if employee_profile["exercise_days_per_week"] <= 2 or employee_profile["bmi"] >= 30:
+        top_recs.append({
+            "recommendation_id": "REC001",
+            "title": "Brisk Walking Plan",
+            "category": "Fitness",
+            "description": "Start with a 30-minute brisk walk, 3-5 days a week. This low-impact cardio exercise helps improve cardiovascular health, aids in weight management, and boosts mood by releasing endorphins.",
+            "score": 7.0,
+            "reasons": ["Exercise frequency is low"],
+        })
+
+    # Fallback baseline when no risk boundaries are crossed
+    if not top_recs:
+        top_recs.append({
+            "recommendation_id": "REC_BASE",
+            "title": "Wellness Maintenance Plan",
+            "category": "Lifestyle",
+            "description": "Great job! Maintain your current hydration, healthy routines, and sleep patterns.",
+            "score": 3.0,
+            "reasons": ["Matches baseline health checks"],
+        })
+
+    return top_recs[:top_n]
+
+
+def _normalize_recommendations(top_recs, employee_profile, top_n=3):
+    """Guarantee ``top_recs`` is a non-empty list of recommendation dicts.
+
+    Defense-in-depth: drops any non-dict entries so downstream ``.get()`` calls
+    never fail, and falls back to the rule-based engine if nothing usable remains.
+    """
+    if isinstance(top_recs, dict):
+        top_recs = [top_recs]
+    elif not isinstance(top_recs, list):
+        top_recs = []
+    top_recs = [rec for rec in top_recs if isinstance(rec, dict)]
+    if not top_recs:
+        top_recs = _rule_based_recommendations(employee_profile, top_n=top_n)
+    return top_recs[:top_n]
+
+
 # --- Wellness Recommendations Endpoint ---
 @app.route('/api/wellness/recommendations', methods=['GET'])
 @jwt_required(locations=["cookies"])
@@ -1138,67 +1255,12 @@ def get_recommendations():
                     "risk_label": str(risk_label)
                 }
 
-                # 3. Use the loaded recommendation engine if available
-                if recommendation_engine is not None and callable(recommendation_engine):
-                    app.logger.debug(f"Recommendation engine is callable (type: {type(recommendation_engine)}). Attempting to use it.")
-                    top_recs = recommendation_engine(employee_profile, top_n=3)
-                
-                # 4. Fallback: Exact structural mirror matching the engine's output dictionary format
-                else:
-                    top_recs = []
-                    app.logger.warning(f"Recommendation engine is not callable or is None (type: {type(recommendation_engine)}). Using fallback logic.")
-                    
-                    if employee_profile["stress_score"] >= 8:
-                        top_recs.append({
-                            "recommendation_id": "REC002",
-                            "title": "Guided Meditation Routine",
-                            "category": "Mental Wellness",
-                            "description": "Practice 10-15 minutes of guided meditation. Focus on the 4-7-8 breathing technique to calm your nervous system and reduce cortisol levels. This can significantly improve focus and reduce feelings of being overwhelmed.",
-                            "score": 9.0,
-                            "reasons": ["Stress score is very high"]
-                        })
-                    elif employee_profile["stress_score"] >= 5:
-                        top_recs.append({
-                            "recommendation_id": "REC006",
-                            "title": "Desk Yoga and Stretching",
-                            "category": "Yoga",
-                            "description": "Incorporate short, guided desk yoga sessions. Focus on neck rolls, shoulder shrugs, and spinal twists to alleviate physical tension from prolonged sitting and reduce mental fatigue.",
-                            "score": 6.0,
-                            "reasons": ["Stress score is moderately elevated"]
-                        })
+                # 3. Use the loaded recommendation engine if available.
+                #    Safe invocation: a stale/'dict' engine must never crash the employee's recommendations.
+                top_recs = _run_recommendation_engine(recommendation_engine, employee_profile, top_n=3)
 
-                    if employee_profile["sleepHoursPerNight"] < 6:
-                        top_recs.append({
-                            "recommendation_id": "REC003",
-                            "title": "Sleep Hygiene Program",
-                            "category": "Lifestyle",
-                            "description": "Establish a consistent bedtime and wake-up time, even on weekends. Avoid screens 60 minutes before bed to allow for natural melatonin production. A cool, dark room is essential for deep, restorative sleep.",
-                            "score": 8.5,
-                            "reasons": ["Sleep hours are below healthy range"]
-                        })
-
-                    if employee_profile["exercise_days_per_week"] <= 2 or employee_profile["bmi"] >= 30:
-                        top_recs.append({
-                            "recommendation_id": "REC001",
-                            "title": "Brisk Walking Plan",
-                            "category": "Fitness",
-                            "description": "Start with a 30-minute brisk walk, 3-5 days a week. This low-impact cardio exercise helps improve cardiovascular health, aids in weight management, and boosts mood by releasing endorphins.",
-                            "score": 7.0,
-                            "reasons": ["Exercise frequency is low"]
-                        })
-
-                    # Fallback baseline when no risk boundaries are crossed
-                    if not top_recs:
-                        top_recs.append({
-                            "recommendation_id": "REC_BASE",
-                            "title": "Wellness Maintenance Plan",
-                            "category": "Lifestyle",
-                            "description": "Great job! Maintain your current hydration, healthy routines, and sleep patterns.",
-                            "score": 3.0,
-                            "reasons": ["Matches baseline health checks"]
-                        })
-
-                    top_recs = top_recs[:3]
+                # 4. Defense-in-depth: guarantee a valid, non-empty list of recommendation dicts.
+                top_recs = _normalize_recommendations(top_recs, employee_profile, top_n=3)
 
                 # Enrich recommendations with media (images & videos) and severity
                 enriched_recs = _add_media_to_recommendations(top_recs)

@@ -88,12 +88,22 @@ def get_recommendation_engine():
                         "rb",
                     ) as f:
                         _recommendation_engine = cloudpickle.load(f)
-                    # Guard against a stale/non-callable artifact (dict, class, etc.)
+                    # Guard against a stale/non-callable artifact (dict, class, etc.).
+                    # This is the root cause of the historic "'dict' object is not callable"
+                    # crash: a pickle that deserializes to a dict (or an old class instance)
+                    # was previously invoked like a function. We never do that now.
                     if not callable(_recommendation_engine):
+                        extra = ""
+                        if isinstance(_recommendation_engine, dict):
+                            extra = (
+                                f" (it is a dict with {len(_recommendation_engine)} keys; "
+                                "the artifact is stale and was likely overwritten by an "
+                                "old training run -- delete/re-place wellness_recommendation_engine.pkl)"
+                            )
                         print(
                             "WARNING: recommendation engine artifact is not callable "
-                            f"(type={type(_recommendation_engine)}). Falling back to "
-                            "rule-based recommendations."
+                            f"(type={type(_recommendation_engine).__name__}{extra}). "
+                            "Falling back to rule-based recommendations."
                         )
                         _recommendation_engine = None
                 except Exception as e:  # noqa: BLE001 - defensive, never crash startup
