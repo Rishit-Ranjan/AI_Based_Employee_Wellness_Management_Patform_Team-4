@@ -53,8 +53,8 @@ process.on('uncaughtException', (err) => {
 const startFrontend = () => {
   if (frontendStarted) return;
   frontendStarted = true;
-  console.log('Starting frontend...');
-  console.log('Started frontend');
+  console.log('Starting Client...');
+  console.log('Client is running');
   frontendProcess = spawnProcess('npm', ['run', 'dev', '--', '--host'], frontendDir);
 
   frontendProcess.on('exit', (code) => {
@@ -113,7 +113,7 @@ const waitForBackend = async (timeoutMs = backendReadyTimeoutMs, intervalMs = ba
     if (process.stdout.isTTY) {
       process.stdout.write(`\rWaiting for backend to become ready... (${elapsedSeconds}s) ${spinnerChar}`);
     } else {
-      console.log(`Waiting for backend to become ready... (${elapsedSeconds}s) ${spinnerChar}`);
+      console.log(`Starting the server... (${elapsedSeconds}s) ${spinnerChar}`);
     }
 
     await new Promise((resolve) => setTimeout(resolve, intervalMs));
@@ -128,7 +128,7 @@ const waitForBackend = async (timeoutMs = backendReadyTimeoutMs, intervalMs = ba
   if (ready) {
     if (waitOnHandled) return;
     waitOnHandled = true;
-    console.log('Backend is ready. Launching frontend.');
+    console.log('Server is running');
     startFrontend();
   } else {
     console.warn(`Backend did not become ready within ${backendReadyTimeoutMs / 1000} seconds. Launching frontend anyway.`);
