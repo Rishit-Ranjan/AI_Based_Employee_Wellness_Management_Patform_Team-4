@@ -1,102 +1,103 @@
-import React, { useState, useEffect } from 'react';
-import { X, RefreshCw } from 'lucide-react';
-import { reportUnavailableVideo } from '../services/api';
+import { useState } from 'react';
+import { SkipForward } from 'lucide-react';
 
-export default function VideoPlayerModal({ videoUrls, initialVideoIndex = 0, onClose, category, riskLabel }) {
+const getYouTubeVideoId = (url) => {
+  if (!url) return null;
+
+  try {
+    const parsedUrl = new URL(url);
+
+    if (parsedUrl.hostname.includes('youtu.be')) {
+      return parsedUrl.pathname.split('/').filter(Boolean)[0] || null;
+    }
+
+    if (parsedUrl.pathname.includes('/embed/')) {
+      return parsedUrl.pathname.split('/embed/')[1]?.split('/')[0] || null;
+    }
+
+    return parsedUrl.searchParams.get('v');
+  } catch {
+    if (url.includes('embed/')) {
+      return url.split('/embed/')[1]?.split('?')[0] || null;
+    }
+
+    return url.split('v=')[1]?.split('&')[0] || null;
+  }
+};
+
+export default function VideoPlayerModal({ videoUrls = [], initialVideoIndex = 0, onClose }) {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(initialVideoIndex);
-  const [currentUrl, setCurrentUrl] = useState(videoUrls[initialVideoIndex]);
-  const [hasError, setHasError] = useState(false);
-  const [isLoadingNext, setIsLoadingNext] = useState(false);
+  const currentUrl = videoUrls[currentVideoIndex];
+  const videoId = getYouTubeVideoId(currentUrl);
+  const hasNextVideo = currentVideoIndex + 1 < videoUrls.length;
 
-  // Update currentUrl when initialVideoIndex or videoUrls change
-  useEffect(() => {
-    setCurrentVideoIndex(initialVideoIndex);
-    setCurrentUrl(videoUrls[initialVideoIndex]);
-    setHasError(false); // Reset error state when new video list/index is provided
-  }, [videoUrls, initialVideoIndex]);
+  const handleNextVideo = () => {
+    if (hasNextVideo) {
+      setCurrentVideoIndex((index) => index + 1);
+    }
+  };
 
-  // Handle YouTube iframe errors and attempt fallback
-  useEffect(() => {
-    const handleMessage = (event) => {
-      if (event.source === window && event.data === 'youtubeError') {
-        // Report the current problematic video to the backend
-        reportUnavailableVideo(currentUrl).catch(err => console.error("Failed to report video:", err));
-
-        // Try the next video in the list
-        const nextIndex = currentVideoIndex + 1;
-        if (nextIndex < videoUrls.length) {
-          setIsLoadingNext(true);
-          setHasError(false); // Clear error message while trying next video
-          setCurrentVideoIndex(nextIndex);
-          setCurrentUrl(videoUrls[nextIndex]);
-          // Give a small delay before hiding loading to ensure iframe re-renders
-          setTimeout(() => setIsLoadingNext(false), 500);
-        } else {
-          // No more alternative videos
-          setHasError(true);
-          setIsLoadingNext(false);
-        }
-      }
-    };
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, [currentUrl]);
-  
   if (!currentUrl) {
-    return null; // Should not happen if videoUrls is properly populated
+    return null;
   }
 
-  // Handle both 'watch?v=' and 'embed/' URL formats to extract video ID
-  const videoId = currentUrl.includes('embed/')
-    ? currentUrl.split('/embed/')[1]?.split('?')[0]
-    : currentUrl.split('v=')[1]?.split('&')[0];
-    
-  const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1`;
-  
+  const embedUrl = videoId
+    ? `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&rel=0&playsinline=1&origin=${encodeURIComponent(window.location.origin)}`
+    : '';
+
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-black/70 z-[100] flex items-center justify-center p-4 animate-fadeIn"
       onClick={onClose}
     >
-      <div 
-        className="bg-slate-900 rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden aspect-video relative"
+      <div
+        className="bg-slate-900 rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <button 
-          onClick={onClose} 
-          className="absolute top-2 right-2 z-10 p-2 bg-black/50 text-white rounded-full hover:bg-black/80 transition-colors"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
-        {(hasError || isLoadingNext) && (
-          <div className="absolute inset-0 flex items-center justify-center bg-slate-900 z-10">
-            <div className="text-center text-white p-4">
-              {isLoadingNext ? (
-                <>
-                  <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-2 text-slate-400" />
-                  <p className="font-semibold">Loading next video...</p>
-                  <p className="text-sm text-slate-400 mt-1">Attempting alternative {currentVideoIndex + 1} of {videoUrls.length}</p>
-                </>
-              ) : (
-                <>
-                  <p className="font-semibold">Video unavailable</p>
-                  <p className="text-sm text-slate-400 mt-1">No alternative videos found. Please try again later.</p>
-                </>
-              )}
+        <div className="relative aspect-video">
+          {!videoId && (
+            <div className="absolute inset-0 flex items-center justify-center bg-slate-900 z-10">
+              <div className="text-center text-white p-4">
+                <p className="font-semibold">Video unavailable</p>
+                <p className="text-sm text-slate-400 mt-1">No playable video URL was found.</p>
+                {hasNextVideo && (
+                  <button
+                    type="button"
+                    onClick={handleNextVideo}
+                    className="mt-4 inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-200 transition-colors"
+                  >
+                    <SkipForward className="w-4 h-4" />
+                    Try next video
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        <iframe
-          className="w-full h-full"
-          src={embedUrl}
-          title="YouTube video player"
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          onError={() => window.postMessage('youtubeError', '*')}
-          allowFullScreen
-        ></iframe>
+          <iframe
+            key={videoId}
+            className="w-full h-full"
+            src={embedUrl}
+            title="YouTube video player"
+            frameBorder="0"
+            referrerPolicy="origin"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
+
+        <div className="flex flex-wrap items-center justify-end gap-2 border-t border-white/10 bg-slate-950 px-4 py-3">
+          {hasNextVideo && (
+            <button
+              type="button"
+              onClick={handleNextVideo}
+              className="inline-flex items-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-sm font-semibold text-white hover:bg-white/20 transition-colors"
+            >
+              <SkipForward className="w-4 h-4" />
+              Play next video
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

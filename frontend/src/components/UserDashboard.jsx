@@ -27,6 +27,65 @@ export function UserProfileModule(props) {
   return <PersonalWellnessProfile {...props} />;
 }
 
+function getYouTubeVideoId(videoUrl) {
+  if (!videoUrl) return null;
+
+  try {
+    const parsedUrl = new URL(videoUrl);
+
+    if (parsedUrl.hostname.includes('youtu.be')) {
+      return parsedUrl.pathname.split('/').filter(Boolean)[0] || null;
+    }
+
+    if (parsedUrl.pathname.includes('/embed/')) {
+      return parsedUrl.pathname.split('/embed/')[1]?.split('/')[0] || null;
+    }
+
+    return parsedUrl.searchParams.get('v');
+  } catch {
+    if (videoUrl.includes('embed/')) {
+      return videoUrl.split('/embed/')[1]?.split('?')[0] || null;
+    }
+
+    return videoUrl.split('v=')[1]?.split('&')[0] || null;
+  }
+}
+
+function RecommendationVideoThumbnail({ videoUrl, index, videoUrls, category, severity, onPlayVideo }) {
+  const videoId = getYouTubeVideoId(videoUrl);
+  const thumbSrc = videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : '';
+
+  if (!videoId) return null;
+
+  const handleThumbError = (e) => {
+    if (e.target.src.includes('hqdefault.jpg')) {
+      e.target.src = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+    } else if (e.target.src.includes('mqdefault.jpg')) {
+      e.target.src = 'https://via.placeholder.com/160x90?text=Video+Unavailable';
+    } else {
+      e.target.onerror = null;
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={() => onPlayVideo(videoUrls, index, category, severity)}
+      className="relative rounded-lg overflow-hidden group border border-slate-200 dark:border-slate-700 aspect-video"
+    >
+      <img
+        src={thumbSrc}
+        alt={`Video thumbnail ${index + 1}`}
+        className="w-full h-full object-cover"
+        onError={handleThumbError}
+      />
+      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+        <PlayCircle className="w-6 h-6 text-white" />
+      </div>
+    </button>
+  );
+}
+
 // ==========================================
 // MODULE 3: PERSONALIZED RECOMMENDATIONS
 // ==========================================
@@ -105,50 +164,17 @@ export function RecommendationModule({ recommendations, loading = false, onPlayV
                     Watch a Video
                   </p>
                   <div className="grid grid-cols-2 gap-2">
-                    {rec.videoUrls.map((videoUrl, index) => {
-                      // Handle both 'watch?v=' and 'embed/' URL formats to extract video ID
-                      const videoId = videoUrl.includes('embed/')
-                        ? videoUrl.split('/embed/')[1]?.split('?')[0]
-                        : videoUrl.split('v=')[1]?.split('&')[0];
-                      if (!videoId) return null; // Don't render if no valid videoId
-
-                      // State for each thumbnail's source, allowing fallback
-                      const [thumbSrc, setThumbSrc] = useState(`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`);
-
-                      // Reset thumbSrc if the videoId for this button changes (unlikely but good practice)
-                      useEffect(() => {
-                        setThumbSrc(`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`);
-                      }, [videoId]);
-
-                      const handleThumbError = (e) => {
-                        // If hqdefault fails, try mqdefault
-                        if (e.target.src.includes('hqdefault.jpg')) {
-                          e.target.src = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
-                        } else if (e.target.src.includes('mqdefault.jpg')) {
-                          // If mqdefault also fails, use a generic placeholder
-                          e.target.src = 'https://via.placeholder.com/160x90?text=Video+Unavailable';
-                        } else {
-                          e.target.onerror = null; // Prevent infinite loop if placeholder also fails
-                        }
-                      };
-                      return (
-                        <button
-                          key={index}
-                          onClick={() => onPlayVideo(rec.videoUrls, index, rec.category, rec.severity)}
-                          className="relative rounded-lg overflow-hidden group border border-slate-200 dark:border-slate-700 aspect-video"
-                        >
-                          <img
-                            src={thumbSrc} // Use state-managed source
-                            alt={`Video thumbnail ${index + 1}`}
-                            className="w-full h-full object-cover"
-                            onError={handleThumbError} // Add error handler
-                          />
-                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <PlayCircle className="w-6 h-6 text-white" />
-                          </div>
-                        </button>
-                      );
-                    })}
+                    {rec.videoUrls.map((videoUrl, index) => (
+                      <RecommendationVideoThumbnail
+                        key={`${videoUrl}-${index}`}
+                        videoUrl={videoUrl}
+                        index={index}
+                        videoUrls={rec.videoUrls}
+                        category={rec.category}
+                        severity={rec.severity}
+                        onPlayVideo={onPlayVideo}
+                      />
+                    ))}
                   </div>
                 </div>
               )}
