@@ -238,8 +238,8 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
   };
   
   const filtered = records.filter(r => {
-    const matchSearch = r.employeeName.toLowerCase().includes(search.toLowerCase()) ||
-                        r.employeeId.toLowerCase().includes(search.toLowerCase());
+    const matchSearch = (r.employeeName || '').toLowerCase().includes(search.toLowerCase()) ||
+                        String(r.employeeId || '').toLowerCase().includes(search.toLowerCase());
     const matchDept = filterDept ? r.department === filterDept : true;
     return matchSearch && matchDept;
   });
@@ -1116,7 +1116,7 @@ export function RiskPredictionModule({ risks }) {
         (filter === 'HIGH' && r.riskScore >= 70) ||
         (filter === 'MEDIUM' && r.riskScore >= 45 && r.riskScore < 70) ||
         (filter === 'LOW' && r.riskScore < 45);
-      const matchesSearch = search === '' || r.employeeName.toLowerCase().includes(search.toLowerCase()) || r.employeeId.toLowerCase().includes(search.toLowerCase());
+      const matchesSearch = search === '' || (r.employeeName || '').toLowerCase().includes(search.toLowerCase()) || String(r.employeeId || '').toLowerCase().includes(search.toLowerCase());
       return matchesFilter && matchesSearch;
     });
   }, [normalizedRisks, filter, search]);
@@ -1297,10 +1297,9 @@ export function RecommendationModule({ recommendations = [], loading }) {
 
   const filteredRecs = recommendations.filter(rec => {
     const searchTerm = search.toLowerCase();
-    return (
-      rec.employeeName.toLowerCase().includes(searchTerm) ||
-      rec.employeeId.toLowerCase().includes(searchTerm)
-    );
+    const name = (rec?.employeeName || '').toLowerCase();
+    const id = (rec?.employeeId ? String(rec.employeeId) : '').toLowerCase();
+    return name.includes(searchTerm) || id.includes(searchTerm);
   });
 
   return (
