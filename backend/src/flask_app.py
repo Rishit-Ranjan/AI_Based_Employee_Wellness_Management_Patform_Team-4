@@ -942,6 +942,11 @@ import random
 # Track which videos have been reported as unavailable (runtime-only, resets on server restart)
 _UNAVAILABLE_VIDEOS = set()
 
+# Cache of per-video availability (video_id -> bool). Persists for the process lifetime so
+# the YouTube oEmbed network checks only run once per video, dramatically speeding up the
+# FIRST recommendations request (which otherwise had to check every video on a cold start).
+_VIDEO_AVAILABILITY = {}
+
 def _resolve_media_category(category):
     """Normalize a category string to a key in RECOMMENDATION_MEDIA."""
     if category in RECOMMENDATION_MEDIA:
@@ -951,23 +956,41 @@ def _resolve_media_category(category):
             return key
     return 'Lifestyle'
     
-def _is_video_available(video_id: str) -> bool: # No longer uses API key
+def _is_video_available(video_id: str, cached: bool = True) -> bool: 
     """
     Checks if a YouTube video is available by pinging its oEmbed endpoint.
     This is a public endpoint and does not require an API key.
+
+    Results are cached per-video so the (potentially slow, up to 3s each) network
+    checks only happen once per server process. This stops the FIRST recommendations
+    request from re-verifying every video on every cold start.
     """
+    video_id = (video_id or '').strip()
+    if not video_id:
+        return True
+    if cached:
+        status = _VIDEO_AVAILABILITY.get(video_id)
+        if status is not None:
+            return status
+
     # oEmbed URL for checking video existence.
     oembed_url = f"https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v={video_id}&format=json"
-    
+
     try:
         # A short timeout is used to fail fast if the network is slow.
         response = http_requests.get(oembed_url, timeout=3)
         # If the video is private or deleted, YouTube returns 404 or 403.
         # A successful 200 response means the video is public.
-        return response.status_code == 200
+        status_code = response.status_code
+        available = status_code == 200
+        if not available:
+            _UNAVAILABLE_VIDEOS.add(video_id)
     except http_requests.RequestException:
-        # If the request fails for any reason (timeout, network error), assume unavailable.
-        return True
+        # If the request fails for any reason (timeout, network error), assume available.
+        available = True
+    if cached:
+        _VIDEO_AVAILABILITY[video_id] = available
+    return available
 
 
 def _get_all_available_videos(recommendation: dict, max_videos: int = 4) -> list:
@@ -1056,6 +1079,49 @@ def _add_media_to_recommendations(recommendations):
         }
         enriched.append(enriched_rec)
     return enriched
+
+
+def _warm_video_availability():
+    """Pre-verify all known recommendation videos once at startup.
+
+    This runs in a background thread so the heavy (up to 3s per video) YouTube
+    oEmbed checks happen BEFORE the first user request, populating the module-level
+    ``_VIDEO_AVAILABILITY`` cache. As a result, the very first recommendations request
+    is fast instead of timing out on a cold start (which previously forced users to
+    manually reload the page to see the recommendations tab).
+    """
+    video_ids = set()
+    try:
+        for media_data in list(RECOMMENDATION_MEDIA.values()) + [DEFAULT_REC_MEDIA]:
+            for video_entry in media_data.get('videos', []):
+                url = video_entry.get('url', '')
+                vid = url.split('/embed/')[-1].split('?')[0].strip()
+                if vid:
+                    video_ids.add(vid)
+    except Exception as e:  # defensive: warm-up must never break startup
+        app.logger.warning(f"Failed to enumerate videos for warm-up: {e}")
+        return
+
+    if not video_ids:
+        return
+
+    def _run():
+        try:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
+                list(executor.map(_is_video_available, video_ids))
+            app.logger.info(
+                "Recommendation video availability warm-up complete (%d videos checked).",
+                len(video_ids),
+            )
+        except Exception as e:  # defensive: warm-up failures must never crash the server
+            app.logger.warning(f"Recommendation video warm-up failed: {e}")
+
+    try:
+        import threading
+        threading.Thread(target=_run, name="rec-video-warmup", daemon=True).start()
+    except Exception as e:  # pragma: no cover - defensive
+        app.logger.warning(f"Failed to start video warm-up thread: {e}")
+
 
 @app.route('/api/wellness/report-video', methods=['POST'])
 def report_unavailable_video():
@@ -1254,10 +1320,10 @@ def get_recommendations():
 
                 # 3. Use the loaded recommendation engine if available.
                 #    Safe invocation: a stale/'dict' engine must never crash the employee's recommendations.
-                top_recs = _run_recommendation_engine(recommendation_engine, employee_profile, top_n=3)
+                top_recs = _run_recommendation_engine(recommendation_engine, employee_profile, top_n=4)
 
                 # 4. Defense-in-depth: guarantee a valid, non-empty list of recommendation dicts.
-                top_recs = _normalize_recommendations(top_recs, employee_profile, top_n=3)
+                top_recs = _normalize_recommendations(top_recs, employee_profile, top_n=4)
 
                 # Enrich recommendations with media (images & videos) and severity
                 enriched_recs = _add_media_to_recommendations(top_recs)
@@ -2897,6 +2963,11 @@ def update_support_ticket(ticket_id):
     if result.matched_count == 0:
         return jsonify({'detail': 'Ticket not found'}), 404
     return jsonify({'detail': f'Ticket marked as {status}'}), 200
+
+# Warm the recommendation video-availability cache in the background at startup so the
+# FIRST recommendations request is fast (no cold-start timeout -> no need to reload).
+# Safely guarded so it can never break server startup.
+_warm_video_availability()
 
 # --- Main Entry Point ---
 if __name__ == '__main__':

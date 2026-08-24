@@ -160,8 +160,8 @@ export function RecommendationModule({ recommendations, loading = false, onPlayV
               {/* NEW: Display multiple video thumbnails */}
               {rec.videoUrls && rec.videoUrls.length > 0 && (
                 <div className="pt-3">
-                  <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono mb-2">
-                    Watch a Video
+                  <p className="text-[13px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono mb-2">
+                    Video Recommendations for You
                   </p>
                   <div className="grid grid-cols-2 gap-2">
                     {rec.videoUrls.map((videoUrl, index) => (
