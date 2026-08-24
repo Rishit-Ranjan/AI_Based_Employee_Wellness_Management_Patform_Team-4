@@ -1254,10 +1254,10 @@ def get_recommendations():
 
                 # 3. Use the loaded recommendation engine if available.
                 #    Safe invocation: a stale/'dict' engine must never crash the employee's recommendations.
-                top_recs = _run_recommendation_engine(recommendation_engine, employee_profile, top_n=3)
+                top_recs = _run_recommendation_engine(recommendation_engine, employee_profile, top_n=4)
 
                 # 4. Defense-in-depth: guarantee a valid, non-empty list of recommendation dicts.
-                top_recs = _normalize_recommendations(top_recs, employee_profile, top_n=3)
+                top_recs = _normalize_recommendations(top_recs, employee_profile, top_n=4)
 
                 # Enrich recommendations with media (images & videos) and severity
                 enriched_recs = _add_media_to_recommendations(top_recs)
