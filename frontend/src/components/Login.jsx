@@ -26,41 +26,50 @@ export default function Login({ onNavigate, onLoginSuccess }) {
   const entityRef = useRef(null);
   const emailRef = useRef(null);
   const passwordRef = useRef(null);
+  const emailEditedRef = useRef(false); // true once the user types in the email field
   const EMP_EMAIL_KEY = 'wellness_remember_email_employee';
   const ADMIN_EMAIL_KEY = 'wellness_remember_email_admin';
   const EMP_ENTITY_KEY = 'wellness_remember_entity_employee';
   const ADMIN_ENTITY_KEY = 'wellness_remember_entity_admin';
 
-  // Load saved emails (per-role) if remember me was checked previously
+  // Load saved emails (per-role) if remember me was checked previously.
+  // Prefer the saved email for the role the user last logged in as (Admin vs
+  // Employee), so logging out of the Admin dashboard restores the Admin role
+  // together with the admin email instead of reverting to Employee.
   useEffect(() => {
     try {
+      const lastRole = localStorage.getItem('wellness_last_role');
       const savedEmp = localStorage.getItem(EMP_EMAIL_KEY);
       const savedAdmin = localStorage.getItem(ADMIN_EMAIL_KEY);
       const savedEmpEntity = localStorage.getItem(EMP_ENTITY_KEY);
       const savedAdminEntity = localStorage.getItem(ADMIN_ENTITY_KEY);
-      // Prefer employee saved email/entity for initial load if present, otherwise admin
-      if (savedEmp) {
-        setEmail(savedEmp);
-        if (savedEmpEntity) setEntityId(savedEmpEntity);
+
+      // Load the remembered email for the role you last logged in as.
+      const savedEmail = lastRole === 'Admin' ? savedAdmin : savedEmp;
+      const savedEntity = lastRole === 'Admin' ? savedAdminEntity : savedEmpEntity;
+
+      if (savedEmail) {
+        setEmail(savedEmail);
+        if (savedEntity) setEntityId(savedEntity);
         setRememberMe(true);
-      } else if (savedAdmin) {
-        setEmail(savedAdmin);
-        if (savedAdminEntity) setEntityId(savedAdminEntity);
-        setRememberMe(true);
-        // don't auto-switch role here; user may choose Admin explicitly
       }
+      // Programmatically restored value is not a real keystroke, so it must not
+      // trigger the auto role-switch on the email effect below.
+      emailEditedRef.current = false;
     } catch (e) {
       // ignore storage errors
     }
   }, []);
 
   // Automatically switch role for the default admin email.
-  // The `email &&` guard preserves the persisted role when the email field is
-  // empty (e.g. right after logging out), so an admin is not reset back to Employee.
+  // Only reacts when the user actually types in the email field, so a restored
+  // (programmatically pre-filled) email cannot override the persisted role
+  // right after logout.
   useEffect(() => {
+    if (!emailEditedRef.current) return;
     if (email.toLowerCase() === 'admin@platform.com') {
       setRole('Admin');
-    } else if (role === 'Admin' && email && email.toLowerCase() !== 'admin@platform.com') {
+    } else if (role === 'Admin' && email) {
       setRole('Employee');
     }
   }, [email]);
@@ -352,7 +361,10 @@ export default function Login({ onNavigate, onLoginSuccess }) {
                     type="email"
                     required
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      emailEditedRef.current = true;
+                      setEmail(e.target.value);
+                    }}
                     placeholder="name@company.com"
                     className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-indigo-500 focus:bg-white transition-all"
                   />
