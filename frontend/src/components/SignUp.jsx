@@ -157,7 +157,7 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
         </div>
 
         {/* Center quote */}
-        <div className="my-auto relative z-10 max-w-md">
+        <div className="my-auto relative z-10 max-w-md mb-12">
           <h1 className="font-display text-5xl font-normal tracking-tight leading-tight mb-6 text-white">
             Join thousands of teams <br/><span className="italic font-serif text-slate-300">prioritizing employee</span> health.
           </h1>
