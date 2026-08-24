@@ -164,21 +164,24 @@ export default function Login({ onNavigate, onLoginSuccess }) {
         </div>
 
         {/* Dynamic Centerpiece Quote / Info */}
-        <div className="my-auto relative z-10 max-w-md mt-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-850 border border-slate-800 rounded-full text-xs text-slate-300 mb-6 font-medium">
-            <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-            Empowering Healthy & Engaged Workforces
+        <div className="my-auto relative z-10 mt-8">
+          <div className="max-w-md">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-850 border border-slate-800 rounded-full text-xs text-slate-300 mb-6 font-medium">
+              <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+              Empowering Healthy & Engaged Workforces
+            </div>
+            <h1 className="font-display text-5xl xl:text-6xl font-normal leading-[1.1] tracking-tight text-white mb-6">
+              Transform your workplace <br />
+              <span className="italic font-serif text-slate-300">with health</span> intelligence.
+            </h1>
+            <p className="text-slate-400 text-base lg:text-lg leading-relaxed mb-8 font-normal">
+              Manage employee health records, monitor burnout risks, analyze organization sentiment, and provide personalized mental and physical
+              wellness recommendations in real-time.
+            </p>
           </div>
-          <h1 className="font-display text-6xl font-normal leading-[1.1] tracking-tight text-white mb-6">
-            Transform your workplace <br />
-            <span className="italic font-serif text-slate-300">with health</span> intelligence.
-          </h1>
-          <p className="text-slate-400 text-lg leading-relaxed mb-8 font-normal">
-            Manage employee health records, monitor burnout risks, analyze organization sentiment, and provide personalized mental and physical
-            wellness recommendations in real-time.
-          </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Responsive feature cards: 1 col mobile, 2 cols tablet, 4 cols desktop */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
             <div className="p-4 bg-slate-850 border border-slate-800 rounded-xl">
               <Activity className="w-5 h-5 text-indigo-400 mb-2" />
               <div className="text-sm font-semibold text-white">Predictive Analytics</div>
@@ -187,7 +190,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
             <div className="p-4 bg-slate-850 border border-slate-800 rounded-xl">
               <Shield className="w-5 h-5 text-emerald-400 mb-2" />
               <div className="text-sm font-semibold text-white">Sentiment Tracker</div>
-              <p className="text-xs text-slate-400 mt-2">Anonymized surveys tracking organizational mental wellbeing.</p>
+              <p className="text-xs text-slate-400 mt-2">Anonymized surveys tracking employee mental wellbeing.</p>
             </div>
             <div className="p-4 bg-slate-850 border border-slate-800 rounded-xl">
               <Sparkles className="w-5 h-5 text-purple-400 mb-2" />
