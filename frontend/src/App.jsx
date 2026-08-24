@@ -289,6 +289,16 @@ export default function App() {
         // Recompute Module 2 diagnostics from updated health_records
         const loadedRisks = await api.fetchRisks();
         setRisks(loadedRisks || []);
+
+        // Re-fetch recommendations since the new health record changes the risk
+        // profile that drives them. The GET cache is cleared by the POST above, and
+        // forceRefresh guarantees fresh data so the cards update without a reload.
+        try {
+            const recsData = await api.fetchRecommendations({ forceRefresh: true });
+            setRecommendations(recsData || []);
+        } catch (err) {
+            console.error('Failed to refresh recommendations after adding health record:', err);
+        }
     };
 
     // Update a specific user's health record and persist changes
@@ -338,6 +348,22 @@ export default function App() {
     const handleDeleteHealthRecord = async (employeeId) => {
         await api.deleteHealthRecord(employeeId);
         setHealthRecords(healthRecords.filter(r => r.employeeId !== employeeId));
+
+        // Deleting a record changes risk predictions and the recommendations derived
+        // from them, so refresh both immediately (no reload needed).
+        try {
+            const loadedRisks = await api.fetchRisks();
+            setRisks(loadedRisks || []);
+        } catch (err) {
+            console.error('Failed to refresh risks after deleting health record:', err);
+        }
+        try {
+            const recsData = await api.fetchRecommendations({ forceRefresh: true });
+            setRecommendations(recsData || []);
+        } catch (err) {
+            console.error('Failed to refresh recommendations after deleting health record:', err);
+        }
+
         // After deleting a record, re-fetch all users to update the 'users without records' list
         if (currentUser.role === 'admin') {
             setAllUsers(await api.fetchUsers());
