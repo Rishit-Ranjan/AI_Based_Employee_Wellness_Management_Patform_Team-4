@@ -149,7 +149,7 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
         </div>
 
         {/* Header */}
-        <div className="flex items-center gap-2 relative z-10">
+        <div className="flex items-center gap-2 relative z-10 mb-12">
           <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
             <div className="w-4 h-4 bg-slate-900 rounded-sm rotate-45"></div>
           </div>
