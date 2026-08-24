@@ -399,11 +399,24 @@ export default function App() {
     const handleLoginSuccess = (user) => {
         setCurrentUser(user);
         localStorage.setItem('wellness_current_user', JSON.stringify(user));
+        // Remember which role the user last logged in as so the login screen
+        // shows the correct role selected after they log out.
+        try {
+            localStorage.setItem('wellness_last_role', user?.role === 'admin' ? 'Admin' : 'Employee');
+        } catch (e) {
+            /* ignore storage errors */
+        }
         setScreen('dashboard');
     };
 
     // Handle successful sign-up by redirecting to login screen
     const handleSignUpSuccess = (user) => {
+        // Signups always create employee accounts, so reflect that on the login screen.
+        try {
+            localStorage.setItem('wellness_last_role', 'Employee');
+        } catch (e) {
+            /* ignore storage errors */
+        }
         setScreen('login');
     };
 

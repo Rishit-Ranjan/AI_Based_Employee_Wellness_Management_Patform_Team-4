@@ -7,7 +7,15 @@ import CustomerSupportModal from './CustomerSupportModal'; // This will now impo
 export default function Login({ onNavigate, onLoginSuccess }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('Employee');
+  // Initialize the selected role from the last role used (persisted on login),
+  // so logging out from the Admin dashboard shows Admin selected on the login screen.
+  const [role, setRole] = useState(() => {
+    try {
+      return localStorage.getItem('wellness_last_role') === 'Admin' ? 'Admin' : 'Employee';
+    } catch (e) {
+      return 'Employee';
+    }
+  });
   const [entityId, setEntityId] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -46,11 +54,13 @@ export default function Login({ onNavigate, onLoginSuccess }) {
     }
   }, []);
 
-  // Automatically switch role for default admin email
+  // Automatically switch role for the default admin email.
+  // The `email &&` guard preserves the persisted role when the email field is
+  // empty (e.g. right after logging out), so an admin is not reset back to Employee.
   useEffect(() => {
     if (email.toLowerCase() === 'admin@platform.com') {
       setRole('Admin');
-    } else if (role === 'Admin' && email.toLowerCase() !== 'admin@platform.com') {
+    } else if (role === 'Admin' && email && email.toLowerCase() !== 'admin@platform.com') {
       setRole('Employee');
     }
   }, [email]);
