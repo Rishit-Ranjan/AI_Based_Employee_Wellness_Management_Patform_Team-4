@@ -161,7 +161,7 @@ export function RecommendationModule({ recommendations, loading = false, onPlayV
               {rec.videoUrls && rec.videoUrls.length > 0 && (
                 <div className="pt-3">
                   <p className="text-[13px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono mb-2">
-                    Video Recommendation for You
+                    Video Recommendations for You
                   </p>
                   <div className="grid grid-cols-2 gap-2">
                     {rec.videoUrls.map((videoUrl, index) => (

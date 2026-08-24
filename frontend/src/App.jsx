@@ -209,13 +209,20 @@ export default function App() {
                     setLoadingRecommendations(true);
                     setLoadingPerformance(true);
                     setPerformanceError(null);
-                    const [recsData, perfData] = await Promise.all([
-                        api.fetchRecommendations(options),
-                        api.fetchPerformanceAnalytics(options)
-                    ]);
-                    setRecommendations(recsData || []);
-                    setPerformanceData(perfData);
-                    setLoadingPerformance(false);
+                    try {
+                        const [recsData, perfData] = await Promise.all([
+                            api.fetchRecommendations(options),
+                            api.fetchPerformanceAnalytics(options)
+                        ]);
+                        setRecommendations(recsData || []);
+                        setPerformanceData(perfData);
+                    } catch (err) {
+                        console.error("Failed to load performance or recommendations:", err);
+                        setPerformanceError(err.message || 'Failed to load data');
+                    } finally {
+                        setLoadingRecommendations(false);
+                        setLoadingPerformance(false);
+                    }
 
                     // Fetch department sentiment separately so a failure here
                     // does not block the rest of the performance analytics.
@@ -228,7 +235,7 @@ export default function App() {
                     }
                 } else {
                     setLoadingRecommendations(true);
-                    
+
                     // Fetch habits and logs
                     Promise.all([
                         api.fetchDailyHabits(userEmpId, options).then(h => h || api.addDailyHabit({ employeeId: userEmpId })),
@@ -237,26 +244,36 @@ export default function App() {
                         setDailyHabits(habits ? [habits] : []);
                         setMentalHealthLogs(mentalLogs ? [mentalLogs] : []);
                     }).catch(err => {
-                        console.warn("Could not load habits or mental health logs:", err);
+                        console.error("Could not load habits or mental health logs:", err);
                     });
 
-                    // Fetch recommendations separately to ensure they always load
-                    api.fetchRecommendations(options)
-                        .then(recsData => {
-                            setRecommendations(recsData || []);
-                        })
-                        .catch(err => {
-                            console.error("Failed to fetch recommendations:", err);
-                            setRecommendations([]); // Set to empty array on error
-                        });
-                }
-                if (currentUser.role !== 'admin') {
+                    // Fetch recommendations with automatic retries. The backend can be slow
+                    // on a cold start (ML models + video availability checks), so a single
+                    // one-shot request used to fail and leave the tab empty until a manual
+                    // page reload. This keeps the loading state on until data arrives and
+                    // retries transient failures so the tab loads itself.
+                    (async () => {
+                        const maxAttempts = 3;
+                        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+                            try {
+                                const recsData = await api.fetchRecommendations(options);
+                                setRecommendations(recsData || []);
+                                break;
+                            } catch (err) {
+                                console.error(`Recommendation fetch attempt ${attempt} failed:`, err);
+                                if (attempt === maxAttempts) {
+                                    setRecommendations([]); // Give up after retries; empty state shown
+                                } else {
+                                    await new Promise(r => setTimeout(r, 1200 * attempt));
+                                }
+                            }
+                        }
+                        setLoadingRecommendations(false);
+                    })();
                 }
             } catch (error) {
                 console.error("Failed to load secondary wellness data:", error);
                 setPerformanceError(error.message || 'Failed to load data');
-            } finally {
-                setLoadingRecommendations(false);
             }
         };
 
