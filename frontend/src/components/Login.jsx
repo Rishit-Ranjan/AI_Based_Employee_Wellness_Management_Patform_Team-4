@@ -229,7 +229,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
               {role === 'Admin' ? 'Admin Sign In' : 'Employee Sign In'}
             </h2>
             <p className="text-slate-500 text-base">
-              {role === 'Admin' ? 'Restricted access for authorized administrators only.' : 'Use your registered employee credentials.'}
+              {role === 'Admin' ? 'Restricted access for authorized administrators only.' : 'Use your registered employee credentials to login.'}
             </p>
           </div>
 
