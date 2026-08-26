@@ -1130,14 +1130,21 @@ function UserManagementModule({ allUsers, healthRecords, onDeleteUser, onUpdateU
 
 
 
+  const [pendingDelete, setPendingDelete] = useState(null); // { employeeId, name }
+
   const confirmAndDeleteUser = (employeeId, employeeName) => {
-    if (window.confirm(`Are you sure you want to permanently delete the employee '${employeeName}' (${employeeId}) and all their associated data? This action cannot be undone.`)) {
-      onDeleteUser(employeeId)
-        .catch(err => {
-          setError(`Failed to delete user: ${err.message}`);
-        });
-    }
+    setPendingDelete({ employeeId, name: employeeName });
   };
+
+  const handleConfirmDelete = () => {
+    if (!pendingDelete) return;
+    onDeleteUser(pendingDelete.employeeId)
+      .catch(err => {
+        setError(`Failed to delete user: ${err.message}`);
+      })
+      .finally(() => setPendingDelete(null));
+  };
+
 
   return (
     <div className="space-y-6">
@@ -1286,6 +1293,55 @@ function UserManagementModule({ allUsers, healthRecords, onDeleteUser, onUpdateU
           <div className="p-10 text-center font-mono text-xs text-slate-400 dark:text-slate-500">No users found.</div>
         )}
       </div>
+
+      {pendingDelete && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm animate-fadeIn p-4"
+          onClick={() => setPendingDelete(null)}
+        >
+          <div
+            className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-md overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-6">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800 flex items-center justify-center shrink-0">
+                  <ShieldAlert className="w-6 h-6 text-red-500" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-display font-semibold text-slate-800 dark:text-slate-100">Delete Employee?</h3>
+                  <p className="mt-2 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                    You are about to permanently delete{' '}
+                    <span className="font-bold text-slate-800 dark:text-slate-100">{pendingDelete.name}</span>{' '}
+                    (<span className="font-mono text-xs">{pendingDelete.employeeId}</span>) and{' '}
+                    <span className="font-semibold text-red-600 dark:text-red-400">all their associated data</span> — health records, goals,
+                    check-ups, SOS alerts, expenses and more.
+                  </p>
+                  <p className="mt-2 text-xs font-medium text-red-600 dark:text-red-400 flex items-center gap-1.5">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                    This action cannot be undone.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-700 flex justify-end gap-3">
+              <button
+                onClick={() => setPendingDelete(null)}
+                className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                className="px-4 py-2 rounded-lg text-xs font-bold text-white bg-red-600 hover:bg-red-700 shadow-sm shadow-red-600/30 transition-colors flex items-center gap-2"
+              >
+                <UserX className="w-3.5 h-3.5" />
+                Yes, Delete Permanently
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
