@@ -1949,8 +1949,8 @@ def get_achievements(employee_id):
         badges.append({'name': '30 Day Streak', 'earned': True, 'desc': '30+ health updates logged'})
     if history_entries >= 100:
         badges.append({'name': '100 Day Streak', 'earned': True, 'desc': '100+ health updates logged'})
-    if not badges:
-        badges.append({'name': 'Getting Started', 'earned': True, 'desc': 'Welcome to your wellness journey!'})
+    # Always show the welcome badge alongside any earned badges
+    badges.append({'name': 'Getting Started', 'earned': True, 'desc': 'Welcome to your wellness journey!'})
 
     return jsonify({'badges': badges, 'completedGoals': completed_goals, 'historyEntries': history_entries}), 200
 
