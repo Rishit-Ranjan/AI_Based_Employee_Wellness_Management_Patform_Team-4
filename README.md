@@ -129,7 +129,7 @@ Run this command in the terminal:
 python3 -c "import secrets; print(secrets.token_hex(32))"
 ```
 
-Paste the result string into the JWT_SECRET_KEY in ".env" file.
+Paste the result string into the JWT_SECRET_KEY in `.env` file.
 
 ### 3. Frontend Setup
 

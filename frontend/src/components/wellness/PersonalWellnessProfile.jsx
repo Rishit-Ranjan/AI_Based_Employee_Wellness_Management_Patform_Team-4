@@ -33,6 +33,7 @@ import HealthChart from './HealthChart';
 import ThemeToggle from './ThemeToggle';
 import AchievementsModule from '../AchievementsModule';
 import WellnessInsightsModule from '../WellnessInsightsModule';
+import WellnessProgressModule from './WellnessProgressModule';
 
 export default function PersonalWellnessProfile({
   user,
@@ -831,6 +832,21 @@ smoker: smoker,
             bmi={computedBmi()}
             bp={bp}
             sleepHours={Number(sleep) || 7.5}
+          />
+          <WellnessProgressModule
+            healthScore={healthScore}
+            riskScore={riskScore}
+            bmi={computedBmi()}
+            bp={bp}
+            glucoseLevel={glucoseLevel}
+            stressScore={Number(stressScore) || 5}
+            sleepHours={Number(sleep) || 7.5}
+            exerciseDays={Number(exerciseDaysPerWeek) || 0}
+            exerciseHours={Number(exercise) || 0}
+            waterCups={waterCups}
+            stepsCount={stepsCount}
+            streakDays={streakDays}
+            healthAssessment={existingRecord?.healthAssessment}
           />
           <WellnessInsightsModule
             records={records}
