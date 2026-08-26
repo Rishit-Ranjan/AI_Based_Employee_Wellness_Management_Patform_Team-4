@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { CalendarCheck, Siren, Receipt, CheckCircle2, XCircle } from 'lucide-react';
-import { fetchCheckups, updateCheckup, fetchSosAlerts, resolveSos, fetchExpenses, updateExpense } from '../services/api';
+import { CalendarCheck, Siren, Receipt, CheckCircle2, XCircle, Trash2 } from 'lucide-react';
+import { fetchCheckups, updateCheckup, fetchSosAlerts, resolveSos, deleteSos, fetchExpenses, updateExpense, deleteExpense } from '../services/api';
 
 export function AdminCheckupsModule() {
   const [appointments, setAppointments] = useState([]);
-  const load = () => fetchCheckups(true).then(setAppointments).catch(console.error);
-  useEffect(() => { load(); }, []);
+    const load = () => fetchCheckups(true, { forceRefresh: true }).then(setAppointments).catch(console.error);
+  useEffect(() => {
+    load();
+    const interval = setInterval(load, 15000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleStatus = async (id, status) => { await updateCheckup(id, { status }); load(); };
 
@@ -40,14 +44,19 @@ export function AdminCheckupsModule() {
 
 export function AdminSosMonitor() {
   const [alerts, setAlerts] = useState([]);
-  const load = () => fetchSosAlerts().then(setAlerts).catch(console.error);
+    const load = () => fetchSosAlerts({ forceRefresh: true }).then(setAlerts).catch(console.error);
   useEffect(() => {
     load();
-    const interval = setInterval(load, 20000);
+    const interval = setInterval(load, 15000);
     return () => clearInterval(interval);
   }, []);
 
-  const activeAlerts = alerts.filter((a) => a.status === 'Active');
+            const activeAlerts = alerts.filter((a) => a.status === 'Active');
+  const handleDelete = async (id) => {
+    try { await deleteSos(id); } catch (e) { console.error('Delete failed', e); }
+    load();
+  };
+
 
   return (
     <div className="space-y-6">
@@ -78,6 +87,9 @@ export function AdminSosMonitor() {
                 {a.status === 'Active' && (
                   <button onClick={() => resolveSos(a.id).then(load)} className="mt-3 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-bold cursor-pointer">Mark Resolved</button>
                 )}
+                <div className="mt-3 flex justify-end">
+                  <button onClick={() => handleDelete(a.id)} className="p-1.5 border border-slate-200 dark:border-slate-600 rounded-md text-slate-500 dark:text-slate-400 hover:text-rose-500 hover:border-rose-300 dark:hover:text-rose-400 cursor-pointer" title="Delete alert"><Trash2 className="w-3.5 h-3.5" /></button>
+                </div>
               </div>
             ))}
           </div>
@@ -89,10 +101,15 @@ export function AdminSosMonitor() {
 
 export function AdminExpensesModule() {
   const [expenses, setExpenses] = useState([]);
-  const load = () => fetchExpenses(true).then(setExpenses).catch(console.error);
-  useEffect(() => { load(); }, []);
+    const load = () => fetchExpenses(true, { forceRefresh: true }).then(setExpenses).catch(console.error);
+  useEffect(() => {
+    load();
+    const interval = setInterval(load, 15000);
+    return () => clearInterval(interval);
+  }, []);
 
-  const handleStatus = async (id, status) => { await updateExpense(id, status); load(); };
+    const handleStatus = async (id, status) => { await updateExpense(id, status); load(); };
+  const handleDelete = async (id) => { await deleteExpense(id); load(); };
 
   return (
     <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
@@ -109,13 +126,16 @@ export function AdminExpensesModule() {
                 <td className="py-2 text-slate-700 dark:text-slate-200">{e.description}</td>
                 <td className="py-2 text-slate-700 dark:text-slate-200">₹{e.amount.toLocaleString('en-IN')}</td>
                 <td className="py-2"><span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${e.status === 'Approved' ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300' : e.status === 'Rejected' ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300' : 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300'}`}>{e.status}</span></td>
-                <td className="py-2">
-                  {e.status === 'Pending' && (
-                    <div className="flex gap-2">
-                      <button onClick={() => handleStatus(e.id, 'Approved')} className="p-1.5 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/80 border border-emerald-200 dark:border-emerald-800 rounded-lg text-emerald-600 dark:text-emerald-400 cursor-pointer"><CheckCircle2 className="w-3.5 h-3.5" /></button>
-                      <button onClick={() => handleStatus(e.id, 'Rejected')} className="p-1.5 bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900/80 border border-rose-200 dark:border-rose-800 rounded-lg text-rose-600 dark:text-rose-400 cursor-pointer"><XCircle className="w-3.5 h-3.5" /></button>
-                    </div>
-                  )}
+                                <td className="py-2">
+                  <div className="flex items-center gap-2">
+                    {e.status === 'Pending' && (
+                      <div className="flex gap-2">
+                        <button onClick={() => handleStatus(e.id, 'Approved')} className="p-1.5 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/80 border border-emerald-200 dark:border-emerald-800 rounded-lg text-emerald-600 dark:text-emerald-400 cursor-pointer"><CheckCircle2 className="w-3.5 h-3.5" /></button>
+                        <button onClick={() => handleStatus(e.id, 'Rejected')} className="p-1.5 bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900/80 border border-rose-200 dark:border-rose-800 rounded-lg text-rose-600 dark:text-rose-400 cursor-pointer"><XCircle className="w-3.5 h-3.5" /></button>
+                      </div>
+                    )}
+                    <button onClick={() => handleDelete(e.id)} className="p-1.5 border border-slate-200 dark:border-slate-600 rounded-md text-slate-500 dark:text-slate-400 hover:text-rose-500 hover:border-rose-300 dark:hover:text-rose-400 cursor-pointer" title="Delete claim"><Trash2 className="w-3.5 h-3.5" /></button>
+                  </div>
                 </td>
               </tr>
             ))}

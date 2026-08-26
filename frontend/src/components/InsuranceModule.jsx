@@ -52,7 +52,7 @@ export default function InsuranceModule({ user }) {
   const usedPct = policy.coverage ? Math.min(100, ((policy.claimUsed || 0) / policy.coverage) * 100) : 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 lg:pr-20">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5">
           <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Provider</div>

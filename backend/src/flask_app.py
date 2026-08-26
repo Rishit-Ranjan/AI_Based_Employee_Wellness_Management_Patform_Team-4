@@ -77,6 +77,7 @@ mental_health_logs_collection = db.get_collection('mental_health_logs')
 sentiment_pulses_collection = db.get_collection('sentiment_pulses')
 
 health_history_collection = db.get_collection('health_history')
+report_downloads_collection = db.get_collection('report_downloads')
 insurance_collection = db.get_collection('insurance_policies')
 notifications_collection = db.get_collection('notifications')
 goals_collection = db.get_collection('goals')
@@ -632,6 +633,7 @@ def delete_user_and_data(employee_id):
             mental_health_logs_collection,
             sentiment_pulses_collection,
             health_history_collection,
+            report_downloads_collection,
             insurance_collection,
             goals_collection,
             checkup_appointments_collection,
@@ -2088,11 +2090,51 @@ def download_health_report(employee_id):
     doc.build(story)
     buffer.seek(0)
 
+    # "view" mode renders inline in the browser (and does NOT record a download);
+    # otherwise it's an attachment download that gets recorded in the history.
+    view_mode = request.args.get('view') == '1'
+
+    if not view_mode:
+        # Record this download so it appears in the user's "Downloaded Reports" list
+        try:
+            report_downloads_collection.insert_one({
+                'employeeId': employee_id,
+                'fileName': f'health-report-{employee_id}.pdf',
+                'downloadedAt': datetime.now(timezone.utc).isoformat(),
+            })
+        except Exception:
+            app.logger.exception(f"Failed to record report download for {employee_id}")
+
+    disposition = f'inline; filename=health-report-{employee_id}.pdf' if view_mode else f'attachment; filename=health-report-{employee_id}.pdf'
     return Response(
         buffer.read(),
         mimetype='application/pdf',
-        headers={'Content-Disposition': f'attachment; filename=health-report-{employee_id}.pdf'},
+        headers={'Content-Disposition': disposition},
     )
+
+
+# --- Downloaded Reports (List & Delete) API ---
+@app.route('/api/reports/downloads/<employee_id>', methods=['GET'])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
+def get_downloaded_reports(employee_id):
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info", {})
+    # if user_info.get('role') != 'admin' and user_info.get('employeeId') != employee_id:
+    #     return jsonify({'detail': 'Forbidden'}), 403
+
+    reports = []
+    for r in report_downloads_collection.find({'employeeId': employee_id}).sort('downloadedAt', -1):
+        r['id'] = str(r['_id'])
+        del r['_id']
+        reports.append(r)
+    return jsonify(reports), 200
+
+
+@app.route('/api/reports/downloads/<report_id>', methods=['DELETE'])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
+def delete_downloaded_report(report_id):
+    report_downloads_collection.delete_one({'_id': ObjectId(report_id)})
+    return '', 204
 
 # --- Profile Edit API (self-service, works for both employee & admin) ---
 @app.route('/api/auth/profile', methods=['PUT'])
@@ -2378,6 +2420,24 @@ def resolve_sos(sos_id):
     sos_alerts_collection.update_one({'_id': ObjectId(sos_id)}, {'$set': {'status': 'Resolved'}})
     return jsonify({'detail': 'Alert resolved'}), 200
 
+
+@app.route('/api/sos/<sos_id>', methods=['DELETE'])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
+def delete_sos(sos_id):
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
+    # if user_info.get('role') != 'admin':
+    #     return jsonify({'detail': 'Forbidden'}), 403
+    try:
+        oid = ObjectId(sos_id)
+    except (ValueError, TypeError):
+        return jsonify({'detail': 'Invalid SOS id'}), 404
+    result = sos_alerts_collection.delete_one({'_id': oid})
+    if result.deleted_count == 0:
+        return jsonify({'detail': 'SOS alert not found'}), 404
+    return jsonify({'detail': 'SOS alert deleted'}), 200
+
+
 # --- Health Expense Tracker ---
 @app.route('/api/expenses', methods=['GET'])
 # @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
@@ -2425,17 +2485,27 @@ def add_expense():
 
 
 @app.route('/api/expenses/<expense_id>', methods=['PUT'])
-@jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def update_expense(expense_id):
-    """Admin-only: approve/reject a reimbursement claim."""
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
-    if user_info.get('role') != 'admin':
-        return jsonify({'detail': 'Forbidden'}), 403
+    """Allows editing expense fields (description/amount/category/date) and admin status updates."""
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
     data = request.get_json() or {}
-    status = data.get('status', 'Pending')
-    expenses_collection.update_one({'_id': ObjectId(expense_id)}, {'$set': {'status': status}})
-    return jsonify({'detail': f'Expense {status.lower()}'}), 200
+    update_fields = {}
+    if 'description' in data:
+        update_fields['description'] = data['description']
+    if 'amount' in data:
+        update_fields['amount'] = float(data['amount'] or 0)
+    if 'category' in data:
+        update_fields['category'] = data['category']
+    if 'date' in data:
+        update_fields['date'] = data['date']
+    if 'status' in data:
+        update_fields['status'] = data['status']
+    if not update_fields:
+        return jsonify({'detail': 'No fields to update'}), 400
+    expenses_collection.update_one({'_id': ObjectId(expense_id)}, {'$set': update_fields})
+    return jsonify({'detail': 'Expense updated'}), 200
 
 
 @app.route('/api/expenses/<expense_id>', methods=['DELETE'])
@@ -2818,6 +2888,55 @@ def delete_sentiment_pulse(pulse_id):
         return '', 204
     except Exception as e:
         app.logger.exception(f"Failed to delete sentiment pulse {pulse_id}: {e}")
+        return jsonify({'detail': 'Internal Server Error'}), 500
+
+@app.route('/api/wellness/sentiment-pulse/<pulse_id>', methods=['PUT'])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
+def update_sentiment_pulse(pulse_id):
+    """Allows a user to edit their own submitted feedback pulse (text & stress score)."""
+    data = request.get_json() or {}
+    update_fields = {}
+
+    feedback_text = data.get('feedbackText')
+    stress_score = data.get('stressScore')
+
+    if feedback_text is not None:
+        update_fields['feedbackText'] = str(feedback_text)
+    if stress_score is not None:
+        update_fields['stressScore'] = float(stress_score)
+
+    if not update_fields:
+        return jsonify({'detail': 'No fields to update'}), 400
+
+    # Recomputed sentiment for any text/score change so the badge stays accurate
+    effective_text = update_fields.get('feedbackText')
+    effective_score = update_fields.get('stressScore')
+    sentiment = 'Neutral'
+    if effective_text is not None and effective_text.strip():
+        sia = get_sentiment_analyzer()
+        if sia:
+            scores = sia.polarity_scores(effective_text)
+            compound = scores['compound']
+            if compound >= 0.05: sentiment = 'Positive'
+            elif compound <= -0.05: sentiment = 'Negative'
+            else: sentiment = 'Neutral'
+        else:
+            sentiment = 'Neutral'
+            if effective_score and effective_score >= 7.0: sentiment = 'Negative'
+            elif effective_score is not None and effective_score <= 4.0: sentiment = 'Positive'
+    elif effective_score is not None:
+        if effective_score >= 7.0: sentiment = 'Negative'
+        elif effective_score <= 4.0: sentiment = 'Positive'
+
+    update_fields['sentiment'] = sentiment
+
+    try:
+        result = sentiment_pulses_collection.update_one({'_id': ObjectId(pulse_id)}, {'$set': update_fields})
+        if result.matched_count == 0:
+            return jsonify({'detail': 'Pulse not found'}), 404
+        return jsonify({'detail': 'Feedback updated', 'sentiment': sentiment}), 200
+    except Exception as e:
+        app.logger.exception(f"Failed to update sentiment pulse {pulse_id}: {e}")
         return jsonify({'detail': 'Internal Server Error'}), 500
 
 # --- Get An Individual Employee's Sentiment Pulses ---

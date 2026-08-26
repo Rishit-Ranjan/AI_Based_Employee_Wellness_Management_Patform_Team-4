@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { FileDown, History, TrendingUp, TrendingDown, Minus } from 'lucide-react';
-import { fetchHealthHistory, downloadHealthReportPdf } from '../services/api';
+import { FileDown, History, TrendingUp, TrendingDown, Minus, Eye, Trash2 } from 'lucide-react';
+import { fetchHealthHistory, downloadHealthReportPdf, viewHealthReportPdf, fetchDownloadedReports, deleteDownloadedReport } from '../services/api';
 
 function trendIcon(curr, prev) {
   if (prev === undefined || prev === null || curr === prev) return <Minus className="w-3 h-3 text-slate-300" />;
@@ -12,6 +12,8 @@ export default function ReportsModule({ user }) {
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState('');
+  const [downloadedReports, setDownloadedReports] = useState([]);
+  const [reportsLoading, setReportsLoading] = useState(true);
 
   useEffect(() => {
     fetchHealthHistory(user.employeeId)
@@ -20,11 +22,22 @@ export default function ReportsModule({ user }) {
       .finally(() => setLoading(false));
   }, [user.employeeId]);
 
+  const loadDownloadedReports = () => {
+    setReportsLoading(true);
+    fetchDownloadedReports(user.employeeId, { forceRefresh: true })
+      .then(setDownloadedReports)
+      .catch(() => {})
+      .finally(() => setReportsLoading(false));
+  };
+
+  useEffect(() => { loadDownloadedReports(); }, [user.employeeId]);
+
   const handleDownload = async () => {
     setDownloading(true);
     setError('');
     try {
       await downloadHealthReportPdf(user.employeeId);
+      loadDownloadedReports();
     } catch (err) {
       setError(err?.message || 'Could not download report.');
     } finally {
@@ -32,8 +45,21 @@ export default function ReportsModule({ user }) {
     }
   };
 
+  const handleView = () => {
+    viewHealthReportPdf(user.employeeId);
+  };
+
+  const handleDeleteReport = async (reportId) => {
+    try {
+      await deleteDownloadedReport(reportId);
+      loadDownloadedReports();
+    } catch (err) {
+      setError(err?.message || 'Could not delete report.');
+    }
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 lg:pr-20">
       <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
           <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2"><FileDown className="w-5 h-5 text-slate-400" /> Download Health Report</h3>
@@ -46,6 +72,52 @@ export default function ReportsModule({ user }) {
         >
           <FileDown className="w-4 h-4" /> {downloading ? 'Generating…' : 'Download PDF'}
         </button>
+      </div>
+
+      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
+        <div className="flex items-center justify-between mb-1">
+          <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2"><FileDown className="w-5 h-5 text-slate-400" /> Downloaded Reports</h3>
+          <button onClick={handleView} className="flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-700 cursor-pointer">
+            <Eye className="w-3.5 h-3.5" /> View Latest
+          </button>
+        </div>
+        <p className="text-xs text-slate-400 dark:text-slate-400 mb-4">Reports you've downloaded. Open them in a new tab or delete them from your history.</p>
+
+        {reportsLoading ? (
+          <p className="text-sm text-slate-400 dark:text-slate-500">Loading…</p>
+        ) : downloadedReports.length === 0 ? (
+          <p className="text-sm text-slate-400 dark:text-slate-500">No downloaded reports yet — click "Download PDF" to generate your first report.</p>
+        ) : (
+          <div className="space-y-3">
+            {downloadedReports.map((r) => (
+              <div key={r.id} className="border border-slate-100 dark:border-slate-700 rounded-lg p-3.5 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-9 h-9 bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-800 rounded-lg flex items-center justify-center shrink-0">
+                    <FileDown className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate">{r.fileName || `health-report-${user.employeeId}.pdf`}</div>
+                    <div className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">{new Date(r.downloadedAt).toLocaleString()}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <a
+                    href={`/api/reports/health-report/${user.employeeId}?view=1`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="p-2 rounded-lg bg-slate-50 dark:bg-slate-700 hover:bg-indigo-50 dark:hover:bg-slate-600 text-slate-500 dark:text-slate-300 cursor-pointer"
+                    title="View report"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                  </a>
+                  <button onClick={() => handleDeleteReport(r.id)} className="p-2 rounded-lg bg-slate-50 dark:bg-slate-700 hover:bg-rose-50 dark:hover:bg-rose-900/40 text-slate-500 dark:text-slate-300 hover:text-rose-500 dark:hover:text-rose-400 cursor-pointer" title="Delete report">
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6">

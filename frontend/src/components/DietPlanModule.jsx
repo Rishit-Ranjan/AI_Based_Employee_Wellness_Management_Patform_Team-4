@@ -25,7 +25,7 @@ export default function DietPlanModule() {
   React.useEffect(() => { handleGenerate('Vegetarian'); }, []);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 lg:pr-20">
       <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5">
         <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Choose your diet type</div>
         <div className="flex flex-wrap gap-2">

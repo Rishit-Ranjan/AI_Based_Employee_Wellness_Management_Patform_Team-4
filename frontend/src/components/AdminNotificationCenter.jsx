@@ -73,7 +73,7 @@ export default function AdminNotificationCenter({ allUsers = [] }) {
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{n.message}</p>
                   <span className="text-[9px] text-slate-300 dark:text-slate-600 font-mono">{new Date(n.createdAt).toLocaleString()}</span>
                 </div>
-                <button onClick={() => handleDelete(n.id)} className="text-slate-300 dark:text-slate-600 hover:text-rose-500 dark:hover:text-rose-400 cursor-pointer shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
+                <button onClick={() => handleDelete(n.id)} className="p-1.5 border border-slate-200 dark:border-slate-600 rounded-md text-slate-500 dark:text-slate-400 hover:text-rose-500 hover:border-rose-300 dark:hover:text-rose-400 cursor-pointer shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
               </div>
             ))}
           </div>
