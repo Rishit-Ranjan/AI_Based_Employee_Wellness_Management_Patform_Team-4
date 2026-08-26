@@ -74,7 +74,7 @@ cd backend/src
 python -m venv venv
 
 # On Windows:
-venv\Scripts\activate
+.venv\Scripts\activate
 
 # On macOS/Linux:
 source venv/bin/activate
@@ -129,7 +129,7 @@ Run this command in the terminal:
 python3 -c "import secrets; print(secrets.token_hex(32))"
 ```
 
-Paste the result string into the JWT_SECRET_KEY in ".env" file.
+Paste the result string into the JWT_SECRET_KEY in `.env` file.
 
 ### 3. Frontend Setup
 
