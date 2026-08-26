@@ -111,8 +111,8 @@ export function EmergencySOSModule({ user }) {
   const load = () => { fetchSosAlerts().then(setAlerts).catch(console.error).finally(() => setLoading(false)); };
   useEffect(() => { load(); }, []);
 
-  const handleTrigger = async () => {
-    await triggerSos('Emergency SOS triggered from wellness portal');
+      const handleTrigger = async () => {
+    await triggerSos('Emergency SOS triggered from wellness portal', user?.employeeId, user?.employeeName);
     setSent(true);
     setConfirming(false);
     setTimeout(() => setSent(false), 4000);
@@ -167,7 +167,7 @@ export function EmergencySOSModule({ user }) {
 }
 
 // --- Health Expense Tracker ---
-export function ExpenseTrackerModule() {
+export function ExpenseTrackerModule({ user }) {
   const [expenses, setExpenses] = useState([]);
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
@@ -180,13 +180,13 @@ export function ExpenseTrackerModule() {
 
   const resetForm = () => { setDescription(''); setAmount(''); setCategory('Consultation'); setEditingId(null); };
 
-  const handleAdd = async (e) => {
+        const handleAdd = async (e) => {
     e.preventDefault();
     if (!description || !amount) return;
     if (editingId) {
-      await updateExpenseRecord(editingId, { description, amount: Number(amount), category });
+      await updateExpenseRecord(editingId, { description, amount: Number(amount), category, employeeId: user?.employeeId, employeeName: user?.employeeName });
     } else {
-      await addExpense({ description, amount: Number(amount), category });
+      await addExpense({ description, amount: Number(amount), category, employeeId: user?.employeeId, employeeName: user?.employeeName });
     }
     resetForm();
     load();

@@ -334,9 +334,9 @@ export const updateCheckup = (id, data) => request(`/checkups/${id}`, {
 });
 
 // --- SOS / Emergency ---
-export const triggerSos = (message) => request('/sos', {
+export const triggerSos = (message, employeeId, employeeName) => request('/sos', {
   method: 'POST',
-  body: JSON.stringify({ message }),
+  body: JSON.stringify({ message, employeeId, employeeName }),
 });
 export const fetchSosAlerts = (options) => request('/sos', { method: 'GET', ...options });
 export const resolveSos = (id) => request(`/sos/${id}/resolve`, { method: 'PUT' });
