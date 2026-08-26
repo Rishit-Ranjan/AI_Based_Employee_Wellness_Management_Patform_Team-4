@@ -144,6 +144,10 @@ export const fetchUsers = () => request('/users');
  * @returns {Promise<Object>} A promise that resolves on successful deletion.
  */
 export const deleteUser = (employeeId) => request(`/users/${employeeId}`, { method: 'DELETE' });
+export const updateEmployee = (employeeId, fields) => request(`/users/${employeeId}`, {
+  method: 'PUT',
+  body: JSON.stringify(fields),
+});
 /**
  * Uploads a new avatar for the current user.
  * @param {File} file The image file to upload.

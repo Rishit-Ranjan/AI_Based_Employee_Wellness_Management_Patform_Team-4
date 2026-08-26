@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Edit, MoreHorizontal, Activity, TrendingUp, Lightbulb, Smile, BarChart3, LogOut,
   Search, Plus, X, ShieldAlert, AlertCircle, Check, Sparkles, Dumbbell, Apple, Brain, Clock, ChevronLeft, ChevronRight, Menu, Calendar, UserX, Eye,
-  ShieldCheck, Bell, Receipt, Siren, Zap, Target, Users, LineChart, Cog, Save
+  ShieldCheck, Bell, Receipt, Siren, Zap, Target, Users, LineChart, Cog, Save, Pencil
 } from 'lucide-react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ScatterChart, Scatter, ResponsiveContainer } from 'recharts';
 
@@ -1077,9 +1077,10 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
 // ==========================================
 // NEW MODULE: USER MANAGEMENT
 // ==========================================
-function UserManagementModule({ allUsers, healthRecords, onDeleteUser, loading }) {
+function UserManagementModule({ allUsers, healthRecords, onDeleteUser, onUpdateUser, loading }) {
   const [search, setSearch] = useState('');
   const [error, setError] = useState('');
+  const [inlineError, setInlineError] = useState('');
 
   const filteredUsers = useMemo(() => {
     return allUsers.filter(user =>
@@ -1095,7 +1096,37 @@ function UserManagementModule({ allUsers, healthRecords, onDeleteUser, loading }
       ...user,
       department: recordsMap.get(user.employeeId) || 'N/A',
     }));
-  }, [filteredUsers, healthRecords]);
+    }, [filteredUsers, healthRecords]);
+
+  const [editingId, setEditingId] = useState(null);
+  const [draft, setDraft] = useState({ name: '', email: '', role: '', department: '' });
+
+  const startEdit = (user) => {
+    setDraft({
+      name: user.name ?? '',
+      email: user.email ?? '',
+      role: user.role ?? 'user',
+      department: user.department ?? 'N/A',
+    });
+    setEditingId(user.employeeId);
+    setInlineError('');
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setDraft({ name: '', email: '', role: '', department: '' });
+    setInlineError('');
+  };
+
+  const handleUpdate = async () => {
+    setInlineError('');
+    try {
+      await onUpdateUser(editingId, { ...draft });
+      setEditingId(null);
+    } catch (err) {
+      setInlineError(err.message || 'Failed to update user.');
+    }
+  };
 
 
 
@@ -1147,33 +1178,108 @@ function UserManagementModule({ allUsers, healthRecords, onDeleteUser, loading }
               [...Array(5)].map((_, i) => (
                 <tr key={i}><td colSpan="6" className="p-4"><div className="h-8 bg-slate-100 dark:bg-slate-700 rounded animate-pulse"></div></td></tr>
               ))
-            ) : usersWithDept.map(user => (
+            ) : usersWithDept.map(user => {
+              const isEditing = editingId === user.employeeId;
+              return (
               <tr key={user.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="font-semibold text-slate-800 dark:text-slate-100">{user.name}</div>
-                  <div className="text-xs text-slate-400 dark:text-slate-500 font-mono">{user.employeeId}</div>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={draft.name}
+                      onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+                      className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-900 border border-indigo-300 dark:border-indigo-600 rounded-md text-sm text-slate-800 dark:text-slate-100 outline-none focus:border-indigo-500"
+                    />
+                  ) : (
+                    <>
+                      <div className="font-semibold text-slate-800 dark:text-slate-100">{user.name}</div>
+                      <div className="text-xs text-slate-400 dark:text-slate-500 font-mono">{user.employeeId}</div>
+                    </>
+                  )}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-slate-600 dark:text-slate-300">{user.department}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-slate-600 dark:text-slate-300">{user.email}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-slate-600 dark:text-slate-300">
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={draft.department}
+                      onChange={(e) => setDraft({ ...draft, department: e.target.value })}
+                      className="w-28 px-2 py-1.5 bg-slate-50 dark:bg-slate-900 border border-indigo-300 dark:border-indigo-600 rounded-md text-xs text-slate-800 dark:text-slate-100 outline-none focus:border-indigo-500"
+                    />
+                  ) : (
+                    user.department
+                  )}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-slate-600 dark:text-slate-300">
+                  {isEditing ? (
+                    <input
+                      type="email"
+                      value={draft.email}
+                      onChange={(e) => setDraft({ ...draft, email: e.target.value })}
+                      className="w-48 px-2 py-1.5 bg-slate-50 dark:bg-slate-900 border border-indigo-300 dark:border-indigo-600 rounded-md text-xs text-slate-800 dark:text-slate-100 outline-none focus:border-indigo-500"
+                    />
+                  ) : (
+                    user.email
+                  )}
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${user.role === 'admin' ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}`}>
-                    {user.role}
-                  </span>
+                  {isEditing ? (
+                    <select
+                      value={draft.role}
+                      onChange={(e) => setDraft({ ...draft, role: e.target.value })}
+                      className="px-2 py-1.5 bg-slate-50 dark:bg-slate-900 border border-indigo-300 dark:border-indigo-600 rounded-md text-xs text-slate-800 dark:text-slate-100 outline-none focus:border-indigo-500"
+                    >
+                      <option value="user">user</option>
+                      <option value="admin">admin</option>
+                    </select>
+                  ) : (
+                    <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${user.role === 'admin' ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}`}>
+                      {user.role}
+                    </span>
+                  )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-slate-500 dark:text-slate-400 text-xs font-mono">
                   {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right">
-                  <button
-                    onClick={() => confirmAndDeleteUser(user.employeeId, user.name)}
-                    className="p-2 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/60 text-red-600 dark:text-red-400 rounded-lg transition-colors"
-                    title={`Delete ${user.name}`}
-                  >
-                    <UserX className="w-4 h-4" />
-                  </button>
+                  {isEditing ? (
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={handleUpdate}
+                        className="p-2 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400 rounded-lg transition-colors border border-emerald-200 dark:border-emerald-800"
+                        title="Save changes"
+                      >
+                        <Check className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={cancelEdit}
+                        className="p-2 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-lg transition-colors border border-slate-200 dark:border-slate-600"
+                        title="Cancel editing"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => startEdit(user)}
+                        className="p-2 bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 rounded-lg transition-colors border border-indigo-200 dark:border-indigo-800"
+                        title={`Edit ${user.name}`}
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => confirmAndDeleteUser(user.employeeId, user.name)}
+                        className="p-2 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/60 text-red-600 dark:text-red-400 rounded-lg transition-colors"
+                        title={`Delete ${user.name}`}
+                      >
+                        <UserX className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
         {usersWithDept.length === 0 && !loading && (
@@ -2485,6 +2591,7 @@ export default function AdminDashboard({ user,
   onUserUpdate,
   onAddHealthRecord,
   onDeleteUser,
+  onUpdateUser,
   onDeleteHealthRecord,
   onUpdateHealthRecord,
   performanceData,
@@ -2841,6 +2948,7 @@ export default function AdminDashboard({ user,
                 allUsers={allUsers}
                 healthRecords={healthRecords}
                 onDeleteUser={onDeleteUser}
+                onUpdateUser={onUpdateUser}
                 loading={loading}
               />
             )}

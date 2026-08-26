@@ -649,6 +649,40 @@ def delete_user_and_data(employee_id):
         app.logger.exception(f"An unexpected error occurred while deleting user {employee_id}: {e}")
         return jsonify({'detail': 'Internal Server Error'}), 500
 
+# --- Admin-Only Endpoint to Update a User ---
+@app.route('/api/users/<employee_id>', methods=['PUT'])
+@jwt_required(locations=["cookies"])
+def update_user(employee_id):
+    """Updates a user's name, email, or role. Admin-only operation."""
+    jwt_payload = get_jwt()
+    user_info = jwt_payload.get("user_info", {})
+    if user_info.get('role', '').lower() != 'admin':
+        return jsonify({'detail': 'Forbidden: You do not have permission to update users.'}), 403
+
+    data = request.get_json(silent=True) or {}
+    updates = {}
+    if 'name' in data and data['name']:
+        updates['name'] = str(data['name']).strip()
+    if 'email' in data and data['email']:
+        updates['email'] = str(data['email']).strip().lower()
+    if 'role' in data and data['role'] in ('user', 'admin'):
+        updates['role'] = data['role']
+
+    if not updates:
+        return jsonify({'detail': 'No valid fields to update provided.'}), 400
+
+    try:
+        result = users_collection.update_one(
+            {'employeeId': employee_id},
+            {'$set': updates}
+        )
+        if result.matched_count == 0:
+            return jsonify({'detail': 'User not found.'}), 404
+        return jsonify({'detail': 'User updated successfully.'}), 200
+    except Exception as e:
+        app.logger.exception(f"An unexpected error occurred while updating user {employee_id}: {e}")
+        return jsonify({'detail': 'Internal Server Error'}), 500
+
 # --- Risk Prediction Helper Function ---
 def map_health_record_to_model_input(record):
     normalized = {

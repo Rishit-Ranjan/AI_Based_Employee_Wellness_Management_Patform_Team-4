@@ -382,6 +382,16 @@ export default function App() {
         }
     };
 
+    const handleUpdateUser = async (employeeId, fields) => {
+        try {
+            await api.updateEmployee(employeeId, fields);
+            await loadAllData(true);
+        } catch (err) {
+            console.error('Failed to update user:', err);
+            throw err;
+        }
+    };
+
     // Update department sentiment pulse based on new feedback and persist changes
     const handleUpdateSentimentPulse = async (employeeId, deptName, stressScore, feedbackText) => {
       try {
@@ -508,6 +518,7 @@ export default function App() {
                             onUserUpdate={setCurrentUser}
                             onDeleteHealthRecord={handleDeleteHealthRecord}
                             onDeleteUser={handleDeleteUser}
+                            onUpdateUser={handleUpdateUser}
                             onUpdateHealthRecord={handleUpdateUserRecord}
                             performanceData={performanceData}
                             onPulseDeleted={handlePulseDeleted}
