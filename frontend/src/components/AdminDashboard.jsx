@@ -39,13 +39,20 @@ const SearchableEmployeeSelect = ({
 
   const filteredEmployees = useMemo(() => {
     if (!searchTerm) return employees;
-    return employees.filter(emp => 
-      emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      emp.employeeId.toLowerCase().includes(searchTerm.toLowerCase())
+    return employees.filter(emp =>
+      ((emp.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (emp.employeeId || '').toLowerCase().includes(searchTerm.toLowerCase()))
     );
   }, [employees, searchTerm]);
 
-  const selectedEmployee = employees.find(emp => emp.id === value?.split('|')[0]);
+  // Value format is "employeeId|name"; fall back to parsing the value itself
+  // when the employee object can't be matched (e.g. differing id fields).
+  const [valueId, valueName] = (value || '').split('|');
+  const selectedEmployee = employees.find(
+    emp => emp.id === valueId || emp.employeeId === valueId
+  );
+  const displayName = selectedEmployee?.name ?? valueName;
+  const displayId = selectedEmployee?.employeeId ?? valueId;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -65,7 +72,7 @@ const SearchableEmployeeSelect = ({
         className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none text-left flex items-center justify-between hover:border-slate-300 dark:hover:border-slate-500 transition-colors"
       >
         <span className="truncate">
-          {value ? `${selectedEmployee?.name} (${selectedEmployee?.employeeId})` : placeholder}
+          {value ? `${displayName} (${displayId})` : placeholder}
         </span>
         <ChevronRight className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? 'rotate-90' : ''}`} />
       </button>
