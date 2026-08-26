@@ -1922,6 +1922,9 @@ def get_achievements(employee_id):
 
     habit = daily_habits_collection.find_one({'employeeId': employee_id}) or {}
     completed_goals = goals_collection.count_documents({'employeeId': employee_id, 'status': 'Completed'})
+    completed_goals_list = list(
+        goals_collection.find({'employeeId': employee_id, 'status': 'Completed'}).sort('createdAt', -1)
+    )
     history_entries = health_history_collection.count_documents({'employeeId': employee_id})
 
     badges = []
@@ -1931,6 +1934,15 @@ def get_achievements(employee_id):
         badges.append({'name': 'Fitness Champion', 'earned': True, 'desc': 'Logged exercise activity'})
     if habit.get('meditationMinutes', 0) and float(habit.get('meditationMinutes', 0)) > 0:
         badges.append({'name': 'Meditation Master', 'earned': True, 'desc': 'Practiced meditation'})
+    # A badge named after each completed goal so "Getting Started" is replaced by a goal-specific badge
+    for goal in completed_goals_list:
+        badge_name = str(goal.get('title', 'Goal')).strip() or 'Goal'
+        badges.append({
+            'name': badge_name,
+            'earned': True,
+            'goalId': str(goal.get('_id', '')),
+            'desc': 'Goal completed 🎉',
+        })
     if completed_goals >= 1:
         badges.append({'name': 'Goal Getter', 'earned': True, 'desc': f'{completed_goals} goal(s) completed'})
     if history_entries >= 30:
