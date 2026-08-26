@@ -297,6 +297,18 @@ export const submitSentimentPulse = (employeeId, department, stressScore, feedba
  */
 export const deleteSentimentPulse = (pulseId) => request(`/wellness/sentiment-pulse/${pulseId}`, { method: 'DELETE' });
 
+/**
+ * Updates a single sentiment pulse (feedback text / stress score). Used to edit a
+ * feedback log after it has been submitted.
+ * @param {string} pulseId The ID of the pulse to update.
+ * @param {Object} data Fields to update ({ feedbackText?, stressScore? }).
+ * @returns {Promise<Object>}
+ */
+export const updateSentimentPulse = (pulseId, data) => request(`/wellness/sentiment-pulse/${pulseId}`, {
+  method: 'PUT',
+  body: JSON.stringify(data),
+});
+
 export const saveSentiments = (sentimentsData) => saveToStorage('wellness_sentiments', sentimentsData);
 
 // --- Profile / Account ---
@@ -339,6 +351,10 @@ export const deleteExpense = (id) => request(`/expenses/${id}`, { method: 'DELET
 export const updateExpense = (id, status) => request(`/expenses/${id}`, {
   method: 'PUT',
   body: JSON.stringify({ status }),
+});
+export const updateExpenseRecord = (id, data) => request(`/expenses/${id}`, {
+  method: 'PUT',
+  body: JSON.stringify(data),
 });
 
 // --- Insurance ---
@@ -408,6 +424,14 @@ export const downloadHealthReportPdf = async (employeeId) => {
   window.URL.revokeObjectURL(url);
 };
 
+// Open (view) a health report PDF in a new browser tab (inline, no download recorded)
+export const viewHealthReportPdf = (employeeId) => {
+  window.open(`${API_BASE}/reports/health-report/${employeeId}?view=1`, '_blank');
+};
+
+export const fetchDownloadedReports = (employeeId, options) => request(`/reports/downloads/${employeeId}`, { method: 'GET', ...options });
+export const deleteDownloadedReport = (reportId) => request(`/reports/downloads/${reportId}`, { method: 'DELETE' });
+
 // --- Performance Analytics API ---
 
 // --- AI Wellness Service API ---
@@ -452,19 +476,20 @@ export default {
   fetchUsers, uploadAvatar, updateProfile, changePassword,
   fetchHealthRecords, addHealthRecord, updateHealthRecord, deleteHealthRecord,
   fetchRisks, fetchRecommendations, fetchSentiments, saveSentiments, submitSentimentPulse,
-  deleteSentimentPulse,
+  deleteSentimentPulse, updateSentimentPulse,
   fetchAllSentimentPulses, fetchEmployeeSentimentPulses,
   fetchDailyHabits, addDailyHabit, updateDailyHabit,
   fetchMentalHealthLogs, addMentalHealthLog, updateMentalHealthLog,
   fetchCheckups, bookCheckup, deleteCheckup, updateCheckup,
   triggerSos, fetchSosAlerts, resolveSos,
-  fetchExpenses, addExpense, deleteExpense, updateExpense,
+  fetchExpenses, addExpense, deleteExpense, updateExpense, updateExpenseRecord,
   fetchAllInsurance, saveInsurance, updateInsuranceClaim,
   fetchInsurance, fileInsuranceClaim, deleteInsurance,
   fetchNotifications, sendNotification, deleteNotification, markNotificationRead,
   generateDietPlan,
   fetchGoals, createGoal, updateGoal, deleteGoal, fetchAchievements,
-  fetchHealthHistory, downloadHealthReportPdf,
+  fetchHealthHistory, downloadHealthReportPdf, viewHealthReportPdf,
+  fetchDownloadedReports, deleteDownloadedReport,
   fetchPerformanceAnalytics,
   fetchSystemSettings, saveSystemSettings,
 };

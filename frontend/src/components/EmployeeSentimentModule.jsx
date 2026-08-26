@@ -10,8 +10,12 @@ import {
   Sparkles,
   MessageSquare,
   Zap,
-  Calendar
+  Calendar,
+  Pencil,
+  X,
+  Save
 } from 'lucide-react';
+import { updateSentimentPulse, fetchEmployeeSentimentPulses } from '../services/api';
 
 /**
  * EmployeeSentimentModule
@@ -24,7 +28,11 @@ import {
  */
 export default function EmployeeSentimentModule({ user, record, records }) {
   const userRecord = record || (Array.isArray(records) ? records.find(r => r?.employeeId === user?.employeeId) : null);
-  const feedbackLogs = (userRecord && userRecord.feedbackLogs) || [];
+  const [feedbackLogs, setFeedbackLogs] = React.useState((userRecord && userRecord.feedbackLogs) || []);
+  const [editingId, setEditingId] = React.useState(null);
+  const [editText, setEditText] = React.useState('');
+  const [editStress, setEditStress] = React.useState(5);
+  const [saving, setSaving] = React.useState(false);
   const totalLogs = feedbackLogs.length;
 
 const stressScore = Number(userRecord?.stressScore) || 0;
@@ -80,6 +88,37 @@ const stressScore = Number(userRecord?.stressScore) || 0;
       : riskLabel === 'Moderate Risk'
       ? 'text-amber-600'
       : 'text-emerald-600';
+
+  const refreshLogs = () => {
+    fetchEmployeeSentimentPulses(user.employeeId, { forceRefresh: true })
+      .then(pulses => setFeedbackLogs((pulses || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))))
+      .catch(console.error);
+  };
+
+  const startEdit = (log) => {
+    setEditingId(log.id);
+    setEditText(log.feedbackText || log.feedback || '');
+    setEditStress(Number(log.stressScore) || 5);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditText('');
+    setEditStress(5);
+  };
+
+  const saveEdit = async (logId) => {
+    setSaving(true);
+    try {
+      await updateSentimentPulse(logId, { feedbackText: editText, stressScore: Number(editStress) });
+      refreshLogs();
+      cancelEdit();
+    } catch (err) {
+      console.error('Failed to update feedback:', err);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <motion.div
@@ -239,7 +278,7 @@ const stressScore = Number(userRecord?.stressScore) || 0;
             <ul className="space-y-3">
               {recentFeedback.map((log, idx) => (
                 <li
-                  key={idx}
+                  key={log.id || idx}
                   className="bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl p-3.5 flex items-start gap-3"
                 >
                   <span
@@ -254,17 +293,69 @@ const stressScore = Number(userRecord?.stressScore) || 0;
                     {log.sentiment || 'Neutral'}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                      {log.feedbackText || log.feedback || 'No text provided.'}
-                    </p>
-                    <div className="flex items-center gap-2 mt-1.5 text-[10px] text-slate-400 font-mono">
-                      <Calendar className="w-3 h-3" />
-                      <span>
-                        Stress: {log.stressScore ?? '—'}/10 ·{' '}
-                        {log.createdAt ? new Date(log.createdAt).toLocaleString() : 'Recently'}
-                      </span>
-                    </div>
+                    {editingId === log.id ? (
+                      <div className="space-y-2.5">
+                        <textarea
+                          value={editText}
+                          onChange={(e) => setEditText(e.target.value)}
+                          rows={2}
+                          placeholder="Update your feedback…"
+                          className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-indigo-500/30"
+                        />
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase">Stress</span>
+                            <input
+                              type="number"
+                              min="1"
+                              max="10"
+                              value={editStress}
+                              onChange={(e) => setEditStress(e.target.value)}
+                              className="w-14 px-2 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md text-xs text-slate-800 dark:text-slate-200 text-center"
+                            />
+                            <span className="text-[10px] text-slate-400">/10</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 ml-auto">
+                            <button
+                              onClick={() => saveEdit(log.id)}
+                              disabled={saving}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-[10px] font-bold cursor-pointer"
+                            >
+                              <Save className="w-3 h-3" /> {saving ? 'Saving…' : 'Save'}
+                            </button>
+                            <button
+                              onClick={cancelEdit}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-500 dark:text-slate-300 rounded-md text-[10px] font-bold cursor-pointer"
+                            >
+                              <X className="w-3 h-3" /> Cancel
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                          {log.feedbackText || log.feedback || 'No text provided.'}
+                        </p>
+                        <div className="flex items-center gap-2 mt-1.5 text-[10px] text-slate-400 font-mono">
+                          <Calendar className="w-3 h-3" />
+                          <span>
+                            Stress: {log.stressScore ?? '—'}/10 ·{' '}
+                            {log.createdAt ? new Date(log.createdAt).toLocaleString() : 'Recently'}
+                          </span>
+                        </div>
+                      </>
+                    )}
                   </div>
+                  {editingId !== log.id && (
+                    <button
+                      onClick={() => startEdit(log)}
+                      className="shrink-0 p-1.5 rounded-lg text-slate-300 dark:text-slate-600 hover:text-indigo-500 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-800 cursor-pointer"
+                      title="Edit feedback"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>

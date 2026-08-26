@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Target, Award, Plus, Trash2, CheckCircle2 } from 'lucide-react';
+import { Target, Award, Plus, Trash2, CheckCircle2, Pencil, X } from 'lucide-react';
 import { fetchGoals, createGoal, updateGoal, deleteGoal } from '../services/api';
 import AchievementsModule from './AchievementsModule';
 
@@ -7,6 +7,7 @@ export default function GoalsModule({ user }) {
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [title, setTitle] = useState('');
   const [targetValue, setTargetValue] = useState('100');
   const [unit, setUnit] = useState('%');
@@ -21,12 +22,33 @@ export default function GoalsModule({ user }) {
 
   useEffect(() => { load(); }, [user.employeeId]);
 
-  const handleAddGoal = async (e) => {
+  const resetForm = () => {
+    setTitle(''); setTargetValue('100'); setUnit('%'); setEditingId(null); setShowForm(false);
+  };
+
+  const toggleForm = () => {
+    if (showForm) resetForm();
+    else setShowForm(true);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title) return;
-    await createGoal({ employeeId: user.employeeId, title, targetValue: Number(targetValue), unit });
-    setTitle(''); setTargetValue('100'); setUnit('%'); setShowForm(false);
+    if (editingId) {
+      await updateGoal(editingId, { title, targetValue: Number(targetValue), unit });
+    } else {
+      await createGoal({ employeeId: user.employeeId, title, targetValue: Number(targetValue), unit });
+    }
+    resetForm();
     load();
+  };
+
+  const handleStartEdit = (goal) => {
+    setEditingId(goal.id);
+    setTitle(goal.title);
+    setTargetValue(String(goal.targetValue));
+    setUnit(goal.unit || '%');
+    setShowForm(true);
   };
 
   const handleProgress = async (goal, delta) => {
@@ -47,13 +69,13 @@ export default function GoalsModule({ user }) {
       <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2"><Target className="w-5 h-5 text-slate-400" /> My Goals</h3>
-          <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-700 cursor-pointer">
+          <button onClick={toggleForm} className="flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-700 cursor-pointer">
             <Plus className="w-3.5 h-3.5" /> New Goal
           </button>
         </div>
 
         {showForm && (
-          <form onSubmit={handleAddGoal} className="mb-5 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
+          <form onSubmit={handleSubmit} className="mb-5 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
             <div className="sm:col-span-2">
               <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">Goal</label>
               <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Walk 10,000 steps daily" className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200" />
@@ -66,7 +88,14 @@ export default function GoalsModule({ user }) {
               <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">Unit</label>
               <input value={unit} onChange={(e) => setUnit(e.target.value)} placeholder="%, steps, hrs..." className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200" />
             </div>
-            <button type="submit" className="sm:col-span-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold">Add Goal</button>
+            <div className="sm:col-span-4 flex gap-2">
+              <button type="submit" className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold">
+                {editingId ? 'Save Changes' : 'Add Goal'}
+              </button>
+              <button type="button" onClick={resetForm} className="flex items-center gap-1 px-3 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-500 dark:text-slate-300 rounded-lg text-xs font-bold">
+                <X className="w-3.5 h-3.5" /> Cancel
+              </button>
+            </div>
           </form>
         )}
 
@@ -83,7 +112,10 @@ export default function GoalsModule({ user }) {
                       {g.status === 'Completed' && <CheckCircle2 className="w-4 h-4 text-emerald-500" />}
                       <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{g.title}</span>
                     </div>
-                    <button onClick={() => handleDelete(g.id)} className="text-slate-300 dark:text-slate-600 hover:text-rose-500 dark:hover:text-rose-400 cursor-pointer"><Trash2 className="w-3.5 h-3.5" /></button>
+                    <div className="flex items-center gap-1">
+                      <button onClick={() => handleStartEdit(g)} className="text-slate-300 dark:text-slate-600 hover:text-indigo-500 dark:hover:text-indigo-400 cursor-pointer" title="Edit goal"><Pencil className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => handleDelete(g.id)} className="text-slate-300 dark:text-slate-600 hover:text-rose-500 dark:hover:text-rose-400 cursor-pointer" title="Delete goal"><Trash2 className="w-3.5 h-3.5" /></button>
+                    </div>
                   </div>
                   <div className="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden mb-2">
                     <div className={`h-full rounded-full ${g.status === 'Completed' ? 'bg-emerald-500' : 'bg-indigo-600'}`} style={{ width: `${pct}%` }} />
