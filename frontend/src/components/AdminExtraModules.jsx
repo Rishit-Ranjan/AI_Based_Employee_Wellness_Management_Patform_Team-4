@@ -4,8 +4,12 @@ import { fetchCheckups, updateCheckup, fetchSosAlerts, resolveSos, deleteSos, fe
 
 export function AdminCheckupsModule() {
   const [appointments, setAppointments] = useState([]);
-  const load = () => fetchCheckups(true).then(setAppointments).catch(console.error);
-  useEffect(() => { load(); }, []);
+    const load = () => fetchCheckups(true, { forceRefresh: true }).then(setAppointments).catch(console.error);
+  useEffect(() => {
+    load();
+    const interval = setInterval(load, 15000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleStatus = async (id, status) => { await updateCheckup(id, { status }); load(); };
 
@@ -40,10 +44,10 @@ export function AdminCheckupsModule() {
 
 export function AdminSosMonitor() {
   const [alerts, setAlerts] = useState([]);
-  const load = () => fetchSosAlerts().then(setAlerts).catch(console.error);
+    const load = () => fetchSosAlerts({ forceRefresh: true }).then(setAlerts).catch(console.error);
   useEffect(() => {
     load();
-    const interval = setInterval(load, 20000);
+    const interval = setInterval(load, 15000);
     return () => clearInterval(interval);
   }, []);
 
@@ -97,8 +101,12 @@ export function AdminSosMonitor() {
 
 export function AdminExpensesModule() {
   const [expenses, setExpenses] = useState([]);
-  const load = () => fetchExpenses(true).then(setExpenses).catch(console.error);
-  useEffect(() => { load(); }, []);
+    const load = () => fetchExpenses(true, { forceRefresh: true }).then(setExpenses).catch(console.error);
+  useEffect(() => {
+    load();
+    const interval = setInterval(load, 15000);
+    return () => clearInterval(interval);
+  }, []);
 
     const handleStatus = async (id, status) => { await updateExpense(id, status); load(); };
   const handleDelete = async (id) => { await deleteExpense(id); load(); };
