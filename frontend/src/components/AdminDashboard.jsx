@@ -25,6 +25,98 @@ import ThemeToggle from './wellness/ThemeToggle';
 import logo from '../assets/logo.png';
 
 // ==========================================
+// SEARCHABLE EMPLOYEE SELECT COMPONENT
+// ==========================================
+const SearchableEmployeeSelect = ({ 
+  value, 
+  onChange, 
+  employees, 
+  placeholder = "-- Search or select an employee --" 
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const dropdownRef = useRef(null);
+
+  const filteredEmployees = useMemo(() => {
+    if (!searchTerm) return employees;
+    return employees.filter(emp => 
+      emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      emp.employeeId.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [employees, searchTerm]);
+
+  const selectedEmployee = employees.find(emp => emp.id === value?.split('|')[0]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div ref={dropdownRef} className="relative w-full">
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none text-left flex items-center justify-between hover:border-slate-300 dark:hover:border-slate-500 transition-colors"
+      >
+        <span className="truncate">
+          {value ? `${selectedEmployee?.name} (${selectedEmployee?.employeeId})` : placeholder}
+        </span>
+        <ChevronRight className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? 'rotate-90' : ''}`} />
+      </button>
+
+      {isOpen && (
+        <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg shadow-lg z-50">
+          <div className="p-2 border-b border-slate-100 dark:border-slate-600">
+            <input
+              type="text"
+              placeholder="Search by name or ID..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded text-xs text-slate-800 dark:text-slate-100 outline-none focus:border-indigo-500"
+              autoFocus
+            />
+          </div>
+          <div className="max-h-48 overflow-y-auto">
+            {filteredEmployees.length > 0 ? (
+              filteredEmployees.map(emp => (
+                <button
+                  key={emp.id}
+                  type="button"
+                  onClick={() => {
+                    onChange({ target: { value: `${emp.employeeId}|${emp.name}` } });
+                    setIsOpen(false);
+                    setSearchTerm('');
+                  }}
+                  className="w-full text-left px-4 py-2.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors flex items-center justify-between"
+                >
+                  <div>
+                    <div className="font-medium">{emp.name}</div>
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">{emp.employeeId}</div>
+                  </div>
+                  {value === `${emp.employeeId}|${emp.name}` && (
+                    <Check className="w-4 h-4 text-indigo-600" />
+                  )}
+                </button>
+              ))
+            ) : (
+              <div className="px-4 py-3 text-xs text-slate-500 dark:text-slate-400 text-center">
+                No employees found
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ==========================================
 // MODULE 1: EMPLOYEE HEALTH DATA MANAGEMENT
 // ==========================================
 export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecord, onDeleteRecord, loading }) {
@@ -238,8 +330,12 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
   };
   
   const filtered = records.filter(r => {
-    const matchSearch = (r.employeeName || '').toLowerCase().includes(search.toLowerCase()) ||
-                        String(r.employeeId || '').toLowerCase().includes(search.toLowerCase());
+    let matchSearch = true;
+    if (search) {
+      const [searchId, searchName] = search.split('|');
+      matchSearch = (r.employeeName || '').toLowerCase().includes((searchName || searchId).toLowerCase()) ||
+                    String(r.employeeId || '').toLowerCase().includes(searchId.toLowerCase());
+    }
     const matchDept = filterDept ? r.department === filterDept : true;
     return matchSearch && matchDept;
   });
@@ -424,15 +520,17 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
       {/* Search & Action bar */}
       <div className="bg-white dark:bg-slate-800/50 p-4.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-          {/* Search Box */}
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search employee or ID..."
+          {/* Searchable Employee Select */}
+          <div className="w-full sm:w-72">
+            <SearchableEmployeeSelect
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 outline-none transition-all"
+              employees={records.map(r => ({
+                id: r.employeeId,
+                name: r.employeeName,
+                employeeId: r.employeeId
+              }))}
+              placeholder="-- Search or select an employee --"
             />
           </div>
 
@@ -505,18 +603,12 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
                 ) : (
                   <div className="col-span-2">
                     <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Select Employee</label>
-                    <select
+                    <SearchableEmployeeSelect
                       value={selectedEmployee}
                       onChange={(e) => setSelectedEmployee(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none"
-                    >
-                      <option value="" disabled>-- Select an employee --</option>
-                      {usersWithoutRecords.map(user => (
-                        <option key={user.id} value={`${user.employeeId}|${user.name}`}>
-                          {user.name} ({user.employeeId})
-                        </option>
-                      ))}
-                    </select>
+                      employees={usersWithoutRecords}
+                      placeholder="-- Search or select an employee --"
+                    />
                   </div>
                 )}
 
