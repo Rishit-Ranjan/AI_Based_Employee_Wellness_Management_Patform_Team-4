@@ -1348,11 +1348,11 @@ export function RecommendationModule({ recommendations = [], loading }) {
                 <p className="text-[14.5px] text-slate-400 dark:text-slate-500 font-mono">{empRec.employeeId}</p>
               </div>
               <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold ${
-                empRec.riskProfile.riskType === 'High' ? 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border border-red-100 dark:border-red-800' :
-                empRec.riskProfile.riskType === 'Medium' ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-100 dark:border-amber-800' :
+                empRec.riskProfile?.riskType === 'High' ? 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border border-red-100 dark:border-red-800' :
+                empRec.riskProfile?.riskType === 'Medium' ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-100 dark:border-amber-800' :
                 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800'
               }`}>
-                {empRec.riskProfile.riskType} Risk
+                {(empRec.riskProfile?.riskType || 'Low')} Risk
               </span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
