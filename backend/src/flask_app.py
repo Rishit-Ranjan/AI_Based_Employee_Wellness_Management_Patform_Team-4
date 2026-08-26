@@ -2420,6 +2420,24 @@ def resolve_sos(sos_id):
     sos_alerts_collection.update_one({'_id': ObjectId(sos_id)}, {'$set': {'status': 'Resolved'}})
     return jsonify({'detail': 'Alert resolved'}), 200
 
+
+@app.route('/api/sos/<sos_id>', methods=['DELETE'])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
+def delete_sos(sos_id):
+    # jwt_payload = get_jwt()
+    # user_info = jwt_payload.get("user_info")
+    # if user_info.get('role') != 'admin':
+    #     return jsonify({'detail': 'Forbidden'}), 403
+    try:
+        oid = ObjectId(sos_id)
+    except (ValueError, TypeError):
+        return jsonify({'detail': 'Invalid SOS id'}), 404
+    result = sos_alerts_collection.delete_one({'_id': oid})
+    if result.deleted_count == 0:
+        return jsonify({'detail': 'SOS alert not found'}), 404
+    return jsonify({'detail': 'SOS alert deleted'}), 200
+
+
 # --- Health Expense Tracker ---
 @app.route('/api/expenses', methods=['GET'])
 # @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access

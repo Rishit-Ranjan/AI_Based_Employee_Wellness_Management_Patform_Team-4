@@ -112,7 +112,7 @@ export function EmergencySOSModule({ user }) {
   useEffect(() => { load(); }, []);
 
       const handleTrigger = async () => {
-    await triggerSos('Emergency SOS triggered from wellness portal', user?.employeeId, user?.employeeName);
+        await triggerSos('Emergency SOS triggered from wellness portal', user?.employeeId, user?.name);
     setSent(true);
     setConfirming(false);
     setTimeout(() => setSent(false), 4000);
@@ -184,9 +184,9 @@ export function ExpenseTrackerModule({ user }) {
     e.preventDefault();
     if (!description || !amount) return;
     if (editingId) {
-      await updateExpenseRecord(editingId, { description, amount: Number(amount), category, employeeId: user?.employeeId, employeeName: user?.employeeName });
+            await updateExpenseRecord(editingId, { description, amount: Number(amount), category, employeeId: user?.employeeId, employeeName: user?.name });
     } else {
-      await addExpense({ description, amount: Number(amount), category, employeeId: user?.employeeId, employeeName: user?.employeeName });
+      await addExpense({ description, amount: Number(amount), category, employeeId: user?.employeeId, employeeName: user?.name });
     }
     resetForm();
     load();

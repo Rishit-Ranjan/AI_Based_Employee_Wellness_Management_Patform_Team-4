@@ -340,6 +340,7 @@ export const triggerSos = (message, employeeId, employeeName) => request('/sos',
 });
 export const fetchSosAlerts = (options) => request('/sos', { method: 'GET', ...options });
 export const resolveSos = (id) => request(`/sos/${id}/resolve`, { method: 'PUT' });
+export const deleteSos = (id) => request(`/sos/${id}`, { method: 'DELETE' });
 
 // --- Health Expenses ---
 export const fetchExpenses = (isAdmin = false, options) => request(`/expenses${isAdmin ? '?all=true' : ''}`, { method: 'GET', ...options });
