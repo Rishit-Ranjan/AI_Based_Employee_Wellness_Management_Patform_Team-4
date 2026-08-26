@@ -350,7 +350,7 @@ const stressScore = Number(userRecord?.stressScore) || 0;
                   {editingId !== log.id && (
                     <button
                       onClick={() => startEdit(log)}
-                      className="shrink-0 p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-indigo-500 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-800 cursor-pointer"
+                      className="shrink-0 p-1.5 border border-slate-200 dark:border-slate-600 rounded-md text-slate-500 dark:text-slate-400 hover:text-indigo-500 hover:border-indigo-300 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-800 cursor-pointer"
                       title="Edit feedback"
                     >
                       <Pencil className="w-3.5 h-3.5" />
