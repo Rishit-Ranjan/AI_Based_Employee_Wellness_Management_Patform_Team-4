@@ -59,7 +59,7 @@ export default function ReportsModule({ user }) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 lg:pr-20">
       <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
           <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2"><FileDown className="w-5 h-5 text-slate-400" /> Download Health Report</h3>

@@ -38,7 +38,7 @@ export function CheckupSchedulerModule() {
   const handleCancel = async (id) => { await deleteCheckup(id); load(); };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 lg:pr-20">
       <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
         <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2 mb-4"><CalendarPlus className="w-5 h-5 text-slate-400" /> {editingId ? 'Edit Check-up' : 'Book a Check-up'}</h3>
         <form onSubmit={handleBook} className="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
@@ -120,7 +120,7 @@ export function EmergencySOSModule({ user }) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 lg:pr-20">
       <div className="bg-rose-50 border border-rose-200 rounded-xl p-8 text-center">
         <Siren className="w-10 h-10 text-rose-500 mx-auto mb-3" />
         <h3 className="font-display font-semibold text-rose-800 text-lg mb-1">Emergency SOS</h3>
