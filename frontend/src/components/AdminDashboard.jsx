@@ -1356,7 +1356,7 @@ export function RecommendationModule({ recommendations = [], loading }) {
               </span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-              {empRec.recommendations.map((rec, idx) => {
+              {(empRec.recommendations || []).map((rec, idx) => {
                 const Icon = rec.category === 'Fitness' ? Dumbbell :
                              rec.category === 'Diet' ? Apple :
                              rec.category === 'Mental Wellness' ? Brain : Clock;
