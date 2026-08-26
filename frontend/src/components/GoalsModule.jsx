@@ -113,8 +113,8 @@ export default function GoalsModule({ user }) {
                       <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{g.title}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <button onClick={() => handleStartEdit(g)} className="text-slate-300 dark:text-slate-600 hover:text-indigo-500 dark:hover:text-indigo-400 cursor-pointer" title="Edit goal"><Pencil className="w-3.5 h-3.5" /></button>
-                      <button onClick={() => handleDelete(g.id)} className="text-slate-300 dark:text-slate-600 hover:text-rose-500 dark:hover:text-rose-400 cursor-pointer" title="Delete goal"><Trash2 className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => handleStartEdit(g)} className="text-slate-500 dark:text-slate-400 hover:text-indigo-500 dark:hover:text-indigo-400 cursor-pointer" title="Edit goal"><Pencil className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => handleDelete(g.id)} className="text-slate-500 dark:text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 cursor-pointer" title="Delete goal"><Trash2 className="w-3.5 h-3.5" /></button>
                     </div>
                   </div>
                   <div className="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden mb-2">
