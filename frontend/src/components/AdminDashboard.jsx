@@ -2723,6 +2723,7 @@ export default function AdminDashboard({ user,
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotifCenterOpen, setIsNotifCenterOpen] = useState(false);
+  const [notifRefreshKey, setNotifRefreshKey] = useState(0);
 
   // Save activeTab to localStorage whenever it changes
   useEffect(() => {
@@ -2776,14 +2777,20 @@ export default function AdminDashboard({ user,
     <div className="h-screen overflow-hidden bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col font-sans transition-colors duration-300">
       
       {isNotifCenterOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-fadeIn" onClick={() => setIsNotifCenterOpen(false)}>
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-fadeIn" onClick={() => { setIsNotifCenterOpen(false); setNotifRefreshKey(k => k + 1); }}>
           <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-3xl shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
             <div className="p-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50 dark:bg-slate-900">
               <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2"><Bell className="w-5 h-5 text-slate-400" /> Notification Center</h3>
               <button onClick={() => setIsNotifCenterOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer"><X className="w-5 h-5" /></button>
             </div>
             <div className="p-6 overflow-y-auto">
-              <AdminNotificationCenter allUsers={allUsers} />
+              <AdminNotificationCenter
+                allUsers={allUsers}
+                onNavigate={() => {
+                  setIsNotifCenterOpen(false);
+                  setActiveTab(8); // Checkups, SOS & Expenses section
+                }}
+              />
             </div>
           </div>
         </div>
@@ -2857,7 +2864,7 @@ export default function AdminDashboard({ user,
           <ThemeToggle />
 
           {/* Notification Bell */}
-          <NotificationBell isAdmin={true} onAdminClick={() => setIsNotifCenterOpen(true)} />
+          <NotificationBell isAdmin={true} onAdminClick={() => setIsNotifCenterOpen(true)} refreshKey={notifRefreshKey} />
 
           <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block" />
 

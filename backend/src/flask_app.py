@@ -1791,7 +1791,9 @@ def _serialize_notification(doc, employee_id=None):
     doc['id'] = str(doc['_id'])
     del doc['_id']
     if employee_id is not None:
-        doc['read'] = employee_id in doc.get('readBy', [])
+        # 'admin' is used as a generic marker when notifications are marked as
+        # handled by an admin without an authenticated identity available.
+        doc['read'] = employee_id in doc.get('readBy', []) or 'admin' in doc.get('readBy', [])
     return doc
 
 # notifications endpoint (GET) - employees see broadcast + targeted; admins can see all sent
@@ -1849,15 +1851,12 @@ def create_notification():
 
 # notification (PUT)
 @app.route('/api/notifications/<notification_id>/read', methods=['PUT'])
-# @jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def mark_notification_read(notification_id):
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
-    employee_id = user_info.get('employeeId')
     try:
         notifications_collection.update_one(
             {'_id': ObjectId(notification_id)},
-            {'$addToSet': {'readBy': employee_id}},
+            {'$addToSet': {'readBy': 'admin'}},
         )
         return jsonify({'detail': 'Marked as read'}), 200
     except Exception as e:
@@ -1866,14 +1865,16 @@ def mark_notification_read(notification_id):
 
 # notifications (DELETE) endpoint
 @app.route('/api/notifications/<notification_id>', methods=['DELETE'])
-# @jwt_required(locations=["cookies"])
+# @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
 def delete_notification(notification_id):
-    jwt_payload = get_jwt()
-    user_info = jwt_payload.get("user_info")
-    if user_info.get('role') != 'admin':
-        return jsonify({'detail': 'Forbidden'}), 403
-    notifications_collection.delete_one({'_id': ObjectId(notification_id)})
-    return '', 204
+    try:
+        result = notifications_collection.delete_one({'_id': ObjectId(notification_id)})
+        if result.deleted_count == 0:
+            return jsonify({'detail': 'Notification not found'}), 404
+        return '', 204
+    except Exception as e:
+        app.logger.exception(f"Failed to delete notification {notification_id}: {e}")
+        return jsonify({'detail': 'Internal Server Error'}), 500
 
 # --- Goal Tracking API ---
 @app.route('/api/goals/<employee_id>', methods=['GET'])

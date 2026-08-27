@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Bell, Send, Trash2 } from 'lucide-react';
-import { fetchNotifications, sendNotification, deleteNotification } from '../services/api';
+import { fetchNotifications, sendNotification, deleteNotification, markNotificationRead } from '../services/api';
 
 const CATEGORIES = ['General', 'Health Camp', 'Vaccination', 'Medical Checkup', 'Fitness Challenge', 'Insurance Renewal'];
 
-export default function AdminNotificationCenter({ allUsers = [] }) {
+// System-generated categories that map to an admin dashboard section
+const NAVIGABLE_CATEGORIES = ['Medical Checkup', 'SOS', 'Expense Claim'];
+
+export default function AdminNotificationCenter({ allUsers = [], onNavigate }) {
   const [notifications, setNotifications] = useState([]);
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
@@ -34,6 +37,22 @@ export default function AdminNotificationCenter({ allUsers = [] }) {
   const handleDelete = async (id) => {
     await deleteNotification(id);
     load();
+  };
+
+  // Clicking a system notification marks it as read (clearing the bell badge)
+  // and optionally navigates to the related admin section.
+  const handleNotificationClick = async (n) => {
+    if (!n.read) {
+      try {
+        await markNotificationRead(n.id);
+        load();
+      } catch (err) {
+        console.error('Failed to mark notification read:', err);
+      }
+    }
+    if (onNavigate && NAVIGABLE_CATEGORIES.includes(n.category)) {
+      onNavigate(n.category);
+    }
   };
 
   return (
@@ -66,16 +85,38 @@ export default function AdminNotificationCenter({ allUsers = [] }) {
           <p className="text-xs text-slate-400 dark:text-slate-500">No notifications sent yet.</p>
         ) : (
           <div className="space-y-2">
-            {notifications.map((n) => (
-              <div key={n.id} className="flex items-start justify-between border border-slate-100 dark:border-slate-700 rounded-lg p-3">
-                <div>
-                  <div className="text-xs font-semibold text-slate-700 dark:text-slate-200">{n.title} <span className="text-[9px] text-slate-400 dark:text-slate-500 font-mono ml-1">{n.targetEmployeeId ? `→ ${n.targetEmployeeId}` : '→ all'}</span></div>
+            {notifications.map((n) => {
+              const canNavigate = NAVIGABLE_CATEGORIES.includes(n.category);
+              return (
+              <div
+                key={n.id}
+                onClick={() => handleNotificationClick(n)}
+                className={`flex items-start justify-between border rounded-lg p-3 transition-colors ${
+                  canNavigate
+                    ? 'border-slate-100 dark:border-slate-700 cursor-pointer hover:bg-indigo-50/60 dark:hover:bg-indigo-950/30 hover:border-indigo-200 dark:hover:border-indigo-800'
+                    : 'border-slate-100 dark:border-slate-700'
+                } ${!n.read ? 'bg-indigo-50/40 dark:bg-indigo-950/20' : ''}`}
+              >
+                <div className="min-w-0">
+                  <div className="text-xs font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                    {!n.read && <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full shrink-0" />}
+                    <span className="truncate">{n.title}</span>
+                    <span className="text-[9px] text-slate-400 dark:text-slate-500 font-mono ml-1 shrink-0">{n.targetEmployeeId ? `→ ${n.targetEmployeeId}` : '→ all'}</span>
+                  </div>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{n.message}</p>
-                  <span className="text-[9px] text-slate-300 dark:text-slate-600 font-mono">{new Date(n.createdAt).toLocaleString()}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[9px] text-slate-300 dark:text-slate-600 font-mono">{new Date(n.createdAt).toLocaleString()}</span>
+                    {canNavigate && (
+                      <span className="text-[9px] font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-wider">
+                        Click to view →
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <button onClick={() => handleDelete(n.id)} className="p-1.5 border border-slate-200 dark:border-slate-600 rounded-md text-slate-500 dark:text-slate-400 hover:text-rose-500 hover:border-rose-300 dark:hover:text-rose-400 cursor-pointer shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
+                <button onClick={(e) => { e.stopPropagation(); handleDelete(n.id); }} className="p-1.5 border border-slate-200 dark:border-slate-600 rounded-md text-slate-500 dark:text-slate-400 hover:text-rose-500 hover:border-rose-300 dark:hover:text-rose-400 cursor-pointer shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

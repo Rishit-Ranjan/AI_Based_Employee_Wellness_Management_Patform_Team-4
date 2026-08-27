@@ -3,12 +3,13 @@ import { Bell, X, Check, Send } from 'lucide-react';
 import { fetchNotifications, markNotificationRead } from '../services/api';
 import AdminNotificationCenter from './AdminNotificationCenter';
 
-export default function NotificationBell({ isAdmin = false, onAdminClick }) {
+export default function NotificationBell({ isAdmin = false, onAdminClick, refreshKey = 0 }) {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
   const load = () => {
-    fetchNotifications(isAdmin).then(setNotifications).catch(() => {});
+    // forceRefresh bypasses the in-memory GET cache so the badge stays real-time
+    fetchNotifications(isAdmin, { forceRefresh: true }).then(setNotifications).catch(() => {});
   };
 
   useEffect(() => {
@@ -16,6 +17,11 @@ export default function NotificationBell({ isAdmin = false, onAdminClick }) {
     const interval = setInterval(load, 60000);
     return () => clearInterval(interval);
   }, [isAdmin]);
+
+  // Reload instantly when the parent signals a change (e.g. notifications marked read elsewhere)
+  useEffect(() => {
+    if (refreshKey > 0) load();
+  }, [refreshKey]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
