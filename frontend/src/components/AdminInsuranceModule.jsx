@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ShieldCheck, Plus, Save, CheckCircle2, XCircle, Users, Trash2, AlertTriangle, X } from 'lucide-react';
+import { ShieldCheck, Plus, Save, CheckCircle2, XCircle, Users, Trash2, AlertTriangle, X, Search } from 'lucide-react';
 import { fetchAllInsurance, saveInsurance, updateInsuranceClaim, deleteInsurance } from '../services/api';
 
 export default function AdminInsuranceModule({ allUsers = [] }) {
@@ -11,6 +11,9 @@ export default function AdminInsuranceModule({ allUsers = [] }) {
   const [deleting, setDeleting] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null); // { employeeId, provider, policyNumber }
   const [deleteError, setDeleteError] = useState('');
+  const [search, setSearch] = useState('');
+  const [empQuery, setEmpQuery] = useState('');
+  const [showEmpList, setShowEmpList] = useState(false);
 
   const load = () => {
     setLoading(true);
@@ -62,17 +65,58 @@ export default function AdminInsuranceModule({ allUsers = [] }) {
 
   const pendingClaims = policies.flatMap((p) => (p.claims || []).filter((c) => c.status === 'Pending').map((c) => ({ ...c, employeeId: p.employeeId })));
 
+  const query = search.trim().toLowerCase();
+  const filterMatch = (vals) => vals.filter(Boolean).some((v) => String(v).toLowerCase().includes(query));
+  const filteredPendingClaims = query ? pendingClaims.filter((c) => filterMatch([c.employeeId, c.description, c.status, c.amount])) : pendingClaims;
+  const filteredPolicies = query ? policies.filter((p) => filterMatch([p.employeeId, p.provider, p.policyNumber, p.expiryDate, p.coverage])) : policies;
+
+  // Search-as-you-type filtering for the Employee combobox in "Assign / Update Policy"
+  const empQueryLower = empQuery.trim().toLowerCase();
+  const empMatches = (u) => [u.name, u.employeeId].filter(Boolean).some((v) => String(v).toLowerCase().includes(empQueryLower));
+  const filteredEmployees = empQuery ? allUsers.filter(empMatches) : allUsers;
+
+  const selectEmployee = (u) => {
+    setSelectedEmp(u.employeeId);
+    setEmpQuery(`${u.name} (${u.employeeId})`);
+    setShowEmpList(false);
+  };
+
   return (
     <div className="space-y-6">
       <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
         <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2 mb-4"><Plus className="w-5 h-5 text-slate-400" /> Assign / Update Policy</h3>
         <form onSubmit={handleCreate} className="grid grid-cols-1 sm:grid-cols-5 gap-3 items-end">
-          <div>
+          <div className="relative">
             <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">Employee</label>
-            <select value={selectedEmp} onChange={(e) => setSelectedEmp(e.target.value)} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200">
-              <option value="">Select…</option>
-              {allUsers.map((u) => <option key={u.employeeId} value={u.employeeId}>{u.name} ({u.employeeId})</option>)}
-            </select>
+            <div className="relative">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                value={empQuery}
+                onChange={(e) => { setEmpQuery(e.target.value); setShowEmpList(true); if (!e.target.value) setSelectedEmp(''); }}
+                onFocus={() => setShowEmpList(true)}
+                onBlur={() => setTimeout(() => setShowEmpList(false), 150)}
+                placeholder="Search & select employee…"
+                className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200 placeholder:text-slate-400"
+              />
+            </div>
+            {showEmpList && (
+              <div className="absolute z-20 mt-1 w-full max-h-52 overflow-y-auto bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg shadow-lg">
+                {filteredEmployees.length === 0 ? (
+                  <div className="px-3 py-2 text-xs text-slate-400 dark:text-slate-500">No employees match "{empQuery}".</div>
+                ) : (
+                  filteredEmployees.map((u) => (
+                    <button
+                      type="button"
+                      key={u.employeeId}
+                      onMouseDown={() => selectEmployee(u)}
+                      className="w-full text-left px-3 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 cursor-pointer"
+                    >
+                      <span className="font-semibold">{u.name}</span> <span className="text-slate-400 font-mono">({u.employeeId})</span>
+                    </button>
+                  ))
+                )}
+              </div>
+            )}
           </div>
           <div>
             <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">Provider</label>
@@ -96,13 +140,25 @@ export default function AdminInsuranceModule({ allUsers = [] }) {
         </form>
       </div>
 
+      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4">
+        <div className="relative w-full">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search insurance by employee, provider, policy no., coverage, expiry…"
+            className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200 placeholder:text-slate-400"
+          />
+        </div>
+      </div>
+
       <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
-        <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2 mb-4"><CheckCircle2 className="w-5 h-5 text-slate-400" /> Pending Claims ({pendingClaims.length})</h3>
-        {pendingClaims.length === 0 ? (
-          <p className="text-xs text-slate-400 dark:text-slate-500">No pending claims.</p>
+        <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2 mb-4"><CheckCircle2 className="w-5 h-5 text-slate-400" /> Pending Claims ({filteredPendingClaims.length})</h3>
+        {filteredPendingClaims.length === 0 ? (
+          <p className="text-xs text-slate-400 dark:text-slate-500">{query && pendingClaims.length > 0 ? `No pending claims match "${search}".` : 'No pending claims.'}</p>
         ) : (
           <div className="space-y-2">
-            {pendingClaims.map((c) => (
+            {filteredPendingClaims.map((c) => (
               <div key={c.id} className="flex items-center justify-between border border-slate-100 dark:border-slate-700 rounded-lg p-3">
                 <div>
                   <div className="text-xs font-semibold text-slate-700 dark:text-slate-200">{c.employeeId} — {c.description}</div>
@@ -122,8 +178,8 @@ export default function AdminInsuranceModule({ allUsers = [] }) {
         <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2 mb-4"><ShieldCheck className="w-5 h-5 text-slate-400" /> All Policies</h3>
         {loading ? (
           <p className="text-xs text-slate-400 dark:text-slate-500">Loading…</p>
-        ) : policies.length === 0 ? (
-          <p className="text-xs text-slate-400 dark:text-slate-500">No policies assigned yet.</p>
+        ) : filteredPolicies.length === 0 ? (
+          <p className="text-xs text-slate-400 dark:text-slate-500">{query && policies.length > 0 ? `No policies match "${search}".` : 'No policies assigned yet.'}</p>
         ) : (
           <table className="w-full text-xs">
             <thead>
@@ -137,7 +193,7 @@ export default function AdminInsuranceModule({ allUsers = [] }) {
               </tr>
             </thead>
             <tbody>
-              {policies.map((p) => (
+              {filteredPolicies.map((p) => (
                 <tr key={p.id} className="border-b border-slate-50 dark:border-slate-800">
                   <td className="py-2 font-mono text-slate-600 dark:text-slate-400">{p.employeeId}</td>
                   <td className="py-2 text-slate-700 dark:text-slate-200">{p.provider}</td>

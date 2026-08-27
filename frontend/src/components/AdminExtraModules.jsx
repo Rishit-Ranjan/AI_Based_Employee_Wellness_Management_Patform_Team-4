@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { CalendarCheck, Siren, Receipt, CheckCircle2, XCircle, Trash2 } from 'lucide-react';
+import { CalendarCheck, Siren, Receipt, CheckCircle2, XCircle, Trash2, Search } from 'lucide-react';
 import { fetchCheckups, updateCheckup, fetchSosAlerts, resolveSos, deleteSos, fetchExpenses, updateExpense, deleteExpense } from '../services/api';
 
 export function AdminCheckupsModule() {
   const [appointments, setAppointments] = useState([]);
+  const [search, setSearch] = useState('');
     const load = () => fetchCheckups(true, { forceRefresh: true }).then(setAppointments).catch(console.error);
   useEffect(() => {
     load();
@@ -13,16 +14,36 @@ export function AdminCheckupsModule() {
 
   const handleStatus = async (id, status) => { await updateCheckup(id, { status }); load(); };
 
+  const query = search.trim().toLowerCase();
+  const filteredAppointments = query
+    ? appointments.filter((a) =>
+        [a.employeeId, a.employeeName, a.checkupType, a.date, a.status]
+          .filter(Boolean)
+          .some((v) => String(v).toLowerCase().includes(query))
+      )
+    : appointments;
+
   return (
     <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
-      <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2 mb-4"><CalendarCheck className="w-5 h-5 text-slate-400" /> All Check-up Appointments</h3>
-      {appointments.length === 0 ? <p className="text-xs text-slate-400 dark:text-slate-500">No appointments booked yet.</p> : (
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+        <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2"><CalendarCheck className="w-5 h-5 text-slate-400" /> All Check-up Appointments</h3>
+        <div className="relative w-full sm:w-64">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search employee, type, date, status…"
+            className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200 placeholder:text-slate-400"
+          />
+        </div>
+      </div>
+      {filteredAppointments.length === 0 ? <p className="text-xs text-slate-400 dark:text-slate-500">{appointments.length === 0 ? 'No appointments booked yet.' : `No appointments match "${search}".`}</p> : (
         <table className="w-full text-xs">
           <thead><tr className="text-left text-slate-400 dark:text-slate-500 border-b border-slate-100 dark:border-slate-700">
             <th className="pb-2 font-semibold">Employee</th><th className="pb-2 font-semibold">Type</th><th className="pb-2 font-semibold">Date</th><th className="pb-2 font-semibold">Status</th><th className="pb-2 font-semibold">Actions</th>
           </tr></thead>
           <tbody>
-            {appointments.map((a) => {
+            {filteredAppointments.map((a) => {
               const isPublicUser = !a.employeeId || a.employeeId === 'public_user' || a.employeeName === 'Public User';
               const empId = isPublicUser ? 'Unknown' : a.employeeId;
               const empName = a.employeeName && a.employeeName !== 'Public User' ? a.employeeName : '';
@@ -51,6 +72,7 @@ export function AdminCheckupsModule() {
 
 export function AdminSosMonitor() {
   const [alerts, setAlerts] = useState([]);
+  const [search, setSearch] = useState('');
     const load = () => fetchSosAlerts({ forceRefresh: true }).then(setAlerts).catch(console.error);
   useEffect(() => {
     load();
@@ -64,6 +86,15 @@ export function AdminSosMonitor() {
     load();
   };
 
+  const query = search.trim().toLowerCase();
+  const filteredAlerts = query
+    ? alerts.filter((a) =>
+        [a.employeeId, a.employeeName, a.emergencyContactName, a.emergencyContactPhone, a.bloodGroup, a.allergies, a.status]
+          .filter(Boolean)
+          .some((v) => String(v).toLowerCase().includes(query))
+      )
+    : alerts;
+
 
   return (
     <div className="space-y-6">
@@ -73,10 +104,21 @@ export function AdminSosMonitor() {
         </div>
       )}
       <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
-        <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2 mb-4"><Siren className="w-5 h-5 text-slate-400" /> Emergency SOS Alerts</h3>
-        {alerts.length === 0 ? <p className="text-xs text-slate-400 dark:text-slate-500">No alerts triggered.</p> : (
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2"><Siren className="w-5 h-5 text-slate-400" /> Emergency SOS Alerts</h3>
+          <div className="relative w-full sm:w-64">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search employee, contact, status…"
+              className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200 placeholder:text-slate-400"
+            />
+          </div>
+        </div>
+        {filteredAlerts.length === 0 ? <p className="text-xs text-slate-400 dark:text-slate-500">{alerts.length === 0 ? 'No alerts triggered.' : `No alerts match "${search}".`}</p> : (
           <div className="space-y-2">
-            {alerts.map((a) => (
+            {filteredAlerts.map((a) => (
               <div key={a.id} className={`border rounded-lg p-4 ${a.status === 'Active' ? 'border-rose-200 dark:border-rose-800 bg-rose-50/40 dark:bg-rose-950/40' : 'border-slate-100 dark:border-slate-700'}`}>
                 <div className="flex items-start justify-between">
                   <div>
@@ -108,6 +150,7 @@ export function AdminSosMonitor() {
 
 export function AdminExpensesModule() {
   const [expenses, setExpenses] = useState([]);
+  const [search, setSearch] = useState('');
     const load = () => fetchExpenses(true, { forceRefresh: true }).then(setExpenses).catch(console.error);
   useEffect(() => {
     load();
@@ -118,16 +161,36 @@ export function AdminExpensesModule() {
     const handleStatus = async (id, status) => { await updateExpense(id, status); load(); };
   const handleDelete = async (id) => { await deleteExpense(id); load(); };
 
+  const query = search.trim().toLowerCase();
+  const filteredExpenses = query
+    ? expenses.filter((e) =>
+        [e.employeeId, e.description, e.category, e.status]
+          .filter(Boolean)
+          .some((v) => String(v).toLowerCase().includes(query))
+      )
+    : expenses;
+
   return (
     <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
-      <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2 mb-4"><Receipt className="w-5 h-5 text-slate-400" /> Health Expense Claims</h3>
-      {expenses.length === 0 ? <p className="text-xs text-slate-400 dark:text-slate-500">No expenses logged yet.</p> : (
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+        <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2"><Receipt className="w-5 h-5 text-slate-400" /> Health Expense Claims</h3>
+        <div className="relative w-full sm:w-64">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search employee, description, status…"
+            className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200 placeholder:text-slate-400"
+          />
+        </div>
+      </div>
+      {filteredExpenses.length === 0 ? <p className="text-xs text-slate-400 dark:text-slate-500">{expenses.length === 0 ? 'No expenses logged yet.' : `No expenses match "${search}".`}</p> : (
         <table className="w-full text-xs">
           <thead><tr className="text-left text-slate-400 dark:text-slate-500 border-b border-slate-100 dark:border-slate-700">
             <th className="pb-2 font-semibold">Employee</th><th className="pb-2 font-semibold">Description</th><th className="pb-2 font-semibold">Amount</th><th className="pb-2 font-semibold">Status</th><th className="pb-2 font-semibold">Actions</th>
           </tr></thead>
           <tbody>
-            {expenses.map((e) => (
+            {filteredExpenses.map((e) => (
               <tr key={e.id} className="border-b border-slate-50 dark:border-slate-800">
                 <td className="py-2 font-mono text-slate-600 dark:text-slate-400">{e.employeeId}</td>
                 <td className="py-2 text-slate-700 dark:text-slate-200">{e.description}</td>
