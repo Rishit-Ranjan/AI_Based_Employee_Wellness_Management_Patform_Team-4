@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Edit, MoreHorizontal, Activity, TrendingUp, Lightbulb, Smile, BarChart3, LogOut,
   Search, Plus, X, ShieldAlert, AlertCircle, Check, Sparkles, Dumbbell, Apple, Brain, Clock, ChevronLeft, ChevronRight, Menu, Calendar, UserX, Eye,
-  ShieldCheck, Bell, Receipt, Siren, Zap, Target, Users, LineChart, Cog, Save, Pencil
+  ShieldCheck, Bell, Receipt, CalendarCheck, Siren, Zap, Target, Users, LineChart, Cog, Save, Pencil
 } from 'lucide-react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ScatterChart, Scatter, ResponsiveContainer } from 'recharts';
 
@@ -27,11 +27,12 @@ import logo from '../assets/logo.png';
 // ==========================================
 // SEARCHABLE EMPLOYEE SELECT COMPONENT
 // ==========================================
-const SearchableEmployeeSelect = ({ 
-  value, 
-  onChange, 
-  employees, 
-  placeholder = "-- Search or select an employee --" 
+const SearchableEmployeeSelect = ({
+  value,
+  onChange,
+  employees,
+  placeholder = "-- Search or select an employee --",
+  showAllOption = false
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -90,6 +91,20 @@ const SearchableEmployeeSelect = ({
             />
           </div>
           <div className="max-h-48 overflow-y-auto">
+            {showAllOption && (
+              <button
+                type="button"
+                onClick={() => {
+                  onChange({ target: { value: '' } });
+                  setIsOpen(false);
+                  setSearchTerm('');
+                }}
+                className="w-full text-left px-4 py-2.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition-colors flex items-center justify-between border-b border-slate-100 dark:border-slate-600"
+              >
+                <span>Show All Employees</span>
+                {!value && <Check className="w-4 h-4 text-indigo-600" />}
+              </button>
+            )}
             {filteredEmployees.length > 0 ? (
               filteredEmployees.map(emp => (
                 <button
@@ -538,6 +553,7 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
                 employeeId: r.employeeId
               }))}
               placeholder="-- Search or select an employee --"
+              showAllOption
             />
           </div>
 
@@ -1193,103 +1209,43 @@ function UserManagementModule({ allUsers, healthRecords, onDeleteUser, onUpdateU
                 <tr key={i}><td colSpan="6" className="p-4"><div className="h-8 bg-slate-100 dark:bg-slate-700 rounded animate-pulse"></div></td></tr>
               ))
             ) : usersWithDept.map(user => {
-              const isEditing = editingId === user.employeeId;
               return (
               <tr key={user.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
                 <td className="px-6 py-4 whitespace-nowrap">
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={draft.name}
-                      onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-                      className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-900 border border-indigo-300 dark:border-indigo-600 rounded-md text-sm text-slate-800 dark:text-slate-100 outline-none focus:border-indigo-500"
-                    />
-                  ) : (
-                    <>
-                      <div className="font-semibold text-slate-800 dark:text-slate-100">{user.name}</div>
-                      <div className="text-xs text-slate-400 dark:text-slate-500 font-mono">{user.employeeId}</div>
-                    </>
-                  )}
+                  <div className="font-semibold text-slate-800 dark:text-slate-100">{user.name}</div>
+                  <div className="text-xs text-slate-400 dark:text-slate-500 font-mono">{user.employeeId}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-slate-600 dark:text-slate-300">
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={draft.department}
-                      onChange={(e) => setDraft({ ...draft, department: e.target.value })}
-                      className="w-28 px-2 py-1.5 bg-slate-50 dark:bg-slate-900 border border-indigo-300 dark:border-indigo-600 rounded-md text-xs text-slate-800 dark:text-slate-100 outline-none focus:border-indigo-500"
-                    />
-                  ) : (
-                    user.department
-                  )}
+                  {user.department}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-slate-600 dark:text-slate-300">
-                  {isEditing ? (
-                    <input
-                      type="email"
-                      value={draft.email}
-                      onChange={(e) => setDraft({ ...draft, email: e.target.value })}
-                      className="w-48 px-2 py-1.5 bg-slate-50 dark:bg-slate-900 border border-indigo-300 dark:border-indigo-600 rounded-md text-xs text-slate-800 dark:text-slate-100 outline-none focus:border-indigo-500"
-                    />
-                  ) : (
-                    user.email
-                  )}
+                  {user.email}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  {isEditing ? (
-                    <select
-                      value={draft.role}
-                      onChange={(e) => setDraft({ ...draft, role: e.target.value })}
-                      className="px-2 py-1.5 bg-slate-50 dark:bg-slate-900 border border-indigo-300 dark:border-indigo-600 rounded-md text-xs text-slate-800 dark:text-slate-100 outline-none focus:border-indigo-500"
-                    >
-                      <option value="user">user</option>
-                      <option value="admin">admin</option>
-                    </select>
-                  ) : (
-                    <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${user.role === 'admin' ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}`}>
-                      {user.role}
-                    </span>
-                  )}
+                  <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${user.role === 'admin' ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}`}>
+                    {user.role}
+                  </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-slate-500 dark:text-slate-400 text-xs font-mono">
                   {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right">
-                  {isEditing ? (
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={handleUpdate}
-                        className="p-2 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400 rounded-lg transition-colors border border-emerald-200 dark:border-emerald-800"
-                        title="Save changes"
-                      >
-                        <Check className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={cancelEdit}
-                        className="p-2 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-lg transition-colors border border-slate-200 dark:border-slate-600"
-                        title="Cancel editing"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => startEdit(user)}
-                        className="p-2 bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 rounded-lg transition-colors border border-indigo-200 dark:border-indigo-800"
-                        title={`Edit ${user.name}`}
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => confirmAndDeleteUser(user.employeeId, user.name)}
-                        className="p-2 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/60 text-red-600 dark:text-red-400 rounded-lg transition-colors"
-                        title={`Delete ${user.name}`}
-                      >
-                        <UserX className="w-4 h-4" />
-                      </button>
-                    </div>
-                  )}
+                  <div className="flex items-center justify-end gap-2">
+                    <button
+                      onClick={() => startEdit(user)}
+                      className="p-2 bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 rounded-lg transition-colors border border-indigo-200 dark:border-indigo-800"
+                      title={`Edit ${user.name}`}
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => confirmAndDeleteUser(user.employeeId, user.name)}
+                      className="p-2 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/60 text-red-600 dark:text-red-400 rounded-lg transition-colors"
+                      title={`Delete ${user.name}`}
+                    >
+                      <UserX className="w-4 h-4" />
+                    </button>
+                  </div>
                 </td>
               </tr>
               );
@@ -1300,6 +1256,104 @@ function UserManagementModule({ allUsers, healthRecords, onDeleteUser, onUpdateU
           <div className="p-10 text-center font-mono text-xs text-slate-400 dark:text-slate-500">No users found.</div>
         )}
       </div>
+
+      {/* Edit User Modal */}
+      {editingId && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm animate-fadeIn p-4"
+          onClick={cancelEdit}
+        >
+          <div
+            className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-md overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+              <h3 className="text-lg font-display font-semibold text-slate-800 dark:text-slate-100">Edit User</h3>
+              <button
+                onClick={cancelEdit}
+                className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                title="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <form
+              onSubmit={(e) => { e.preventDefault(); handleUpdate(); }}
+              className="p-6 space-y-4"
+            >
+              <div className="text-xs font-mono text-slate-400 dark:text-slate-500 mb-1">
+                Employee ID: <span className="font-bold text-slate-600 dark:text-slate-300">{editingId}</span>
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Name</label>
+                <input
+                  type="text"
+                  value={draft.name}
+                  onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+                  required
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-indigo-500 rounded-lg text-sm text-slate-800 dark:text-slate-100 outline-none transition-colors"
+                  placeholder="Full name"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Email</label>
+                <input
+                  type="email"
+                  value={draft.email}
+                  onChange={(e) => setDraft({ ...draft, email: e.target.value })}
+                  required
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-indigo-500 rounded-lg text-sm text-slate-800 dark:text-slate-100 outline-none transition-colors"
+                  placeholder="email@company.com"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Department</label>
+                <input
+                  type="text"
+                  value={draft.department}
+                  onChange={(e) => setDraft({ ...draft, department: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-indigo-500 rounded-lg text-sm text-slate-800 dark:text-slate-100 outline-none transition-colors"
+                  placeholder="Department"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Role</label>
+                <select
+                  value={draft.role}
+                  onChange={(e) => setDraft({ ...draft, role: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-indigo-500 rounded-lg text-sm text-slate-800 dark:text-slate-100 outline-none transition-colors"
+                >
+                  <option value="user">user</option>
+                  <option value="admin">admin</option>
+                </select>
+              </div>
+
+              {inlineError && (
+                <div className="p-2.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-xs font-medium">
+                  {inlineError}
+                </div>
+              )}
+
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={cancelEdit}
+                  className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors flex items-center gap-2"
+                >
+                  <Check className="w-4 h-4" />
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {pendingDelete && (
         <div
@@ -2669,6 +2723,7 @@ export default function AdminDashboard({ user,
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotifCenterOpen, setIsNotifCenterOpen] = useState(false);
+  const [notifRefreshKey, setNotifRefreshKey] = useState(0);
 
   // Save activeTab to localStorage whenever it changes
   useEffect(() => {
@@ -2698,7 +2753,9 @@ export default function AdminDashboard({ user,
     { id: 5, label: 'Sentiment & Mental Health', icon: Smile, desc: 'Anonymized stress tracker' },
     { id: 6, label: 'Performance & AI Analytics', icon: BarChart3, desc: 'KPIs, burnout trends & predictions' },
     { id: 7, label: 'Insurance Management', icon: ShieldCheck, desc: 'Policies & claims oversight' },
-    { id: 8, label: 'Checkups, SOS & Expenses', icon: Siren, desc: 'Appointments, alerts, claims' }
+    { id: 8, label: 'Health Checkups', icon: CalendarCheck, desc: 'Checkup appointments & schedules' },
+    { id: 9, label: 'Emergency SOS', icon: Siren, desc: 'Monitor emergency alerts' },
+    { id: 10, label: 'Expense Claims', icon: Receipt, desc: 'Health expense claim oversight' }
   ];
 
   // Greeting helper
@@ -2722,14 +2779,25 @@ export default function AdminDashboard({ user,
     <div className="h-screen overflow-hidden bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col font-sans transition-colors duration-300">
       
       {isNotifCenterOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-fadeIn" onClick={() => setIsNotifCenterOpen(false)}>
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-fadeIn" onClick={() => { setIsNotifCenterOpen(false); setNotifRefreshKey(k => k + 1); }}>
           <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-3xl shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
             <div className="p-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50 dark:bg-slate-900">
               <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2"><Bell className="w-5 h-5 text-slate-400" /> Notification Center</h3>
-              <button onClick={() => setIsNotifCenterOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer"><X className="w-5 h-5" /></button>
+              <button onClick={() => { setIsNotifCenterOpen(false); setNotifRefreshKey(k => k + 1); }} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer"><X className="w-5 h-5" /></button>
             </div>
             <div className="p-6 overflow-y-auto">
-              <AdminNotificationCenter allUsers={allUsers} />
+              <AdminNotificationCenter
+                allUsers={allUsers}
+                onChange={() => setNotifRefreshKey(k => k + 1)}
+                onNavigate={(category) => {
+                  setNotifRefreshKey(k => k + 1);
+                  setIsNotifCenterOpen(false);
+                  // Route to the matching separated admin section for the notification type
+                  if (category === 'SOS') setActiveTab(9);
+                  else if (category === 'Expense Claim') setActiveTab(10);
+                  else setActiveTab(8); // Medical Checkup
+                }}
+              />
             </div>
           </div>
         </div>
@@ -2792,7 +2860,7 @@ export default function AdminDashboard({ user,
         <div className="flex items-center gap-3 sm:gap-4">
           {/* System Settings Button */}
           <button
-            onClick={() => setActiveTab(10)}
+            onClick={() => setActiveTab(11)}
             className="p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700 text-slate-500 dark:text-slate-400 rounded-xl transition-all duration-200 cursor-pointer shadow-sm"
             title="System Settings"
           >
@@ -2803,7 +2871,7 @@ export default function AdminDashboard({ user,
           <ThemeToggle />
 
           {/* Notification Bell */}
-          <NotificationBell isAdmin={true} onAdminClick={() => setIsNotifCenterOpen(true)} />
+          <NotificationBell isAdmin={true} onAdminClick={() => setIsNotifCenterOpen(true)} refreshKey={notifRefreshKey} />
 
           <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block" />
 
@@ -2976,8 +3044,10 @@ export default function AdminDashboard({ user,
                 {activeTab === 5 && 'Mental Health & Sentiment Analytics'}
                 {activeTab === 6 && 'Performance & AI Analytics'}
                 {activeTab === 7 && 'Insurance Management'}
-                {activeTab === 8 && 'Checkups, SOS & Expenses'}
-                {activeTab === 10 && 'System Settings'}
+                {activeTab === 8 && 'Health Checkups'}
+                {activeTab === 9 && 'Emergency SOS Alerts'}
+                {activeTab === 10 && 'Expense Claims'}
+                {activeTab === 11 && 'System Settings'}
               </h1>
               <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 max-w-2xl font-light">
                 {activeTab === 1 && 'Manage all employee user accounts, roles, and access.'}
@@ -2987,8 +3057,10 @@ export default function AdminDashboard({ user,
                 {activeTab === 5 && 'NLP-driven individual stress analytics collected through fully anonymized feedback pulse-checks.'}
                 {activeTab === 6 && 'High-level dashboard for KPIs, burnout trends, and AI-driven wellness predictions.'}
                 {activeTab === 7 && 'Manage employee insurance policies, claims, and coverage oversight.'}
-                {activeTab === 8 && 'Oversee employee checkup scheduling, SOS alerts, and expense claims.'}
-                {activeTab === 10 && 'Manage application-wide settings and configurations.'}
+                {activeTab === 8 && 'Manage and review all employee health checkup appointments.'}
+                {activeTab === 9 && 'Monitor and respond to employee emergency SOS alerts.'}
+                {activeTab === 10 && 'Review and approve employee health expense claims.'}
+                {activeTab === 11 && 'Manage application-wide settings and configurations.'}
               </p>
             </div>
             <div className="min-w-[220px] rounded-3xl bg-slate-50/80 dark:bg-slate-900 border border-slate-200/70 dark:border-slate-700 p-4">
@@ -3047,14 +3119,18 @@ export default function AdminDashboard({ user,
             )}
 
             {activeTab === 8 && (
-              <div className="space-y-8">
-                <AdminCheckupsModule />
-                <AdminSosMonitor />
-                <AdminExpensesModule />
-              </div>
+              <AdminCheckupsModule />
+            )}
+
+            {activeTab === 9 && (
+              <AdminSosMonitor />
             )}
 
             {activeTab === 10 && (
+              <AdminExpensesModule />
+            )}
+
+            {activeTab === 11 && (
               <SystemSettingsModule />
             )}
           </div>

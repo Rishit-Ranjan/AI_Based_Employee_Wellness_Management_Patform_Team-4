@@ -1,4 +1,4 @@
-import  { useState, useEffect, useMemo, useCallback, lazy, Suspense } from 'react';
+import  { useState, useEffect, useMemo, useCallback, useRef, lazy, Suspense } from 'react';
 import Login from './components/Login';
 import SignUp from './components/SignUp';
 import ForgotPassword from './components/ForgotPassword'; 
@@ -24,7 +24,10 @@ export default function App() {
     const [loadingSession, setLoadingSession] = useState(true); // New state to indicate session loading
     const [loadingWellnessData, setLoadingWellnessData] = useState(false);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-    
+
+    // Ref exposing loadAllData (defined inside the effect below) to component-level handlers
+    const loadAllDataRef = useRef(null);
+
 
 // Core Wellness State (Moved from Dashboard)
     const [healthRecords, setHealthRecords] = useState([]);
@@ -127,6 +130,7 @@ export default function App() {
             return;
 
         const loadAllData = async (forceRefresh = false) => {
+            loadAllDataRef.current = loadAllData;
             // --- Stage 1: Load absolutely critical data for initial render ---
             setLoadingWellnessData(true);
             try {
@@ -375,7 +379,7 @@ export default function App() {
             await api.deleteUser(employeeId);
             // After successful deletion, force a full refresh of all data
             // to ensure consistency across all modules.
-            await loadAllData(true);
+            await loadAllDataRef.current?.(true);
         } catch (err) {
             console.error('Failed to delete user:', err);
             throw err; // Re-throw so the AdminDashboard can display an error
@@ -385,7 +389,7 @@ export default function App() {
     const handleUpdateUser = async (employeeId, fields) => {
         try {
             await api.updateEmployee(employeeId, fields);
-            await loadAllData(true);
+            await loadAllDataRef.current?.(true);
         } catch (err) {
             console.error('Failed to update user:', err);
             throw err;

@@ -3,21 +3,40 @@ import { Bell, X, Check, Send } from 'lucide-react';
 import { fetchNotifications, markNotificationRead } from '../services/api';
 import AdminNotificationCenter from './AdminNotificationCenter';
 
-export default function NotificationBell({ isAdmin = false, onAdminClick }) {
+export default function NotificationBell({ isAdmin = false, onAdminClick, refreshKey = 0 }) {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
   const load = () => {
-    fetchNotifications(isAdmin).then(setNotifications).catch(() => {});
+    // forceRefresh bypasses the in-memory GET cache so the badge stays real-time
+    fetchNotifications(isAdmin, { forceRefresh: true }).then(setNotifications).catch(() => {});
   };
 
   useEffect(() => {
     load();
-    const interval = setInterval(load, 60000);
-    return () => clearInterval(interval);
+    const interval = setInterval(load, 15000);
+    // Also refresh whenever the tab regains focus so the badge stays current.
+    const onFocus = () => load();
+    window.addEventListener('focus', onFocus);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+    };
   }, [isAdmin]);
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  // Reload instantly when the parent signals a change (e.g. notifications marked read elsewhere)
+  useEffect(() => {
+    if (refreshKey > 0) load();
+  }, [refreshKey]);
+
+  // For admins the badge should reflect incoming system alerts (SOS / check-ups /
+  // expense claims) that still need handling. Admin-composed notifications are sent
+  // by the admin and have no readBy marker, so they would otherwise always count as
+  // unread and keep the badge stuck on a non-zero number. Employee-side notifications
+  // are all relevant, so they're counted normally.
+  const unreadCount = notifications.filter((n) =>
+    !n.read && (isAdmin ? n.createdBy === 'System' : true)
+  ).length;
 
   const handleRead = async (n) => {
     if (n.read) return;

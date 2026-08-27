@@ -22,9 +22,15 @@ export function AdminCheckupsModule() {
             <th className="pb-2 font-semibold">Employee</th><th className="pb-2 font-semibold">Type</th><th className="pb-2 font-semibold">Date</th><th className="pb-2 font-semibold">Status</th><th className="pb-2 font-semibold">Actions</th>
           </tr></thead>
           <tbody>
-            {appointments.map((a) => (
+            {appointments.map((a) => {
+              const isPublicUser = !a.employeeId || a.employeeId === 'public_user' || a.employeeName === 'Public User';
+              const empId = isPublicUser ? 'Unknown' : a.employeeId;
+              const empName = a.employeeName && a.employeeName !== 'Public User' ? a.employeeName : '';
+              return (
               <tr key={a.id} className="border-b border-slate-50 dark:border-slate-800">
-                <td className="py-2 font-mono text-slate-600 dark:text-slate-400">{a.employeeId} <span className="text-slate-400 dark:text-slate-500">({a.employeeName})</span></td>
+                <td className="py-2 font-mono text-slate-600 dark:text-slate-400">
+                  {empId}{empName && <span className="text-slate-400 dark:text-slate-500"> ({empName})</span>}
+                </td>
                 <td className="py-2 text-slate-700 dark:text-slate-200">{a.checkupType}</td>
                 <td className="py-2 text-slate-500 dark:text-slate-400">{a.date}</td>
                 <td className="py-2"><span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600">{a.status}</span></td>
@@ -34,7 +40,8 @@ export function AdminCheckupsModule() {
                   </select>
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       )}
