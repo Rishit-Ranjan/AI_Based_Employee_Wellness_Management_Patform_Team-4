@@ -27,11 +27,12 @@ import logo from '../assets/logo.png';
 // ==========================================
 // SEARCHABLE EMPLOYEE SELECT COMPONENT
 // ==========================================
-const SearchableEmployeeSelect = ({ 
-  value, 
-  onChange, 
-  employees, 
-  placeholder = "-- Search or select an employee --" 
+const SearchableEmployeeSelect = ({
+  value,
+  onChange,
+  employees,
+  placeholder = "-- Search or select an employee --",
+  showAllOption = false
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -90,6 +91,20 @@ const SearchableEmployeeSelect = ({
             />
           </div>
           <div className="max-h-48 overflow-y-auto">
+            {showAllOption && (
+              <button
+                type="button"
+                onClick={() => {
+                  onChange({ target: { value: '' } });
+                  setIsOpen(false);
+                  setSearchTerm('');
+                }}
+                className="w-full text-left px-4 py-2.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition-colors flex items-center justify-between border-b border-slate-100 dark:border-slate-600"
+              >
+                <span>Show All Employees</span>
+                {!value && <Check className="w-4 h-4 text-indigo-600" />}
+              </button>
+            )}
             {filteredEmployees.length > 0 ? (
               filteredEmployees.map(emp => (
                 <button
@@ -538,6 +553,7 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
                 employeeId: r.employeeId
               }))}
               placeholder="-- Search or select an employee --"
+              showAllOption
             />
           </div>
 
