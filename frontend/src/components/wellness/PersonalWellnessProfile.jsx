@@ -450,6 +450,10 @@ smoker: smoker,
                     <option value="Marketing">Marketing</option>
                     <option value="Product">Product</option>
                     <option value="Operations">Operations</option>
+                    <option value="IT">IT</option>
+                    <option value="Customer Support">Customer Support</option>
+                    <option value="HR">HR</option>
+                    <option value="Finance">Finance</option>
                   </select>
                 </div>
               </div>
