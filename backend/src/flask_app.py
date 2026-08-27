@@ -87,6 +87,22 @@ expenses_collection = db.get_collection('health_expenses')
 system_settings_collection = db.get_collection('system_settings')
 support_tickets_collection = db.get_collection('support_tickets')
 
+def _notify_admins(title, message, category='General'):
+    """Creates an admin-visible notification (e.g. new booking / SOS / expense claim)."""
+    try:
+        notifications_collection.insert_one({
+            'title': title,
+            'message': message,
+            'category': category,
+            'targetEmployeeId': None,
+            'visibility': 'admin',
+            'createdAt': datetime.now(timezone.utc).isoformat(),
+            'createdBy': 'System',
+            'readBy': [],
+        })
+    except Exception:
+        app.logger.exception('Failed to create admin notification')
+
 # --- Lazy Loading of ML Models ---
 # AI/ML model artifacts (risk model, target encoder, feature columns, recommendation
 # engine, and VADER sentiment analyzer) are now loaded lazily on their first use
@@ -1792,7 +1808,10 @@ def get_notifications():
         cursor = notifications_collection.find({}).sort('createdAt', -1)
     else:
         cursor = notifications_collection.find({
-            '$or': [{'targetEmployeeId': None}, {'targetEmployeeId': employee_id}]
+            '$and': [
+                {'$or': [{'targetEmployeeId': None}, {'targetEmployeeId': employee_id}]},
+                {'visibility': {'$ne': 'admin'}}
+            ]
         }).sort('createdAt', -1)
 
     notifications = [_serialize_notification(n, employee_id) for n in cursor]
@@ -2360,6 +2379,13 @@ def book_checkup():
     result = checkup_appointments_collection.insert_one(doc)
     doc['id'] = str(result.inserted_id)
     del doc['_id']
+
+    # Notify admins about the new appointment booking
+    _notify_admins(
+        'New Check-up Appointment',
+        f"{employee_name} ({employee_id}) booked a {doc['checkupType']} on {doc['date']}.",
+        'Medical Checkup'
+    )
     return jsonify(doc), 201
 
 
@@ -2424,6 +2450,13 @@ def trigger_sos():
     result = sos_alerts_collection.insert_one(doc)
     doc['id'] = str(result.inserted_id)
     del doc['_id']
+
+    # Notify admins about the triggered SOS alert
+    _notify_admins(
+        '🚨 SOS Alert Triggered',
+        f"{user_name} ({employee_id}) triggered an emergency SOS: {doc['message']}",
+        'SOS'
+    )
     return jsonify(doc), 201
 
 
@@ -2515,6 +2548,13 @@ def add_expense():
     result = expenses_collection.insert_one(doc)
     doc['id'] = str(result.inserted_id)
     del doc['_id']
+
+    # Notify admins about the new expense claim
+    _notify_admins(
+        'New Health Expense Claim',
+        f"{employee_name} ({employee_id}) submitted a claim of ₹{doc['amount']:,.2f} ({doc['category']}): {doc['description']}",
+        'Expense Claim'
+    )
     return jsonify(doc), 201
 
 
