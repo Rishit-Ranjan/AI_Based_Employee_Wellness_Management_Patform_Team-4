@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Edit, MoreHorizontal, Activity, TrendingUp, Lightbulb, Smile, BarChart3, LogOut,
   Search, Plus, X, ShieldAlert, AlertCircle, Check, Sparkles, Dumbbell, Apple, Brain, Clock, ChevronLeft, ChevronRight, Menu, Calendar, UserX, Eye,
-  ShieldCheck, Bell, Receipt, Siren, Zap, Target, Users, LineChart, Cog, Save, Pencil
+  ShieldCheck, Bell, Receipt, CalendarCheck, Siren, Zap, Target, Users, LineChart, Cog, Save, Pencil
 } from 'lucide-react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ScatterChart, Scatter, ResponsiveContainer } from 'recharts';
 
@@ -2753,7 +2753,9 @@ export default function AdminDashboard({ user,
     { id: 5, label: 'Sentiment & Mental Health', icon: Smile, desc: 'Anonymized stress tracker' },
     { id: 6, label: 'Performance & AI Analytics', icon: BarChart3, desc: 'KPIs, burnout trends & predictions' },
     { id: 7, label: 'Insurance Management', icon: ShieldCheck, desc: 'Policies & claims oversight' },
-    { id: 8, label: 'Checkups, SOS & Expenses', icon: Siren, desc: 'Appointments, alerts, claims' }
+    { id: 8, label: 'Health Checkups', icon: CalendarCheck, desc: 'Checkup appointments & schedules' },
+    { id: 9, label: 'Emergency SOS', icon: Siren, desc: 'Monitor emergency alerts' },
+    { id: 10, label: 'Expense Claims', icon: Receipt, desc: 'Health expense claim oversight' }
   ];
 
   // Greeting helper
@@ -2786,9 +2788,12 @@ export default function AdminDashboard({ user,
             <div className="p-6 overflow-y-auto">
               <AdminNotificationCenter
                 allUsers={allUsers}
-                onNavigate={() => {
+                onNavigate={(category) => {
                   setIsNotifCenterOpen(false);
-                  setActiveTab(8); // Checkups, SOS & Expenses section
+                  // Route to the matching separated admin section for the notification type
+                  if (category === 'SOS') setActiveTab(9);
+                  else if (category === 'Expense Claim') setActiveTab(10);
+                  else setActiveTab(8); // Medical Checkup
                 }}
               />
             </div>
@@ -2853,7 +2858,7 @@ export default function AdminDashboard({ user,
         <div className="flex items-center gap-3 sm:gap-4">
           {/* System Settings Button */}
           <button
-            onClick={() => setActiveTab(10)}
+            onClick={() => setActiveTab(11)}
             className="p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700 text-slate-500 dark:text-slate-400 rounded-xl transition-all duration-200 cursor-pointer shadow-sm"
             title="System Settings"
           >
@@ -3037,8 +3042,10 @@ export default function AdminDashboard({ user,
                 {activeTab === 5 && 'Mental Health & Sentiment Analytics'}
                 {activeTab === 6 && 'Performance & AI Analytics'}
                 {activeTab === 7 && 'Insurance Management'}
-                {activeTab === 8 && 'Checkups, SOS & Expenses'}
-                {activeTab === 10 && 'System Settings'}
+                {activeTab === 8 && 'Health Checkups'}
+                {activeTab === 9 && 'Emergency SOS Alerts'}
+                {activeTab === 10 && 'Expense Claims'}
+                {activeTab === 11 && 'System Settings'}
               </h1>
               <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 max-w-2xl font-light">
                 {activeTab === 1 && 'Manage all employee user accounts, roles, and access.'}
@@ -3048,8 +3055,10 @@ export default function AdminDashboard({ user,
                 {activeTab === 5 && 'NLP-driven individual stress analytics collected through fully anonymized feedback pulse-checks.'}
                 {activeTab === 6 && 'High-level dashboard for KPIs, burnout trends, and AI-driven wellness predictions.'}
                 {activeTab === 7 && 'Manage employee insurance policies, claims, and coverage oversight.'}
-                {activeTab === 8 && 'Oversee employee checkup scheduling, SOS alerts, and expense claims.'}
-                {activeTab === 10 && 'Manage application-wide settings and configurations.'}
+                {activeTab === 8 && 'Manage and review all employee health checkup appointments.'}
+                {activeTab === 9 && 'Monitor and respond to employee emergency SOS alerts.'}
+                {activeTab === 10 && 'Review and approve employee health expense claims.'}
+                {activeTab === 11 && 'Manage application-wide settings and configurations.'}
               </p>
             </div>
             <div className="min-w-[220px] rounded-3xl bg-slate-50/80 dark:bg-slate-900 border border-slate-200/70 dark:border-slate-700 p-4">
@@ -3108,14 +3117,18 @@ export default function AdminDashboard({ user,
             )}
 
             {activeTab === 8 && (
-              <div className="space-y-8">
-                <AdminCheckupsModule />
-                <AdminSosMonitor />
-                <AdminExpensesModule />
-              </div>
+              <AdminCheckupsModule />
+            )}
+
+            {activeTab === 9 && (
+              <AdminSosMonitor />
             )}
 
             {activeTab === 10 && (
+              <AdminExpensesModule />
+            )}
+
+            {activeTab === 11 && (
               <SystemSettingsModule />
             )}
           </div>
