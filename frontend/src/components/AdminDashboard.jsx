@@ -2783,12 +2783,14 @@ export default function AdminDashboard({ user,
           <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-3xl shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
             <div className="p-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50 dark:bg-slate-900">
               <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2"><Bell className="w-5 h-5 text-slate-400" /> Notification Center</h3>
-              <button onClick={() => setIsNotifCenterOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer"><X className="w-5 h-5" /></button>
+              <button onClick={() => { setIsNotifCenterOpen(false); setNotifRefreshKey(k => k + 1); }} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer"><X className="w-5 h-5" /></button>
             </div>
             <div className="p-6 overflow-y-auto">
               <AdminNotificationCenter
                 allUsers={allUsers}
+                onChange={() => setNotifRefreshKey(k => k + 1)}
                 onNavigate={(category) => {
+                  setNotifRefreshKey(k => k + 1);
                   setIsNotifCenterOpen(false);
                   // Route to the matching separated admin section for the notification type
                   if (category === 'SOS') setActiveTab(9);

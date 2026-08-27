@@ -14,8 +14,14 @@ export default function NotificationBell({ isAdmin = false, onAdminClick, refres
 
   useEffect(() => {
     load();
-    const interval = setInterval(load, 60000);
-    return () => clearInterval(interval);
+    const interval = setInterval(load, 15000);
+    // Also refresh whenever the tab regains focus so the badge stays current.
+    const onFocus = () => load();
+    window.addEventListener('focus', onFocus);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+    };
   }, [isAdmin]);
 
   // Reload instantly when the parent signals a change (e.g. notifications marked read elsewhere)
@@ -23,7 +29,14 @@ export default function NotificationBell({ isAdmin = false, onAdminClick, refres
     if (refreshKey > 0) load();
   }, [refreshKey]);
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  // For admins the badge should reflect incoming system alerts (SOS / check-ups /
+  // expense claims) that still need handling. Admin-composed notifications are sent
+  // by the admin and have no readBy marker, so they would otherwise always count as
+  // unread and keep the badge stuck on a non-zero number. Employee-side notifications
+  // are all relevant, so they're counted normally.
+  const unreadCount = notifications.filter((n) =>
+    !n.read && (isAdmin ? n.createdBy === 'System' : true)
+  ).length;
 
   const handleRead = async (n) => {
     if (n.read) return;

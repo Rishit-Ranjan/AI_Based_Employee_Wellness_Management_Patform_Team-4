@@ -7,7 +7,7 @@ const CATEGORIES = ['General', 'Health Camp', 'Vaccination', 'Medical Checkup', 
 // System-generated categories that map to an admin dashboard section
 const NAVIGABLE_CATEGORIES = ['Medical Checkup', 'SOS', 'Expense Claim'];
 
-export default function AdminNotificationCenter({ allUsers = [], onNavigate }) {
+export default function AdminNotificationCenter({ allUsers = [], onNavigate, onChange }) {
   const [notifications, setNotifications] = useState([]);
   const [receivedNotifications, setReceivedNotifications] = useState([]);
   const [title, setTitle] = useState('');
@@ -17,8 +17,15 @@ export default function AdminNotificationCenter({ allUsers = [], onNavigate }) {
   const [sending, setSending] = useState(false);
   const [activeTab, setActiveTab] = useState('compose');
 
+  // Notify the parent whenever this center's data changes so the bell badge can
+  // refresh in real time as notifications are read/deleted.
+  const notify = () => { if (onChange) onChange(); };
+
   const load = () => {
-    fetchNotifications(true).then(setNotifications).catch(console.error);
+    fetchNotifications(true).then((data) => {
+      setNotifications(data);
+      notify();
+    }).catch(console.error);
     loadReceivedNotifications();
   };
 
@@ -30,10 +37,12 @@ export default function AdminNotificationCenter({ allUsers = [], onNavigate }) {
       });
       if (response.ok) {
         const data = await response.json();
-        const systemNotifications = data.filter(n => 
-          ['Medical Checkup', 'SOS', 'Expense Claim'].includes(n.category)
-        );
+        // Only system-generated notifications (e.g. employee-triggered SOS alerts,
+        // check-up bookings, and expense claims) count as "received". Notifications
+        // composed by an admin are NOT employee submissions, so they are excluded.
+        const systemNotifications = data.filter(n => n.createdBy === 'System');
         setReceivedNotifications(systemNotifications);
+        notify();
       }
     } catch (err) {
       console.error('Failed to load received notifications:', err);
@@ -59,6 +68,11 @@ export default function AdminNotificationCenter({ allUsers = [], onNavigate }) {
     await deleteNotification(id);
     load();
   };
+
+  // Sent tab should only show notifications the admin actually sent/composed.
+  // System-generated notifications (employee SOS / check-up / expense claims)
+  // are handled separately under the "Received" tab and must not appear here.
+  const sentNotifications = notifications.filter(n => n.createdBy !== 'System');
 
   // Clicking a system notification marks it as read (clearing the bell badge)
   // and optionally navigates to the related admin section.
@@ -152,11 +166,11 @@ export default function AdminNotificationCenter({ allUsers = [], onNavigate }) {
         {activeTab === 'sent' && (
           <div>
             <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2 mb-4"><Bell className="w-5 h-5 text-slate-400" /> Sent Notifications</h3>
-            {notifications.length === 0 ? (
+            {sentNotifications.length === 0 ? (
               <p className="text-xs text-slate-400 dark:text-slate-500">No notifications sent yet.</p>
             ) : (
               <div className="space-y-2">
-                {notifications.map((n) => {
+                {sentNotifications.map((n) => {
                   const canNavigate = NAVIGABLE_CATEGORIES.includes(n.category);
                   return (
                   <div
@@ -200,10 +214,13 @@ export default function AdminNotificationCenter({ allUsers = [], onNavigate }) {
               <p className="text-xs text-slate-400 dark:text-slate-500">No notifications from employees yet.</p>
             ) : (
               <div className="space-y-2">
-                {receivedNotifications.map((n) => (
+                {receivedNotifications.map((n) => {
+                  const canNavigate = NAVIGABLE_CATEGORIES.includes(n.category);
+                  return (
                   <div
                     key={n.id}
-                    className={`flex items-start justify-between border rounded-lg p-3 transition-colors ${getCategoryColor(n.category)}`}
+                    onClick={() => canNavigate && handleNotificationClick(n)}
+                    className={`flex items-start justify-between border rounded-lg p-3 transition-colors ${getCategoryColor(n.category)} ${canNavigate ? 'cursor-pointer hover:opacity-80' : ''}`}
                   >
                     <div className="min-w-0 flex-1">
                       <div className="text-xs font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-2">
@@ -219,11 +236,17 @@ export default function AdminNotificationCenter({ allUsers = [], onNavigate }) {
                             {n.category}
                           </span>
                         )}
+                        {canNavigate && (
+                          <span className="text-[9px] font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-wider">
+                            Click to view →
+                          </span>
+                        )}
                       </div>
                     </div>
                     <button onClick={(e) => { e.stopPropagation(); deleteNotification(n.id).then(() => loadReceivedNotifications()); }} className="p-1.5 border border-slate-200 dark:border-slate-600 rounded-md text-slate-500 dark:text-slate-400 hover:text-rose-500 hover:border-rose-300 dark:hover:text-rose-400 cursor-pointer shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
