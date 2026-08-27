@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { CalendarPlus, Siren, Receipt, Plus, Trash2, AlertTriangle, Check, Pencil, X } from 'lucide-react';
-import { fetchCheckups, bookCheckup, deleteCheckup, updateCheckup, triggerSos, fetchSosAlerts, fetchExpenses, addExpense, deleteExpense, updateExpenseRecord } from '../services/api';
+import { fetchCheckups, bookCheckup, deleteCheckup, updateCheckup, triggerSos, fetchSosAlerts, deleteSos, fetchExpenses, addExpense, deleteExpense, updateExpenseRecord } from '../services/api';
 
 // --- Annual Health Check-up Scheduler ---
 export function CheckupSchedulerModule() {
@@ -119,6 +119,11 @@ export function EmergencySOSModule({ user }) {
     load();
   };
 
+  const handleDeleteAlert = async (id) => {
+    await deleteSos(id);
+    load();
+  };
+
   return (
     <div className="space-y-6 lg:pr-20">
       <div className="bg-rose-50 border border-rose-200 rounded-xl p-8 text-center">
@@ -156,7 +161,10 @@ export function EmergencySOSModule({ user }) {
                   <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
                   <span className="text-xs text-slate-700 dark:text-slate-200">{new Date(a.createdAt).toLocaleString()}</span>
                 </div>
-                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${a.status === 'Resolved' ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300' : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300'}`}>{a.status}</span>
+                <div className="flex items-center gap-2">
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${a.status === 'Resolved' ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300' : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300'}`}>{a.status}</span>
+                  <button onClick={() => handleDeleteAlert(a.id)} className="p-1.5 border border-slate-200 dark:border-slate-600 rounded-md text-slate-500 dark:text-slate-400 hover:text-rose-500 hover:border-rose-300 dark:hover:text-rose-400 cursor-pointer" title="Delete SOS record"><Trash2 className="w-3.5 h-3.5" /></button>
+                </div>
               </div>
             ))}
           </div>
