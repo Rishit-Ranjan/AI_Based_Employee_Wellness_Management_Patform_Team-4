@@ -3,7 +3,7 @@ import { CalendarPlus, Siren, Receipt, Plus, Trash2, AlertTriangle, Check, Penci
 import { fetchCheckups, bookCheckup, deleteCheckup, updateCheckup, triggerSos, fetchSosAlerts, deleteSos, fetchExpenses, addExpense, deleteExpense, updateExpenseRecord } from '../services/api';
 
 // --- Annual Health Check-up Scheduler ---
-export function CheckupSchedulerModule() {
+export function CheckupSchedulerModule({ user }) {
   const [appointments, setAppointments] = useState([]);
   const [date, setDate] = useState('');
   const [checkupType, setCheckupType] = useState('Annual Health Check-up');
@@ -20,9 +20,17 @@ export function CheckupSchedulerModule() {
     e.preventDefault();
     if (!date) return;
     if (editingId) {
-      await updateCheckup(editingId, { date, checkupType, notes });
+      await updateCheckup(editingId, {
+        date, checkupType, notes,
+        employeeId: user?.employeeId || 'public_user',
+        employeeName: user?.name || 'Public User',
+      });
     } else {
-      await bookCheckup({ date, checkupType, notes });
+      await bookCheckup({
+        date, checkupType, notes,
+        employeeId: user?.employeeId || 'public_user',
+        employeeName: user?.name || 'Public User',
+      });
     }
     resetForm();
     load();
