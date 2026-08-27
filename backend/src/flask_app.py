@@ -103,6 +103,17 @@ def _notify_admins(title, message, category='General'):
     except Exception:
         app.logger.exception('Failed to create admin notification')
 
+# One-time safety cleanup: ensure ALL system alert notifications (check-up bookings,
+# SOS alerts, expense claims) are marked admin-only, including ones created before
+# the visibility marker existed.
+try:
+    notifications_collection.update_many(
+        {'category': {'$in': ['Medical Checkup', 'SOS', 'Expense Claim']}, 'visibility': {'$ne': 'admin'}},
+        {'$set': {'visibility': 'admin'}}
+    )
+except Exception:
+    app.logger.exception('Failed to backfill admin visibility on system notifications')
+
 # --- Lazy Loading of ML Models ---
 # AI/ML model artifacts (risk model, target encoder, feature columns, recommendation
 # engine, and VADER sentiment analyzer) are now loaded lazily on their first use
@@ -1809,10 +1820,12 @@ def get_notifications():
     if user_info.get('role') == 'admin' and request.args.get('all'):
         cursor = notifications_collection.find({}).sort('createdAt', -1)
     else:
+        # Employees must never see admin-only system alerts (bookings/SOS/claims).
         cursor = notifications_collection.find({
             '$and': [
                 {'$or': [{'targetEmployeeId': None}, {'targetEmployeeId': employee_id}]},
-                {'visibility': {'$ne': 'admin'}}
+                {'visibility': {'$ne': 'admin'}},
+                {'category': {'$nin': ['Medical Checkup', 'SOS', 'Expense Claim']}},
             ]
         }).sort('createdAt', -1)
 
