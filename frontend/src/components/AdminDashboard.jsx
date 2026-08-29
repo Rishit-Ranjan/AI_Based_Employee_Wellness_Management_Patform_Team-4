@@ -20,7 +20,7 @@ import AdminNotificationCenter from './AdminNotificationCenter';
 import { AdminCheckupsModule, AdminSosMonitor, AdminExpensesModule } from './AdminExtraModules';
 import NotificationBell from './NotificationBell';
 import ProfileEditModal from './ProfileEditModal'; 
-import api, { fetchBurnoutTrend } from '../services/api';
+import api, { fetchBurnoutTrend, fetchSystemVitals } from '../services/api';
 import ThemeToggle from './wellness/ThemeToggle';
 import logo from '../assets/logo.png';
 
@@ -2724,11 +2724,35 @@ export default function AdminDashboard({ user,
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotifCenterOpen, setIsNotifCenterOpen] = useState(false);
   const [notifRefreshKey, setNotifRefreshKey] = useState(0);
+  // Real "System Vitals" (replaces the old hard-coded 92% gauge).
+  const [systemVitals, setSystemVitals] = useState({
+    analyticsActive: 0, totalUsers: 0, totalHealthRecords: 0,
+    sentimentPulsesToday: 0, sosAlertsToday: 0, upcomingCheckups: 0,
+  });
 
   // Save activeTab to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('adminActiveTab', activeTab.toString());
   }, [activeTab]);
+
+  // Load real system vitals on mount and keep them near real-time.
+  const loadVitals = useCallback(() => {
+    fetchSystemVitals({ forceRefresh: true })
+      .then((v) => { if (v) setSystemVitals((prev) => ({ ...prev, ...v })); })
+      .catch(() => { /* keep previous vitals on error */ });
+  }, []);
+  useEffect(() => {
+    loadVitals();
+    // Poll frequently for a near real-time gauge.
+    const interval = setInterval(loadVitals, 5000);
+    // Refresh instantly whenever the tab regains focus.
+    const onFocus = () => loadVitals();
+    window.addEventListener('focus', onFocus);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [loadVitals]);
 
   // Find the logged-in admin's department from their health record.
   // This is used to filter the sentiment module to only show the admin's own department.
@@ -3067,11 +3091,17 @@ export default function AdminDashboard({ user,
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono block mb-2">
                 System Vitals
               </span>
-              <div className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2">
+              <div className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-1">
                 Analytics Active
               </div>
+              <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mb-1">
+                {systemVitals.analyticsActive}%
+              </div>
+              <div className="text-[10px] text-slate-400 font-mono mb-2">
+                {systemVitals.totalHealthRecords}/{systemVitals.totalUsers} employees with health data
+              </div>
               <div className="w-full bg-slate-200 dark:bg-slate-700 h-2.5 rounded-full overflow-hidden">
-                <div className="bg-emerald-500 h-full rounded-full" style={{ width: '92%' }} />
+                <div className="bg-emerald-500 h-full rounded-full transition-all duration-700" style={{ width: `${systemVitals.analyticsActive}%` }} />
               </div>
             </div>
           </div>

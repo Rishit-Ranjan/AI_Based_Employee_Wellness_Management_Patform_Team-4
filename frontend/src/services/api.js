@@ -5,6 +5,7 @@ const apiCache = new Map();
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
+// --- Request API ---
 async function request(path, opts = {}) {
   const { forceRefresh, retries = 3, ...fetchOptions } = opts;
 
@@ -24,6 +25,8 @@ async function request(path, opts = {}) {
     }
   }
 }
+
+
 async function attemptRequest(path, opts = {}) {
   const { forceRefresh, ...fetchOptions } = opts;
   const headers = { ...opts.headers };
@@ -95,11 +98,11 @@ async function attemptRequest(path, opts = {}) {
 }
 
 // --- Auth API ---
-
 export function login(email, password, role, entityId) {
   return request('/auth/login', { method: 'POST', body: JSON.stringify({ email, password, role, entityId }) });
 }
 
+// --- SignUp API ---
 export function signup(name, email, password) {
   return request('/auth/signup', {
     method: 'POST',
@@ -439,6 +442,9 @@ export const deleteDownloadedReport = (reportId) => request(`/reports/downloads/
 
 // --- Performance Analytics API ---
 
+// --- System Vitals API ---
+export const fetchSystemVitals = (options) => request('/system/vitals', { method: 'GET', ...options });
+
 // --- AI Wellness Service API ---
 export const sendAiChatMessage = (employeeId, message, model, aiModelName) => request('/ai/chat', {
   method: 'POST',
@@ -496,5 +502,6 @@ export default {
   fetchHealthHistory, downloadHealthReportPdf, viewHealthReportPdf,
   fetchDownloadedReports, deleteDownloadedReport,
   fetchPerformanceAnalytics,
+  fetchSystemVitals,
   fetchSystemSettings, saveSystemSettings,
 };

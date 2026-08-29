@@ -85,7 +85,21 @@ pip install -r requirements.txt
 
 #### Environment Variables
 
-Create a `.env` file inside the `backend/src` directory and populate it with your configuration. Use the following template:
+Copy the committed template to `backend/.env` (the file is git-ignored, so each
+team member must create their own):
+
+```bash
+# From the project root (Windows PowerShell):
+Copy-Item backend\.env.example backend\.env
+
+# macOS / Linux:
+cp backend/.env.example backend/.env
+```
+
+Then open `backend/.env` and fill in at least `MONGO_URI` and `JWT_SECRET_KEY`.
+For a team, use ONE shared MongoDB connection string and the SAME
+`JWT_SECRET_KEY` so everyone sees the same data and accepts the same auth
+cookies. Reference template (same as `backend/.env.example`):
 
 ```env
 # backend/.env
