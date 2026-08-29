@@ -1245,11 +1245,18 @@ def _run_recommendation_engine(engine, employee_profile, top_n=3):
     return []
 
 
-def _rule_based_recommendations(employee_profile, top_n=3):
-    """Rule-based fallback that mirrors the recommendation engine's output schema."""
+def _rule_based_recommendations(employee_profile, top_n=4):
+    """Robust rule-based fallback that mirrors the recommendation engine's schema.
+
+    Unlike the old version, this ALWAYS returns a full, category-diverse set
+    (default 4) so no employee is ever shown just one or two recommendations.
+    This guarantees a consistent experience even on machines where the ML
+    engine pickle fails to load (the historical "only 1-2 recommendations" bug).
+    """
     top_recs = []
 
-    if employee_profile["stress_score"] >= 8:
+    # --- Personalised, condition-flagged picks (highest relevance first) ---
+    if employee_profile.get("stress_score", 5) >= 8:
         top_recs.append({
             "recommendation_id": "REC002",
             "title": "Guided Meditation Routine",
@@ -1258,7 +1265,7 @@ def _rule_based_recommendations(employee_profile, top_n=3):
             "score": 9.0,
             "reasons": ["Stress score is very high"],
         })
-    elif employee_profile["stress_score"] >= 5:
+    elif employee_profile.get("stress_score", 5) >= 5:
         top_recs.append({
             "recommendation_id": "REC006",
             "title": "Desk Yoga and Stretching",
@@ -1268,7 +1275,7 @@ def _rule_based_recommendations(employee_profile, top_n=3):
             "reasons": ["Stress score is moderately elevated"],
         })
 
-    if employee_profile["sleepHoursPerNight"] < 6:
+    if employee_profile.get("sleepHoursPerNight", 7) < 6:
         top_recs.append({
             "recommendation_id": "REC003",
             "title": "Sleep Hygiene Program",
@@ -1277,18 +1284,76 @@ def _rule_based_recommendations(employee_profile, top_n=3):
             "score": 8.5,
             "reasons": ["Sleep hours are below healthy range"],
         })
+    elif employee_profile.get("sleepHoursPerNight", 7) < 7:
+        top_recs.append({
+            "recommendation_id": "REC005",
+            "title": "Sleep Routine Optimisation",
+            "category": "Lifestyle",
+            "description": "Aim to bump sleep closer to 7-8 hours. Try winding down with a consistent pre-sleep routine and limiting caffeine after mid-afternoon to improve sleep quality.",
+            "score": 5.0,
+            "reasons": ["Sleep routine can be improved"],
+        })
 
-    if employee_profile["exercise_days_per_week"] <= 2 or employee_profile["bmi"] >= 30:
+    if employee_profile.get("exercise_days_per_week", 3) <= 2 or employee_profile.get("bmi", 24) >= 30:
         top_recs.append({
             "recommendation_id": "REC001",
             "title": "Brisk Walking Plan",
             "category": "Fitness",
             "description": "Start with a 30-minute brisk walk, 3-5 days a week. This low-impact cardio exercise helps improve cardiovascular health, aids in weight management, and boosts mood by releasing endorphins.",
             "score": 7.0,
-            "reasons": ["Exercise frequency is low"],
+            "reasons": ["Exercise frequency is low" if employee_profile.get("exercise_days_per_week", 3) <= 2 else "BMI is in an elevated range"],
         })
 
-    # Fallback baseline when no risk boundaries are crossed
+    if employee_profile.get("bmi", 24) >= 25:
+        top_recs.append({
+            "recommendation_id": "REC004",
+            "title": "High-Protein Lean Macro Guide",
+            "category": "Diet",
+            "description": "Balance each plate around lean protein, vegetables, and whole grains to support healthy weight management and sustained energy throughout the workday.",
+            "score": 5.5,
+            "reasons": ["Weight management support"],
+        })
+    elif employee_profile.get("glucose_level", 90) >= 126:
+        top_recs.append({
+            "recommendation_id": "REC007",
+            "title": "Low-Glycemic Meal Plan",
+            "category": "Diet",
+            "description": "Choose low-glycemic, fiber-rich foods to help stabilise blood sugar levels and maintain steady energy and focus during work.",
+            "score": 7.0,
+            "reasons": ["Glucose level is elevated"],
+        })
+
+    if employee_profile.get("blood_pressure_systolic", 120) >= 140 or employee_profile.get("blood_pressure_diastolic", 80) >= 90:
+        top_recs.append({
+            "recommendation_id": "REC008",
+            "title": "Cardiovascular Health Check",
+            "category": "Lifestyle",
+            "description": "Your blood pressure reading is elevated. Consider reviewing your sodium intake, increasing moderate activity, and scheduling a routine check-up with your provider.",
+            "score": 7.5,
+            "reasons": ["Blood pressure is elevated"],
+        })
+
+    if employee_profile.get("smoker"):
+        top_recs.append({
+            "recommendation_id": "REC009",
+            "title": "Smoking Cessation Coaching",
+            "category": "Lifestyle",
+            "description": "Access structured support and strategies to reduce and quit smoking, which significantly improves cardiovascular and respiratory wellness.",
+            "score": 8.0,
+            "reasons": ["Tobacco use detected"],
+        })
+
+    if employee_profile.get("medical_condition") and str(employee_profile.get("medical_condition")).strip().lower() not in ("none", "", "nan"):
+        top_recs.append({
+            "recommendation_id": "REC010",
+            "title": "Condition-Specific Health Plan",
+            "category": "Lifestyle",
+            "description": "Follow a management plan tailored to your recorded condition ({}) and keep your care team informed of symptom changes.".format(str(employee_profile.get("medical_condition")).capitalize()),
+            "score": 6.5,
+            "reasons": ["Chronic condition management"],
+        })
+
+    # --- Guaranteed baseline so the list is never empty ---
     if not top_recs:
         top_recs.append({
             "recommendation_id": "REC_BASE",
@@ -1298,6 +1363,50 @@ def _rule_based_recommendations(employee_profile, top_n=3):
             "score": 3.0,
             "reasons": ["Matches baseline health checks"],
         })
+
+    # --- Fill up to top_n with a diverse fallback pool when personalised picks are few ---
+    fallback_pool = [
+        {
+            "recommendation_id": "REC_F1",
+            "title": "Guided Meditation Routine",
+            "category": "Mental Wellness",
+            "description": "Daily 10-minute guided meditation to lower stress and sharpen focus.",
+            "score": 4.0,
+            "reasons": ["General mental wellness"],
+        },
+        {
+            "recommendation_id": "REC_F2",
+            "title": "Desk Yoga and Stretching",
+            "category": "Yoga",
+            "description": "A few minutes of desk yoga to relieve physical tension from sitting.",
+            "score": 4.0,
+            "reasons": ["General physical wellness"],
+        },
+        {
+            "recommendation_id": "REC_F3",
+            "title": "Brisk Walking Plan",
+            "category": "Fitness",
+            "description": "Consistent light cardio to improve heart health and energy levels.",
+            "score": 4.0,
+            "reasons": ["General fitness"],
+        },
+        {
+            "recommendation_id": "REC_F4",
+            "title": "High-Protein Lean Macro Guide",
+            "category": "Diet",
+            "description": "Balanced nutrition guidance for steady energy and better focus.",
+            "score": 3.5,
+            "reasons": ["General nutrition"],
+        },
+    ]
+    seen_categories = {r.get("category") for r in top_recs}
+    for fb in fallback_pool:
+        if len(top_recs) >= top_n:
+            break
+        if fb["category"] in seen_categories:
+            continue
+        top_recs.append(fb)
+        seen_categories.add(fb["category"])
 
     return top_recs[:top_n]
 
