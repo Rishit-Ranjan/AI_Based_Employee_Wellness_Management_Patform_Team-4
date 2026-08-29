@@ -5,7 +5,7 @@
 # the committed ML artifacts (backend/models/*.pkl) were generated with
 # Python 3.13. Using DIFFERENT versions (esp. cloudpickle/pandas/scikit-learn)
 # on another machine can make the .pkl models fail to load, which silently
-# downgrades personalised recommendations. Keep these pinned for everyone.
+# downgrades personalised recommendations.
 # ============================================================================
 pandas==3.0.3
 numpy==2.5.1

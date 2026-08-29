@@ -2992,6 +2992,63 @@ def get_performance_analytics():
         app.logger.exception(f"Failed to compute performance analytics: {e}")
         return jsonify({'detail': 'Internal Server Error'}), 500
 
+
+# --- System Vitals Endpoint ---
+@app.route('/api/system/vitals', methods=['GET'])
+@jwt_required(locations=["cookies"])
+def get_system_vitals():
+    """Returns real system "vitals" computed from the MongoDB collections.
+
+    This drives the "System Vitals -> Analytics Active" gauge shown in both the
+    admin and employee dashboard sidebars (replacing the old hard-coded 92%).
+    The headline gauge represents **health data coverage**: the percentage of
+    registered employees who have an active health record. It is accompanied by
+    a handful of other real, live counters for context.
+    """
+    try:
+        total_users = users_collection.count_documents({})
+        total_records = health_records_collection.count_documents({})
+
+        # Health data coverage: how much of the workforce has a health profile.
+        coverage = round((total_records / max(total_users, 1)) * 100)
+        coverage = max(0, min(100, coverage))
+
+        now = datetime.now(timezone.utc)
+        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+
+        # Secondary live counters for context.
+        sentiment_pulses_total = sentiment_pulses_collection.count_documents({})
+        sentiment_pulses_today = sentiment_pulses_collection.count_documents({
+            'createdAt': {'$gte': today_start.isoformat()}
+        })
+        sos_today = sos_alerts_collection.count_documents({
+            'createdAt': {'$gte': today_start.isoformat()}
+        })
+        upcoming_checkups = checkup_appointments_collection.count_documents({
+            'status': {'$nin': ['Completed', 'Cancelled']}
+        })
+
+        return jsonify({
+            'analyticsActive': coverage,
+            'coveragePercent': coverage,
+            'totalUsers': total_users,
+            'totalHealthRecords': total_records,
+            'sentimentPulsesTotal': sentiment_pulses_total,
+            'sentimentPulsesToday': sentiment_pulses_today,
+            'sosAlertsToday': sos_today,
+            'upcomingCheckups': upcoming_checkups,
+            'generatedAt': now.isoformat(),
+        }), 200
+
+    except Exception as e:
+        app.logger.exception(f"Failed to compute system vitals: {e}")
+        return jsonify({'coveragePercent': 0, 'totalUsers': 0,
+                        'totalHealthRecords': 0, 'sentimentPulsesTotal': 0,
+                        'sentimentPulsesToday': 0, 'sosAlertsToday': 0,
+                        'upcomingCheckups': 0, 'analyticsActive': 0,
+                        'error': str(e)}), 200
+
+
 # sentiment-pulse endpoint
 @app.route('/api/wellness/sentiment-pulse', methods=['POST'])
 @jwt_required(locations=["cookies"])

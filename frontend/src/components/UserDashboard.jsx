@@ -16,7 +16,7 @@ import ReportsModule from './ReportsModule';
 import NotificationBell from './NotificationBell'; 
 import EmployeeSentimentModule from './EmployeeSentimentModule';
 import AchievementsModule from './AchievementsModule';
-import { sendAiChatMessage, fetchAiInsights, generateAiRoutine, triggerSos } from '../services/api';
+import { sendAiChatMessage, fetchAiInsights, generateAiRoutine, triggerSos, fetchSystemVitals } from '../services/api';
 
 import PersonalWellnessProfile from './wellness/PersonalWellnessProfile';
 import ThemeToggle from './wellness/ThemeToggle';
@@ -948,6 +948,29 @@ export default function UserDashboard({
 
 
   const [playingVideo, setPlayingVideo] = useState(null); // { url, category, severity }
+
+  // Real "System Vitals" (replaces the old hard-coded 92% gauge).
+  const [systemVitals, setSystemVitals] = useState({
+    analyticsActive: 0, totalUsers: 0, totalHealthRecords: 0,
+    sentimentPulsesToday: 0, sosAlertsToday: 0, upcomingCheckups: 0,
+  });
+  const loadVitals = useCallback(() => {
+    fetchSystemVitals({ forceRefresh: true })
+      .then((v) => { if (v) setSystemVitals((prev) => ({ ...prev, ...v })); })
+      .catch(() => { /* keep previous vitals on error */ });
+  }, []);
+  useEffect(() => {
+    loadVitals();
+    // Poll frequently for a near real-time gauge.
+    const interval = setInterval(loadVitals, 5000);
+    // Refresh instantly whenever the tab regains focus.
+    const onFocus = () => loadVitals();
+    window.addEventListener('focus', onFocus);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [loadVitals]);
   const userRecommendations = useMemo(() => {
     const recs = recommendations || [];
     
@@ -1262,8 +1285,14 @@ export default function UserDashboard({
                 <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
                   Analytics Active
                 </div>
-                <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full mt-2 overflow-hidden">
-                  <div className="bg-emerald-500 h-full rounded-full" style={{ width: '92%' }} />
+                <div className="text-lg font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+                  {systemVitals.analyticsActive}%
+                </div>
+                <div className="text-[9px] text-slate-400 font-mono mb-1">
+                  {systemVitals.totalHealthRecords}/{systemVitals.totalUsers} employees with health data
+                </div>
+                <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full mt-1 overflow-hidden">
+                  <div className="bg-emerald-500 h-full rounded-full transition-all duration-700" style={{ width: `${systemVitals.analyticsActive}%` }} />
                 </div>
               </div>
             </div>
