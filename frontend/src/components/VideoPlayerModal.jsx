@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { SkipForward } from 'lucide-react';
+import { SkipForward, X } from 'lucide-react';
 
 const getYouTubeVideoId = (url) => {
   if (!url) return null;
@@ -54,6 +54,22 @@ export default function VideoPlayerModal({ videoUrls = [], initialVideoIndex = 0
         className="bg-slate-900 rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Dedicated header bar: keeps the close button clear of YouTube's own player controls */}
+        <div className="flex items-center justify-between bg-slate-950 px-4 py-3 border-b border-white/10">
+          <span className="text-sm font-semibold text-white/80 tracking-wide">
+            Video Recommendations
+          </span>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close video player"
+            title="Close video player"
+            className="inline-flex items-center justify-center rounded-lg bg-white/10 p-2 text-white hover:bg-red-500/80 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-white/40"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
         <div className="relative aspect-video">
           {!videoId && (
             <div className="absolute inset-0 flex items-center justify-center bg-slate-900 z-10">
