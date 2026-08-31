@@ -987,7 +987,7 @@ export default function UserDashboard({
 
   const handleTriggerSos = async () => {
     try {
-      await triggerSos('Emergency SOS triggered from dashboard header.');
+                  await triggerSos('Emergency SOS triggered from dashboard header.', user?.employeeId, user?.name);
       // You might want to show a success message here
       alert('SOS Alert has been sent to the administrators.');
     } catch (error) {
