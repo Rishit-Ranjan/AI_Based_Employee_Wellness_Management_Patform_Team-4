@@ -577,7 +577,7 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
   const sleepVal = userRecord?.sleepHoursPerNight || 7.5;
 
   return (
-    <div className="space-y-6 pb-10">
+    <div className="space-y-6 pb-10 lg:pr-20">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
@@ -773,18 +773,17 @@ const FloatingBot = ({ onClick, isChatOpen }) => {
       onClick={onClick}
       className="fixed bottom-4 right-6 z-50 cursor-pointer"
       title="Toggle AI Assistant"
-    >
-      {!isChatOpen && (
+    >      {!isChatOpen && (
         <div 
-          className={`absolute bottom-[105%] right-0 w-max max-w-[180px] sm:max-w-[220px] whitespace-normal break-words px-3 py-1.5 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 rounded-lg text-[11px] font-semibold shadow-lg transition-opacity duration-300 ${
+          className={`absolute bottom-full right-0 mb-3 w-max max-w-[200px] sm:max-w-[220px] whitespace-normal break-words px-3 py-1.5 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 rounded-lg text-[11px] font-semibold shadow-lg transition-opacity duration-300 ${
             isPaused ? 'opacity-100' : 'opacity-0'
           }`}
         >
           {bubbleText}
           
-          {/* Arrow pointing down toward the center of the head (40px in) */}
+          {/* Arrow pointing down toward the bot's head */}
           <div 
-            className="absolute -bottom-1.5 right-9 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-white dark:border-t-slate-700"
+            className="absolute -bottom-1.5 right-3 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-white dark:border-t-slate-700"
           />
         </div>
       )}
@@ -810,11 +809,11 @@ const FloatingBot = ({ onClick, isChatOpen }) => {
               Right Arm X = 60 + (8/2) = 64px. Y = 48 + 4 = 52px.
             */
             .bot-arm.left { 
-              animation: ${isWaving ? 'wave-left 2.5s ease-in-out' : 'none'}; 
+              /* Only the right arm waves — this stays at rest for a natural single-hand hello. */
               transform-origin: 16px 52px; 
             }
             .bot-arm.right { 
-              animation: ${isWaving ? 'wave-right 2.5s ease-in-out' : 'none'}; 
+              animation: ${isWaving ? 'wave-hello 2.5s ease-in-out' : 'none'}; 
               transform-origin: 64px 52px; 
             }
 
@@ -823,24 +822,17 @@ const FloatingBot = ({ onClick, isChatOpen }) => {
               50% { transform: translateY(-5px); }
             }
 
-            @keyframes wave-left {
-              0% { transform: rotate(0deg); }
-              15% { transform: rotate(-140deg); } /* lift up */
-              30% { transform: rotate(-100deg); } /* wave in */
-              45% { transform: rotate(-140deg); } /* wave out */
-              60% { transform: rotate(-100deg); } /* wave in */
-              75% { transform: rotate(-140deg); } /* wave out */
-              100% { transform: rotate(0deg); }   /* back down */
-            }
-
-            @keyframes wave-right {
-              0% { transform: rotate(0deg); }
-              15% { transform: rotate(140deg); }  /* lift up */
-              30% { transform: rotate(100deg); }  /* wave in */
-              45% { transform: rotate(140deg); }  /* wave out */
-              60% { transform: rotate(100deg); }  /* wave in */
-              75% { transform: rotate(140deg); }  /* wave out */
-              100% { transform: rotate(0deg); }   /* back down */
+            @keyframes wave-hello {
+              0%   { transform: rotate(0deg); }
+              12%  { transform: rotate(150deg); } /* lift the hand up into the air */
+              22%  { transform: rotate(125deg); } /* wave in */
+              32%  { transform: rotate(152deg); } /* wave out */
+              42%  { transform: rotate(128deg); } /* wave in */
+              52%  { transform: rotate(150deg); } /* wave out */
+              62%  { transform: rotate(130deg); } /* wave in */
+              75%  { transform: rotate(148deg); } /* wave out */
+              90%  { transform: rotate(150deg); } /* hold it up */
+              100% { transform: rotate(0deg); }   /* bring it back down */
             }
           `}
         </style>
@@ -993,9 +985,9 @@ export default function UserDashboard({
     }
   }, []);
 
-  const handleTriggerSos = async () => {
+    const handleTriggerSos = async () => {
     try {
-      await triggerSos('Emergency SOS triggered from dashboard header.');
+      await triggerSos('Emergency SOS triggered from dashboard header.', user?.employeeId, user?.name);
       // You might want to show a success message here
       alert('SOS Alert has been sent to the administrators.');
     } catch (error) {

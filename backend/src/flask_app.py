@@ -1943,7 +1943,7 @@ def get_notifications():
 
 # notificaions endpoint (POST) - admin only
 @app.route('/api/notifications', methods=['POST'])
-# @jwt_required(locations=["cookies"])
+@jwt_required(locations=["cookies"])
 def create_notification():
     """Admin-only: broadcast to everyone (omit targetEmployeeId) or target one employee."""
     jwt_payload = get_jwt()

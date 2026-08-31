@@ -117,8 +117,10 @@ class AIWellnessService:
                     'bmi': health.get('bmi'),
                     'blood_pressure': health.get('bloodPressure'),
                     'stress_level': health.get('stressLevel'),
+                    'stress_score': health.get('stressScore', 5),
                     'sleep_hours': health.get('sleepHoursPerNight'),
                     'exercise_hours': health.get('exerciseHoursPerWeek'),
+                    'exercise_days': health.get('exerciseDaysPerWeek', 0),
                     'glucose': health.get('glucoseLevel'),
                 }
             
@@ -363,7 +365,116 @@ Your wellness journey is about health, not just numbers! What aspect would you l
             'model': model_used,
             'timestamp': datetime.now(timezone.utc).isoformat()
         }
-    
+
+    # ------------------------------------------------------------------
+    # Real metric computations (feed the Wellness Coach dashboard cards)
+    # ------------------------------------------------------------------
+    def _safe_float(self, value, default):
+        """Coerce a value to float, falling back to a default on failure/None."""
+        try:
+            return float(value) if value is not None else float(default)
+        except (TypeError, ValueError):
+            return float(default)
+
+    def _compute_sleep_score(self, sleep_hours) -> int:
+        """Sleep Score (0-100) derived from real nightly sleep hours."""
+        sleep_hours = self._safe_float(sleep_hours, 7.0)
+        # Peak at 8h; penalize deviation in either direction.
+        score = 100 - abs(8.0 - sleep_hours) * 15
+        return int(max(0, min(100, round(score))))
+
+    def _compute_stress_index(self, stress_score, stress_level, mood_trend) -> int:
+        """Stress Index (0-100) derived from real stress score/level and mood trend."""
+        if stress_score is not None:
+            base = self._safe_float(stress_score, 5.0) * 10.0
+        else:
+            base = {'Low': 30, 'Medium': 50, 'High': 80}.get(stress_level, 50)
+        recent_moods = mood_trend[-3:] if mood_trend else mood_trend
+        negative_moods = ['Stressed', 'Tired', 'Burned', 'Anxious']
+        neg_count = sum(1 for m in recent_moods if m in negative_moods)
+        if neg_count >= 2:
+            base += 10
+        return int(max(0, min(100, round(base))))
+
+    def _compute_activity_level(self, exercise_hours, exercise_days, steps) -> str:
+        """Activity Level label derived from real exercise logs and daily steps."""
+        exercise_hours = self._safe_float(exercise_hours, 0)
+        exercise_days = self._safe_float(exercise_days, 0)
+        steps = self._safe_float(steps, 0)
+        if exercise_hours >= 5 or exercise_days >= 5 or steps >= 12000:
+            return 'Very Active'
+        if exercise_hours >= 3 or exercise_days >= 3 or steps >= 8000:
+            return 'Active'
+        if exercise_hours >= 1 or exercise_days >= 1 or steps >= 4000:
+            return 'Lightly Active'
+        return 'Sedentary'
+
+    def _compute_nutrition_quality(self, water_cups, glucose, bmi) -> str:
+        """Nutrition Quality label derived from real hydration, glucose, and BMI."""
+        water_cups = self._safe_float(water_cups, 0)
+        glucose = self._safe_float(glucose, 100)
+        bmi = self._safe_float(bmi, 24)
+        # Proxy nutrition index (0-100) from available tracked fields.
+        score = 0.0
+        score += min(40.0, (water_cups / 8.0) * 40.0)  # hydration weight
+        if 18.5 <= bmi <= 24.9:
+            score += 30.0
+        elif 17.0 <= bmi <= 29.9:
+            score += 15.0
+        if glucose < 70:
+            score += 0.0
+        elif glucose <= 100:
+            score += 30.0
+        elif glucose <= 126:
+            score += 15.0
+        if score >= 80:
+            return 'Excellent'
+        if score >= 65:
+            return 'Good'
+        if score >= 45:
+            return 'Balanced'
+        if score >= 25:
+            return 'Fair'
+        return 'Poor'
+
+    def _compute_weekly_goal(self, sleep_hours, stress_level, exercise_hours,
+                             exercise_days, steps, water_cups) -> str:
+        """Personalized, employee-friendly weekly goal based on real data gaps.
+
+        Picks the single most impactful improvement area for this employee and
+        frames it as a supportive, achievable goal.
+        """
+        sleep_hours = self._safe_float(sleep_hours, 7.0)
+        exercise_hours = self._safe_float(exercise_hours, 0)
+        exercise_days = self._safe_float(exercise_days, 0)
+        steps = self._safe_float(steps, 0)
+        water_cups = self._safe_float(water_cups, 0)
+
+        # 1. Sleep is the biggest lever when it's consistently low.
+        if sleep_hours < 6:
+            return ("This week, let's prioritise rest: aim for 7-8 hours of sleep "
+                    "each night by winding down 30 minutes earlier. A consistent "
+                    "bedtime does wonders for your energy and focus.")
+        # 2. Very low daily movement/hydration → gentle momentum goals.
+        if steps < 4000 and water_cups < 6:
+            return ("This week, let's build gentle momentum: try a 10-minute walk "
+                    "each day to reach about 5,000 steps, and sip 6-8 cups of water "
+                    "to keep your energy steady. Small steps count!")
+        # 3. Low-to-moderate activity → movement goal.
+        if (steps < 8000 or exercise_hours < 2 or exercise_days < 2):
+            return ("This week, let's add a little more movement: aim for 3 short "
+                    "exercise sessions (even a brisk walk still counts) and work "
+                    "toward 7,000-8,000 steps a day. Every bit makes a difference.")
+        # 4. Elevated stress → wellbeing goal.
+        if stress_level == 'High':
+            return ("This week, let's protect your calm: try one short breathing "
+                    "or mindfulness break each day, and book a check-up if stress "
+                    "feels overwhelming. Your wellbeing comes first.")
+        # 5. Otherwise, encourage maintaining their healthy habits.
+        return ("Keep up your great momentum! This week, aim to hold your current "
+                "sleep, movement, and hydration routine, and take one rest day to "
+                "let your body recover. Consistency beats intensity!")
+
     def generate_daily_insights(self, employee_id: str) -> Dict[str, Any]:
         """Generate personalized daily wellness insights for an employee."""
         if self.db is None:
@@ -475,8 +586,26 @@ Your wellness journey is about health, not just numbers! What aspect would you l
         elif score < 70:
             recommendation = "Good baseline! Small improvements in sleep and exercise will make a big difference."
         
+        # Real, per-user metric values for the Wellness Coach dashboard cards
+        sleep_score = self._compute_sleep_score(health.get('sleep_hours'))
+        stress_index = self._compute_stress_index(
+            health.get('stress_score'), health.get('stress_level'), mood_trend)
+        activity_level = self._compute_activity_level(
+            health.get('exercise_hours'), health.get('exercise_days'), habits.get('steps'))
+        nutrition_quality = self._compute_nutrition_quality(
+            habits.get('water_cups'), health.get('glucose'), health.get('bmi'))
+        weekly_goal = self._compute_weekly_goal(
+            health.get('sleep_hours'), health.get('stress_level'),
+            health.get('exercise_hours'), health.get('exercise_days'),
+            habits.get('steps'), habits.get('water_cups'))
+
         return {
             'wellness_score': score,
+            'sleepScore': sleep_score,
+            'stressIndex': stress_index,
+            'activityLevel': activity_level,
+            'nutritionQuality': nutrition_quality,
+            'weeklyGoal': weekly_goal,
             'insights': insights[:3],  # Top 3 most important insights
             'nudges': nudges[:2],  # Top 2 nudges
             'recommendation': recommendation,
@@ -904,6 +1033,11 @@ Focus on whole foods. Be specific with meal items and ensure they respect the di
         """Default insights when DB is not available."""
         return {
             'wellness_score': 85,
+            'sleepScore': self._compute_sleep_score(None),
+            'stressIndex': self._compute_stress_index(None, None, []),
+            'activityLevel': self._compute_activity_level(None, None, None),
+            'nutritionQuality': self._compute_nutrition_quality(None, None, None),
+            'weeklyGoal': self._compute_weekly_goal(None, 'Medium', None, None, None, None),
             'insights': [
                 {
                     'category': 'general',
