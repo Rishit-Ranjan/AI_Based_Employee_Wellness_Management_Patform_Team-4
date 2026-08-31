@@ -810,11 +810,11 @@ const FloatingBot = ({ onClick, isChatOpen }) => {
               Right Arm X = 60 + (8/2) = 64px. Y = 48 + 4 = 52px.
             */
             .bot-arm.left { 
-              animation: ${isWaving ? 'wave-left 2.5s ease-in-out' : 'none'}; 
+              /* Only the right arm waves — this stays at rest for a natural single-hand hello. */
               transform-origin: 16px 52px; 
             }
             .bot-arm.right { 
-              animation: ${isWaving ? 'wave-right 2.5s ease-in-out' : 'none'}; 
+              animation: ${isWaving ? 'wave-hello 2.5s ease-in-out' : 'none'}; 
               transform-origin: 64px 52px; 
             }
 
@@ -823,24 +823,17 @@ const FloatingBot = ({ onClick, isChatOpen }) => {
               50% { transform: translateY(-5px); }
             }
 
-            @keyframes wave-left {
-              0% { transform: rotate(0deg); }
-              15% { transform: rotate(-140deg); } /* lift up */
-              30% { transform: rotate(-100deg); } /* wave in */
-              45% { transform: rotate(-140deg); } /* wave out */
-              60% { transform: rotate(-100deg); } /* wave in */
-              75% { transform: rotate(-140deg); } /* wave out */
-              100% { transform: rotate(0deg); }   /* back down */
-            }
-
-            @keyframes wave-right {
-              0% { transform: rotate(0deg); }
-              15% { transform: rotate(140deg); }  /* lift up */
-              30% { transform: rotate(100deg); }  /* wave in */
-              45% { transform: rotate(140deg); }  /* wave out */
-              60% { transform: rotate(100deg); }  /* wave in */
-              75% { transform: rotate(140deg); }  /* wave out */
-              100% { transform: rotate(0deg); }   /* back down */
+            @keyframes wave-hello {
+              0%   { transform: rotate(0deg); }
+              12%  { transform: rotate(150deg); } /* lift the hand up into the air */
+              22%  { transform: rotate(125deg); } /* wave in */
+              32%  { transform: rotate(152deg); } /* wave out */
+              42%  { transform: rotate(128deg); } /* wave in */
+              52%  { transform: rotate(150deg); } /* wave out */
+              62%  { transform: rotate(130deg); } /* wave in */
+              75%  { transform: rotate(148deg); } /* wave out */
+              90%  { transform: rotate(150deg); } /* hold it up */
+              100% { transform: rotate(0deg); }   /* bring it back down */
             }
           `}
         </style>
