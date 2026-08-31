@@ -437,6 +437,44 @@ Your wellness journey is about health, not just numbers! What aspect would you l
             return 'Fair'
         return 'Poor'
 
+    def _compute_weekly_goal(self, sleep_hours, stress_level, exercise_hours,
+                             exercise_days, steps, water_cups) -> str:
+        """Personalized, employee-friendly weekly goal based on real data gaps.
+
+        Picks the single most impactful improvement area for this employee and
+        frames it as a supportive, achievable goal.
+        """
+        sleep_hours = self._safe_float(sleep_hours, 7.0)
+        exercise_hours = self._safe_float(exercise_hours, 0)
+        exercise_days = self._safe_float(exercise_days, 0)
+        steps = self._safe_float(steps, 0)
+        water_cups = self._safe_float(water_cups, 0)
+
+        # 1. Sleep is the biggest lever when it's consistently low.
+        if sleep_hours < 6:
+            return ("This week, let's prioritise rest: aim for 7-8 hours of sleep "
+                    "each night by winding down 30 minutes earlier. A consistent "
+                    "bedtime does wonders for your energy and focus.")
+        # 2. Very low daily movement/hydration → gentle momentum goals.
+        if steps < 4000 and water_cups < 6:
+            return ("This week, let's build gentle momentum: try a 10-minute walk "
+                    "each day to reach about 5,000 steps, and sip 6-8 cups of water "
+                    "to keep your energy steady. Small steps count!")
+        # 3. Low-to-moderate activity → movement goal.
+        if (steps < 8000 or exercise_hours < 2 or exercise_days < 2):
+            return ("This week, let's add a little more movement: aim for 3 short "
+                    "exercise sessions (even a brisk walk still counts) and work "
+                    "toward 7,000-8,000 steps a day. Every bit makes a difference.")
+        # 4. Elevated stress → wellbeing goal.
+        if stress_level == 'High':
+            return ("This week, let's protect your calm: try one short breathing "
+                    "or mindfulness break each day, and book a check-up if stress "
+                    "feels overwhelming. Your wellbeing comes first.")
+        # 5. Otherwise, encourage maintaining their healthy habits.
+        return ("Keep up your great momentum! This week, aim to hold your current "
+                "sleep, movement, and hydration routine, and take one rest day to "
+                "let your body recover. Consistency beats intensity!")
+
     def generate_daily_insights(self, employee_id: str) -> Dict[str, Any]:
         """Generate personalized daily wellness insights for an employee."""
         if self.db is None:
@@ -556,6 +594,10 @@ Your wellness journey is about health, not just numbers! What aspect would you l
             health.get('exercise_hours'), health.get('exercise_days'), habits.get('steps'))
         nutrition_quality = self._compute_nutrition_quality(
             habits.get('water_cups'), health.get('glucose'), health.get('bmi'))
+        weekly_goal = self._compute_weekly_goal(
+            health.get('sleep_hours'), health.get('stress_level'),
+            health.get('exercise_hours'), health.get('exercise_days'),
+            habits.get('steps'), habits.get('water_cups'))
 
         return {
             'wellness_score': score,
@@ -563,6 +605,7 @@ Your wellness journey is about health, not just numbers! What aspect would you l
             'stressIndex': stress_index,
             'activityLevel': activity_level,
             'nutritionQuality': nutrition_quality,
+            'weeklyGoal': weekly_goal,
             'insights': insights[:3],  # Top 3 most important insights
             'nudges': nudges[:2],  # Top 2 nudges
             'recommendation': recommendation,
@@ -994,6 +1037,7 @@ Focus on whole foods. Be specific with meal items and ensure they respect the di
             'stressIndex': self._compute_stress_index(None, None, []),
             'activityLevel': self._compute_activity_level(None, None, None),
             'nutritionQuality': self._compute_nutrition_quality(None, None, None),
+            'weeklyGoal': self._compute_weekly_goal(None, 'Medium', None, None, None, None),
             'insights': [
                 {
                     'category': 'general',
