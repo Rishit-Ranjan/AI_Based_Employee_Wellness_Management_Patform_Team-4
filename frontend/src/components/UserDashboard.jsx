@@ -776,15 +776,15 @@ const FloatingBot = ({ onClick, isChatOpen }) => {
     >
       {!isChatOpen && (
         <div 
-          className={`absolute bottom-[105%] right-0 w-max max-w-[180px] sm:max-w-[220px] whitespace-normal break-words px-3 py-1.5 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 rounded-lg text-[11px] font-semibold shadow-lg transition-opacity duration-300 ${
+          className={`absolute bottom-1 right-full mr-3 w-max max-w-[180px] sm:max-w-[220px] whitespace-normal break-words px-3 py-1.5 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 rounded-lg text-[11px] font-semibold shadow-lg transition-opacity duration-300 ${
             isPaused ? 'opacity-100' : 'opacity-0'
           }`}
         >
           {bubbleText}
           
-          {/* Arrow pointing down toward the center of the head (40px in) */}
+          {/* Arrow pointing right toward the centre of the bot */}
           <div 
-            className="absolute -bottom-1.5 right-9 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-white dark:border-t-slate-700"
+            className="absolute -right-2 top-1/2 -translate-y-1/2 w-0 h-0 border-y-[6px] border-y-transparent border-l-[6px] border-l-white dark:border-l-slate-700"
           />
         </div>
       )}
