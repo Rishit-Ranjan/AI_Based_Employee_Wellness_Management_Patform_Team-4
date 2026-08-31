@@ -33,6 +33,7 @@ import HealthChart from './HealthChart';
 import ThemeToggle from './ThemeToggle';
 import WellnessInsightsModule from '../WellnessInsightsModule';
 import WellnessProgressModule from './WellnessProgressModule';
+import DailyWellnessChecklist from './DailyWellnessChecklist';
 
 export default function PersonalWellnessProfile({
   user,
@@ -855,6 +856,13 @@ smoker: smoker,
             records={records}
             dailyHabits={dailyHabits}
             mentalHealthLogs={mentalHealthLogs}
+          />
+          <DailyWellnessChecklist
+            user={user}
+            waterCups={waterCups}
+            stepsCount={stepsCount}
+            exerciseHours={Number(exercise) || 0}
+            sleepHours={Number(sleep) || 0}
           />
         </div>
       </div>
