@@ -773,9 +773,8 @@ const FloatingBot = ({ onClick, isChatOpen }) => {
       onClick={onClick}
       className="fixed bottom-4 right-6 z-50 cursor-pointer"
       title="Toggle AI Assistant"
-    >
-      {!isChatOpen && (
-                <div 
+    >      {!isChatOpen && (
+        <div 
           className={`absolute bottom-full right-0 mb-3 w-max max-w-[200px] sm:max-w-[220px] whitespace-normal break-words px-3 py-1.5 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 rounded-lg text-[11px] font-semibold shadow-lg transition-opacity duration-300 ${
             isPaused ? 'opacity-100' : 'opacity-0'
           }`}
