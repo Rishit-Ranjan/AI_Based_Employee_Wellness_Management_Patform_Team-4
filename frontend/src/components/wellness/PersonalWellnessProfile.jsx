@@ -31,7 +31,6 @@ import ProfileCard from './ProfileCard';
 import HealthCard from './HealthCard';
 import HealthChart from './HealthChart';
 import ThemeToggle from './ThemeToggle';
-import AchievementsModule from '../AchievementsModule';
 import WellnessInsightsModule from '../WellnessInsightsModule';
 import WellnessProgressModule from './WellnessProgressModule';
 
@@ -857,7 +856,6 @@ smoker: smoker,
             dailyHabits={dailyHabits}
             mentalHealthLogs={mentalHealthLogs}
           />
-          <AchievementsModule user={user} />
         </div>
       </div>
 
