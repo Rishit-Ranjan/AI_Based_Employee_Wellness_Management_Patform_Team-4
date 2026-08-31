@@ -133,7 +133,7 @@ export default function DailyWellnessChecklist({
         Tick off each habit. Your progress is saved for today.
       </p>
 
-      <div className="checkbox-scroll max-h-[53px] overflow-y-auto pr-1 -mr-1 space-y-1">
+      <div className="checkbox-scroll max-h-[160px] overflow-y-auto pr-1 -mr-1 space-y-1">
         {baseItems.map((item) => {
           const Icon = item.icon;
           const checked = !!checks[item.id];
@@ -143,7 +143,7 @@ export default function DailyWellnessChecklist({
               type="button"
               onClick={() => toggle(item.id)}
               title={item.caption}
-              className={`h-[22px] w-full flex items-center gap-2 text-left px-2 rounded border transition-all cursor-pointer ${
+              className={`h-[40px] w-full flex items-center gap-2 text-left px-2 rounded border transition-all cursor-pointer ${
                 checked
                   ? 'bg-slate-50 dark:bg-slate-700/40 border-emerald-200 dark:border-emerald-800'
                   : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-emerald-300 dark:hover:border-emerald-700'

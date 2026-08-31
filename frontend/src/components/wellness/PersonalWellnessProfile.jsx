@@ -34,6 +34,7 @@ import ThemeToggle from './ThemeToggle';
 import WellnessInsightsModule from '../WellnessInsightsModule';
 import WellnessProgressModule from './WellnessProgressModule';
 import DailyWellnessChecklist from './DailyWellnessChecklist';
+import SectionTitle from './SectionTitle';
 
 export default function PersonalWellnessProfile({
   user,
@@ -852,11 +853,6 @@ smoker: smoker,
             streakDays={streakDays}
             healthAssessment={existingRecord?.healthAssessment}
           />
-          <WellnessInsightsModule
-            records={records}
-            dailyHabits={dailyHabits}
-            mentalHealthLogs={mentalHealthLogs}
-          />
           <DailyWellnessChecklist
             user={user}
             waterCups={waterCups}
@@ -864,10 +860,22 @@ smoker: smoker,
             exerciseHours={Number(exercise) || 0}
             sleepHours={Number(sleep) || 0}
           />
+          <WellnessInsightsModule
+            records={records}
+            dailyHabits={dailyHabits}
+            mentalHealthLogs={mentalHealthLogs}
+          />
         </div>
       </div>
 
+      <hr className="my-8 border-t border-slate-200 dark:border-slate-700" />
+
       {/* 3. Interactive Hydration, Step Counter, and Mood Tracker Row */}
+      <SectionTitle
+        icon={Activity}
+        title="Daily Habits"
+        subtitle="Track your hydration, steps, and mood for the day"
+      />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         
         {/* Daily Water Intake */}
@@ -987,7 +995,14 @@ smoker: smoker,
         </ProfileCard>
       </div>
 
+      <hr className="my-8 border-t border-slate-200 dark:border-slate-700" />
+
       {/* 4. Recharts Visual Section (Weekly Stress, Sleep History, BMI Trend) */}
+      <SectionTitle
+        icon={Brain}
+        title="Self Analytics"
+        subtitle="Your mental wellness, sleep metrics, and body composition at a glance"
+      />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <HealthChart type="stress" extraProp={Number(stressScore) || 5} />
         <HealthChart type="sleep" extraProp={8} />
