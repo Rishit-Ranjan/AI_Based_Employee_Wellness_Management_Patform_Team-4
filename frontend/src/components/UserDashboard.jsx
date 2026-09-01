@@ -773,7 +773,8 @@ const FloatingBot = ({ onClick, isChatOpen }) => {
       onClick={onClick}
       className="fixed bottom-4 right-6 z-50 cursor-pointer"
       title="Toggle AI Assistant"
-    >      {!isChatOpen && (
+    >
+      {!isChatOpen && (
         <div 
           className={`absolute bottom-full right-0 mb-3 w-max max-w-[200px] sm:max-w-[220px] whitespace-normal break-words px-3 py-1.5 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 rounded-lg text-[11px] font-semibold shadow-lg transition-opacity duration-300 ${
             isPaused ? 'opacity-100' : 'opacity-0'
@@ -1219,11 +1220,12 @@ export default function UserDashboard({
 
         {/* 2. Desktop Navigation Sidebar */}
         <aside
-          className={`hidden lg:flex flex-col h-full overflow-y-auto bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-700 transition-all duration-300 shrink-0 p-4 justify-between ${
+          className={`hidden lg:flex flex-col h-full overflow-hidden bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-700 transition-all duration-300 shrink-0 p-4 justify-between ${
             isSidebarCollapsed ? 'w-20' : 'w-70'
           }`}
         >
-          <div className="space-y-4 flex-1 overflow-y-auto">
+          {/* Fixed header — stays visible when scrolling */}
+          <div className="shrink-0 mb-4">
             <div className="flex items-center justify-between px-2 py-1">
               {!isSidebarCollapsed && (
                 <span className="text-[12px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono">
@@ -1239,7 +1241,10 @@ export default function UserDashboard({
                 {isSidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
               </button>
             </div>
+          </div>
 
+          {/* Scrollable navigation area — only nav items scroll */}
+          <div className="flex-1 overflow-y-auto min-h-0">
             <nav className="space-y-1.5">
               {navTabs.map((tab) => {
                 const Icon = tab.icon;
@@ -1280,7 +1285,7 @@ export default function UserDashboard({
                 <div className="text-lg font-bold text-emerald-600 dark:text-emerald-400 mt-1">
                   {systemVitals.analyticsActive}%
                 </div>
-                <div className="text-[9px] text-slate-400 font-mono mb-1">
+                <div className="text-[11px] text-slate-600 dark:text-slate-300 font-mono mb-1">
                   {systemVitals.totalHealthRecords}/{systemVitals.totalUsers} employees with health data
                 </div>
                 <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full mt-1 overflow-hidden">

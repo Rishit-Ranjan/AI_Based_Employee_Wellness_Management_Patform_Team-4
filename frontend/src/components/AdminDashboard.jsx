@@ -3097,7 +3097,7 @@ export default function AdminDashboard({ user,
               <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mb-1">
                 {systemVitals.analyticsActive}%
               </div>
-              <div className="text-[10px] text-slate-400 font-mono mb-2">
+              <div className="text-[12px] text-slate-600 dark:text-slate-300 font-mono mb-2">
                 {systemVitals.totalHealthRecords}/{systemVitals.totalUsers} employees with health data
               </div>
               <div className="w-full bg-slate-200 dark:bg-slate-700 h-2.5 rounded-full overflow-hidden">

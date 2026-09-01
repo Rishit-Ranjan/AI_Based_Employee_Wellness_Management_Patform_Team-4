@@ -206,7 +206,7 @@ The application has two primary roles with default credentials of Admin for demo
 - **Role:** `Admin`
 - **Admin ID:** `ADM001`
 - **Email:** `admin@platform.com`
-- **Password:** `AdminPass123`
+- **Password:** `admin`
 
 ---
 
