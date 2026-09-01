@@ -1219,11 +1219,12 @@ export default function UserDashboard({
 
         {/* 2. Desktop Navigation Sidebar */}
         <aside
-          className={`hidden lg:flex flex-col h-full overflow-y-auto bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-700 transition-all duration-300 shrink-0 p-4 justify-between ${
+                    className={`hidden lg:flex flex-col h-full overflow-hidden bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-700 transition-all duration-300 shrink-0 p-4 justify-between ${
             isSidebarCollapsed ? 'w-20' : 'w-70'
           }`}
         >
-          <div className="space-y-4 flex-1 overflow-y-auto">
+          {/* Fixed header — stays visible when scrolling */}
+          <div className="shrink-0 mb-4">
             <div className="flex items-center justify-between px-2 py-1">
               {!isSidebarCollapsed && (
                 <span className="text-[12px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono">
@@ -1239,7 +1240,10 @@ export default function UserDashboard({
                 {isSidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
               </button>
             </div>
+          </div>
 
+          {/* Scrollable navigation area — only nav items scroll */}
+          <div className="flex-1 overflow-y-auto min-h-0">
             <nav className="space-y-1.5">
               {navTabs.map((tab) => {
                 const Icon = tab.icon;
