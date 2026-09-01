@@ -1285,7 +1285,7 @@ export default function UserDashboard({
                 <div className="text-lg font-bold text-emerald-600 dark:text-emerald-400 mt-1">
                   {systemVitals.analyticsActive}%
                 </div>
-                <div className="text-[9px] text-slate-400 font-mono mb-1">
+                <div className="text-[11px] text-slate-600 dark:text-slate-300 font-mono mb-1">
                   {systemVitals.totalHealthRecords}/{systemVitals.totalUsers} employees with health data
                 </div>
                 <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full mt-1 overflow-hidden">
