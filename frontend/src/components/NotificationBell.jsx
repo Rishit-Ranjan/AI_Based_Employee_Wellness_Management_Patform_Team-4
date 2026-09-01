@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Bell, X, Check, Send } from 'lucide-react';
-import { fetchNotifications, markNotificationRead } from '../services/api';
+import { Bell, X, Check, Send, Trash2 } from 'lucide-react';
+import { fetchNotifications, markNotificationRead, deleteNotification } from '../services/api';
 import AdminNotificationCenter from './AdminNotificationCenter';
 
 export default function NotificationBell({ isAdmin = false, onAdminClick, refreshKey = 0 }) {
@@ -44,6 +44,12 @@ export default function NotificationBell({ isAdmin = false, onAdminClick, refres
     load();
   };
 
+  const handleDelete = async (n, e) => {
+    e.stopPropagation();
+    await deleteNotification(n.id);
+    load();
+  };
+
   return (
     <div className="relative">
       <button
@@ -69,13 +75,22 @@ export default function NotificationBell({ isAdmin = false, onAdminClick, refres
           ) : (
             notifications.map((n) => (
               <div key={n.id} onClick={() => handleRead(n)} className={`p-3 border-b border-slate-50 dark:border-slate-700/60 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/40 ${!n.read ? 'bg-indigo-50/40 dark:bg-indigo-500/10' : ''}`}>
-                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-start justify-between gap-2">
                   <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">{n.title}</span>
-                  {!n.read && <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full mt-1 shrink-0" />}
-                  {n.read && <Check className="w-3 h-3 text-emerald-400 shrink-0" />}
+                  <div className="flex items-center gap-1 shrink-0">
+                    {!n.read && <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full mt-1" />}
+                    {n.read && <Check className="w-3 h-3 text-emerald-400" />}
+                    <button
+                      onClick={(e) => handleDelete(n, e)}
+                      className="p-0.5 text-slate-600 hover:text-rose-600 dark:text-slate-300 dark:hover:text-rose-400 cursor-pointer"
+                      title="Delete notification"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">{n.message}</p>
-                <span className="text-[9px] text-slate-300 dark:text-slate-500 font-mono mt-1 block">{new Date(n.createdAt).toLocaleString()}</span>
+                <span className="text-[9px] text-slate-500 dark:text-slate-400 font-mono mt-1 block">{new Date(n.createdAt).toLocaleString()}</span>
               </div>
             ))
           )}
