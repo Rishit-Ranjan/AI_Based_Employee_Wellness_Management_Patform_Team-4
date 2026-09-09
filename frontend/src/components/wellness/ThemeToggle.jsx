@@ -43,7 +43,8 @@ export default function ThemeToggle({ className = '' }) {
           className={`w-4 h-4 transition-colors duration-200 ${
             isDark ? 'text-(--color-text-muted)' : 'text-amber-400'
           }`}
-          fill={isDark ? 'none' : 'currentColor'}
+          fill="none"
+          strokeWidth={2}
         />
     </button>
   );
