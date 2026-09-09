@@ -379,7 +379,7 @@ smoker: smoker,
       transition={{ duration: 0.4 }}
             className="space-y-8 pb-12 lg:pr-16"
     >
-      <section className="rounded-2xl border border-emerald-200 dark:border-emerald-900/70 bg-emerald-50/80 dark:bg-emerald-950/25 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <section className="rounded-lg border border-emerald-200 dark:border-emerald-900/70 bg-emerald-50/80 dark:bg-emerald-950/25 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-300 font-mono">
             <Check className="w-4 h-4" /> Today&apos;s wellness check-in
@@ -396,7 +396,7 @@ smoker: smoker,
         </button>
       </section>
 
-      <section className="rounded-2xl border border-(--color-border) dark:border-(--color-border-dark) bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) p-5">
+      <section className="rounded-lg border border-(--color-border) dark:border-(--color-border-dark) bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) p-5">
         <div className="flex items-start justify-between gap-4">
           <div>
             <span className="text-[10px] font-bold uppercase tracking-widest text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">Your recent signals</span>

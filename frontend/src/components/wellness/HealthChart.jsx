@@ -69,7 +69,7 @@ export const WeeklyStressChart = memo(({ data = defaultStressData, currentStress
   ];
 
   return (
-    <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl border border-(--color-border) dark:border-(--color-border-dark) p-5 shadow-sm hover:shadow-lg transition-all duration-300">
+    <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-lg border border-(--color-border) dark:border-(--color-border-dark) p-5 shadow-sm hover:shadow-lg transition-all duration-300">
       <div className="flex justify-between items-center mb-4">
         <div>
           <span className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest font-mono">
@@ -79,7 +79,7 @@ export const WeeklyStressChart = memo(({ data = defaultStressData, currentStress
             Weekly Stress Score Trend
           </h4>
         </div>
-        <span className="text-xs font-mono font-bold text-amber-500 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 px-2 py-0.5 rounded-lg">
+        <span className="text-xs font-mono font-bold text-amber-500 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 px-2 py-0.5 rounded-md">
           1 - 10 Scale
         </span>
       </div>
@@ -107,7 +107,7 @@ export const WeeklyStressChart = memo(({ data = defaultStressData, currentStress
 
 export const SleepHistoryChart = memo(({ data = defaultSleepData, target = 8 }) => {
   return (
-    <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl border border-(--color-border) dark:border-(--color-border-dark) p-5 shadow-sm hover:shadow-lg transition-all duration-300">
+    <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-lg border border-(--color-border) dark:border-(--color-border-dark) p-5 shadow-sm hover:shadow-lg transition-all duration-300">
       <div className="flex justify-between items-center mb-4">
         <div>
           <span className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest font-mono">
@@ -117,7 +117,7 @@ export const SleepHistoryChart = memo(({ data = defaultSleepData, target = 8 }) 
             Sleep Duration History
           </h4>
         </div>
-        <span className="text-xs font-mono font-bold text-purple-500 bg-purple-50 dark:bg-purple-950/50 border border-purple-200 dark:border-purple-800 px-2 py-0.5 rounded-lg">
+        <span className="text-xs font-mono font-bold text-purple-500 bg-purple-50 dark:bg-purple-950/50 border border-purple-200 dark:border-purple-800 px-2 py-0.5 rounded-md">
           Target: {target}h
         </span>
       </div>
@@ -151,7 +151,7 @@ export const BmiTrendChart = memo(({ data = defaultBmiData, currentBmi = 22.5 })
   ];
 
   return (
-    <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl border border-(--color-border) dark:border-(--color-border-dark) p-5 shadow-sm hover:shadow-lg transition-all duration-300">
+    <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-lg border border-(--color-border) dark:border-(--color-border-dark) p-5 shadow-sm hover:shadow-lg transition-all duration-300">
       <div className="flex justify-between items-center mb-4">
         <div>
           <span className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest font-mono">
@@ -161,7 +161,7 @@ export const BmiTrendChart = memo(({ data = defaultBmiData, currentBmi = 22.5 })
             BMI Trend & History
           </h4>
         </div>
-        <span className="text-xs font-mono font-bold text-blue-500 bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 px-2 py-0.5 rounded-lg">
+        <span className="text-xs font-mono font-bold text-blue-500 bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 px-2 py-0.5 rounded-md">
           Optimal: 18.5 - 24.9
         </span>
       </div>

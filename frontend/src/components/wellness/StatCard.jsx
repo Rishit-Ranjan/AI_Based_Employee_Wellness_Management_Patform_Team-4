@@ -40,7 +40,7 @@ export default function StatCard({
   const selectedColor = colorMap[color] || colorMap.blue;
 
   return (
-    <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl border border-(--color-border) dark:border-(--color-border-dark) p-5 shadow-sm hover:border-(--color-border-strong) dark:hover:border-(--color-border-strong-dark) transition-all duration-300 overflow-hidden">
+    <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-lg border border-(--color-border) dark:border-(--color-border-dark) p-5 shadow-sm hover:border-(--color-border-strong) dark:hover:border-(--color-border-strong-dark) transition-all duration-300 overflow-hidden">
       <div className="flex items-start justify-between">
         <div>
           <span className="text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider font-mono">
@@ -54,7 +54,7 @@ export default function StatCard({
         </div>
 
         {Icon && (
-          <div className={`p-3 rounded-xl border ${selectedColor.iconBg} transition-transform duration-300 group-hover:scale-110 shadow-sm`}>
+          <div className={`p-3 rounded-md border ${selectedColor.iconBg} transition-transform duration-300 group-hover:scale-110 shadow-sm`}>
             <Icon className="w-5 h-5" />
           </div>
         )}

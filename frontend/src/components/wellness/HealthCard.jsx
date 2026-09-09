@@ -39,7 +39,7 @@ export default function HealthCard({
   const sleepQuality = getSleepQuality(sleepHours);
 
   return (
-    <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl border border-(--color-border) dark:border-(--color-border-dark) p-6 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between space-y-6">
+    <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-lg border border-(--color-border) dark:border-(--color-border-dark) p-6 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between space-y-6">
       {/* Diagnostics Header */}
       <div className="flex items-center justify-between border-b border-(--color-border) dark:border-(--color-border-dark) pb-4">
         <div className="flex items-center gap-2.5">

@@ -19,7 +19,7 @@ export default function SectionTitle({
     <div className="flex items-center justify-between border-b border-(--color-border) dark:border-(--color-border-dark) pb-4 mb-5">
       <div className="flex items-center gap-3">
         {Icon && (
-          <div className="p-2 rounded-xl bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) text-(--color-text-secondary) dark:text-(--color-text-primary-dark) border border-(--color-border) dark:border-(--color-border-dark)">
+          <div className="p-2 rounded-md bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) text-(--color-text-secondary) dark:text-(--color-text-primary-dark) border border-(--color-border) dark:border-(--color-border-dark)">
             <Icon className="w-5 h-5" />
           </div>
         )}
@@ -36,7 +36,7 @@ export default function SectionTitle({
       </div>
 
       {badge && (
-        <span className={`px-2.5 py-1 rounded-lg border text-[10px] font-bold uppercase tracking-wider font-mono ${badgeStyles[badgeColor] || badgeStyles.blue}`}>
+        <span className={`px-2.5 py-1 rounded-md border text-[10px] font-bold uppercase tracking-wider font-mono ${badgeStyles[badgeColor] || badgeStyles.blue}`}>
           {badge}
         </span>
       )}

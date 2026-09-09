@@ -88,7 +88,7 @@ export default function WellnessProgressModule({
   const overallStroke = overallColor(overall);
 
   return (
-    <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300">
+    <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300">
       <div className="flex items-start justify-between gap-3 mb-5">
         <div>
           <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2">
