@@ -168,8 +168,8 @@ export default function Login({ onNavigate, onLoginSuccess }) {
         className="hidden lg:flex lg:w-1/2 bg-slate-900 text-white p-12 flex-col justify-between relative overflow-hidden border-r border-slate-800"
       >
         {/* Abstract background graphics */}
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <div className="absolute top-[-10%] left-[-10%] w-[120%] h-[120%] bg-[radial-gradient(circle_at_50%_50%,#fff_0%,transparent_50%)]"></div>
+        <div className="absolute inset-0 opacity-9 pointer-events-none">
+          <div className="absolute top-[-10%] left-[-10%] w-[120%] h-[120%] bg-[radial-gradient(circle_at_50%_50%,#fff_0%,transparent_45%)]"></div>
           <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-slate-800 to-transparent"></div>
         </div>
         <div className="absolute top-1/4 right-10 w-96 h-96 bg-slate-800/40 rounded-full blur-3xl pointer-events-none" />
@@ -235,8 +235,11 @@ export default function Login({ onNavigate, onLoginSuccess }) {
       </div>
 
       {/* Right side: Interactive Login form */}
-      <div id="login-form-panel" className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12">
-        <div className="w-full max-w-md bg-white rounded-2xl border border-slate-200 p-8 shadow-xl">
+      <div id="login-form-panel" className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12 relative overflow-hidden bg-(--color-bg)">
+        {/* Soft light wellness backdrop — subtle, non-obstructive */}
+        <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1600&q=60" alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover opacity-800" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/75 via-white/55 to-white/90" />
+        <div className="relative w-full max-w-md bg-white/95 backdrop-blur-sm rounded-2xl border border-slate-200/80 p-8 shadow-xl">
           <div className="mb-8">
             <div className="lg:hidden flex items-center gap-2 mb-6">
               <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center">

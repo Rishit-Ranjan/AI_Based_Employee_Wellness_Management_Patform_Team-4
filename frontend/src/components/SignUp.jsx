@@ -189,8 +189,11 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
       </div>
 
       {/* Right side: Signup Form */}
-      <div id="signup-form-panel" className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12">
-        <div className="w-full max-w-md bg-white rounded-2xl border border-slate-200 p-8 shadow-xl">
+      <div id="signup-form-panel" className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12 relative overflow-hidden bg-(--color-bg)">
+        {/* Soft light wellness backdrop — subtle, non-obstructive */}
+        <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1600&q=60" alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover opacity-700" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/75 via-white/55 to-white/90" />
+        <div className="relative w-full max-w-md bg-white/95 backdrop-blur-sm rounded-2xl border border-slate-200/80 p-8 shadow-xl">
           <div className="mb-6">
             <div className="lg:hidden flex items-center gap-2 mb-4">
               <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center">
