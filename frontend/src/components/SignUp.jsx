@@ -128,7 +128,7 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
           <p className="text-slate-500 text-sm">
             Welcome, <strong>{name}</strong>! Your employee wellness account has been successfully set up.
           </p>
-          <div className="text-xs text-slate-400 py-2 font-mono">
+          <div className="text-xs text-(--color-text-muted) py-2 font-mono">
             Redirecting you to the platform...
           </div>
           <div className="w-full bg-slate-100 h-1 rounded-full overflow-hidden">
@@ -161,7 +161,7 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
           <h1 className="font-display text-5xl font-normal tracking-tight leading-tight mb-6 text-white">
             Join thousands of teams <br/><span className="italic font-serif text-slate-300">prioritizing employee</span> health.
           </h1>
-          <p className="text-slate-400 text-base leading-relaxed mb-6 font-normal">
+          <p className="text-(--color-text-muted) text-base leading-relaxed mb-6 font-normal">
             Establishing a wellness program can reduce absenteeism by 25% and increase overall workspace productivity. Get started with custom employee health indexing today.
           </p>
 
@@ -215,7 +215,7 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
                 Full Name
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-(--color-text-muted)">
                   <User className="w-4 h-4" />
                 </div>
                 <input
@@ -235,7 +235,7 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
                 Work Email
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-(--color-text-muted)">
                   <Mail className="w-4 h-4" />
                 </div>
                 <input
@@ -255,7 +255,7 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
                 Password
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-(--color-text-muted)">
                   <Lock className="w-4 h-4" />
                 </div>
                 <input
@@ -270,7 +270,7 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600"
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-(--color-text-muted) hover:text-slate-600"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -286,7 +286,7 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
                   <div className="w-full bg-slate-200 h-1 rounded-full overflow-hidden">
                     <div className={`${strength.color} h-full transition-all duration-300`} style={{ width: `${strength.score}%` }} />
                   </div>
-                  <div className="grid grid-cols-2 gap-x-2 text-[9px] text-slate-400 mt-1 font-mono">
+                  <div className="grid grid-cols-2 gap-x-2 text-[9px] text-(--color-text-muted) mt-1 font-mono">
                     <span className={password.length >= 6 ? 'text-emerald-600 font-semibold' : ''}>✓ Min 6 chars</span>
                     <span className={/[A-Z]/.test(password) ? 'text-emerald-600 font-semibold' : ''}>✓ 1 Uppercase</span>
                     <span className={/[0-9]/.test(password) ? 'text-emerald-600 font-semibold' : ''}>✓ 1 Number</span>
@@ -301,7 +301,7 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
                 Confirm Password
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-(--color-text-muted)">
                   <Lock className="w-4 h-4" />
                 </div>
                 <input
@@ -316,7 +316,7 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600"
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-(--color-text-muted) hover:text-slate-600"
                 >
                   {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>

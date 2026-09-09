@@ -47,8 +47,8 @@ const defaultBmiData = [
 const CustomTooltip = ({ active, payload, label, unit = '' }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-slate-900/90 text-white dark:bg-slate-800 dark:text-slate-100 p-2.5 rounded-xl text-xs shadow-xl border border-slate-700/80 font-mono">
-        <p className="font-bold text-slate-300">{label}</p>
+      <div className="bg-(--color-bg-card-dark) text-(--color-text-primary-dark) p-2.5 rounded-xl text-xs shadow-xl border border-(--color-border-dark) font-mono">
+        <p className="font-bold text-(--color-text-secondary-dark)">{label}</p>
         <p className="text-blue-400 font-semibold mt-0.5">
           {payload[0].name || 'Value'}: {payload[0].value} {unit}
         </p>
@@ -69,13 +69,13 @@ export const WeeklyStressChart = memo(({ data = defaultStressData, currentStress
   ];
 
   return (
-    <div className="bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 p-5 shadow-sm hover:shadow-xl transition-all duration-300">
+    <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl border border-(--color-border) dark:border-(--color-border-dark) p-5 shadow-sm hover:shadow-lg transition-all duration-300">
       <div className="flex justify-between items-center mb-4">
         <div>
-          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest font-mono">
+          <span className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest font-mono">
             Mental Wellness
           </span>
-          <h4 className="font-display font-semibold text-slate-900 dark:text-slate-100 text-sm mt-0.5">
+          <h4 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-sm mt-0.5">
             Weekly Stress Score Trend
           </h4>
         </div>
@@ -107,13 +107,13 @@ export const WeeklyStressChart = memo(({ data = defaultStressData, currentStress
 
 export const SleepHistoryChart = memo(({ data = defaultSleepData, target = 8 }) => {
   return (
-    <div className="bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 p-5 shadow-sm hover:shadow-xl transition-all duration-300">
+    <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl border border-(--color-border) dark:border-(--color-border-dark) p-5 shadow-sm hover:shadow-lg transition-all duration-300">
       <div className="flex justify-between items-center mb-4">
         <div>
-          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest font-mono">
+          <span className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest font-mono">
             Sleep Metrics
           </span>
-          <h4 className="font-display font-semibold text-slate-900 dark:text-slate-100 text-sm mt-0.5">
+          <h4 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-sm mt-0.5">
             Sleep Duration History
           </h4>
         </div>
@@ -151,13 +151,13 @@ export const BmiTrendChart = memo(({ data = defaultBmiData, currentBmi = 22.5 })
   ];
 
   return (
-    <div className="bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 p-5 shadow-sm hover:shadow-xl transition-all duration-300">
+    <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl border border-(--color-border) dark:border-(--color-border-dark) p-5 shadow-sm hover:shadow-lg transition-all duration-300">
       <div className="flex justify-between items-center mb-4">
         <div>
-          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest font-mono">
+          <span className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest font-mono">
             Body Composition
           </span>
-          <h4 className="font-display font-semibold text-slate-900 dark:text-slate-100 text-sm mt-0.5">
+          <h4 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-sm mt-0.5">
             BMI Trend & History
           </h4>
         </div>

@@ -397,10 +397,10 @@ smoker: smoker,
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
                     Employee ID
                   </label>
-                  <div className="w-full px-3.5 py-2.5 bg-slate-100 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-700/80 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 font-mono select-none flex items-center justify-between">
+                  <div className="w-full px-3.5 py-2.5 bg-slate-100 dark:bg-slate-950/60 border border-(--color-border) dark:border-(--color-border-dark)/80 rounded-xl text-xs font-semibold text-(--color-text-secondary) dark:text-(--color-text-primary-dark) font-mono select-none flex items-center justify-between">
                     <span>{user?.employeeId || 'EMP-1001'}</span>
                     <span className="text-[10px] text-blue-600 dark:text-blue-400 font-bold bg-blue-50 dark:bg-blue-950/80 border border-blue-200 dark:border-blue-800 px-2 py-0.5 rounded-md">
                       Verified
@@ -409,7 +409,7 @@ smoker: smoker,
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
                     Age
                   </label>
                   <input
@@ -418,18 +418,18 @@ smoker: smoker,
                     value={age}
                     onChange={(e) => setAge(e.target.value)}
                     placeholder="e.g. 28"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
                     Gender
                   </label>
                   <select
                     value={gender}
                     onChange={(e) => setGender(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none transition-all cursor-pointer"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all cursor-pointer"
                   >
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
@@ -438,13 +438,13 @@ smoker: smoker,
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
                     Department
                   </label>
                   <select
                     value={dept}
                     onChange={(e) => setDept(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none transition-all cursor-pointer"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all cursor-pointer"
                   >
                     <option value="Engineering">Engineering</option>
                     <option value="Sales">Sales</option>
@@ -471,7 +471,7 @@ smoker: smoker,
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
                     Height (cm)
                   </label>
                   <input
@@ -481,12 +481,12 @@ smoker: smoker,
                     value={heightCm}
                     onChange={(e) => setHeightCm(e.target.value)}
                     placeholder="e.g. 175.5"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 dark:focus:border-emerald-400 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 dark:focus:border-emerald-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
                     Weight (kg)
                   </label>
                   <input
@@ -496,12 +496,12 @@ smoker: smoker,
                     value={weightKg}
                     onChange={(e) => setWeightKg(e.target.value)}
                     placeholder="e.g. 72.0"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 dark:focus:border-emerald-400 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 dark:focus:border-emerald-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
                     Body Mass Index (BMI)
                   </label>
                   <input
@@ -510,16 +510,16 @@ smoker: smoker,
                     required
                     value={bmi || computedBmi()}
                     onChange={(e) => setBmi(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 dark:focus:border-emerald-400 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none transition-all font-mono font-bold text-emerald-600 dark:text-emerald-400"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 dark:focus:border-emerald-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all font-mono font-bold text-emerald-600 dark:text-emerald-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
                     Blood Pressure (Sys/Dia){' '}
                     <span 
                       ref={bpInfoRef}
-                      className="inline-block ml-1 text-slate-400 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer"
+                      className="inline-block ml-1 text-(--color-text-muted) dark:text-(--color-text-muted-dark) hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer"
                       onClick={() => setShowBpInfoPopup(!showBpInfoPopup)}
                     >
                       <Info className="w-3.5 h-3.5 inline cursor-pointer" />
@@ -538,7 +538,7 @@ smoker: smoker,
                     placeholder="e.g. 120/80"
                     value={bp}
                     onChange={(e) => setBp(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 dark:focus:border-emerald-400 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none transition-all font-mono"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 dark:focus:border-emerald-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all font-mono"
                   />
                 </div>
               </div>
@@ -554,7 +554,7 @@ smoker: smoker,
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
                     Sleep Duration (Hrs/Night)
                   </label>
                   <input
@@ -564,12 +564,12 @@ smoker: smoker,
                     value={sleep}
                     onChange={(e) => setSleep(e.target.value)}
                     placeholder="e.g. 7.5"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 dark:focus:border-amber-400 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 dark:focus:border-amber-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
                     Exercise Days (Per Week)
                   </label>
                   <input
@@ -580,12 +580,12 @@ smoker: smoker,
                     value={exerciseDaysPerWeek}
                     onChange={(e) => setExerciseDaysPerWeek(e.target.value)}
                     placeholder="e.g. 4"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 dark:focus:border-amber-400 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 dark:focus:border-amber-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
                     Exercise Hours (Per Week)
                   </label>
                   <input
@@ -595,18 +595,18 @@ smoker: smoker,
                     value={exercise}
                     onChange={(e) => setExercise(e.target.value)}
                     placeholder="e.g. 3.5"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 dark:focus:border-amber-400 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 dark:focus:border-amber-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
                     Self-Reported Stress Tier
                   </label>
                   <select
                     value={stress}
                     onChange={(e) => setStress(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 dark:focus:border-amber-400 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none transition-all cursor-pointer"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 dark:focus:border-amber-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all cursor-pointer"
                   >
                     <option value="Low">Low Stress</option>
                     <option value="Medium">Medium Stress</option>
@@ -626,7 +626,7 @@ smoker: smoker,
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
                     Stress Rating (1 - 10)
                   </label>
                   <input
@@ -638,12 +638,12 @@ smoker: smoker,
                     value={stressScore}
                     onChange={(e) => setStressScore(e.target.value)}
                     placeholder="5.0"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:focus:border-purple-400 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none transition-all font-mono"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:focus:border-purple-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all font-mono"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
                     Blood Glucose (mg/dL)
                   </label>
                   <input
@@ -653,18 +653,18 @@ smoker: smoker,
                     value={glucoseLevel}
                     onChange={(e) => setGlucoseLevel(e.target.value)}
                     placeholder="90"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:focus:border-purple-400 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:focus:border-purple-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
                     Medical / Burnout Condition
                   </label>
                   <select
                     value={medicalCondition}
                     onChange={(e) => setMedicalCondition(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:focus:border-purple-400 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none transition-all cursor-pointer"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:focus:border-purple-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all cursor-pointer"
                   >
                     <option value="No major condition">No major condition</option>
                     <option value="Stress-related fatigue">Stress-related fatigue</option>
@@ -676,7 +676,7 @@ smoker: smoker,
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
                     Medical Notes & Observations
                   </label>
                   <textarea
@@ -684,27 +684,27 @@ smoker: smoker,
                     onChange={(e) => setMedicalNotes(e.target.value)}
                     placeholder="Any relevant medical history or notes..."
                     rows={2}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:focus:border-purple-400 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:focus:border-purple-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
                   />
                 </div>
 
                 <div className="sm:col-span-2 flex items-center gap-6 pt-1">
-                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
+                  <label className="flex items-center gap-2 text-xs font-medium text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) cursor-pointer">
                     <input
                       type="checkbox"
                       checked={smoker}
                       onChange={(e) => setSmoker(e.target.checked)}
-                      className="w-4 h-4 text-blue-600 border-slate-300 dark:border-slate-600 rounded focus:ring-blue-500"
+                      className="w-4 h-4 text-blue-600 border-(--color-border-strong) dark:border-(--color-border-strong-dark) rounded focus:ring-blue-500"
                     />
                     Nicotine / Tobacco User
                   </label>
 
-<label className="flex items-center gap-2 text-xs font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
+<label className="flex items-center gap-2 text-xs font-medium text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) cursor-pointer">
                     <input
                       type="checkbox"
                       checked={alcoholUse}
                       onChange={(e) => setAlcoholUse(e.target.checked)}
-                      className="w-4 h-4 text-blue-600 border-slate-300 dark:border-slate-600 rounded focus:ring-blue-500"
+                      className="w-4 h-4 text-blue-600 border-(--color-border-strong) dark:border-(--color-border-strong-dark) rounded focus:ring-blue-500"
                     />
                     Alcohol User
                   </label>
@@ -722,7 +722,7 @@ smoker: smoker,
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
                     Emergency Contact Name
                   </label>
                   <input
@@ -730,12 +730,12 @@ smoker: smoker,
                     value={emergencyContactName}
                     onChange={(e) => setEmergencyContactName(e.target.value)}
                     placeholder="e.g. Priya Sharma"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 dark:focus:border-rose-400 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 dark:focus:border-rose-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
                     Emergency Contact Phone
                   </label>
                   <input
@@ -743,18 +743,18 @@ smoker: smoker,
                     value={emergencyContactPhone}
                     onChange={(e) => setEmergencyContactPhone(e.target.value)}
                     placeholder="e.g. +91 98765 43210"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 dark:focus:border-rose-400 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 dark:focus:border-rose-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
                     Blood Group
                   </label>
                   <select
                     value={bloodGroup}
                     onChange={(e) => setBloodGroup(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 dark:focus:border-rose-400 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none transition-all cursor-pointer"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 dark:focus:border-rose-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all cursor-pointer"
                   >
                     <option value="">Select blood group</option>
                     <option value="A+">A+</option>
@@ -769,7 +769,7 @@ smoker: smoker,
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
                     Allergies
                   </label>
                   <input
@@ -777,12 +777,12 @@ smoker: smoker,
                     value={allergies}
                     onChange={(e) => setAllergies(e.target.value)}
                     placeholder="e.g. Peanuts, Penicillin"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 dark:focus:border-rose-400 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 dark:focus:border-rose-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
                     Existing Diseases / Conditions
                   </label>
                   <input
@@ -790,15 +790,15 @@ smoker: smoker,
                     value={existingDiseases}
                     onChange={(e) => setExistingDiseases(e.target.value)}
                     placeholder="e.g. Asthma, Hypertension"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 dark:focus:border-rose-400 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 dark:focus:border-rose-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
                   />
                 </div>
               </div>
             </ProfileCard>
 
             {/* Save & Sync Action Bar */}
-            <div className="bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 p-5 flex items-center justify-between shadow-sm">
-              <span className="text-[11px] text-slate-400 dark:text-slate-400 font-mono">
+            <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl border border-(--color-border) dark:border-(--color-border-dark) p-5 flex items-center justify-between shadow-sm">
+              <span className="text-[11px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">
                 Changes propagate to analytics in real-time
               </span>
 
@@ -868,7 +868,7 @@ smoker: smoker,
         </div>
       </div>
 
-      <hr className="my-8 border-t border-slate-200 dark:border-slate-700" />
+      <hr className="my-8 border-t border-(--color-border) dark:border-(--color-border-dark)" />
 
       {/* 3. Interactive Hydration, Step Counter, and Mood Tracker Row */}
       <SectionTitle
@@ -887,11 +887,11 @@ smoker: smoker,
           badgeColor="blue"
         >
           <div className="text-center py-2 space-y-3">
-            <div className="text-4xl font-display font-bold text-slate-900 dark:text-slate-50">
-              {waterCups} <span className="text-sm font-light text-slate-400 font-mono">/ 8 Cups</span>
+            <div className="text-4xl font-display font-bold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">
+              {waterCups} <span className="text-sm font-light text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">/ 8 Cups</span>
             </div>
 
-            <div className="w-full bg-slate-100 dark:bg-slate-700/60 h-2.5 rounded-full overflow-hidden">
+            <div className="w-full bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) h-2.5 rounded-full overflow-hidden">
               <div
                 className="bg-gradient-to-r from-blue-500 to-sky-400 h-full rounded-full transition-all duration-300"
                 style={{ width: `${Math.min(100, (waterCups / 8) * 100)}%` }}
@@ -902,7 +902,7 @@ smoker: smoker,
               <button
                 type="button"
                 onClick={() => updateWater(-1)}
-                className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 transition-all cursor-pointer"
+                className="flex-1 py-2 bg-slate-100 hover:bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) dark:hover:bg-slate-600 rounded-xl text-xs font-semibold text-(--color-text-secondary) dark:text-(--color-text-primary-dark) transition-all cursor-pointer"
               >
                 - 1 Cup
               </button>
@@ -927,10 +927,10 @@ smoker: smoker,
         >
           <div className="space-y-3 py-1">
             <div className="flex justify-between items-baseline">
-              <span className="text-3xl font-display font-bold text-slate-900 dark:text-slate-50">
+              <span className="text-3xl font-display font-bold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">
                 {stepsCount.toLocaleString()}
               </span>
-              <span className="text-xs text-slate-400 font-mono">/ 10,000 steps</span>
+              <span className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">/ 10,000 steps</span>
             </div>
 
             <input
@@ -940,10 +940,10 @@ smoker: smoker,
               step="500"
               value={stepsCount}
               onChange={handleStepsChange}
-              className="w-full accent-blue-600 cursor-pointer h-2 bg-slate-100 dark:bg-slate-700 rounded-lg"
+              className="w-full accent-blue-600 cursor-pointer h-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded-lg"
             />
 
-            <p className="text-[10px] text-slate-400 dark:text-slate-400 text-center font-mono">
+            <p className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) text-center font-mono">
               {stepsCount >= 10000 ? '🎉 Daily Step Goal Achieved!' : `${(10000 - stepsCount).toLocaleString()} steps remaining today`}
             </p>
           </div>
@@ -958,7 +958,7 @@ smoker: smoker,
           badgeColor="purple"
         >
           <div className="space-y-3">
-            <span className="text-[10px] text-slate-400 uppercase tracking-widest block font-mono font-bold">
+            <span className="text-[10px] text-(--color-text-muted) uppercase tracking-widest block font-mono font-bold">
               Select Today's State:
             </span>
 
@@ -980,7 +980,7 @@ smoker: smoker,
                   className={`py-2 rounded-xl text-base border flex flex-col items-center justify-center transition-all cursor-pointer ${
                     mood === m.name
                       ? 'bg-blue-50 border-blue-300 dark:bg-blue-950/80 dark:border-blue-700 font-bold scale-105 text-blue-600 dark:text-blue-400'
-                      : 'bg-slate-50 border-slate-200 dark:bg-slate-900 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300'
+                      : 'bg-slate-50 border-slate-200 dark:bg-slate-900 dark:border-slate-700 hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark) text-(--color-text-secondary) dark:text-(--color-text-secondary-dark)'
                   }`}
                 >
                   <span>{m.label}</span>
@@ -988,14 +988,14 @@ smoker: smoker,
               ))}
             </div>
 
-            <div className="text-center text-[11px] text-slate-500 dark:text-slate-400 font-mono pt-1">
-              Logged state: <span className="font-bold text-slate-800 dark:text-slate-200">{mood || 'Not logged today'}</span>
+            <div className="text-center text-[11px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono pt-1">
+              Logged state: <span className="font-bold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{mood || 'Not logged today'}</span>
             </div>
           </div>
         </ProfileCard>
       </div>
 
-      <hr className="my-8 border-t border-slate-200 dark:border-slate-700" />
+      <hr className="my-8 border-t border-(--color-border) dark:border-(--color-border-dark)" />
 
       {/* 4. Recharts Visual Section (Weekly Stress, Sleep History, BMI Trend) */}
       <SectionTitle
@@ -1017,7 +1017,7 @@ smoker: smoker,
         badge="Privacy Protected"
         badgeColor="emerald"
       >
-        <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed mb-5">
+        <p className="text-(--color-text-muted) dark:text-(--color-text-muted-dark) text-xs leading-relaxed mb-5">
           Your individual input is aggregated into departmental wellness indexes without identifying information. Your scores help guide team load balancing.
         </p>
 
@@ -1025,7 +1025,7 @@ smoker: smoker,
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
             <div className="md:col-span-1 space-y-2">
               <div className="flex justify-between text-xs font-mono font-medium">
-                <span className="text-slate-500 dark:text-slate-400">Stress Rating (1-10)</span>
+                <span className="text-(--color-text-muted) dark:text-(--color-text-muted-dark)">Stress Rating (1-10)</span>
                 <span className="font-bold text-blue-600 dark:text-blue-400">{pulseStress}</span>
               </div>
               <input
@@ -1034,12 +1034,12 @@ smoker: smoker,
                 max="10"
                 value={pulseStress}
                 onChange={(e) => setPulseStress(Number(e.target.value))}
-                className="w-full accent-blue-600 cursor-pointer h-2 bg-slate-100 dark:bg-slate-700 rounded-lg"
+                className="w-full accent-blue-600 cursor-pointer h-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded-lg"
               />
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
+              <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
                 Feedback / Workload Notes
               </label>
               <input
@@ -1047,7 +1047,7 @@ smoker: smoker,
                 value={pulseFeedback}
                 onChange={(e) => setPulseFeedback(e.target.value)}
                 placeholder="Share anonymized feedback regarding team workload..."
-                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none"
               />
               {pulseFeedbackError && (
                 <p className="mt-1.5 text-[11px] text-rose-600 dark:text-rose-400 flex items-center gap-1">

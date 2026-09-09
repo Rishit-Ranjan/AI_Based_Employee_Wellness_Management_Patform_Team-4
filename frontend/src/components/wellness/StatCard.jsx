@@ -40,17 +40,14 @@ export default function StatCard({
   const selectedColor = colorMap[color] || colorMap.blue;
 
   return (
-    <div className="relative group bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 p-5 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
-      {/* Top accent bar on hover */}
-      <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${selectedColor.accent} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
-
+    <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl border border-(--color-border) dark:border-(--color-border-dark) p-5 shadow-sm hover:border-(--color-border-strong) dark:hover:border-(--color-border-strong-dark) transition-all duration-300 overflow-hidden">
       <div className="flex items-start justify-between">
         <div>
-          <span className="text-[11px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider font-mono">
+          <span className="text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider font-mono">
             {title}
           </span>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl lg:text-3xl font-display font-bold text-slate-900 dark:text-slate-50 tracking-tight">
+            <span className="text-2xl lg:text-3xl font-display font-bold text-(--color-text-primary) dark:text-(--color-text-primary-dark) tracking-tight">
               {value}
             </span>
           </div>
@@ -63,7 +60,7 @@ export default function StatCard({
         )}
       </div>
 
-      <div className="mt-4 flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-700/60 text-xs">
+      <div className="mt-4 flex items-center justify-between pt-3 border-t border-(--color-border) dark:border-(--color-border-dark) text-xs">
         {trend && (
           <span className={`inline-flex items-center gap-1 font-semibold font-mono text-[11px] ${
             trendUp ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'
@@ -72,7 +69,7 @@ export default function StatCard({
           </span>
         )}
         {subtext && (
-          <span className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
+          <span className="text-[11px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-medium">
             {subtext}
           </span>
         )}

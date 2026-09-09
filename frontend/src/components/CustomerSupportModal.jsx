@@ -71,7 +71,7 @@ export default function CustomerSupportModal({ user, onClose }) {
     `px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 border ${
       activeTab === tab
         ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-        : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700'
+        : 'bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) text-(--color-text-muted) dark:text-(--color-text-muted-dark) border-transparent hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark)'
     }`;
 
   const quickActions = [
@@ -96,28 +96,28 @@ export default function CustomerSupportModal({ user, onClose }) {
   ];
 
   return (
-    <div className="fixed inset-0 z-[200] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+    <div className="fixed inset-0 z-[200] bg-slate-900/60  flex items-center justify-center p-4 animate-fadeIn">
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         transition={{ type: 'spring', damping: 26, stiffness: 300 }}
-        className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-2xl shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[90vh] flex flex-col overflow-hidden"
+        className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl w-full max-w-2xl shadow-2xl border border-(--color-border) dark:border-(--color-border-dark) max-h-[90vh] flex flex-col overflow-hidden"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 shrink-0">
+        <div className="flex items-center justify-between p-5 border-b border-(--color-border) dark:border-(--color-border-dark) bg-slate-50 dark:bg-slate-900/50 shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-100 dark:bg-blue-950/50 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400">
               <LifeBuoy className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-display font-semibold text-lg leading-tight text-slate-900 dark:text-slate-100">Customer Support</h3>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">How can we help you today?</p>
+              <h3 className="font-display font-semibold text-lg leading-tight text-(--color-text-primary) dark:text-(--color-text-primary-dark)">Customer Support</h3>
+              <p className="text-[11px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono mt-0.5">How can we help you today?</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+            className="p-1.5 rounded-full text-(--color-text-muted) hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark) transition-colors"
             title="Close Support"
           >
             <X className="w-4 h-4" />
@@ -148,15 +148,15 @@ export default function CustomerSupportModal({ user, onClose }) {
                 return (
                   <div
                     key={i}
-                    className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden bg-slate-50/50 dark:bg-slate-900/40"
+                    className="border border-(--color-border) dark:border-(--color-border-dark) rounded-xl overflow-hidden bg-slate-50/50 dark:bg-slate-900/40"
                   >
                     <button
                       onClick={() => setOpenFaq(isOpen ? -1 : i)}
                       className="w-full flex items-center justify-between gap-3 px-4 py-3.5 text-left cursor-pointer"
                     >
-                      <span className="text-xs font-semibold text-slate-800 dark:text-slate-100">{faq.q}</span>
+                      <span className="text-xs font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{faq.q}</span>
                       <ChevronDown
-                        className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                        className={`w-4 h-4 text-(--color-text-muted) shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
                       />
                     </button>
                     <AnimatePresence initial={false}>
@@ -167,7 +167,7 @@ export default function CustomerSupportModal({ user, onClose }) {
                           exit={{ height: 0, opacity: 0 }}
                           transition={{ duration: 0.2 }}
                         >
-                          <p className="px-4 pb-4 text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-light">
+                          <p className="px-4 pb-4 text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) leading-relaxed font-light">
                             {faq.a}
                           </p>
                         </motion.div>
@@ -188,23 +188,23 @@ export default function CustomerSupportModal({ user, onClose }) {
                     <button
                       key={i}
                       onClick={action.onClick}
-                      className="group p-4 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl text-left hover:border-blue-400 dark:hover:border-blue-700 hover:shadow-md transition-all cursor-pointer"
+                      className="group p-4 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl text-left hover:border-blue-400 dark:hover:border-blue-700 hover:shadow-md transition-all cursor-pointer"
                     >
-                      <div className="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-blue-600 dark:text-blue-400 w-fit group-hover:bg-blue-50 dark:group-hover:bg-blue-950/40 transition-colors">
+                      <div className="p-2 bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-blue-600 dark:text-blue-400 w-fit group-hover:bg-blue-50 dark:group-hover:bg-blue-950/40 transition-colors">
                         <Icon className="w-4 h-4" />
                       </div>
-                      <div className="mt-3 text-sm font-semibold text-slate-800 dark:text-slate-100">{action.title}</div>
-                      <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed font-light">{action.desc}</div>
+                      <div className="mt-3 text-sm font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{action.title}</div>
+                      <div className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) mt-1 leading-relaxed font-light">{action.desc}</div>
                     </button>
                   );
                 })}
               </div>
 
               {/* Submit ticket form */}
-              <div className="border border-slate-200 dark:border-slate-700 rounded-xl p-5 space-y-4">
+              <div className="border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-5 space-y-4">
                 <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-slate-400" />
-                  <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider font-mono">
+                  <Clock className="w-4 h-4 text-(--color-text-muted)" />
+                  <h4 className="text-xs font-bold text-(--color-text-secondary) dark:text-(--color-text-primary-dark) uppercase tracking-wider font-mono">
                     Submit a Support Ticket
                   </h4>
                 </div>
@@ -214,8 +214,8 @@ export default function CustomerSupportModal({ user, onClose }) {
                     <div className="w-12 h-12 mx-auto bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-100 dark:border-emerald-800 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                       <Check className="w-6 h-6" />
                     </div>
-                    <h5 className="font-semibold text-base text-slate-800 dark:text-slate-100">Ticket Submitted!</h5>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 font-light">
+                    <h5 className="font-semibold text-base text-(--color-text-primary) dark:text-(--color-text-primary-dark)">Ticket Submitted!</h5>
+                    <p className="text-sm text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-light">
                       Our support team has received your request and will get back to you within 24 hours.
                     </p>
                   </div>
@@ -228,7 +228,7 @@ export default function CustomerSupportModal({ user, onClose }) {
                       </div>
                     )}
                     <div>
-                      <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
+                      <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
                         Subject
                       </label>
                       <input
@@ -236,11 +236,11 @@ export default function CustomerSupportModal({ user, onClose }) {
                         value={form.subject}
                         onChange={(e) => setForm({ ...form, subject: e.target.value })}
                         placeholder="e.g. Trouble scheduling a checkup"
-                        className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 outline-none transition-all"
+                        className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:border-blue-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark) placeholder-slate-400 outline-none transition-all"
                       />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">
+                      <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
                         Message
                       </label>
                       <textarea
@@ -248,7 +248,7 @@ export default function CustomerSupportModal({ user, onClose }) {
                         value={form.message}
                         onChange={(e) => setForm({ ...form, message: e.target.value })}
                         placeholder="Describe the issue you're facing..."
-                        className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 outline-none transition-all resize-none"
+                        className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:border-blue-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark) placeholder-slate-400 outline-none transition-all resize-none"
                       />
                     </div>
                     <button
@@ -263,8 +263,8 @@ export default function CustomerSupportModal({ user, onClose }) {
                 )}
               </div>
 
-              <div className="p-4 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl text-center">
-                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">
+              <div className="p-4 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl text-center">
+                <p className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">
                   Prefer email? Write to <span className="font-bold text-blue-600 dark:text-blue-400">{SUPPORT_EMAIL}</span>
                 </p>
               </div>

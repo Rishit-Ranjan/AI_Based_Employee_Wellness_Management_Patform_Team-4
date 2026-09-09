@@ -16,19 +16,19 @@ export default function SectionTitle({
   };
 
   return (
-    <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-700/60 pb-4 mb-5">
+    <div className="flex items-center justify-between border-b border-(--color-border) dark:border-(--color-border-dark) pb-4 mb-5">
       <div className="flex items-center gap-3">
         {Icon && (
-          <div className="p-2 rounded-xl bg-slate-100 dark:bg-slate-700/60 text-slate-700 dark:text-slate-200 border border-slate-200/60 dark:border-slate-700">
+          <div className="p-2 rounded-xl bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) text-(--color-text-secondary) dark:text-(--color-text-primary-dark) border border-(--color-border) dark:border-(--color-border-dark)">
             <Icon className="w-5 h-5" />
           </div>
         )}
         <div>
-          <h3 className="font-display font-semibold text-slate-900 dark:text-slate-100 text-base tracking-tight">
+          <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base tracking-tight">
             {title}
           </h3>
           {subtitle && (
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-normal mt-0.5">
+            <p className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-normal mt-0.5">
               {subtitle}
             </p>
           )}

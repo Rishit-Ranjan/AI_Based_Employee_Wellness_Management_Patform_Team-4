@@ -70,23 +70,23 @@ const SearchableEmployeeSelect = ({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none text-left flex items-center justify-between hover:border-slate-300 dark:hover:border-slate-500 transition-colors"
+        className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none text-left flex items-center justify-between hover:border-(--color-border-strong) dark:hover:border-(--color-border-strong-dark) transition-colors"
       >
         <span className="truncate">
           {value ? `${displayName} (${displayId})` : placeholder}
         </span>
-        <ChevronRight className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? 'rotate-90' : ''}`} />
+        <ChevronRight className={`w-4 h-4 text-(--color-text-muted) transition-transform ${isOpen ? 'rotate-90' : ''}`} />
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg shadow-lg z-50">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-700 border border-(--color-border) dark:border-(--color-border-dark) rounded-lg shadow-lg z-50">
           <div className="p-2 border-b border-slate-100 dark:border-slate-600">
             <input
               type="text"
               placeholder="Search by name or ID..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded text-xs text-slate-800 dark:text-slate-100 outline-none focus:border-indigo-500"
+              className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-(--color-border) dark:border-(--color-border-dark) rounded text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none focus:border-indigo-500"
               autoFocus
             />
           </div>
@@ -115,11 +115,11 @@ const SearchableEmployeeSelect = ({
                     setIsOpen(false);
                     setSearchTerm('');
                   }}
-                  className="w-full text-left px-4 py-2.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors flex items-center justify-between"
+                  className="w-full text-left px-4 py-2.5 text-xs text-(--color-text-secondary) dark:text-(--color-text-primary-dark) hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark) transition-colors flex items-center justify-between"
                 >
                   <div>
                     <div className="font-medium">{emp.name}</div>
-                    <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">{emp.employeeId}</div>
+                    <div className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">{emp.employeeId}</div>
                   </div>
                   {value === `${emp.employeeId}|${emp.name}` && (
                     <Check className="w-4 h-4 text-indigo-600" />
@@ -127,7 +127,7 @@ const SearchableEmployeeSelect = ({
                 </button>
               ))
             ) : (
-              <div className="px-4 py-3 text-xs text-slate-500 dark:text-slate-400 text-center">
+              <div className="px-4 py-3 text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) text-center">
                 No employees found
               </div>
             )}
@@ -540,7 +540,7 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
   return (
     <div className="space-y-6">
       {/* Search & Action bar */}
-      <div className="bg-white dark:bg-slate-800/50 p-4.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) p-4.5 rounded-xl border border-(--color-border) dark:border-(--color-border-dark) shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
           {/* Searchable Employee Select */}
           <div className="w-full sm:w-72">
@@ -561,7 +561,7 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
           <select
             value={filterDept}
             onChange={(e) => setFilterDept(e.target.value)}
-            className="w-full sm:w-44 px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none transition-all cursor-pointer"
+            className="w-full sm:w-44 px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all cursor-pointer"
           >
             <option value="">All Departments</option>
             {DEPARTMENTS.map(dept => (
@@ -581,18 +581,18 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
 
       {/* Add Record Modal Popup */}
       {isAddOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fadeIn">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh]">
-            <div className="bg-slate-50 dark:bg-slate-900 border-b border-slate-100 dark:border-slate-700 px-6 py-4 flex items-center justify-between shrink-0">
+        <div className="fixed inset-0 bg-slate-900/60  flex items-center justify-center p-4 z-50 animate-fadeIn">
+          <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl border border-(--color-border) dark:border-(--color-border-dark) w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh]">
+            <div className="bg-slate-50 dark:bg-slate-900 border-b border-(--color-border) dark:border-(--color-border-dark) px-6 py-4 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2">
-                <Activity className="w-5 h-5 text-slate-800 dark:text-slate-100" />
-                <h3 className="font-display font-semibold text-sm text-slate-800 dark:text-slate-100">
+                <Activity className="w-5 h-5 text-(--color-text-primary) dark:text-(--color-text-primary-dark)" />
+                <h3 className="font-display font-semibold text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark)">
                   {editingRecord ? 'Update Employee Health Record' : 'Add New Employee Health Record'}
                 </h3>
               </div>
               <button
                 onClick={() => { setIsAddOpen(false); setEditingRecord(null); }}
-                className="text-slate-400 hover:text-slate-600 transition-colors"
+                className="text-(--color-text-muted) hover:text-slate-600 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -618,14 +618,14 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {editingRecord ? (
                   <div className="col-span-2">
-                    <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Employee</label>
-                    <p className="w-full px-3.5 py-2.5 bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-xs text-slate-600 dark:text-slate-400">
+                    <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Employee</label>
+                    <p className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border-strong) dark:border-(--color-border-strong-dark) rounded-lg text-xs text-(--color-text-secondary) dark:text-(--color-text-muted-dark)">
                       {selectedEmployee.split('|')[1]} ({selectedEmployee.split('|')[0]})
                     </p>
                   </div>
                 ) : (
                   <div className="col-span-2">
-                    <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Select Employee</label>
+                    <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Select Employee</label>
                     <SearchableEmployeeSelect
                       value={selectedEmployee}
                       onChange={(e) => setSelectedEmployee(e.target.value)}
@@ -637,32 +637,32 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
 
                 {/* New fields */}
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Age</label>
-                  <input type="number" required value={age} onChange={(e) => setAge(e.target.value)} placeholder="30" className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none" />
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Age</label>
+                  <input type="number" required value={age} onChange={(e) => setAge(e.target.value)} placeholder="30" className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none" />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Gender</label>
-                  <select value={gender} onChange={(e) => setGender(e.target.value)} className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none">
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Gender</label>
+                  <select value={gender} onChange={(e) => setGender(e.target.value)} className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none">
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
                     <option value="Other">Other</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Height (cm)</label>
-                  <input type="number" step="0.1" required value={heightCm} onChange={(e) => setHeightCm(e.target.value)} placeholder="170.5" className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none" />
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Height (cm)</label>
+                  <input type="number" step="0.1" required value={heightCm} onChange={(e) => setHeightCm(e.target.value)} placeholder="170.5" className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none" />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Weight (kg)</label>
-                  <input type="number" step="0.1" required value={weightKg} onChange={(e) => setWeightKg(e.target.value)} placeholder="70.2" className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none" />
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Weight (kg)</label>
+                  <input type="number" step="0.1" required value={weightKg} onChange={(e) => setWeightKg(e.target.value)} placeholder="70.2" className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none" />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Department</label>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Department</label>
                   <select
                     value={dept}
                     onChange={(e) => setDept(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none"
+                    className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none"
                   >
                     {DEPARTMENTS.map(dept => (
                       <option key={dept} value={dept}>{dept}</option>
@@ -671,7 +671,7 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">BMI Value</label>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">BMI Value</label>
                   <input
                     type="number"
                     step="0.1"
@@ -679,57 +679,57 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
                     value={bmi}
                     onChange={(e) => setBmi(e.target.value)}
                     placeholder="23.5"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none"
+                    className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Blood Pressure</label>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Blood Pressure</label>
                   <input
                     type="text"
                     required
                     value={bp}
                     onChange={(e) => setBp(e.target.value)}
                     placeholder="120/80"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none"
+                    className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Exercise (Days/wk)</label>
-                  <input type="number" required value={exerciseDaysPerWeek} onChange={(e) => setExerciseDaysPerWeek(e.target.value)} placeholder="3" className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none" />
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Exercise (Days/wk)</label>
+                  <input type="number" required value={exerciseDaysPerWeek} onChange={(e) => setExerciseDaysPerWeek(e.target.value)} placeholder="3" className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none" />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Exercise (Hours/wk)</label>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Exercise (Hours/wk)</label>
                   <input
                     type="number"
                     step="0.5"
                     required
                     value={exercise}
                     onChange={(e) => setExercise(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none"
+                    className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Sleep (Hours/night)</label>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Sleep (Hours/night)</label>
                   <input
                     type="number"
                     step="0.5"
                     required
                     value={sleep}
                     onChange={(e) => setSleep(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none"
+                    className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Self-Reported Stress</label>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Self-Reported Stress</label>
                   <select
                     value={stress}
                     onChange={(e) => setStress(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none"
+                    className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none"
                   >
                     <option value="Low">Low</option>
                     <option value="Medium">Medium</option>
@@ -737,16 +737,16 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Stress Score (1-10)</label>
-                  <input type="number" min="1" max="10" step="0.1" required value={stressScore} onChange={(e) => setStressScore(e.target.value)} placeholder="5.5" className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none" />
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Stress Score (1-10)</label>
+                  <input type="number" min="1" max="10" step="0.1" required value={stressScore} onChange={(e) => setStressScore(e.target.value)} placeholder="5.5" className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none" />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Attendance Rate (%)</label>
-                  <input type="number" min="0" max="100" step="0.1" required value={attendanceRate} onChange={(e) => setAttendanceRate(e.target.value)} placeholder="95" className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none" />
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Attendance Rate (%)</label>
+                  <input type="number" min="0" max="100" step="0.1" required value={attendanceRate} onChange={(e) => setAttendanceRate(e.target.value)} placeholder="95" className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none" />
                 </div>
                 <div className="col-span-2">
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Medical Condition</label>
-                  <select value={medicalCondition} onChange={(e) => setMedicalCondition(e.target.value)} className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none">
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Medical Condition</label>
+                  <select value={medicalCondition} onChange={(e) => setMedicalCondition(e.target.value)} className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none">
                     <option value="No major condition">No major condition</option>
                     <option value="Stress-related fatigue">Stress-related fatigue</option>
                     <option value="Dental Check-up">Dental Check-up</option>
@@ -757,50 +757,50 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
                   </select>
                 </div>
                 <div className="col-span-2">
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Medical Notes</label>
-                  <textarea value={medicalNotes} onChange={(e) => setMedicalNotes(e.target.value)} placeholder="Any relevant medical notes..." rows="2" className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none"></textarea>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Medical Notes</label>
+                  <textarea value={medicalNotes} onChange={(e) => setMedicalNotes(e.target.value)} placeholder="Any relevant medical notes..." rows="2" className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none"></textarea>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Glucose Level</label>
-                  <input type="number" step="0.1" required value={glucoseLevel} onChange={(e) => setGlucoseLevel(e.target.value)} placeholder="90" className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none" />
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Glucose Level</label>
+                  <input type="number" step="0.1" required value={glucoseLevel} onChange={(e) => setGlucoseLevel(e.target.value)} placeholder="90" className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none" />
                 </div>
 <div className="flex items-center gap-4">
-                  <label className="flex items-center gap-2 text-xs text-slate-800 dark:text-slate-200">
+                  <label className="flex items-center gap-2 text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)">
                     <input type="checkbox" checked={smoker} onChange={(e) => setSmoker(e.target.checked)} className="form-checkbox h-3.5 w-3.5 text-indigo-600 rounded border-slate-300" />
                     Smoker
                   </label>
-                  <label className="flex items-center gap-2 text-xs text-slate-800 dark:text-slate-200">
+                  <label className="flex items-center gap-2 text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)">
                     <input type="checkbox" checked={alcoholUse} onChange={(e) => setAlcoholUse(e.target.checked)} className="form-checkbox h-3.5 w-3.5 text-indigo-600 rounded border-slate-300" />
                     Alcohol User
                   </label>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Blood Group</label>
-                  <input type="text" value={bloodGroup} onChange={(e) => setBloodGroup(e.target.value)} placeholder="O+" className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none" />
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Blood Group</label>
+                  <input type="text" value={bloodGroup} onChange={(e) => setBloodGroup(e.target.value)} placeholder="O+" className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none" />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Allergies</label>
-                  <input type="text" value={allergies} onChange={(e) => setAllergies(e.target.value)} placeholder="None" className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none" />
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Allergies</label>
+                  <input type="text" value={allergies} onChange={(e) => setAllergies(e.target.value)} placeholder="None" className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none" />
                 </div>
                 <div className="col-span-2">
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Existing Diseases</label>
-                  <input type="text" value={existingDiseases} onChange={(e) => setExistingDiseases(e.target.value)} placeholder="e.g. Hypertension, Diabetes" className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none" />
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Existing Diseases</label>
+                  <input type="text" value={existingDiseases} onChange={(e) => setExistingDiseases(e.target.value)} placeholder="e.g. Hypertension, Diabetes" className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none" />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Emergency Contact Name</label>
-                  <input type="text" value={emergencyContactName} onChange={(e) => setEmergencyContactName(e.target.value)} placeholder="Contact person" className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none" />
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Emergency Contact Name</label>
+                  <input type="text" value={emergencyContactName} onChange={(e) => setEmergencyContactName(e.target.value)} placeholder="Contact person" className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none" />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Emergency Contact Phone</label>
-                  <input type="text" value={emergencyContactPhone} onChange={(e) => setEmergencyContactPhone(e.target.value)} placeholder="+1 555 000 0000" className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none" />
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Emergency Contact Phone</label>
+                  <input type="text" value={emergencyContactPhone} onChange={(e) => setEmergencyContactPhone(e.target.value)} placeholder="+1 555 000 0000" className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none" />
                 </div>
               </div>
 
-              <div className="flex gap-3 justify-end pt-5 border-t border-slate-200 dark:border-slate-700 shrink-0">
+              <div className="flex gap-3 justify-end pt-5 border-t border-(--color-border) dark:border-(--color-border-dark) shrink-0">
                 <button
                   type="button"
                   onClick={() => { setIsAddOpen(false); setEditingRecord(null); }}
-                  className="px-4.5 py-2.5 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 text-xs font-semibold rounded-lg transition-colors border border-slate-200 dark:border-slate-600"
+                  className="px-4.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark) text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) text-xs font-semibold rounded-lg transition-colors border border-(--color-border) dark:border-(--color-border-dark)"
                 >
                   Cancel
                 </button>
@@ -839,18 +839,18 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
 
       {/* View Details Modal Popup */}
       {isViewDetailsOpen && viewingRecord && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fadeIn">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh]">
-            <div className="bg-slate-50 dark:bg-slate-900 border-b border-slate-100 dark:border-slate-700 px-6 py-4 flex items-center justify-between shrink-0">
+        <div className="fixed inset-0 bg-slate-900/60  flex items-center justify-center p-4 z-50 animate-fadeIn">
+          <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl border border-(--color-border) dark:border-(--color-border-dark) w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh]">
+            <div className="bg-slate-50 dark:bg-slate-900 border-b border-(--color-border) dark:border-(--color-border-dark) px-6 py-4 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2">
-                <Activity className="w-5 h-5 text-slate-800 dark:text-slate-100" />
-                <h3 className="font-display font-semibold text-sm text-slate-800 dark:text-slate-100">
+                <Activity className="w-5 h-5 text-(--color-text-primary) dark:text-(--color-text-primary-dark)" />
+                <h3 className="font-display font-semibold text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark)">
                   Health Record Details for {viewingRecord.employeeName}
                 </h3>
               </div>
               <button
                 onClick={() => { setIsViewDetailsOpen(false); setViewingRecord(null); }}
-                className="text-slate-400 hover:text-slate-600 transition-colors"
+                className="text-(--color-text-muted) hover:text-slate-600 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -860,108 +860,108 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                 {/* Employee Info */}
                 <div className="col-span-full">
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Employee</label>
-                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.employeeName} ({viewingRecord.employeeId})</p>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Employee</label>
+                  <p className="px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{viewingRecord.employeeName} ({viewingRecord.employeeId})</p>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Department</label>
-                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.department}</p>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Department</label>
+                  <p className="px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{viewingRecord.department}</p>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Age</label>
-                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.age}</p>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Age</label>
+                  <p className="px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{viewingRecord.age}</p>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Gender</label>
-                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.gender}</p>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Gender</label>
+                  <p className="px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{viewingRecord.gender}</p>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Height (cm)</label>
-                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.heightCm}</p>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Height (cm)</label>
+                  <p className="px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{viewingRecord.heightCm}</p>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Weight (kg)</label>
-                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.weightKg}</p>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Weight (kg)</label>
+                  <p className="px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{viewingRecord.weightKg}</p>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">BMI Value</label>
-                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.bmi}</p>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">BMI Value</label>
+                  <p className="px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{viewingRecord.bmi}</p>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Blood Pressure</label>
-                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.bloodPressure}</p>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Blood Pressure</label>
+                  <p className="px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{viewingRecord.bloodPressure}</p>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Exercise (Days/wk)</label>
-                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.exerciseDaysPerWeek}</p>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Exercise (Days/wk)</label>
+                  <p className="px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{viewingRecord.exerciseDaysPerWeek}</p>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Exercise (Hours/wk)</label>
-                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.exerciseHoursPerWeek}</p>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Exercise (Hours/wk)</label>
+                  <p className="px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{viewingRecord.exerciseHoursPerWeek}</p>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Sleep (Hours/night)</label>
-                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.sleepHoursPerNight}</p>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Sleep (Hours/night)</label>
+                  <p className="px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{viewingRecord.sleepHoursPerNight}</p>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Self-Reported Stress</label>
-                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.stressLevel}</p>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Self-Reported Stress</label>
+                  <p className="px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{viewingRecord.stressLevel}</p>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Stress Score (1-10)</label>
-                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.stressScore}</p>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Stress Score (1-10)</label>
+                  <p className="px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{viewingRecord.stressScore}</p>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Attendance Rate (%)</label>
-                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.attendanceRate}</p>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Attendance Rate (%)</label>
+                  <p className="px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{viewingRecord.attendanceRate}</p>
                 </div>
                 <div className="col-span-full">
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Medical Condition</label>
-                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.medicalCondition}</p>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Medical Condition</label>
+                  <p className="px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{viewingRecord.medicalCondition}</p>
                 </div>
                 <div className="col-span-full">
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Medical Notes</label>
-                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.medicalNotes || 'N/A'}</p>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Medical Notes</label>
+                  <p className="px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{viewingRecord.medicalNotes || 'N/A'}</p>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Smoker</label>
-                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.smoker ? 'Yes' : 'No'}</p>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Smoker</label>
+                  <p className="px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{viewingRecord.smoker ? 'Yes' : 'No'}</p>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Alcohol User</label>
-                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.alcoholUse ? 'Yes' : 'No'}</p>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Alcohol User</label>
+                  <p className="px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{viewingRecord.alcoholUse ? 'Yes' : 'No'}</p>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Glucose Level</label>
-                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.glucoseLevel}</p>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Glucose Level</label>
+                  <p className="px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{viewingRecord.glucoseLevel}</p>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Blood Group</label>
-                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.bloodGroup || 'N/A'}</p>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Blood Group</label>
+                  <p className="px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{viewingRecord.bloodGroup || 'N/A'}</p>
                 </div>
                 <div className="col-span-full">
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Allergies</label>
-                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.allergies || 'N/A'}</p>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Allergies</label>
+                  <p className="px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{viewingRecord.allergies || 'N/A'}</p>
                 </div>
                 <div className="col-span-full">
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Existing Diseases</label>
-                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.existingDiseases || 'N/A'}</p>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Existing Diseases</label>
+                  <p className="px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{viewingRecord.existingDiseases || 'N/A'}</p>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Emergency Contact Name</label>
-                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.emergencyContactName || 'N/A'}</p>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Emergency Contact Name</label>
+                  <p className="px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{viewingRecord.emergencyContactName || 'N/A'}</p>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Emergency Contact Phone</label>
-                  <p className="px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-100">{viewingRecord.emergencyContactPhone || 'N/A'}</p>
+                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Emergency Contact Phone</label>
+                  <p className="px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{viewingRecord.emergencyContactPhone || 'N/A'}</p>
                 </div>
               </div>
             </div>
-            <div className="flex gap-3 justify-end pt-5 border-t border-slate-200 dark:border-slate-700 shrink-0 px-6 py-4">
+            <div className="flex gap-3 justify-end pt-5 border-t border-(--color-border) dark:border-(--color-border-dark) shrink-0 px-6 py-4">
               <button
                 type="button"
                 onClick={() => { setIsViewDetailsOpen(false); setViewingRecord(null); }}
-                className="px-4.5 py-2.5 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 text-xs font-semibold rounded-lg transition-colors border border-slate-200 dark:border-slate-600"
+                className="px-4.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark) text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) text-xs font-semibold rounded-lg transition-colors border border-(--color-border) dark:border-(--color-border-dark)"
               >
                 Close
               </button>
@@ -974,37 +974,37 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {loading ? (
           [...Array(8)].map((_, i) => (
-            <div key={i} className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5 space-y-4 shadow-sm animate-pulse">
-              <div className="flex items-center gap-3"><div className="w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-700"></div><div><div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-24 mb-1.5"></div><div className="h-3 bg-slate-100 dark:bg-slate-600 rounded w-16"></div></div></div><div className="space-y-2 pt-4 border-t border-slate-100 dark:border-slate-700"><div className="h-3 bg-slate-100 dark:bg-slate-700 rounded w-full"></div><div className="h-3 bg-slate-100 dark:bg-slate-700 rounded w-5/6"></div></div>
+            <div key={i} className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-xl border border-(--color-border) dark:border-(--color-border-dark) p-5 space-y-4 shadow-sm animate-pulse">
+              <div className="flex items-center gap-3"><div className="w-9 h-9 rounded-full bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark)"></div><div><div className="h-4 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded w-24 mb-1.5"></div><div className="h-3 bg-slate-100 dark:bg-slate-600 rounded w-16"></div></div></div><div className="space-y-2 pt-4 border-t border-(--color-border) dark:border-(--color-border-dark)"><div className="h-3 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded w-full"></div><div className="h-3 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded w-5/6"></div></div>
             </div>
           ))
         ) : filtered.length === 0 ? (
-          <div className="col-span-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-10 text-center font-mono text-xs text-slate-400 dark:text-slate-500 shadow-sm">
+          <div className="col-span-full bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-10 text-center font-mono text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) shadow-sm">
             No records found matching filters.
           </div>
         ) : (
           <>
             {filtered.map((record) => (
-              <div key={record.id} className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5 space-y-4 shadow-sm relative">
+              <div key={record.id} className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-xl border border-(--color-border) dark:border-(--color-border-dark) p-5 space-y-4 shadow-sm relative">
                 <div className="absolute top-3 right-3">
                   <button
                     onClick={(e) => handleMenuToggle(e, record.id)}
-                    className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-md transition-colors z-10"
+                    className="p-1.5 text-(--color-text-muted) hover:text-(--color-text-secondary) dark:hover:text-(--color-text-primary-dark) rounded-md transition-colors z-10"
                     data-menu-button-for={record.id}
                   >
                     <MoreHorizontal className="w-4 h-4" />
                   </button>
                   {openActionMenu === record.id && (
-                    <div ref={actionMenuRef} className="absolute top-full right-0 mt-1 w-32 bg-white dark:bg-slate-700 rounded-md shadow-lg border border-slate-200 dark:border-slate-600 z-20">
+                    <div ref={actionMenuRef} className="absolute top-full right-0 mt-1 w-32 bg-white dark:bg-slate-700 rounded-md shadow-lg border border-(--color-border) dark:border-(--color-border-dark) z-20">
                       <button
                         onClick={() => { openEditModal(record); setOpenActionMenu(null); }}
-                        className="w-full text-left px-4 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600 flex items-center gap-2"
+                        className="w-full text-left px-4 py-2 text-xs text-(--color-text-secondary) dark:text-(--color-text-primary-dark) hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark) flex items-center gap-2"
                       >
                         <Edit className="w-3.5 h-3.5" /> Edit
                       </button>
                       <button
                         onClick={() => { setViewingRecord(record); setIsViewDetailsOpen(true); setOpenActionMenu(null); }}
-                        className="w-full text-left px-4 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600 flex items-center gap-2"
+                        className="w-full text-left px-4 py-2 text-xs text-(--color-text-secondary) dark:text-(--color-text-primary-dark) hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark) flex items-center gap-2"
                       >
                         <Eye className="w-3.5 h-3.5" /> View Details
                       </button>
@@ -1020,45 +1020,45 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center font-bold text-sm text-slate-700 dark:text-slate-200">
+                  <div className="w-9 h-9 rounded-full bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) flex items-center justify-center font-bold text-sm text-(--color-text-secondary) dark:text-(--color-text-primary-dark)">
                     {record.employeeName.substring(0, 2).toUpperCase()}
                   </div>
                   <div>
-                    <h4 className="font-semibold text-slate-800 dark:text-slate-100">{record.employeeName}</h4>
-                    <div className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">{record.employeeId}</div>
+                    <h4 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{record.employeeName}</h4>
+                    <div className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">{record.employeeId}</div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-xs text-slate-600 dark:text-slate-300">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-xs text-(--color-text-secondary) dark:text-(--color-text-secondary-dark)">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-slate-500 dark:text-slate-400">Dept:</span>
+                    <span className="font-medium text-(--color-text-muted) dark:text-(--color-text-muted-dark)">Dept:</span>
                     <span className="font-semibold">{record.department}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-slate-500 dark:text-slate-400">Age:</span>
+                    <span className="font-medium text-(--color-text-muted) dark:text-(--color-text-muted-dark)">Age:</span>
                     <span className="font-semibold">{record.age}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-slate-500 dark:text-slate-400">BMI:</span>
+                    <span className="font-medium text-(--color-text-muted) dark:text-(--color-text-muted-dark)">BMI:</span>
                     <span className="font-semibold font-mono">{record.bmi}</span>
-                    <span className="text-[9px] text-slate-400 dark:text-slate-500 ml-0.5">
+                    <span className="text-[9px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) ml-0.5">
                       {record.bmi >= 30 ? 'Obese' : record.bmi >= 25 ? 'Overweight' : 'Normal'}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-slate-500 dark:text-slate-400">BP:</span>
+                    <span className="font-medium text-(--color-text-muted) dark:text-(--color-text-muted-dark)">BP:</span>
                     <span className="font-semibold font-mono">{record.bloodPressure}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-slate-500 dark:text-slate-400">Ex (hrs/wk):</span>
+                    <span className="font-medium text-(--color-text-muted) dark:text-(--color-text-muted-dark)">Ex (hrs/wk):</span>
                     <span className="font-semibold font-mono">{record.exerciseHoursPerWeek}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-slate-500 dark:text-slate-400">Sleep (hrs/nt):</span>
+                    <span className="font-medium text-(--color-text-muted) dark:text-(--color-text-muted-dark)">Sleep (hrs/nt):</span>
                     <span className="font-semibold font-mono">{record.sleepHoursPerNight}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-slate-500 dark:text-slate-400">Stress:</span>
+                    <span className="font-medium text-(--color-text-muted) dark:text-(--color-text-muted-dark)">Stress:</span>
                     <span className={`px-2 py-0.5 rounded-md text-[9px] font-bold ${
                       record.stressLevel === 'Low' ? 'bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-100 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300' :
                       record.stressLevel === 'Medium' ? 'bg-amber-50 dark:bg-amber-950/60 border border-amber-100 dark:border-amber-800 text-amber-700 dark:text-amber-300' :
@@ -1068,16 +1068,16 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-slate-500 dark:text-slate-400">Glucose:</span>
+                    <span className="font-medium text-(--color-text-muted) dark:text-(--color-text-muted-dark)">Glucose:</span>
                     <span className="font-semibold font-mono">{record.glucoseLevel}</span>
                   </div>
                   <div className="flex items-center gap-2 col-span-2">
-                    <span className="font-medium text-slate-500 dark:text-slate-400">Condition:</span>
+                    <span className="font-medium text-(--color-text-muted) dark:text-(--color-text-muted-dark)">Condition:</span>
                     <span className="font-semibold text-[10px]">{record.medicalCondition}</span>
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between text-[10px] text-slate-400 dark:text-slate-500 font-mono">
+                <div className="pt-4 border-t border-(--color-border) dark:border-(--color-border-dark) flex items-center justify-between text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">
                   <span>Last Sync: {formatLastSync(record.lastUpdated)}</span>
                   <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold ${
                     record.healthAssessment === 'Excellent' ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800' :
@@ -1171,15 +1171,15 @@ function UserManagementModule({ allUsers, healthRecords, onDeleteUser, onUpdateU
 
   return (
     <div className="space-y-6">
-      <div className="bg-white dark:bg-slate-800/50 p-4.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between gap-4">
+      <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) p-4.5 rounded-xl border border-(--color-border) dark:border-(--color-border-dark) shadow-sm flex items-center justify-between gap-4">
         <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-(--color-text-muted)" />
           <input
             type="text"
             placeholder="Search by name, ID, or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 outline-none transition-all"
+            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) placeholder-slate-400 dark:placeholder-slate-500 outline-none transition-all"
           />
         </div>
       </div>
@@ -1191,9 +1191,9 @@ function UserManagementModule({ allUsers, healthRecords, onDeleteUser, onUpdateU
         </div>
       )}
 
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-x-auto">
+      <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-xl border border-(--color-border) dark:border-(--color-border-dark) shadow-sm overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 dark:bg-slate-900/50 text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">
+          <thead className="bg-slate-50 dark:bg-slate-900/50 text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider font-mono">
             <tr>
               <th className="px-6 py-3 text-left font-semibold">Employee</th>
               <th className="px-6 py-3 text-left font-semibold">Department</th>
@@ -1206,27 +1206,27 @@ function UserManagementModule({ allUsers, healthRecords, onDeleteUser, onUpdateU
           <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
             {loading ? (
               [...Array(5)].map((_, i) => (
-                <tr key={i}><td colSpan="6" className="p-4"><div className="h-8 bg-slate-100 dark:bg-slate-700 rounded animate-pulse"></div></td></tr>
+                <tr key={i}><td colSpan="6" className="p-4"><div className="h-8 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded animate-pulse"></div></td></tr>
               ))
             ) : usersWithDept.map(user => {
               return (
               <tr key={user.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="font-semibold text-slate-800 dark:text-slate-100">{user.name}</div>
-                  <div className="text-xs text-slate-400 dark:text-slate-500 font-mono">{user.employeeId}</div>
+                  <div className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{user.name}</div>
+                  <div className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">{user.employeeId}</div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-slate-600 dark:text-slate-300">
+                <td className="px-6 py-4 whitespace-nowrap text-(--color-text-secondary) dark:text-(--color-text-secondary-dark)">
                   {user.department}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-slate-600 dark:text-slate-300">
+                <td className="px-6 py-4 whitespace-nowrap text-(--color-text-secondary) dark:text-(--color-text-secondary-dark)">
                   {user.email}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${user.role === 'admin' ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}`}>
+                  <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${user.role === 'admin' ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300' : 'bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) text-(--color-text-secondary) dark:text-(--color-text-secondary-dark)'}`}>
                     {user.role}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-slate-500 dark:text-slate-400 text-xs font-mono">
+                <td className="px-6 py-4 whitespace-nowrap text-(--color-text-muted) dark:text-(--color-text-muted-dark) text-xs font-mono">
                   {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right">
@@ -1253,25 +1253,25 @@ function UserManagementModule({ allUsers, healthRecords, onDeleteUser, onUpdateU
           </tbody>
         </table>
         {usersWithDept.length === 0 && !loading && (
-          <div className="p-10 text-center font-mono text-xs text-slate-400 dark:text-slate-500">No users found.</div>
+          <div className="p-10 text-center font-mono text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark)">No users found.</div>
         )}
       </div>
 
       {/* Edit User Modal */}
       {editingId && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm animate-fadeIn p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60  animate-fadeIn p-4"
           onClick={cancelEdit}
         >
           <div
-            className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-md overflow-hidden"
+            className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl shadow-2xl border border-(--color-border) dark:border-(--color-border-dark) w-full max-w-md overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
-              <h3 className="text-lg font-display font-semibold text-slate-800 dark:text-slate-100">Edit User</h3>
+            <div className="px-6 py-4 border-b border-(--color-border) dark:border-(--color-border-dark) flex items-center justify-between">
+              <h3 className="text-lg font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">Edit User</h3>
               <button
                 onClick={cancelEdit}
-                className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-(--color-text-muted) hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                 title="Close"
               >
                 <X className="w-4 h-4" />
@@ -1281,47 +1281,47 @@ function UserManagementModule({ allUsers, healthRecords, onDeleteUser, onUpdateU
               onSubmit={(e) => { e.preventDefault(); handleUpdate(); }}
               className="p-6 space-y-4"
             >
-              <div className="text-xs font-mono text-slate-400 dark:text-slate-500 mb-1">
-                Employee ID: <span className="font-bold text-slate-600 dark:text-slate-300">{editingId}</span>
+              <div className="text-xs font-mono text-(--color-text-muted) dark:text-(--color-text-muted-dark) mb-1">
+                Employee ID: <span className="font-bold text-(--color-text-secondary) dark:text-(--color-text-secondary-dark)">{editingId}</span>
               </div>
               <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Name</label>
+                <label className="block text-[11px] font-semibold uppercase tracking-wider text-(--color-text-muted) dark:text-(--color-text-muted-dark) mb-1.5">Name</label>
                 <input
                   type="text"
                   value={draft.name}
                   onChange={(e) => setDraft({ ...draft, name: e.target.value })}
                   required
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-indigo-500 rounded-lg text-sm text-slate-800 dark:text-slate-100 outline-none transition-colors"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 rounded-lg text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-colors"
                   placeholder="Full name"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Email</label>
+                <label className="block text-[11px] font-semibold uppercase tracking-wider text-(--color-text-muted) dark:text-(--color-text-muted-dark) mb-1.5">Email</label>
                 <input
                   type="email"
                   value={draft.email}
                   onChange={(e) => setDraft({ ...draft, email: e.target.value })}
                   required
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-indigo-500 rounded-lg text-sm text-slate-800 dark:text-slate-100 outline-none transition-colors"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 rounded-lg text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-colors"
                   placeholder="email@company.com"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Department</label>
+                <label className="block text-[11px] font-semibold uppercase tracking-wider text-(--color-text-muted) dark:text-(--color-text-muted-dark) mb-1.5">Department</label>
                 <input
                   type="text"
                   value={draft.department}
                   onChange={(e) => setDraft({ ...draft, department: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-indigo-500 rounded-lg text-sm text-slate-800 dark:text-slate-100 outline-none transition-colors"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 rounded-lg text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-colors"
                   placeholder="Department"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Role</label>
+                <label className="block text-[11px] font-semibold uppercase tracking-wider text-(--color-text-muted) dark:text-(--color-text-muted-dark) mb-1.5">Role</label>
                 <select
                   value={draft.role}
                   onChange={(e) => setDraft({ ...draft, role: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-indigo-500 rounded-lg text-sm text-slate-800 dark:text-slate-100 outline-none transition-colors"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 rounded-lg text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-colors"
                 >
                   <option value="user">user</option>
                   <option value="admin">admin</option>
@@ -1338,7 +1338,7 @@ function UserManagementModule({ allUsers, healthRecords, onDeleteUser, onUpdateU
                 <button
                   type="button"
                   onClick={cancelEdit}
-                  className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                  className="px-4 py-2 text-sm font-medium text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
                 >
                   Cancel
                 </button>
@@ -1357,11 +1357,11 @@ function UserManagementModule({ allUsers, healthRecords, onDeleteUser, onUpdateU
 
       {pendingDelete && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm animate-fadeIn p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60  animate-fadeIn p-4"
           onClick={() => setPendingDelete(null)}
         >
           <div
-            className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-md overflow-hidden"
+            className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl shadow-2xl border border-(--color-border) dark:border-(--color-border-dark) w-full max-w-md overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-6">
@@ -1370,10 +1370,10 @@ function UserManagementModule({ allUsers, healthRecords, onDeleteUser, onUpdateU
                   <ShieldAlert className="w-6 h-6 text-red-500" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-display font-semibold text-slate-800 dark:text-slate-100">Delete Employee?</h3>
-                  <p className="mt-2 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                  <h3 className="text-lg font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">Delete Employee?</h3>
+                  <p className="mt-2 text-sm text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) leading-relaxed">
                     You are about to permanently delete{' '}
-                    <span className="font-bold text-slate-800 dark:text-slate-100">{pendingDelete.name}</span>{' '}
+                    <span className="font-bold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{pendingDelete.name}</span>{' '}
                     (<span className="font-mono text-xs">{pendingDelete.employeeId}</span>) and{' '}
                     <span className="font-semibold text-red-600 dark:text-red-400">all their associated data</span> — health records, goals,
                     check-ups, SOS alerts, expenses and more.
@@ -1385,10 +1385,10 @@ function UserManagementModule({ allUsers, healthRecords, onDeleteUser, onUpdateU
                 </div>
               </div>
             </div>
-            <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-700 flex justify-end gap-3">
+            <div className="px-6 py-4 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border-t border-(--color-border) dark:border-(--color-border-dark) flex justify-end gap-3">
               <button
                 onClick={() => setPendingDelete(null)}
-                className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors"
+                className="px-4 py-2 rounded-lg text-xs font-semibold text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) bg-white dark:bg-slate-700 border border-(--color-border) dark:border-(--color-border-dark) hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark) transition-colors"
               >
                 Cancel
               </button>
@@ -1441,89 +1441,89 @@ export function RiskPredictionModule({ risks }) {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         <div
           onClick={() => setFilter('ALL')}
-          className={`bg-white dark:bg-slate-800 border p-4.5 rounded-xl cursor-pointer transition-all hover:bg-slate-50/50 dark:hover:bg-slate-700/50 shadow-sm ${
-            filter === 'ALL' ? 'border-blue-400 dark:border-blue-600 bg-blue-50/50 dark:bg-blue-950/40' : 'border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-700'
+          className={`bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border p-4.5 rounded-xl cursor-pointer transition-all hover:bg-slate-50/50 dark:hover:bg-slate-700/50 shadow-sm ${
+            filter === 'ALL' ? 'border-blue-400 dark:border-blue-600 bg-blue-50/50 dark:bg-blue-950/40' : 'border-(--color-border) dark:border-(--color-border-dark) hover:border-blue-300 dark:hover:border-blue-700'
           }`}
         >
-          <div className="flex justify-between items-start text-slate-400 dark:text-slate-500">
+          <div className="flex justify-between items-start text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
             <span className="text-[10px] font-bold uppercase tracking-wider font-mono">All Risks</span>
             <Users className="w-4 h-4 text-blue-500" />
           </div>
           <div className="flex items-baseline gap-1.5 mt-2">
-            <span className="text-2xl font-display font-semibold text-slate-800 dark:text-slate-100">{normalizedRisks.length}</span>
+            <span className="text-2xl font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{normalizedRisks.length}</span>
             <span className="text-[10px] text-blue-600 font-mono font-bold">Total Employees</span>
           </div>
-          <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-2 font-light">Overview of all employees with health records, regardless of risk level.</p>
+          <p className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) mt-2 font-light">Overview of all employees with health records, regardless of risk level.</p>
         </div>
 
         <div
           onClick={() => setFilter('HIGH')}
-          className={`bg-white dark:bg-slate-800 border p-4.5 rounded-xl cursor-pointer transition-all hover:bg-slate-50/50 dark:hover:bg-slate-700/50 shadow-sm ${
-            filter === 'HIGH' ? 'border-red-400 dark:border-red-600 bg-red-50/50 dark:bg-red-950/40' : 'border-slate-200 dark:border-slate-700 hover:border-red-300 dark:hover:border-red-700'
+          className={`bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border p-4.5 rounded-xl cursor-pointer transition-all hover:bg-slate-50/50 dark:hover:bg-slate-700/50 shadow-sm ${
+            filter === 'HIGH' ? 'border-red-400 dark:border-red-600 bg-red-50/50 dark:bg-red-950/40' : 'border-(--color-border) dark:border-(--color-border-dark) hover:border-red-300 dark:hover:border-red-700'
           }`}
         >
-          <div className="flex justify-between items-start text-slate-400 dark:text-slate-500">
+          <div className="flex justify-between items-start text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
             <span className="text-[10px] font-bold uppercase tracking-wider font-mono">High Severity</span>
             <ShieldAlert className="w-4 h-4 text-red-500" />
           </div>
           <div className="flex items-baseline gap-1.5 mt-2">
-            <span className="text-2xl font-display font-semibold text-slate-800 dark:text-slate-100">{highCount}</span>
+            <span className="text-2xl font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{highCount}</span>
             <span className="text-[10px] text-red-600 font-mono font-bold">Score ≥ 70%</span>
           </div>
-          <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-2 font-light">Critical risk indicators. Immediate clinical review or stress PTO mandated.</p>
+          <p className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) mt-2 font-light">Critical risk indicators. Immediate clinical review or stress PTO mandated.</p>
         </div>
 
         <div
           onClick={() => setFilter('MEDIUM')}
-          className={`bg-white dark:bg-slate-800 border p-4.5 rounded-xl cursor-pointer transition-all hover:bg-slate-50/50 dark:hover:bg-slate-700/50 shadow-sm ${
-            filter === 'MEDIUM' ? 'border-amber-400 dark:border-amber-600 bg-amber-50/50 dark:bg-amber-950/40' : 'border-slate-200 dark:border-slate-700 hover:border-amber-300 dark:hover:border-amber-700'
+          className={`bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border p-4.5 rounded-xl cursor-pointer transition-all hover:bg-slate-50/50 dark:hover:bg-slate-700/50 shadow-sm ${
+            filter === 'MEDIUM' ? 'border-amber-400 dark:border-amber-600 bg-amber-50/50 dark:bg-amber-950/40' : 'border-(--color-border) dark:border-(--color-border-dark) hover:border-amber-300 dark:hover:border-amber-700'
           }`}
         >
-          <div className="flex justify-between items-start text-slate-400 dark:text-slate-500">
+          <div className="flex justify-between items-start text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
             <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Moderate Severity</span>
             <AlertCircle className="w-4 h-4 text-amber-500" />
           </div>
           <div className="flex items-baseline gap-1.5 mt-2">
-            <span className="text-2xl font-display font-semibold text-slate-800 dark:text-slate-100">{mediumCount}</span>
+            <span className="text-2xl font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{mediumCount}</span>
             <span className="text-[10px] text-amber-600 font-mono font-bold">Score 45-69%</span>
           </div>
-          <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-2 font-light font-sans">Elevated stress triggers. Guided meditation and ergonomic desk updates advised.</p>
+          <p className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) mt-2 font-light font-sans">Elevated stress triggers. Guided meditation and ergonomic desk updates advised.</p>
         </div>
 
         <div
           onClick={() => setFilter('LOW')}
-          className={`bg-white dark:bg-slate-800 border p-4.5 rounded-xl cursor-pointer transition-all hover:bg-slate-50/50 dark:hover:bg-slate-700/50 shadow-sm ${
-            filter === 'LOW' ? 'border-emerald-400 dark:border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/40' : 'border-slate-200 dark:border-slate-700 hover:border-emerald-300 dark:hover:border-emerald-700'
+          className={`bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border p-4.5 rounded-xl cursor-pointer transition-all hover:bg-slate-50/50 dark:hover:bg-slate-700/50 shadow-sm ${
+            filter === 'LOW' ? 'border-emerald-400 dark:border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/40' : 'border-(--color-border) dark:border-(--color-border-dark) hover:border-emerald-300 dark:hover:border-emerald-700'
           }`}
         >
-          <div className="flex justify-between items-start text-slate-400 dark:text-slate-500">
+          <div className="flex justify-between items-start text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
             <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Low Severity</span>
             <Check className="w-4 h-4 text-emerald-500" />
           </div>
           <div className="flex items-baseline gap-1.5 mt-2">
-            <span className="text-2xl font-display font-semibold text-slate-800 dark:text-slate-100">{lowCount}</span>
+            <span className="text-2xl font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{lowCount}</span>
             <span className="text-[10px] text-emerald-600 font-mono font-bold">Score &lt; 45%</span>
           </div>
-          <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-2 font-light">Healthy baseline. Maintain current lifestyle routines and claim fitness rewards.</p>
+          <p className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) mt-2 font-light">Healthy baseline. Maintain current lifestyle routines and claim fitness rewards.</p>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800/50 p-4.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between gap-4">
+      <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) p-4.5 rounded-xl border border-(--color-border) dark:border-(--color-border-dark) shadow-sm flex items-center justify-between gap-4">
         <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-(--color-text-muted)" />
           <input
             type="text"
             placeholder="Search by name or ID..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 outline-none transition-all"
+            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) placeholder-slate-400 dark:placeholder-slate-500 outline-none transition-all"
           />
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredRisks.length === 0 ? (
-          <div className="col-span-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-10 text-center font-mono text-xs text-slate-400 dark:text-slate-500 shadow-sm">
+          <div className="col-span-full bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-10 text-center font-mono text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) shadow-sm">
             No employees found matching your criteria.
           </div>
         ) : (
@@ -1534,7 +1534,7 @@ export function RiskPredictionModule({ risks }) {
             return (
               <div
                 key={risk.employeeId}
-                className={`bg-white dark:bg-slate-800 rounded-xl border p-5 space-y-4 relative overflow-hidden transition-all hover:border-slate-300 dark:hover:border-slate-600 shadow-sm ${
+                className={`bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-xl border p-5 space-y-4 relative overflow-hidden transition-all hover:border-(--color-border-strong) dark:hover:border-(--color-border-strong-dark) shadow-sm ${
                   isHigh ? 'border-red-200 dark:border-red-800' : isMedium ? 'border-amber-200 dark:border-amber-800' : 'border-emerald-150 dark:border-emerald-800'
                 }`}
               >
@@ -1544,8 +1544,8 @@ export function RiskPredictionModule({ risks }) {
 
                 <div className="flex justify-between items-start">
                   <div>
-                    <h4 className="font-semibold text-slate-800 dark:text-slate-100">{risk.employeeName}</h4>
-                    <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">{risk.employeeId}</span>
+                    <h4 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{risk.employeeName}</h4>
+                    <span className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">{risk.employeeId}</span>
                   </div>
                   <div className="flex flex-col items-end gap-1">
                     <span className={`px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider ${
@@ -1555,7 +1555,7 @@ export function RiskPredictionModule({ risks }) {
                     }`}>
                       {isHigh ? 'High Severity' : isMedium ? 'Moderate Severity' : 'Low Severity'}
                     </span>
-                    <span className="text-[9px] text-slate-500 dark:text-slate-400 font-mono">
+                    <span className="text-[9px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">
                       Category
                     </span>
                   </div>
@@ -1563,12 +1563,12 @@ export function RiskPredictionModule({ risks }) {
 
                 <div className="space-y-1.5">
                   <div className="flex justify-between items-baseline text-xs">
-                    <span className="text-slate-500 dark:text-slate-400">Risk Intensity Index:</span>
+                    <span className="text-(--color-text-muted) dark:text-(--color-text-muted-dark)">Risk Intensity Index:</span>
                     <span className={`font-bold font-mono ${
                       isHigh ? 'text-red-600' : isMedium ? 'text-amber-600' : 'text-emerald-600'
                     }`}>{risk.riskScore}%</span>
                   </div>
-                  <div className="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                  <div className="w-full bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) h-1.5 rounded-full overflow-hidden">
                     <div className={`h-full rounded-full ${
                       isHigh ? 'bg-red-500' : isMedium ? 'bg-amber-500' : 'bg-emerald-500'
                     }`} style={{ width: `${risk.riskScore}%` }} />
@@ -1576,22 +1576,22 @@ export function RiskPredictionModule({ risks }) {
                 </div>
 
                 <div className="space-y-1.5">
-                  <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest font-mono">Triggers Detected</div>
+                  <div className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest font-mono">Triggers Detected</div>
                   <div className="flex flex-wrap gap-1.5">
                     {risk.factors.map((factor, idx) => (
-                      <span key={idx} className="px-2 py-0.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-[10px] rounded-md font-medium">
+                      <span key={idx} className="px-2 py-0.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) text-[10px] rounded-md font-medium">
                         {factor}
                       </span>
                     ))}
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-slate-100 dark:border-slate-700 space-y-1.5">
-                  <div className="text-[10px] font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                <div className="pt-4 border-t border-(--color-border) dark:border-(--color-border-dark) space-y-1.5">
+                  <div className="text-[10px] font-bold text-(--color-text-primary) dark:text-(--color-text-primary-dark) uppercase tracking-wider flex items-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
                     Prescribed Action
                   </div>
-                  <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed font-light font-sans">
+                  <p className="text-[11px] text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) leading-relaxed font-light font-sans">
                     {risk.recommendationAction}
                   </p>
                 </div>
@@ -1619,15 +1619,15 @@ export function RecommendationModule({ recommendations = [], loading }) {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white dark:bg-slate-800/50 p-4.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-4">
+      <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) p-4.5 rounded-xl border border-(--color-border) dark:border-(--color-border-dark) shadow-sm flex items-center gap-4">
         <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-(--color-text-muted)" />
           <input
             type="text"
             placeholder="Search by employee name or ID..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 outline-none transition-all"
+            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) placeholder-slate-400 dark:placeholder-slate-500 outline-none transition-all"
           />
         </div>
       </div>
@@ -1651,16 +1651,16 @@ export function RecommendationModule({ recommendations = [], loading }) {
           ))}
         </div>
       ) : filteredRecs.length === 0 ? (
-        <div className="col-span-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-10 text-center font-mono text-xs text-slate-400 dark:text-slate-500 shadow-sm">
+        <div className="col-span-full bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-10 text-center font-mono text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) shadow-sm">
           No recommendations found matching your search.
         </div>
       ) : (
         filteredRecs.map((empRec) => (
-          <div key={empRec.employeeId} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-sm">
-            <div className="flex justify-between items-start pb-4 border-b border-slate-100 dark:border-slate-700 mb-4">
+          <div key={empRec.employeeId} className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-6 shadow-sm">
+            <div className="flex justify-between items-start pb-4 border-b border-(--color-border) dark:border-(--color-border-dark) mb-4">
               <div>
-                <h4 className="text-[18.5px] font-display font-semibold text-slate-800 dark:text-slate-100">{empRec.employeeName}</h4>
-                <p className="text-[14.5px] text-slate-400 dark:text-slate-500 font-mono">{empRec.employeeId}</p>
+                <h4 className="text-[18.5px] font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{empRec.employeeName}</h4>
+                <p className="text-[14.5px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">{empRec.employeeId}</p>
               </div>
               <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold ${
                 empRec.riskProfile?.riskType === 'High' ? 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border border-red-100 dark:border-red-800' :
@@ -1676,25 +1676,25 @@ export function RecommendationModule({ recommendations = [], loading }) {
                              rec.category === 'Diet' ? Apple :
                              rec.category === 'Mental Wellness' ? Brain : Clock;
                 return (
-                  <div key={rec.recommendation_id || idx} className="bg-slate-50/70 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-3">
+                  <div key={rec.recommendation_id || idx} className="bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg p-4 space-y-3">
                      <div className="flex items-center justify-between">
-                        <div className="p-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-indigo-600 dark:text-indigo-400">
+                        <div className="p-2 bg-white dark:bg-slate-700 border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-indigo-600 dark:text-indigo-400">
                           <Icon className="w-4 h-4" />
                         </div>
-                        <span className="px-2 py-0.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-[10px] font-bold uppercase rounded-md">
+                        <span className="px-2 py-0.5 bg-white dark:bg-slate-700 border border-(--color-border) dark:border-(--color-border-dark) text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) text-[10px] font-bold uppercase rounded-md">
                           {rec.category}
                         </span>
                       </div>
                       <div>
-                        <h5 className=" text-[14px] font-semibold text-xs text-slate-800 dark:text-slate-100">{rec.title}</h5>
-                        <p className="text-[13px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed font-light">{rec.description}</p>
+                        <h5 className=" text-[14px] font-semibold text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{rec.title}</h5>
+                        <p className="text-[13px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) mt-1 leading-relaxed font-light">{rec.description}</p>
                       </div>
                       {rec.reasons && rec.reasons.length > 0 && (
-                        <div className="pt-2 border-t border-slate-200 dark:border-slate-600">
-                           <p className="text-[13px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Reasons:</p>
+                        <div className="pt-2 border-t border-(--color-border) dark:border-(--color-border-dark)">
+                           <p className="text-[13px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider">Reasons:</p>
                            <ul className="list-disc list-inside space-y-0.5 mt-1">
                             {rec.reasons.map((reason, i) => (
-                              <li key={i} className="text-[13px] text-slate-500 dark:text-slate-400">{reason}</li>
+                              <li key={i} className="text-[13px] text-(--color-text-muted) dark:text-(--color-text-muted-dark)">{reason}</li>
                             ))}
                            </ul>
                         </div>
@@ -1703,7 +1703,7 @@ export function RecommendationModule({ recommendations = [], loading }) {
                 );
               })}
                {empRec.recommendations.length === 0 && (
-                <div className="md:col-span-2 xl:col-span-3 text-center text-xs text-slate-400 dark:text-slate-500 font-mono py-5">
+                <div className="md:col-span-2 xl:col-span-3 text-center text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono py-5">
                   No specific recommendations triggered for this low-risk employee.
                 </div>
               )}
@@ -1736,15 +1736,15 @@ export function SentimentModule({ sentimentList = [], healthRecords = [], onPuls
 
   return (
     <div className="space-y-6">
-      <div className="bg-white dark:bg-slate-800/50 p-4.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between gap-4">
+      <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) p-4.5 rounded-xl border border-(--color-border) dark:border-(--color-border-dark) shadow-sm flex items-center justify-between gap-4">
         <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-(--color-text-muted)" />
           <input
             type="text"
             placeholder="Search by employee name or ID..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 outline-none transition-all"
+            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) placeholder-slate-400 dark:placeholder-slate-500 outline-none transition-all"
           />
         </div>
       </div>
@@ -1774,11 +1774,11 @@ export function SentimentModule({ sentimentList = [], healthRecords = [], onPuls
             const recentFeedback = feedbackLogs.slice(0, 3);
 
             return (
-              <div key={record.employeeId} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 space-y-3 shadow-sm animate-fadeIn">
+              <div key={record.employeeId} className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-4 space-y-3 shadow-sm animate-fadeIn">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h5 className="font-semibold text-sm text-slate-800 dark:text-slate-100">{record.employeeName}</h5>
-                    <p className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">{record.employeeId} - {record.department}</p>
+                    <h5 className="font-semibold text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{record.employeeName}</h5>
+                    <p className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">{record.employeeId} - {record.department}</p>
                   </div>
                   <div className={`px-2 py-0.5 rounded text-xs font-bold ${
                     stressLevel === 'High' ? 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300' :
@@ -1787,13 +1787,13 @@ export function SentimentModule({ sentimentList = [], healthRecords = [], onPuls
                   }`}>{stressLevel}</div>
                 </div>
                 
-                <div className="text-center border-t border-b border-slate-100 dark:border-slate-700 py-2">
-                  <div className="text-2xl font-bold font-display text-slate-800 dark:text-slate-100">{stressScore}<span className="text-xs text-slate-400">/10</span></div>
-                  <div className="text-[9px] text-slate-400 dark:text-slate-500 font-mono uppercase">Stress Score</div>
+                <div className="text-center border-t border-b border-(--color-border) dark:border-(--color-border-dark) py-2">
+                  <div className="text-2xl font-bold font-display text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{stressScore}<span className="text-xs text-(--color-text-muted)">/10</span></div>
+                  <div className="text-[9px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono uppercase">Stress Score</div>
                 </div>
 
                 <div className="flex justify-between text-xs items-center">
-                  <span className="text-slate-500 dark:text-slate-400">Latest Mood: <span className="font-bold text-slate-700 dark:text-slate-200">{record.latestMood || 'Neutral'}</span></span>
+                  <span className="text-(--color-text-muted) dark:text-(--color-text-muted-dark)">Latest Mood: <span className="font-bold text-(--color-text-secondary) dark:text-(--color-text-primary-dark)">{record.latestMood || 'Neutral'}</span></span>
                   <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
                     record.healthAssessment === 'Needs Attention' ? 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300' :
                     record.healthAssessment === 'Fair' ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300' :
@@ -1801,42 +1801,42 @@ export function SentimentModule({ sentimentList = [], healthRecords = [], onPuls
                   }`}>{record.healthAssessment || 'Fair'}</span>
                 </div>
 
-                <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-700">
-                  <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                <div className="space-y-2 pt-2 border-t border-(--color-border) dark:border-(--color-border-dark)">
+                  <div className="flex items-center justify-between text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
                     <span className="flex items-center gap-1.5"><Smile className="w-3.5 h-3.5 text-emerald-500" /> Positive</span>
                     <span className="font-mono font-bold text-emerald-600">{sentimentDistribution.positive}%</span>
                   </div>
-                  <div className="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                  <div className="w-full bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) h-1.5 rounded-full overflow-hidden">
                     <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${sentimentDistribution.positive}%` }} />
                   </div>
 
-                  <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-                    <span className="flex items-center gap-1.5"><Smile className="w-3.5 h-3.5 text-slate-400" /> Neutral</span>
-                    <span className="font-mono font-bold text-slate-500 dark:text-slate-400">{sentimentDistribution.neutral}%</span>
+                  <div className="flex items-center justify-between text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
+                    <span className="flex items-center gap-1.5"><Smile className="w-3.5 h-3.5 text-(--color-text-muted)" /> Neutral</span>
+                    <span className="font-mono font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark)">{sentimentDistribution.neutral}%</span>
                   </div>
-                  <div className="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                  <div className="w-full bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) h-1.5 rounded-full overflow-hidden">
                     <div className="bg-slate-400 h-full rounded-full" style={{ width: `${sentimentDistribution.neutral}%` }} />
                   </div>
 
-                  <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                  <div className="flex items-center justify-between text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
                     <span className="flex items-center gap-1.5"><ShieldAlert className="w-3.5 h-3.5 text-rose-500" /> Negative</span>
                     <span className="font-mono font-bold text-rose-600">{sentimentDistribution.negative}%</span>
                   </div>
-                  <div className="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                  <div className="w-full bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) h-1.5 rounded-full overflow-hidden">
                     <div className="bg-rose-500 h-full rounded-full" style={{ width: `${sentimentDistribution.negative}%` }} />
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-slate-100 dark:border-slate-700">
-                  <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono">Recent Feedback</p>
+                <div className="pt-3 border-t border-(--color-border) dark:border-(--color-border-dark)">
+                  <p className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider font-mono">Recent Feedback</p>
                   <ul className="space-y-1 mt-1.5">
                     {recentFeedback.length > 0 ? recentFeedback.map((log, idx) => (
-                      <li key={idx} className="text-xs text-slate-500 dark:text-slate-400 font-light flex items-start gap-2">
+                      <li key={idx} className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-light flex items-start gap-2">
                         <span className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${log.sentiment === 'Positive' ? 'bg-emerald-500' : log.sentiment === 'Negative' ? 'bg-rose-500' : 'bg-slate-400'}`} />
                         <span className="flex-1">{log.feedbackText}</span>
                       </li>
                     )) : (
-                      <li className="text-[11px] text-slate-400 dark:text-slate-500 font-light">
+                      <li className="text-[11px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-light">
                         No recent feedback logs.
                       </li>
                     )}
@@ -1845,7 +1845,7 @@ export function SentimentModule({ sentimentList = [], healthRecords = [], onPuls
               </div>
             );
           }) : (
-            <div className="col-span-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-10 text-center font-mono text-xs text-slate-400 dark:text-slate-500 shadow-sm">
+            <div className="col-span-full bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-10 text-center font-mono text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) shadow-sm">
               No employees found matching your search.
             </div>
           )}
@@ -1931,7 +1931,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
     return (
-      <text x={x} y={y} fill="currentColor" className="text-slate-800 dark:text-slate-100" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" fontSize={11}>
+      <text x={x} y={y} fill="currentColor" className="text-(--color-text-primary) dark:text-(--color-text-primary-dark)" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" fontSize={11}>
         {`${name} ${(percent * 100).toFixed(0)}%`}
       </text>
     );
@@ -1951,7 +1951,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
     if (!active || !payload || !payload.length) return null;
     const point = payload[0].payload;
     return (
-      <div className="bg-white dark:bg-slate-900/95 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-xs shadow-lg text-slate-900 dark:text-slate-100">
+      <div className="bg-white dark:bg-slate-900/95 border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-3 text-xs shadow-lg text-(--color-text-primary) dark:text-(--color-text-primary-dark)">
         <div className="font-semibold mb-1">Employee: {point.employeeName}</div>
         <div className="space-y-1">
           <div>Department: {point.department}</div>
@@ -2018,16 +2018,16 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
   } : kpis;
 
   const renderBurnoutTrend = () => (
-    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 space-y-5">
+    <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-xl border border-(--color-border) dark:border-(--color-border-dark) shadow-sm p-6 space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100">AI Burnout Risk Trend</h3>
-          <p className="text-xs text-slate-400 dark:text-slate-400 mt-1">Real-time burnout prediction across the organization</p>
+          <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">AI Burnout Risk Trend</h3>
+          <p className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) mt-1">Real-time burnout prediction across the organization</p>
         </div>
         <select
           value={selectedDept}
           onChange={(e) => setSelectedDept(e.target.value)}
-          className="px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200 outline-none cursor-pointer"
+          className="px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none cursor-pointer"
         >
           <option value="">All Departments</option>
           <option value="Engineering">Engineering</option>
@@ -2116,12 +2116,12 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
   );
 
   const renderDepartmentWellness = () => (
-    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 space-y-5">
+    <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-xl border border-(--color-border) dark:border-(--color-border-dark) shadow-sm p-6 space-y-5">
       <div className="flex items-center gap-2">
         <LineChart className="w-5 h-5 text-indigo-500" />
-        <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100">Department Wellness Score Predictions</h3>
+        <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">Department Wellness Score Predictions</h3>
       </div>
-      <p className="text-xs text-slate-400 dark:text-slate-400">AI-predicted wellness scores based on aggregated health metrics per department</p>
+      <p className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark)">AI-predicted wellness scores based on aggregated health metrics per department</p>
       
       <div className="h-72 w-full mt-4">
         <ResponsiveContainer>
@@ -2139,22 +2139,22 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {departmentWellness.length === 0 ? (
-          <div className="col-span-full bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 rounded-xl p-8 text-center font-mono text-xs text-slate-400 dark:text-slate-500">
+          <div className="col-span-full bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-8 text-center font-mono text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
             No health records available for prediction.
           </div>
         ) : (
           departmentWellness.map((dept) => (
-            <div key={dept.department} className="bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 rounded-xl p-5 space-y-4">
+            <div key={dept.department} className="bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-5 space-y-4">
               <div className="flex items-center justify-between">
-                <h4 className="font-semibold text-slate-800 dark:text-slate-100">{dept.department}</h4>
-                <span className="px-2 py-0.5 bg-white dark:bg-slate-600 border border-slate-200 dark:border-slate-500 rounded text-[9px] font-bold text-slate-500 dark:text-slate-300 font-mono">
+                <h4 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{dept.department}</h4>
+                <span className="px-2 py-0.5 bg-white dark:bg-slate-600 border border-slate-200 dark:border-slate-500 rounded text-[9px] font-bold text-(--color-text-muted) dark:text-(--color-text-secondary-dark) font-mono">
                   {dept.employeeCount} employees
                 </span>
               </div>
 
               <div className="space-y-2">
                 <div className="flex justify-between text-xs">
-                  <span className="text-slate-500 dark:text-slate-400">Wellness Score</span>
+                  <span className="text-(--color-text-muted) dark:text-(--color-text-muted-dark)">Wellness Score</span>
                   <span className={`font-bold font-mono ${
                     dept.wellnessScore >= 70 ? 'text-emerald-600' : dept.wellnessScore >= 50 ? 'text-amber-600' : 'text-red-600'
                   }`}>{dept.wellnessScore}%</span>
@@ -2170,21 +2170,21 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
               </div>
 
               <div className="grid grid-cols-2 gap-3 text-[10px]">
-                <div className="bg-white dark:bg-slate-800 rounded-lg p-2.5 border border-slate-100 dark:border-slate-600">
-                  <span className="block text-slate-400 dark:text-slate-500 font-mono">Avg Stress</span>
-                  <span className="font-bold text-slate-700 dark:text-slate-200">{dept.avgStressScore}/10</span>
+                <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-lg p-2.5 border border-slate-100 dark:border-slate-600">
+                  <span className="block text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">Avg Stress</span>
+                  <span className="font-bold text-(--color-text-secondary) dark:text-(--color-text-primary-dark)">{dept.avgStressScore}/10</span>
                 </div>
-                <div className="bg-white dark:bg-slate-800 rounded-lg p-2.5 border border-slate-100 dark:border-slate-600">
-                  <span className="block text-slate-400 dark:text-slate-500 font-mono">Avg BMI</span>
-                  <span className="font-bold text-slate-700 dark:text-slate-200">{dept.avgBmi}</span>
+                <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-lg p-2.5 border border-slate-100 dark:border-slate-600">
+                  <span className="block text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">Avg BMI</span>
+                  <span className="font-bold text-(--color-text-secondary) dark:text-(--color-text-primary-dark)">{dept.avgBmi}</span>
                 </div>
-                <div className="bg-white dark:bg-slate-800 rounded-lg p-2.5 border border-slate-100 dark:border-slate-600">
-                  <span className="block text-slate-400 dark:text-slate-500 font-mono">Avg Sleep</span>
-                  <span className="font-bold text-slate-700 dark:text-slate-200">{dept.avgSleep}h</span>
+                <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-lg p-2.5 border border-slate-100 dark:border-slate-600">
+                  <span className="block text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">Avg Sleep</span>
+                  <span className="font-bold text-(--color-text-secondary) dark:text-(--color-text-primary-dark)">{dept.avgSleep}h</span>
                 </div>
-                <div className="bg-white dark:bg-slate-800 rounded-lg p-2.5 border border-slate-100 dark:border-slate-600">
-                  <span className="block text-slate-400 dark:text-slate-500 font-mono">Avg Exercise</span>
-                  <span className="font-bold text-slate-700 dark:text-slate-200">{dept.avgExercise}h/wk</span>
+                <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-lg p-2.5 border border-slate-100 dark:border-slate-600">
+                  <span className="block text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">Avg Exercise</span>
+                  <span className="font-bold text-(--color-text-secondary) dark:text-(--color-text-primary-dark)">{dept.avgExercise}h/wk</span>
                 </div>
               </div>
 
@@ -2203,19 +2203,19 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
 
   const renderDepartmentSentiment = () => (
     <div className="space-y-6">
-      <div className="border-b border-slate-200 dark:border-slate-700 pb-4">
+      <div className="border-b border-(--color-border) dark:border-(--color-border-dark) pb-4">
         <div className="flex items-center gap-2">
           <Smile className="w-5 h-5 text-emerald-500" />
-          <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100">Department Sentiment & Mental Health Analytics</h3>
+          <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">Department Sentiment & Mental Health Analytics</h3>
         </div>
-        <p className="text-xs text-slate-400 dark:text-slate-400 mt-2">Anonymized sentiment distribution and stress index from pulse feedback.</p>
+        <p className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) mt-2">Anonymized sentiment distribution and stress index from pulse feedback.</p>
       </div>
 
       {(!sentimentList || sentimentList.length === 0) ? (
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-10 text-center shadow-sm">
+        <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-10 text-center shadow-sm">
           <Smile className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
-          <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">No department sentiment data available yet.</p>
-          <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5">Department sentiment analytics will appear here once employees submit their wellness pulse checks.</p>
+          <p className="text-sm font-semibold text-(--color-text-secondary) dark:text-(--color-text-secondary-dark)">No department sentiment data available yet.</p>
+          <p className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) mt-1.5">Department sentiment analytics will appear here once employees submit their wellness pulse checks.</p>
         </div>
       ) : (
 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -2230,15 +2230,15 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
           const pulseCount = Number(sent.recentFeedbackCount) || 0;
 
           return (
-          <div key={sent.department} className="bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 rounded-xl p-5 space-y-4 shadow-sm">
+          <div key={sent.department} className="bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-5 space-y-4 shadow-sm">
             <div className="flex justify-between items-center">
-              <h4 className="font-semibold text-slate-800 dark:text-slate-100">{sent.department}</h4>
-              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold font-mono">Pulse Count: {pulseCount}</span>
+              <h4 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{sent.department}</h4>
+              <span className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-bold font-mono">Pulse Count: {pulseCount}</span>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_0.9fr] gap-5 items-start">
               <div className="space-y-2.5">
-                <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                <div className="flex items-center justify-between text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
                   <span className="flex items-center gap-1.5"><Smile className="w-4 h-4 text-emerald-500" /> Positive</span>
                   <span className="font-mono font-bold text-emerald-600">{positive}%</span>
                 </div>
@@ -2246,15 +2246,15 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
                   <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${positive}%` }} />
                 </div>
 
-                <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-                  <span className="flex items-center gap-1.5"><Smile className="w-4 h-4 text-slate-400" /> Neutral</span>
-                  <span className="font-mono font-bold text-slate-500 dark:text-slate-400">{neutral}%</span>
+                <div className="flex items-center justify-between text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
+                  <span className="flex items-center gap-1.5"><Smile className="w-4 h-4 text-(--color-text-muted)" /> Neutral</span>
+                  <span className="font-mono font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark)">{neutral}%</span>
                 </div>
                 <div className="w-full bg-slate-200 dark:bg-slate-600 h-1.5 rounded-full overflow-hidden">
                   <div className="bg-slate-400 h-full rounded-full" style={{ width: `${neutral}%` }} />
                 </div>
 
-                <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                <div className="flex items-center justify-between text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
                   <span className="flex items-center gap-1.5"><ShieldAlert className="w-4 h-4 text-rose-500" /> Negative</span>
                   <span className="font-mono font-bold text-rose-600">{negative}%</span>
                 </div>
@@ -2264,18 +2264,18 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
               </div>
 
 <div className="space-y-4">
-                <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-600 rounded-xl p-4 text-center">
-                  <div className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono mb-2">Stress Index</div>
+                <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-slate-100 dark:border-slate-600 rounded-xl p-4 text-center">
+                  <div className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider font-mono mb-2">Stress Index</div>
                   <div className={`text-4xl font-display font-bold ${avgStress >= 7 ? 'text-rose-600' : avgStress >= 5 ? 'text-amber-600' : 'text-emerald-600'}`}>{avgStress}</div>
-                  <div className="text-[9px] text-slate-400 dark:text-slate-500 font-mono mt-1">/ 10</div>
+                  <div className="text-[9px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono mt-1">/ 10</div>
                 </div>
               </div>
             </div>
 
             {/* Feedback Logger: recent raw feedback entries per department */}
             {(Array.isArray(sent.feedbackLogs) && sent.feedbackLogs.length > 0) && (
-              <div className="pt-3 border-t border-slate-200 dark:border-slate-600">
-                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono mb-1.5">
+              <div className="pt-3 border-t border-(--color-border) dark:border-(--color-border-dark)">
+                <div className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider font-mono mb-1.5">
                   Recent Feedback Logger
                 </div>
                 <ul className="space-y-1.5">
@@ -2284,11 +2284,11 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
                     const sentimentTag = cIdx > -1 ? log.slice(0, cIdx).trim() : 'Neutral';
                     const text = cIdx > -1 ? log.slice(cIdx + 1).trim() : log;
                     return (
-                      <li key={idx} className="text-[11px] text-slate-600 dark:text-slate-300 font-light flex items-start gap-2">
+                      <li key={idx} className="text-[11px] text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) font-light flex items-start gap-2">
                         <span className={`shrink-0 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider ${
                           sentimentTag === 'Positive' ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800' :
                           sentimentTag === 'Negative' ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-100 dark:border-rose-800' :
-                          'bg-slate-100 dark:bg-slate-600 text-slate-500 dark:text-slate-300 border border-slate-200 dark:border-slate-500'
+                          'bg-slate-100 dark:bg-slate-600 text-(--color-text-muted) dark:text-(--color-text-secondary-dark) border border-slate-200 dark:border-slate-500'
                         }`}>
                           {sentimentTag}
                         </span>
@@ -2346,66 +2346,66 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
         </div>
         {/* Fallback: render with frontend kpis */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 space-y-3 animate-pulse">
-            <div className="flex justify-between items-center text-slate-400 dark:text-slate-500">
+          <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-xl border border-(--color-border) dark:border-(--color-border-dark) shadow-sm p-5 space-y-3 animate-pulse">
+            <div className="flex justify-between items-center text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
               <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Participation Rate</span>
               <Activity className="w-4 h-4 text-indigo-500" />
             </div>
             <div className="flex items-baseline gap-1.5">
-              <span className="text-3xl font-display font-semibold text-slate-800 dark:text-slate-100">{kpis.participationRate}%</span>
+              <span className="text-3xl font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{kpis.participationRate}%</span>
               <span className="text-[10px] text-emerald-600 font-mono font-bold">Target 80%</span>
             </div>
-            <div className="w-full bg-slate-100 dark:bg-slate-700 h-1 rounded-full overflow-hidden">
+            <div className="w-full bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) h-1 rounded-full overflow-hidden">
               <div className="bg-indigo-600 h-full rounded-full" style={{ width: `${kpis.participationRate}%` }} />
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 space-y-3 animate-pulse">
-            <div className="flex justify-between items-center text-slate-400 dark:text-slate-500">
+          <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-xl border border-(--color-border) dark:border-(--color-border-dark) shadow-sm p-5 space-y-3 animate-pulse">
+            <div className="flex justify-between items-center text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
               <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Absenteeism Rate</span>
               <TrendingUp className="w-4 h-4 text-rose-500" />
             </div>
             <div className="flex items-baseline gap-1.5">
-              <span className="text-3xl font-display font-semibold text-slate-800 dark:text-slate-100">{kpis.absenteeismRate}%</span>
-              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono font-bold">Industry 4.5%</span>
+              <span className="text-3xl font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{kpis.absenteeismRate}%</span>
+              <span className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono font-bold">Industry 4.5%</span>
             </div>
-            <div className="w-full bg-slate-100 dark:bg-slate-700 h-1 rounded-full overflow-hidden">
+            <div className="w-full bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) h-1 rounded-full overflow-hidden">
               <div className="bg-rose-500 h-full rounded-full" style={{ width: `${Math.min(100, kpis.absenteeismRate * 10)}%` }} />
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 space-y-3 animate-pulse">
-            <div className="flex justify-between items-center text-slate-400 dark:text-slate-500">
+          <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-xl border border-(--color-border) dark:border-(--color-border-dark) shadow-sm p-5 space-y-3 animate-pulse">
+            <div className="flex justify-between items-center text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
               <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Workforce Risk</span>
               <ShieldAlert className="w-4 h-4 text-amber-500" />
             </div>
             <div className="flex items-baseline gap-1.5">
-              <span className="text-3xl font-display font-semibold text-slate-800 dark:text-slate-100">{kpis.overallHealthRiskScore}%</span>
+              <span className="text-3xl font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{kpis.overallHealthRiskScore}%</span>
               <span className="text-[10px] text-emerald-600 font-mono font-bold">Ideal  20%</span>
             </div>
-            <div className="w-full bg-slate-100 dark:bg-slate-700 h-1 rounded-full overflow-hidden">
+            <div className="w-full bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) h-1 rounded-full overflow-hidden">
               <div className="bg-amber-500 h-full rounded-full" style={{ width: `${kpis.overallHealthRiskScore}%` }} />
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 space-y-3 animate-pulse">
-            <div className="flex justify-between items-center text-slate-400 dark:text-slate-500">
+          <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-xl border border-(--color-border) dark:border-(--color-border-dark) shadow-sm p-5 space-y-3 animate-pulse">
+            <div className="flex justify-between items-center text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
               <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Effectiveness</span>
               <Smile className="w-4 h-4 text-emerald-500" />
             </div>
             <div className="flex items-baseline gap-1.5">
-              <span className="text-3xl font-display font-semibold text-slate-800 dark:text-slate-100">{kpis.programEffectiveness}%</span>
+              <span className="text-3xl font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{kpis.programEffectiveness}%</span>
               <span className="text-[10px] text-emerald-600 font-mono font-bold">Satisfied</span>
             </div>
-            <div className="w-full bg-slate-100 dark:bg-slate-700 h-1 rounded-full overflow-hidden">
+            <div className="w-full bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) h-1 rounded-full overflow-hidden">
               <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${kpis.programEffectiveness}%` }} />
             </div>
           </div>
         </div>
         
-        <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
-          <h4 className="font-display font-semibold text-slate-800 dark:text-slate-100">Health Vitals Scatter Overview</h4>
-          <p className="text-slate-400 dark:text-slate-400 text-xs font-light">Real-time clustering of employee metrics (Sleep vs. Exercise hours per week).</p>
+        <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) p-6 rounded-xl border border-(--color-border) dark:border-(--color-border-dark) shadow-sm space-y-4">
+          <h4 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">Health Vitals Scatter Overview</h4>
+          <p className="text-(--color-text-muted) dark:text-(--color-text-muted-dark) text-xs font-light">Real-time clustering of employee metrics (Sleep vs. Exercise hours per week).</p>
           
           <div className="h-72 w-full">
           <ResponsiveContainer>
@@ -2431,66 +2431,66 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
       </div>
       {renderBurnoutTrend()}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 space-y-3">
-          <div className="flex justify-between items-center text-slate-400 dark:text-slate-500">
+        <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-xl border border-(--color-border) dark:border-(--color-border-dark) shadow-sm p-5 space-y-3">
+          <div className="flex justify-between items-center text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
             <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Participation Rate</span>
             <Activity className="w-4 h-4 text-indigo-500" />
           </div>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-3xl font-display font-semibold text-slate-800 dark:text-slate-100">{kpis.participationRate}%</span>
+            <span className="text-3xl font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{kpis.participationRate}%</span>
             <span className="text-[10px] text-emerald-600 font-mono font-bold">Target 80%</span>
           </div>
-          <div className="w-full bg-slate-100 dark:bg-slate-700 h-1 rounded-full overflow-hidden">
+          <div className="w-full bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) h-1 rounded-full overflow-hidden">
             <div className="bg-indigo-600 h-full rounded-full" style={{ width: `${kpis.participationRate}%` }} />
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 space-y-3">
-          <div className="flex justify-between items-center text-slate-400 dark:text-slate-500">
+        <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-xl border border-(--color-border) dark:border-(--color-border-dark) shadow-sm p-5 space-y-3">
+          <div className="flex justify-between items-center text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
             <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Absenteeism Rate</span>
             <TrendingUp className="w-4 h-4 text-rose-500" />
           </div>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-3xl font-display font-semibold text-slate-800 dark:text-slate-100">{kpis.absenteeismRate}%</span>
-            <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono font-bold">Industry 4.5%</span>
+            <span className="text-3xl font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{kpis.absenteeismRate}%</span>
+            <span className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono font-bold">Industry 4.5%</span>
           </div>
-          <div className="w-full bg-slate-100 dark:bg-slate-700 h-1 rounded-full overflow-hidden">
+          <div className="w-full bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) h-1 rounded-full overflow-hidden">
             <div className="bg-rose-500 h-full rounded-full" style={{ width: `${Math.min(100, kpis.absenteeismRate * 10)}%` }} />
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 space-y-3">
-          <div className="flex justify-between items-center text-slate-400 dark:text-slate-500">
+        <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-xl border border-(--color-border) dark:border-(--color-border-dark) shadow-sm p-5 space-y-3">
+          <div className="flex justify-between items-center text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
             <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Workforce Risk</span>
             <ShieldAlert className="w-4 h-4 text-amber-500" />
           </div>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-3xl font-display font-semibold text-slate-800 dark:text-slate-100">{kpis.overallHealthRiskScore}%</span>
+            <span className="text-3xl font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{kpis.overallHealthRiskScore}%</span>
             <span className="text-[10px] text-emerald-600 font-mono font-bold">Ideal &lt; 20%</span>
           </div>
-          <div className="w-full bg-slate-100 dark:bg-slate-700 h-1 rounded-full overflow-hidden">
+          <div className="w-full bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) h-1 rounded-full overflow-hidden">
             <div className="bg-amber-500 h-full rounded-full" style={{ width: `${kpis.overallHealthRiskScore}%` }} />
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 space-y-3">
-          <div className="flex justify-between items-center text-slate-400 dark:text-slate-500">
+        <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-xl border border-(--color-border) dark:border-(--color-border-dark) shadow-sm p-5 space-y-3">
+          <div className="flex justify-between items-center text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
             <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Effectiveness</span>
             <Smile className="w-4 h-4 text-emerald-500" />
           </div>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-3xl font-display font-semibold text-slate-800 dark:text-slate-100">{kpis.programEffectiveness}%</span>
+            <span className="text-3xl font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{kpis.programEffectiveness}%</span>
             <span className="text-[10px] text-emerald-600 font-mono font-bold">Satisfied</span>
           </div>
-          <div className="w-full bg-slate-100 dark:bg-slate-700 h-1 rounded-full overflow-hidden">
+          <div className="w-full bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) h-1 rounded-full overflow-hidden">
             <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${kpis.programEffectiveness}%` }} />
           </div>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
-        <h4 className="font-display font-semibold text-slate-800 dark:text-slate-100">Health Vitals Scatter Overview</h4>
-        <p className="text-slate-400 dark:text-slate-400 text-xs font-light">Real-time clustering of employee metrics (Sleep vs. Exercise hours per week).</p>
+      <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) p-6 rounded-xl border border-(--color-border) dark:border-(--color-border-dark) shadow-sm space-y-4">
+        <h4 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">Health Vitals Scatter Overview</h4>
+        <p className="text-(--color-text-muted) dark:text-(--color-text-muted-dark) text-xs font-light">Real-time clustering of employee metrics (Sleep vs. Exercise hours per week).</p>
 
         <div className="h-72 w-full mt-4">
           {scatterData.length > 0 ? (
@@ -2505,7 +2505,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
               </ScatterChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-full flex items-center justify-center rounded-xl border border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-500 dark:text-slate-400 text-sm">
+            <div className="h-full flex items-center justify-center rounded-xl border border-dashed border-(--color-border) dark:border-(--color-border-dark) bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) text-(--color-text-muted) dark:text-(--color-text-muted-dark) text-sm">
               No vitals data available for the scatter plot.
             </div>
           )}
@@ -2513,18 +2513,18 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
 
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-4 pt-2">
           {records.map(r => (
-            <div key={r.id} className="p-4 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 rounded-xl space-y-2 text-center transition-all hover:border-slate-300 dark:hover:border-slate-600 shadow-xs">
+            <div key={r.id} className="p-4 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl space-y-2 text-center transition-all hover:border-(--color-border-strong) dark:hover:border-(--color-border-strong-dark) shadow-xs">
               <div className="w-1.5 h-1.5 bg-slate-400 dark:bg-slate-500 rounded-full mx-auto" />
-              <div className="font-semibold text-xs text-slate-800 dark:text-slate-200 truncate">{r.employeeName}</div>
-              <div className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono">{r.department}</div>
-              <div className="grid grid-cols-2 gap-1 text-[10px] font-mono bg-white dark:bg-slate-800 p-2 rounded border border-slate-150 dark:border-slate-700 mt-2">
+              <div className="font-semibold text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) truncate">{r.employeeName}</div>
+              <div className="text-[9px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider font-mono">{r.department}</div>
+              <div className="grid grid-cols-2 gap-1 text-[10px] font-mono bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) p-2 rounded border border-slate-150 dark:border-slate-700 mt-2">
                 <div>
-                  <span className="block text-[8px] text-slate-400 dark:text-slate-500 uppercase font-sans">Sleep</span>
-                  <span className="font-bold text-slate-700 dark:text-slate-300">{r.sleepHoursPerNight}h</span>
+                  <span className="block text-[8px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase font-sans">Sleep</span>
+                  <span className="font-bold text-(--color-text-secondary) dark:text-(--color-text-secondary-dark)">{r.sleepHoursPerNight}h</span>
                 </div>
                 <div>
-                  <span className="block text-[8px] text-slate-400 dark:text-slate-500 uppercase font-sans">Fit</span>
-                  <span className="font-bold text-slate-700 dark:text-slate-300">{r.exerciseHoursPerWeek}h</span>
+                  <span className="block text-[8px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase font-sans">Fit</span>
+                  <span className="font-bold text-(--color-text-secondary) dark:text-(--color-text-secondary-dark)">{r.exerciseHoursPerWeek}h</span>
                 </div>
               </div>
             </div>
@@ -2602,14 +2602,14 @@ function SystemSettingsModule() {
   };
 
   const SettingCard = ({ title, description, children }) => (
-    <div className="bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-sm">
+    <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-6 shadow-sm">
       <div className="flex justify-between items-start">
         <div>
-      <h4 className="font-semibold text-slate-800 dark:text-slate-100">{title}</h4>
-      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-4 font-light">{description}</p>
+      <h4 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{title}</h4>
+      <p className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) mt-1 mb-4 font-light">{description}</p>
         </div>
         {title === "AI & Analytics" && (
-          <span className="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-[10px] font-mono font-bold rounded-md uppercase tracking-wider">
+          <span className="px-2 py-1 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) text-(--color-text-muted) dark:text-(--color-text-muted-dark) text-[10px] font-mono font-bold rounded-md uppercase tracking-wider">
             Active: Ollama
           </span>
         )}
@@ -2619,8 +2619,8 @@ function SystemSettingsModule() {
   );
 
   const SettingRow = ({ label, children }) => (
-    <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-700/50 pt-3">
-      <label className="text-xs font-medium text-slate-600 dark:text-slate-300">{label}</label>
+    <div className="flex items-center justify-between border-t border-(--color-border) dark:border-(--color-border-dark) pt-3">
+      <label className="text-xs font-medium text-(--color-text-secondary) dark:text-(--color-text-secondary-dark)">{label}</label>
       {children}
     </div>
   );
@@ -2643,10 +2643,10 @@ function SystemSettingsModule() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <SettingCard title="Risk Thresholds" description="Define the score boundaries for wellness risk categories.">
           <SettingRow label="High Risk Threshold (%)">
-            <input type="number" value={settings.highRiskThreshold} onChange={(e) => handleSettingChange('highRiskThreshold', e.target.value)} className="w-24 px-3 py-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200 outline-none" />
+            <input type="number" value={settings.highRiskThreshold} onChange={(e) => handleSettingChange('highRiskThreshold', e.target.value)} className="w-24 px-3 py-1.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none" />
           </SettingRow>
           <SettingRow label="Medium Risk Threshold (%)">
-            <input type="number" value={settings.mediumRiskThreshold} onChange={(e) => handleSettingChange('mediumRiskThreshold', e.target.value)} className="w-24 px-3 py-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200 outline-none" />
+            <input type="number" value={settings.mediumRiskThreshold} onChange={(e) => handleSettingChange('mediumRiskThreshold', e.target.value)} className="w-24 px-3 py-1.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none" />
           </SettingRow>
         </SettingCard>
 
@@ -2667,7 +2667,7 @@ function SystemSettingsModule() {
 
         <SettingCard title="Data & Privacy" description="Manage data retention and user privacy settings.">
           <SettingRow label="Data Retention (Days)">
-            <input type="number" value={settings.dataRetentionDays} onChange={(e) => handleSettingChange('dataRetentionDays', e.target.value)} className="w-24 px-3 py-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200 outline-none" />
+            <input type="number" value={settings.dataRetentionDays} onChange={(e) => handleSettingChange('dataRetentionDays', e.target.value)} className="w-24 px-3 py-1.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none" />
           </SettingRow>
           <SettingRow label="Anonymize Sentiment Data">
             <label className="relative inline-flex items-center cursor-pointer">
@@ -2800,14 +2800,14 @@ export default function AdminDashboard({ user,
   const firstName = user?.name ? user.name.split(' ')[0] : 'Admin';
 
   return (
-    <div className="h-screen overflow-hidden bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col font-sans transition-colors duration-300">
+    <div className="h-screen overflow-hidden bg-slate-50 dark:bg-slate-900 text-(--color-text-primary) dark:text-(--color-text-primary-dark) flex flex-col font-sans transition-colors duration-300">
       
       {isNotifCenterOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-fadeIn" onClick={() => { setIsNotifCenterOpen(false); setNotifRefreshKey(k => k + 1); }}>
-          <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-3xl shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
-            <div className="p-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50 dark:bg-slate-900">
-              <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2"><Bell className="w-5 h-5 text-slate-400" /> Notification Center</h3>
-              <button onClick={() => { setIsNotifCenterOpen(false); setNotifRefreshKey(k => k + 1); }} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer"><X className="w-5 h-5" /></button>
+        <div className="fixed inset-0 bg-slate-900/60  z-[100] flex items-center justify-center p-4 animate-fadeIn" onClick={() => { setIsNotifCenterOpen(false); setNotifRefreshKey(k => k + 1); }}>
+          <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl w-full max-w-3xl shadow-2xl border border-(--color-border) dark:border-(--color-border-dark) max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="p-5 border-b border-(--color-border) dark:border-(--color-border-dark) flex items-center justify-between bg-slate-50 dark:bg-slate-900">
+              <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) flex items-center gap-2"><Bell className="w-5 h-5 text-(--color-text-muted)" /> Notification Center</h3>
+              <button onClick={() => { setIsNotifCenterOpen(false); setNotifRefreshKey(k => k + 1); }} className="text-(--color-text-muted) hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer"><X className="w-5 h-5" /></button>
             </div>
             <div className="p-6 overflow-y-auto">
               <AdminNotificationCenter
@@ -2839,7 +2839,7 @@ export default function AdminDashboard({ user,
         />
       )}
       {/* Platform Header */}
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-700 px-4 md:px-8 py-3.5 flex items-center justify-between transition-colors">
+      <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80  border-b border-slate-200/80 dark:border-slate-700 px-4 md:px-8 py-3.5 flex items-center justify-between transition-colors">
         
         {/* Left: Mobile Menu Toggle & App Logo / Greeting */}
         <div className="flex items-center gap-3 md:gap-5">
@@ -2847,7 +2847,7 @@ export default function AdminDashboard({ user,
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+            className="lg:hidden p-2 rounded-xl bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) border border-(--color-border) dark:border-(--color-border-dark)"
             aria-label="Toggle menu"
           >
             {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -2857,10 +2857,10 @@ export default function AdminDashboard({ user,
           <div className="flex items-center gap-3">
             <img src={logo} alt="App Logo" className="w-12 h-10" />
             <div className="hidden sm:block">
-              <span className="font-display font-bold text-base tracking-tight block text-slate-900 dark:text-slate-50 leading-none">
+              <span className="font-display font-bold text-base tracking-tight block text-(--color-text-primary) dark:text-(--color-text-primary-dark) leading-none">
                 AI-Based Employee Wellness Management Platform
               </span>
-              <span className="text-[10px] text-slate-400 dark:text-slate-400 font-mono uppercase tracking-widest font-semibold mt-1 block">
+              <span className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono uppercase tracking-widest font-semibold mt-1 block">
                 Wellness Intelligence
               </span>
             </div>
@@ -2870,10 +2870,10 @@ export default function AdminDashboard({ user,
 
           {/* User Greeting & Date Header */}
           <div className="hidden md:block">
-            <h2 className="font-display font-semibold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
+            <h2 className="font-display font-semibold text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark) flex items-center gap-1.5">
               {getGreeting()}, {firstName} 👋
             </h2>
-            <p className="text-[11px] text-slate-400 dark:text-slate-400 font-mono flex items-center gap-1 mt-0.5">
+            <p className="text-[11px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono flex items-center gap-1 mt-0.5">
               <Calendar className="w-3 h-3 text-blue-500" />
               {currentDateFormatted}
             </p>
@@ -2885,7 +2885,7 @@ export default function AdminDashboard({ user,
           {/* System Settings Button */}
           <button
             onClick={() => setActiveTab(11)}
-            className="p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700 text-slate-500 dark:text-slate-400 rounded-xl transition-all duration-200 cursor-pointer shadow-sm"
+            className="p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700 text-(--color-text-muted) dark:text-(--color-text-muted-dark) rounded-xl transition-all duration-200 cursor-pointer shadow-sm"
             title="System Settings"
           >
             <Cog className="w-4 h-4" />
@@ -2900,14 +2900,14 @@ export default function AdminDashboard({ user,
           <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block" />
 
           <div
-            className="flex items-center gap-3 cursor-pointer group p-1 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-all"
+            className="flex items-center gap-3 cursor-pointer group p-1 rounded-xl hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark)/60 transition-all"
             onClick={() => setIsProfileModalOpen(true)}
             title="Edit Profile"
           >
             <div className="hidden sm:block text-right">
-              <span className="block text-sm font-bold text-slate-800 dark:text-slate-100 leading-tight group-hover:text-blue-600 transition-colors">{user.name}</span>
-              <span className="block text-xs text-slate-400 font-mono">{user.adminId}</span>
-              <span className="inline-block mt-1 px-2 py-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[9px] font-mono font-bold rounded uppercase tracking-widest leading-none">
+              <span className="block text-sm font-bold text-(--color-text-primary) dark:text-(--color-text-primary-dark) leading-tight group-hover:text-blue-600 transition-colors">{user.name}</span>
+              <span className="block text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">{user.adminId}</span>
+              <span className="inline-block mt-1 px-2 py-0.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) text-[9px] font-mono font-bold rounded uppercase tracking-widest leading-none">
                 Administrator
               </span>
             </div>
@@ -2916,10 +2916,10 @@ export default function AdminDashboard({ user,
                 src={user.avatarUrl}
                 alt={user.name}
                 referrerPolicy="no-referrer"
-                className="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-700 shadow-md object-cover" // Kept as per previous request
+                className="w-9 h-9 rounded-full border border-(--color-border) dark:border-(--color-border-dark) shadow-md object-cover" // Kept as per previous request
               />
             ) : (
-              <div className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center font-bold text-sm text-slate-700 dark:text-slate-200"> 
+              <div className="w-9 h-9 rounded-full bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) flex items-center justify-center font-bold text-sm text-(--color-text-secondary) dark:text-(--color-text-primary-dark)"> 
                 {user.name ? user.name.substring(0, 2).toUpperCase() : 'AD'}
               </div>
             )}
@@ -2927,7 +2927,7 @@ export default function AdminDashboard({ user,
 
           <button
             onClick={onLogout}
-            className="flex items-center gap-2 px-3 py-2 bg-slate-100 hover:bg-rose-50 dark:bg-slate-800 dark:hover:bg-rose-950/40 border border-slate-200/80 dark:border-slate-700 text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 rounded-xl transition-all duration-200 cursor-pointer shadow-sm text-xs font-semibold"
+            className="flex items-center gap-2 px-3 py-2 bg-slate-100 hover:bg-rose-50 dark:bg-slate-800 dark:hover:bg-rose-950/40 border border-slate-200/80 dark:border-slate-700 text-slate-500 hover:text-rose-600 dark:text-(--color-text-muted) dark:hover:text-rose-400 rounded-xl transition-all duration-200 cursor-pointer shadow-sm text-xs font-semibold"
             title="Log Out"
           >
             <LogOut className="w-4 h-4" />
@@ -2949,14 +2949,14 @@ export default function AdminDashboard({ user,
             <div className="shrink-0">
               <div className="flex items-center justify-between px-2 py-1 mb-4">
                 {!isSidebarCollapsed && (
-                  <span className="text-[13px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest font-mono">
+                  <span className="text-[13px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest font-mono">
                     Admin Navigation
                   </span>
                 )}
                 <button
                   type="button"
                   onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer border border-slate-200 dark:border-slate-700"
+                  className="p-1.5 rounded-lg text-(--color-text-muted) hover:text-(--color-text-secondary) dark:hover:text-(--color-text-primary-dark) hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark) transition-all cursor-pointer border border-(--color-border) dark:border-(--color-border-dark)"
                   title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
                 >
                   {isSidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -2978,11 +2978,11 @@ export default function AdminDashboard({ user,
                         : 'hover:bg-slate-50 border-transparent text-slate-500'
                     }`}
                   >
-                    <Icon className={`w-5 h-5 shrink-0 mt-0.5 ${isActive ? 'text-indigo-600' : 'text-slate-400'}`} />
+                    <Icon className={`w-5 h-5 shrink-0 mt-0.5 ${isActive ? 'text-indigo-600' : 'text-(--color-text-muted)'}`} />
                     {!isSidebarCollapsed && (
                       <div className="truncate">
                         <div className="text-xs font-bold">{tab.label}</div>
-                        <div className="text-[11px] text-slate-400 mt-0.5 line-clamp-1">
+                        <div className="text-[11px] text-(--color-text-muted) mt-0.5 line-clamp-1">
                           {tab.desc}
                         </div>
                       </div>
@@ -3001,7 +3001,7 @@ export default function AdminDashboard({ user,
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="lg:hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex"
+              className="lg:hidden fixed inset-0 z-50 bg-slate-900/60  flex"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               <motion.aside
@@ -3013,9 +3013,9 @@ export default function AdminDashboard({ user,
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-                    <span className="text-xs font-bold text-slate-800 dark:text-slate-100">Admin Modules</span>
-                    <button type="button" onClick={() => setIsMobileMenuOpen(false)} className="p-1 text-slate-400 hover:text-slate-700">
+                  <div className="flex items-center justify-between pb-3 border-b border-(--color-border) dark:border-(--color-border-dark)">
+                    <span className="text-xs font-bold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">Admin Modules</span>
+                    <button type="button" onClick={() => setIsMobileMenuOpen(false)} className="p-1 text-(--color-text-muted) hover:text-slate-700">
                       <X className="w-5 h-5" />
                     </button>
                   </div>
@@ -3038,7 +3038,7 @@ export default function AdminDashboard({ user,
                               : 'hover:bg-slate-50 border-transparent text-slate-500'
                           }`}
                         >
-                          <Icon className={`w-5 h-5 shrink-0 mt-0.5 ${isActive ? 'text-indigo-600' : 'text-slate-400'}`} />
+                          <Icon className={`w-5 h-5 shrink-0 mt-0.5 ${isActive ? 'text-indigo-600' : 'text-(--color-text-muted)'}`} />
                           <div className="truncate">
                             <div className="text-xs font-bold">{tab.label}</div>
                           </div>
@@ -3060,7 +3060,7 @@ export default function AdminDashboard({ user,
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800/60 rounded-md text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest font-mono mb-2">
                 {adminNavTabs.find(tab => tab.id === activeTab)?.label || 'Admin Module'}
               </div>
-              <h1 className="font-display text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-50 tracking-tight">
+              <h1 className="font-display text-2xl md:text-3xl font-bold text-(--color-text-primary) dark:text-(--color-text-primary-dark) tracking-tight">
                 {activeTab === 1 && 'User Management'}
                 {activeTab === 2 && 'Employee Health Data Management'}
                 {activeTab === 3 && 'Wellness Risk Prediction'}
@@ -3073,7 +3073,7 @@ export default function AdminDashboard({ user,
                 {activeTab === 10 && 'Expense Claims'}
                 {activeTab === 11 && 'System Settings'}
               </h1>
-              <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 max-w-2xl font-light">
+              <p className="text-(--color-text-muted) dark:text-(--color-text-muted-dark) text-xs mt-1 max-w-2xl font-light">
                 {activeTab === 1 && 'Manage all employee user accounts, roles, and access.'}
                 {activeTab === 2 && 'Database logs for tracking key metrics including BMI, medical stats, sleep, and lifestyle routines.'}
                 {activeTab === 3 && 'Machine learning assessments predicting health risks, cardiovascular issues, or stress burnout.'}
@@ -3088,19 +3088,19 @@ export default function AdminDashboard({ user,
               </p>
             </div>
             <div className="min-w-[220px] rounded-3xl bg-slate-50/80 dark:bg-slate-900 border border-slate-200/70 dark:border-slate-700 p-4">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono block mb-2">
+              <span className="text-[10px] font-bold text-(--color-text-muted) uppercase tracking-wider font-mono block mb-2">
                 System Vitals
               </span>
-              <div className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-1">
+              <div className="text-sm font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) mb-1">
                 Analytics Active
               </div>
               <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mb-1">
                 {systemVitals.analyticsActive}%
               </div>
-              <div className="text-[12px] text-slate-600 dark:text-slate-300 font-mono mb-2">
+              <div className="text-[12px] text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) font-mono mb-2">
                 {systemVitals.totalHealthRecords}/{systemVitals.totalUsers} employees with health data
               </div>
-              <div className="w-full bg-slate-200 dark:bg-slate-700 h-2.5 rounded-full overflow-hidden">
+              <div className="w-full bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) h-2.5 rounded-full overflow-hidden">
                 <div className="bg-emerald-500 h-full rounded-full transition-all duration-700" style={{ width: `${systemVitals.analyticsActive}%` }} />
               </div>
             </div>

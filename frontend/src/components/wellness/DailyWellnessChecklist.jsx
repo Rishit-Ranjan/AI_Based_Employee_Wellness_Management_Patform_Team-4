@@ -114,22 +114,22 @@ export default function DailyWellnessChecklist({
   const message = DONE_MESSAGES[new Date().getDate() % DONE_MESSAGES.length];
 
   return (
-    <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
+    <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-6">
       <style>{`
         .checkbox-scroll::-webkit-scrollbar { width: 6px; }
         .checkbox-scroll::-webkit-scrollbar-track { background: transparent; }
-        .checkbox-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
-        .dark .checkbox-scroll::-webkit-scrollbar-thumb { background: #475569; }
+        .checkbox-scroll::-webkit-scrollbar-thumb { background: var(--color-border-strong); border-radius: 9999px; }
+        .dark .checkbox-scroll::-webkit-scrollbar-thumb { background: var(--color-border-strong-dark); }
       `}</style>
       <div className="flex items-start justify-between mb-1">
-        <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2">
+        <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2">
           <CheckCircle2 className="w-5 h-5 text-emerald-500" /> Today's Wellness Checklist
         </h3>
-        <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider pt-0.5">
+        <span className="text-[10px] font-mono text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider pt-0.5">
           {doneCount}/{total} done
         </span>
       </div>
-      <p className="flex h-[16px] items-center text-xs leading-none text-slate-500 dark:text-slate-400 mb-2">
+      <p className="flex h-[16px] items-center text-xs leading-none text-(--color-text-muted) dark:text-(--color-text-muted-dark) mb-2">
         Tick off each habit. Your progress is saved for today.
       </p>
 
@@ -145,18 +145,18 @@ export default function DailyWellnessChecklist({
               title={item.caption}
               className={`h-[40px] w-full flex items-center gap-2 text-left px-2 rounded border transition-all cursor-pointer ${
                 checked
-                  ? 'bg-slate-50 dark:bg-slate-700/40 border-emerald-200 dark:border-emerald-800'
-                  : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-emerald-300 dark:hover:border-emerald-700'
+                  ? 'bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border-emerald-200 dark:border-emerald-800'
+                  : 'bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border-(--color-border) dark:border-(--color-border-dark) hover:border-emerald-300 dark:hover:border-emerald-700'
               }`}
             >
               <Icon className={`w-3 h-3 shrink-0 ${item.color}`} />
-              <span className={`flex-1 min-w-0 truncate text-[11px] font-semibold leading-none ${checked ? 'text-slate-400 dark:text-slate-400 line-through' : 'text-slate-700 dark:text-slate-200'}`}>
+              <span className={`flex-1 min-w-0 truncate text-[11px] font-semibold leading-none ${checked ? 'text-(--color-text-muted) dark:text-(--color-text-muted-dark) line-through' : 'text-(--color-text-secondary) dark:text-(--color-text-primary-dark)'}`}>
                 {item.label}
               </span>
               <span className={`w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 ${
                 checked
                   ? 'bg-emerald-500 border-emerald-500 text-white'
-                  : 'border-slate-300 dark:border-slate-600 text-transparent'
+                  : 'border-(--color-border-strong) dark:border-(--color-border-strong-dark) text-transparent'
               }`}>
                 <CheckCircle2 className="w-2.5 h-2.5" />
               </span>
@@ -166,13 +166,13 @@ export default function DailyWellnessChecklist({
       </div>
 
       <div className="mt-2">
-        <div className="h-1.5 rounded-full bg-slate-100 dark:bg-slate-700 overflow-hidden">
+        <div className="h-1.5 rounded-full bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) overflow-hidden">
           <div
             className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-600 transition-all duration-500"
             style={{ width: `${pct}%` }}
           />
         </div>
-        <p className="flex h-[16px] items-center justify-center text-[12px] leading-none text-center font-medium text-slate-500 dark:text-slate-400">
+        <p className="flex h-[16px] items-center justify-center text-[12px] leading-none text-center font-medium text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
           {isDone ? (
             <span className="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold">
               <PartyPopper className="w-3.5 h-3.5" /> {message}

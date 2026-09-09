@@ -7,8 +7,8 @@ const Insight = ({ icon: Icon, color, title, text }) => (
       <Icon className={`w-4 h-4 ${color.text}`} />
     </div>
     <div>
-      <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200">{title}</h4>
-      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{text}</p>
+      <h4 className="text-xs font-bold text-(--color-text-secondary) dark:text-(--color-text-primary-dark)">{title}</h4>
+      <p className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) mt-0.5">{text}</p>
     </div>
   </div>
 );
@@ -70,8 +70,8 @@ export default function WellnessInsightsModule({ records = [], dailyHabits = [],
   }, [records, dailyHabits, mentalHealthLogs]);
 
   return (
-    <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
-      <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2 mb-4"><Lightbulb className="w-5 h-5 text-slate-400" /> Wellness Insights</h3>
+    <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-6">
+      <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2 mb-4"><Lightbulb className="w-5 h-5 text-(--color-text-muted)" /> Wellness Insights</h3>
       <div className="space-y-4">
         {insights.map(insight => <Insight key={insight.id} {...insight} />)}
       </div>

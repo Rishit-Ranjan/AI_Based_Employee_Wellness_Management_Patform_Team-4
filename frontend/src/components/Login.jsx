@@ -193,7 +193,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
               Transform your workplace <br />
               <span className="italic font-serif text-slate-300">with health</span> intelligence.
             </h1>
-            <p className="text-slate-400 text-base lg:text-lg leading-relaxed mb-8 font-normal">
+            <p className="text-(--color-text-muted) text-base lg:text-lg leading-relaxed mb-8 font-normal">
               Manage employee health records, monitor burnout risks, analyze organization sentiment, and provide personalized mental and physical
               wellness recommendations in real-time.
             </p>
@@ -204,22 +204,22 @@ export default function Login({ onNavigate, onLoginSuccess }) {
             <div className="p-4 bg-slate-850 border border-slate-800 rounded-xl">
               <Activity className="w-5 h-5 text-indigo-400 mb-2" />
               <div className="text-sm font-semibold text-white">Predictive Analytics</div>
-              <p className="text-xs text-slate-400 mt-2">Machine learning assessments for health and burnout risks.</p>
+              <p className="text-xs text-(--color-text-muted) mt-2">Machine learning assessments for health and burnout risks.</p>
             </div>
             <div className="p-4 bg-slate-850 border border-slate-800 rounded-xl">
               <Shield className="w-5 h-5 text-emerald-400 mb-2" />
               <div className="text-sm font-semibold text-white">Sentiment Tracker</div>
-              <p className="text-xs text-slate-400 mt-2">Anonymized surveys tracking employee mental wellbeing.</p>
+              <p className="text-xs text-(--color-text-muted) mt-2">Anonymized surveys tracking employee mental wellbeing.</p>
             </div>
             <div className="p-4 bg-slate-850 border border-slate-800 rounded-xl">
               <Sparkles className="w-5 h-5 text-purple-400 mb-2" />
               <div className="text-sm font-semibold text-white">Personalized Recs</div>
-              <p className="text-xs text-slate-400 mt-2">AI-driven suggestions for fitness, diet, and mental peace.</p>
+              <p className="text-xs text-(--color-text-muted) mt-2">AI-driven suggestions for fitness, diet, and mental peace.</p>
             </div>
             <div className="p-4 bg-slate-850 border border-slate-800 rounded-xl">
               <HeartPulse className="w-5 h-5 text-rose-400 mb-2" />
               <div className="text-sm font-semibold text-white">Health Data Mgmt</div>
-              <p className="text-xs text-slate-400 mt-2">Comprehensive interface to manage employee health records.</p>
+              <p className="text-xs text-(--color-text-muted) mt-2">Comprehensive interface to manage employee health records.</p>
             </div>
           </div>
         </div>
@@ -227,7 +227,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
         {/* Footer info */}
         <div className="text-sm text-slate-500 flex items-center justify-between relative z-10 font-mono mt-8">
           <span>© 2026 Employee Wellness Inc.</span>
-          <span className="flex items-center gap-1.5 text-slate-400">
+          <span className="flex items-center gap-1.5 text-(--color-text-muted)">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
             All modules operational
           </span>
@@ -326,7 +326,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
               </label>
               <div>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-(--color-text-muted)">
                     <Hash className="w-4 h-4" />
                   </div>
                   <input
@@ -352,7 +352,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
               </label>
               <div>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-(--color-text-muted)">
                     <Mail className="w-4 h-4" />
                   </div>
                   <input
@@ -390,7 +390,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
               </div>
               <div>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-(--color-text-muted)">
                     <Lock className="w-4 h-4" />
                   </div>
                   <input
@@ -406,7 +406,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600"
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-(--color-text-muted) hover:text-slate-600"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>

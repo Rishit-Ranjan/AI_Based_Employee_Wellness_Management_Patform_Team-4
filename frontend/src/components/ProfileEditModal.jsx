@@ -82,11 +82,11 @@ export default function ProfileEditModal({ user, isAdmin = false, onClose, onUpd
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-fadeIn" onClick={onClose}>
-      <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700" onClick={(e) => e.stopPropagation()}>
-        <div className="p-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50 dark:bg-slate-900">
-          <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2"><User className="w-5 h-5 text-slate-400" /> Edit Profile</h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer"><X className="w-5 h-5" /></button>
+    <div className="fixed inset-0 bg-slate-900/60  z-[100] flex items-center justify-center p-4 animate-fadeIn" onClick={onClose}>
+      <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl w-full max-w-md shadow-2xl overflow-hidden border border-(--color-border) dark:border-(--color-border-dark)" onClick={(e) => e.stopPropagation()}>
+        <div className="p-5 border-b border-(--color-border) dark:border-(--color-border-dark) flex items-center justify-between bg-slate-50 dark:bg-slate-900">
+          <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) flex items-center gap-2"><User className="w-5 h-5 text-(--color-text-muted)" /> Edit Profile</h3>
+          <button onClick={onClose} className="text-(--color-text-muted) hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer"><X className="w-5 h-5" /></button>
         </div>
 
         <form onSubmit={handleSaveProfile} className="p-5 space-y-3.5">
@@ -98,7 +98,7 @@ export default function ProfileEditModal({ user, isAdmin = false, onClose, onUpd
               {avatarUrl ? (
                 <img src={avatarUrl} alt="Avatar" className="w-16 h-16 rounded-full border-2 border-white dark:border-slate-700 object-cover shadow-md" />
               ) : (
-                <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center font-bold text-slate-600 dark:text-slate-300">{name.substring(0, 2).toUpperCase()}</div>
+                <div className="w-16 h-16 rounded-full bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) flex items-center justify-center font-bold text-(--color-text-secondary) dark:text-(--color-text-secondary-dark)">{name.substring(0, 2).toUpperCase()}</div>
               )}
               <div className="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                 <UploadCloud className="w-6 h-6 text-white" />
@@ -108,7 +108,7 @@ export default function ProfileEditModal({ user, isAdmin = false, onClose, onUpd
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="px-3 py-1.5 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 rounded-md text-[10px] font-semibold text-slate-600 dark:text-slate-300 flex items-center justify-center gap-1.5 transition-colors"
+                className="px-3 py-1.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-md text-[10px] font-semibold text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) flex items-center justify-center gap-1.5 transition-colors"
               >
                 <UploadCloud className="w-3 h-3" /> Change
               </button>
@@ -132,20 +132,20 @@ export default function ProfileEditModal({ user, isAdmin = false, onClose, onUpd
           </div>
 
           <div>
-            <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">Name</label>
-            <input value={name} onChange={(e) => setName(e.target.value)} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200" />
+            <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-1">Name</label>
+            <input value={name} onChange={(e) => setName(e.target.value)} className="w-full px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)" />
           </div>
 
           {/* Re-add phone number input field */}
           <div>
-            <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">Phone Number</label>
-            <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Your contact number" className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200" />
+            <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-1">Phone Number</label>
+            <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Your contact number" className="w-full px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)" />
           </div>
           
           {!isAdmin && (
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">Department</label>
-              <select value={department} onChange={(e) => setDepartment(e.target.value)} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200">
+              <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-1">Department</label>
+              <select value={department} onChange={(e) => setDepartment(e.target.value)} className="w-full px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)">
                 {DEPARTMENTS.map((d) => <option key={d} value={d}>{d}</option>)}
               </select>
             </div>
@@ -159,11 +159,11 @@ export default function ProfileEditModal({ user, isAdmin = false, onClose, onUpd
           </button>
         </form>
 
-        <div className="border-t border-slate-100 dark:border-slate-700 p-5 space-y-3.5">
-          <h4 className="text-xs font-bold text-slate-600 dark:text-slate-300 flex items-center gap-2"><KeyRound className="w-4 h-4 text-slate-400" /> Change Password</h4>
+        <div className="border-t border-(--color-border) dark:border-(--color-border-dark) p-5 space-y-3.5">
+          <h4 className="text-xs font-bold text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) flex items-center gap-2"><KeyRound className="w-4 h-4 text-(--color-text-muted)" /> Change Password</h4>
           <form onSubmit={handleChangePassword} className="space-y-3">
-            <input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder="Current password" className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200" />
-            <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="New password (min 6 chars)" className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200" />
+            <input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder="Current password" className="w-full px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)" />
+            <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="New password (min 6 chars)" className="w-full px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)" />
             {pwError && <div className="p-2.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-lg text-[11px] text-red-700 dark:text-red-300">{pwError}</div>}
             {pwSuccess && <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-lg text-[11px] text-emerald-700 dark:text-emerald-300">{pwSuccess}</div>}
             <button type="submit" disabled={pwSaving} className="w-full py-2.5 bg-slate-800 dark:bg-slate-600 hover:bg-slate-900 dark:hover:bg-slate-500 text-white rounded-lg text-xs font-bold disabled:bg-slate-500">

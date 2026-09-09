@@ -60,7 +60,7 @@ export default function LoginSupportChat({ onEscalate }) {
   };
 
   return (
-    <div className="flex flex-col h-[450px] bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl">
+    <div className="flex flex-col h-[450px] bg-slate-50 dark:bg-slate-900/50 border border-(--color-border) dark:border-(--color-border-dark) rounded-xl">
       <div className="flex-1 p-4 overflow-y-auto space-y-3.5">
         {messages.map((m) => (
           <div
@@ -68,7 +68,7 @@ export default function LoginSupportChat({ onEscalate }) {
             className={`flex items-end gap-2 ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             {m.sender === 'bot' && (
-              <div className="w-7 h-7 bg-slate-200 dark:bg-slate-700 rounded-full flex items-center justify-center shrink-0">
+              <div className="w-7 h-7 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded-full flex items-center justify-center shrink-0">
                 <Bot className="w-4 h-4 text-slate-500" />
               </div>
             )}
@@ -76,7 +76,7 @@ export default function LoginSupportChat({ onEscalate }) {
               className={`max-w-[85%] p-3 rounded-2xl text-xs leading-relaxed shadow-sm ${
                 m.sender === 'user'
                   ? 'bg-blue-600 text-white rounded-br-lg'
-                  : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-bl-lg border border-slate-200 dark:border-slate-700'
+                  : 'bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) text-(--color-text-primary) dark:text-(--color-text-primary-dark) rounded-bl-lg border border-(--color-border) dark:border-(--color-border-dark)'
               }`}
             >
               <p>{m.text}</p>
@@ -93,10 +93,10 @@ export default function LoginSupportChat({ onEscalate }) {
         ))}
         {isTyping && (
           <div className="flex justify-start items-end gap-2">
-            <div className="w-7 h-7 bg-slate-200 dark:bg-slate-700 rounded-full flex items-center justify-center shrink-0">
+            <div className="w-7 h-7 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded-full flex items-center justify-center shrink-0">
               <Bot className="w-4 h-4 text-slate-500" />
             </div>
-            <div className="bg-white dark:bg-slate-800 p-3 rounded-2xl rounded-bl-lg text-xs text-slate-400 animate-pulse font-mono border border-slate-200 dark:border-slate-700">
+            <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) p-3 rounded-2xl rounded-bl-lg text-xs text-(--color-text-muted) animate-pulse font-mono border border-(--color-border) dark:border-(--color-border-dark)">
               Bot is typing...
             </div>
           </div>
@@ -104,13 +104,13 @@ export default function LoginSupportChat({ onEscalate }) {
         <div ref={scrollRef} />
       </div>
 
-      <form onSubmit={handleSend} className="p-3 border-t border-slate-200 dark:border-slate-700 flex items-center gap-2">
+      <form onSubmit={handleSend} className="p-3 border-t border-(--color-border) dark:border-(--color-border-dark) flex items-center gap-2">
         <input
           type="text"
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
           placeholder="Ask about login or signup..."
-          className="flex-1 px-3.5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-100 outline-none focus:ring-1 focus:ring-blue-500"
+          className="flex-1 px-3.5 py-2 bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none focus:ring-1 focus:ring-blue-500"
         />
         <button
           type="submit"

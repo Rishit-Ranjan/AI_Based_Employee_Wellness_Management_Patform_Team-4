@@ -26,15 +26,15 @@ const GoalBar = ({ label, icon: Icon, value, target, suffix = '', iconColor }) =
   return (
     <div>
       <div className="flex items-center justify-between mb-1.5">
-        <span className="flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-300">
+        <span className="flex items-center gap-2 text-xs font-semibold text-(--color-text-secondary) dark:text-(--color-text-secondary-dark)">
           <Icon className={`w-4 h-4 ${iconColor}`} />
           {label}
         </span>
-        <span className="text-[11px] font-mono font-bold text-slate-400 dark:text-slate-500">
+        <span className="text-[11px] font-mono font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
           {value.toLocaleString()}{suffix} / {target.toLocaleString()}{suffix}
         </span>
       </div>
-      <div className="h-2 bg-slate-100 dark:bg-slate-700/60 rounded-full overflow-hidden">
+      <div className="h-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded-full overflow-hidden">
         <div
           className={`h-full rounded-full transition-all duration-700 ${iconColor.replace('text-', 'bg-').replace('dark:text-', 'dark:bg-')}`}
           style={{ width: `${pct}%` }}
@@ -45,13 +45,13 @@ const GoalBar = ({ label, icon: Icon, value, target, suffix = '', iconColor }) =
 };
 
 const VitalsChip = ({ label, value, icon: Icon, unit }) => (
-  <div className="bg-slate-50/80 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-700/50 rounded-xl p-3 text-center">
-    <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">
+  <div className="bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-3 text-center">
+    <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-(--color-text-muted) dark:text-(--color-text-muted-dark) mb-1">
       <Icon className="w-3.5 h-3.5" />
       {label}
     </div>
-    <div className="text-sm font-display font-bold text-slate-800 dark:text-slate-100">
-      {value} <span className="text-[10px] font-light text-slate-400 font-mono">{unit}</span>
+    <div className="text-sm font-display font-bold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">
+      {value} <span className="text-[10px] font-light text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">{unit}</span>
     </div>
   </div>
 );
@@ -88,13 +88,13 @@ export default function WellnessProgressModule({
   const overallStroke = overallColor(overall);
 
   return (
-    <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
+    <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-6">
       <div className="flex items-start justify-between gap-3 mb-5">
         <div>
-          <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2">
-            <Target className="w-5 h-5 text-slate-400" /> Wellness Progress
+          <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2">
+            <Target className="w-5 h-5 text-(--color-text-muted) dark:text-(--color-text-muted-dark)" /> Wellness Progress
           </h3>
-          <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
+          <p className="text-[11px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) mt-0.5">
             Your daily goals &amp; vitals snapshot
           </p>
         </div>
@@ -107,7 +107,7 @@ export default function WellnessProgressModule({
       </div>
 
       {/* Overall progress ring */}
-      <div className="flex items-center gap-4 mb-5 p-4 bg-gradient-to-r from-slate-50 to-transparent dark:from-slate-900/40 rounded-xl border border-slate-100 dark:border-slate-700/50">
+      <div className="flex items-center gap-4 mb-5 p-4 bg-gradient-to-r from-(--color-bg-subtle) to-transparent dark:from-(--color-bg-subtle-dark) rounded-xl border border-(--color-border) dark:border-(--color-border-dark)">
         <div className="relative w-16 h-16 shrink-0">
           <svg className="w-16 h-16 -rotate-90" viewBox="0 0 64 64">
             <circle cx="32" cy="32" r="27" fill="none" strokeWidth="7" className="stroke-slate-100 dark:stroke-slate-700/60" />
@@ -117,18 +117,18 @@ export default function WellnessProgressModule({
             />
           </svg>
           <span className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="font-display font-bold text-lg text-slate-800 dark:text-slate-100 leading-none">{healthScore}%</span>
-            <span className="text-[9px] font-mono text-slate-400">Health</span>
+            <span className="font-display font-bold text-lg text-(--color-text-primary) dark:text-(--color-text-primary-dark) leading-none">{healthScore}%</span>
+            <span className="text-[9px] font-mono text-(--color-text-muted)">Health</span>
           </span>
         </div>
         <div className="flex-1">
-          <p className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+          <p className="text-xs font-bold text-(--color-text-secondary) dark:text-(--color-text-primary-dark) flex items-center gap-1.5">
             <TrendingUp className="w-4 h-4 text-emerald-500" />
             {overall >= 80 ? 'Excellent progress' : overall >= 50 ? 'Good progress' : 'Keep it up'}
           </p>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-            You've completed <span className="font-bold text-slate-700 dark:text-slate-200">{overall}%</span> of today's
-            wellness goals. Current streak: <span className="font-bold text-slate-700 dark:text-slate-200">{streakDays} days</span>.
+          <p className="text-[11px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) mt-1">
+            You've completed <span className="font-bold text-(--color-text-secondary) dark:text-(--color-text-primary-dark)">{overall}%</span> of today's
+            wellness goals. Current streak: <span className="font-bold text-(--color-text-secondary) dark:text-(--color-text-primary-dark)">{streakDays} days</span>.
           </p>
         </div>
       </div>
@@ -141,7 +141,7 @@ export default function WellnessProgressModule({
       </div>
 
       {/* Key vitals snapshot */}
-      <h4 className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 font-mono">
+      <h4 className="text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-3 font-mono">
         Vitals Snapshot
       </h4>
       <div className="grid grid-cols-3 gap-2.5">
