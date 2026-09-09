@@ -416,15 +416,15 @@ const voices = speechSynthRef.current.getVoices();
   };
 
   return (
-    <div className={`flex flex-col h-full bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) ${isFloating ? '' : 'border border-(--color-border) dark:border-(--color-border-dark) rounded-2xl shadow-sm'}`}>
+    <div className={`flex flex-col h-full bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) ${isFloating ? '' : 'border border-(--color-border) dark:border-(--color-border-dark) rounded-lg shadow-sm'}`}>
       <div className="p-3.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border-b border-(--color-border) dark:border-(--color-border-dark)">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 bg-blue-600 text-white rounded-lg">
+            <div className="p-1.5 bg-(--color-bg-dark) dark:bg-(--color-bg-dark) text-emerald-300 rounded-md border border-emerald-700/60">
               <Bot className="w-4 h-4" />
             </div>
             <div>
-              <span className="text-xxs font-bold text-(--color-text-primary) dark:text-(--color-text-primary-dark) font-sans">
+              <span className="text-sm font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) font-sans">
                 InfyWell
               </span>
               <div className="text-[11px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) -mt-0.5">AI Assistant</div>
@@ -434,7 +434,7 @@ const voices = speechSynthRef.current.getVoices();
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 rounded-lg border text-(--color-text-muted) hover:text-slate-600 dark:hover:text-slate-300 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border-(--color-border) dark:border-(--color-border-dark) transition-all"
+              className="p-2 rounded-md border text-(--color-text-muted) hover:text-slate-600 dark:hover:text-slate-300 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border-(--color-border) dark:border-(--color-border-dark) transition-all"
               title="Close Chat"
             >
               <X className="w-3.5 h-3.5" />
@@ -449,7 +449,7 @@ const voices = speechSynthRef.current.getVoices();
             <button
               type="button"
               onClick={handleClearChat}
-              className="p-1.5 rounded-lg border text-(--color-text-muted) hover:text-red-500 dark:hover:text-red-400 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border-(--color-border) dark:border-(--color-border-dark) hover:border-red-200 dark:hover:border-red-700 transition-all"
+              className="p-2 rounded-md border text-(--color-text-muted) hover:text-red-500 dark:hover:text-red-400 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border-(--color-border) dark:border-(--color-border-dark) hover:border-red-200 dark:hover:border-red-700 transition-all"
               title="Clear Chat History"
             >
               <Trash2 className="w-3.5 h-3.5" />
@@ -473,7 +473,7 @@ const voices = speechSynthRef.current.getVoices();
             className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`max-w-[80%] p-3 rounded-2xl text-xs leading-relaxed ${
+              className={`max-w-[80%] p-3 rounded-lg text-xs leading-relaxed ${
                 m.sender === 'user'
                   ? 'bg-blue-600 text-white rounded-br-none shadow-md'
                   : 'bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) text-(--color-text-primary) dark:text-(--color-text-primary-dark) rounded-bl-none border border-slate-200/60 dark:border-(--color-border-dark)'
@@ -491,7 +491,7 @@ const voices = speechSynthRef.current.getVoices();
         ))}
         {isTyping && (
           <div className="flex justify-start">
-            <div className="bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) p-3 rounded-2xl rounded-bl-none text-xs text-(--color-text-muted) animate-pulse font-mono">
+            <div className="bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) p-3 rounded-lg rounded-bl-none text-xs text-(--color-text-muted) animate-pulse font-mono">
               InfyWell is thinking...
             </div>
           </div>
@@ -507,12 +507,12 @@ const voices = speechSynthRef.current.getVoices();
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder={isListening ? "Listening..." : "Ask your AI assistant..."}
-              className="flex-1 px-3.5 py-2 bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none focus:ring-2 focus:ring-blue-500/20"
+              className="flex-1 px-3.5 py-2 bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none focus:ring-2 focus:ring-blue-500/20"
             />
             <button
               type="button"
               onClick={toggleListening}
-              className={`p-2 rounded-xl border transition-all cursor-pointer ${
+              className={`p-2 rounded-md border transition-colors cursor-pointer ${
                 isListening
                   ? 'bg-rose-500 text-white border-rose-600 animate-pulse'
                   : 'bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) text-(--color-text-muted) dark:text-(--color-text-muted-dark) border-(--color-border) dark:border-(--color-border-dark) hover:text-slate-800'
@@ -524,7 +524,7 @@ const voices = speechSynthRef.current.getVoices();
             <button
               type="submit"
               disabled={!inputText.trim()}
-              className="p-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white rounded-xl transition-all cursor-pointer shadow-sm"
+              className="p-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white rounded-md transition-colors cursor-pointer shadow-sm"
             >
               <Send className="w-4 h-4" />
             </button>
@@ -755,37 +755,35 @@ const FloatingBot = ({ onClick, isChatOpen }) => {
       )}
 
       {/* overflow="visible" remains to prevent clipping */}
-      <svg 
-        width="60"
-        height="90" 
-        viewBox="0 0 80 120" 
+      <svg
+        width="68"
+        height="96"
+        viewBox="0 0 80 120"
         overflow="visible"
-        xmlns="http://www.w3.org/2000/svg" 
+        xmlns="http://www.w3.org/2000/svg"
         className="drop-shadow-lg"
-        style={{ transform: `scaleX(-1)` }}
+        aria-hidden="true"
       >
         <g className="bot-body">
-          {/* Head */}
-          <rect x="25" y="20" width="30" height="25" rx="6" fill="#a5b4fc" />
-          <rect x="30" y="28" width="20" height="10" rx="3" fill="#1e293b" />
-          <circle cx="36" cy="33" r="2" fill="#4ade80" />
-          <circle cx="44" cy="33" r="2" fill="#4ade80" />
-          <line x1="35" y1="20" x2="35" y2="15" stroke="#a5b4fc" strokeWidth="2" />
-          <circle cx="35" cy="14" r="2" fill="#818cf8" />
-          
-          {/* Body */}
-          <rect x="20" y="45" width="40" height="35" rx="8" fill="#4f46e5" />
-          <circle cx="40" cy="62" r="8" fill="#312e81" />
-          
-          {/* Arms */}
-          <rect className="bot-arm left" x="12" y="48" width="8" height="28" rx="4" fill="#6366f1" />
-          <rect className="bot-arm right" x="60" y="48" width="8" height="28" rx="4" fill="#6366f1" />
-        </g>
-        
-        {/* Legs (Placed inside bot-body so they float with the rest of the body) */}
-        <g className="bot-body">
-          <rect className="bot-leg left" x="25" y="80" width="10" height="35" rx="5" fill="#4338ca" />
-          <rect className="bot-leg right" x="45" y="80" width="10" height="35" rx="5" fill="#4338ca" />
+          {/* Wellness assistant head and status display */}
+          <rect x="24" y="19" width="32" height="27" rx="8" fill="#d1fae5" stroke="#34d399" strokeWidth="1.5" />
+          <rect x="29" y="27" width="22" height="12" rx="4" fill="#0f172a" />
+          <circle cx="36" cy="33" r="2" fill="#6ee7b7" />
+          <circle cx="44" cy="33" r="2" fill="#6ee7b7" />
+          <line x1="40" y1="19" x2="40" y2="13" stroke="#34d399" strokeWidth="2" />
+          <circle cx="40" cy="11" r="2.5" fill="#10b981" />
+
+          {/* Graphite shell with wellness pulse display */}
+          <rect x="19" y="45" width="42" height="37" rx="10" fill="#1f2937" stroke="#374151" strokeWidth="1.5" />
+          <rect x="29" y="55" width="22" height="14" rx="5" fill="#064e3b" />
+          <path d="M31 62h4l2-4 3 8 3-6 2 2h4" fill="none" stroke="#6ee7b7" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          <circle cx="54" cy="51" r="2" fill="#34d399" />
+
+          {/* Slim arms and grounded legs */}
+          <rect x="11" y="49" width="8" height="28" rx="4" fill="#374151" />
+          <rect x="61" y="49" width="8" height="28" rx="4" fill="#374151" />
+          <rect x="25" y="82" width="11" height="34" rx="5.5" fill="#111827" stroke="#10b981" strokeWidth="1" />
+          <rect x="44" y="82" width="11" height="34" rx="5.5" fill="#111827" stroke="#10b981" strokeWidth="1" />
         </g>
       </svg>
     </div>
