@@ -71,7 +71,7 @@ export default function HealthCard({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
         {/* Circular Health Score */}
         <div className="bg-slate-50/80 dark:bg-(--color-bg-subtle-dark) rounded-xl border border-(--color-border) dark:border-(--color-border-dark) p-4 flex flex-col items-center justify-center">
-          <CircularHealthScore score={healthScore} size={130} strokeWidth={9} title="Health Index" subtitle="Synced Live" />
+          <CircularHealthScore score={healthScore} size={145} strokeWidth={9} title="Health Index" subtitle="Synced Live" />
         </div>
 
         {/* Burnout Risk Card */}

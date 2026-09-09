@@ -107,7 +107,7 @@ export default function WellnessProgressModule({
       </div>
 
       {/* Overall progress ring */}
-      <div className="flex items-center gap-4 mb-5 p-4 bg-gradient-to-r from-(--color-bg-subtle) to-transparent dark:from-(--color-bg-subtle-dark) rounded-xl border border-(--color-border) dark:border-(--color-border-dark)">
+      <div className="flex flex-wrap items-center gap-4 mb-5 p-4 bg-gradient-to-r from-(--color-bg-subtle) to-transparent dark:from-(--color-bg-subtle-dark) rounded-xl border border-(--color-border) dark:border-(--color-border-dark)">
         <div className="relative w-16 h-16 shrink-0">
           <svg className="w-16 h-16 -rotate-90" viewBox="0 0 64 64">
             <circle cx="32" cy="32" r="27" fill="none" strokeWidth="7" className="stroke-slate-100 dark:stroke-slate-700/60" />
@@ -121,7 +121,7 @@ export default function WellnessProgressModule({
             <span className="text-[9px] font-mono text-(--color-text-muted)">Health</span>
           </span>
         </div>
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <p className="text-xs font-bold text-(--color-text-secondary) dark:text-(--color-text-primary-dark) flex items-center gap-1.5">
             <TrendingUp className="w-4 h-4 text-emerald-500" />
             {overall >= 80 ? 'Excellent progress' : overall >= 50 ? 'Good progress' : 'Keep it up'}
