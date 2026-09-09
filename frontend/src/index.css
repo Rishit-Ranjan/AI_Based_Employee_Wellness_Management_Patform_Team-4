@@ -67,6 +67,48 @@ html.dark body {
   color: var(--color-text-primary-dark);
 }
 
+/* Keep the stress slider track readable in both themes. */
+.stress-range {
+  appearance: none;
+  background: var(--color-border-strong);
+}
+
+.stress-range::-webkit-slider-runnable-track {
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: var(--color-border-strong);
+}
+
+.stress-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: -0.375rem;
+  border: 0;
+  border-radius: 9999px;
+  background: var(--stress-color);
+}
+
+.stress-range::-moz-range-track {
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: var(--color-border-strong);
+}
+
+.stress-range::-moz-range-thumb {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 0;
+  border-radius: 9999px;
+  background: var(--stress-color);
+}
+
+.dark .stress-range,
+.dark .stress-range::-webkit-slider-runnable-track,
+.dark .stress-range::-moz-range-track {
+  background: var(--color-border-strong-dark);
+}
+
 /* Hide native browser password reveal/clear buttons so our custom toggle is the only one visible */
 input[type="password"]::-ms-reveal,
 input[type="password"]::-ms-clear {

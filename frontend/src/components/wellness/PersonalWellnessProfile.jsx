@@ -1101,8 +1101,8 @@ smoker: smoker,
                 max="10"
                 value={pulseStress}
                 onChange={(e) => setPulseStress(Number(e.target.value))}
-                className="w-full cursor-pointer h-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded-lg"
-                style={{ accentColor: pulseStress >= 7 ? '#ef4444' : pulseStress >= 4 ? '#eab308' : '#22c55e' }}
+                className="stress-range w-full cursor-pointer h-2 rounded-lg"
+                style={{ '--stress-color': pulseStress >= 7 ? '#ef4444' : pulseStress >= 4 ? '#eab308' : '#22c55e' }}
               />
             </div>
 
