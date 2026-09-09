@@ -1107,7 +1107,7 @@ export default function UserDashboard({
             </div>
           </div>
 
-          <div className="h-6 w-px bg-slate-200 dark:bg-(--color-bg-card-dark) hidden md:block" />
+          <div className="h-6 w-px bg-white/70 dark:bg-white/70 hidden md:block" />
 
           {/* User Greeting & Date Header */}
           <div className="hidden md:block">
@@ -1135,7 +1135,7 @@ export default function UserDashboard({
             <button
               type="button"
               onClick={() => setIsSosModalOpen(true)}
-              className="flex items-center gap-2 pl-3 pr-2 py-2 bg-red-100 hover:bg-red-200 dark:bg-red-950/60 dark:hover:bg-red-900/80 border border-red-200/80 dark:border-red-800 text-red-600 dark:text-red-400 rounded-l-xl transition-all duration-200 cursor-pointer shadow-sm text-xs font-semibold animate-pulse"
+              className="flex items-center gap-2 pl-3 pr-2 py-2 bg-red-100 hover:bg-red-200 dark:bg-red-950/60 dark:hover:bg-red-900/80 border border-white/70 dark:border-white/70 text-red-600 dark:text-red-400 rounded-l-xl transition-all duration-200 cursor-pointer shadow-sm text-xs font-semibold animate-pulse"
               title="Pressing this immediately alerts the admin/HR team with your emergency contact and known health info (blood group, allergies, conditions)."
             >
               <Siren className="w-4 h-4" />
@@ -1144,7 +1144,7 @@ export default function UserDashboard({
             <button
               type="button"
               onClick={() => setActiveTab(16)}
-              className="px-2 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-(--color-bg-card-dark) dark:hover:bg-(--color-bg-subtle-dark) border-y border-r border-(--color-border) dark:border-(--color-border-dark) text-(--color-text-muted) dark:text-(--color-text-muted-dark) rounded-r-xl transition-all duration-200 cursor-pointer shadow-sm text-xs font-semibold"
+              className="px-2 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-(--color-bg-card-dark) dark:hover:bg-(--color-bg-subtle-dark) border-y border-r border-white/70 dark:border-white/70 text-(--color-text-muted) dark:text-(--color-text-muted-dark) rounded-r-xl transition-all duration-200 cursor-pointer shadow-sm text-xs font-semibold"
               title="View SOS History"
             >
               <Clock className="w-4 h-4" />
@@ -1155,7 +1155,7 @@ export default function UserDashboard({
 
           {/* User Profile Info Trigger */}
           <div
-            className="flex items-center gap-3 cursor-pointer group p-1 rounded-xl hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark)/60 transition-all"
+            className="flex items-center gap-3 cursor-pointer group p-1 px-3 border-x border-white/70 dark:border-white/70 rounded-xl hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark)/60 transition-all"
             onClick={() => setIsProfileModalOpen(true)}
             title="Edit Profile"
           >
@@ -1189,7 +1189,7 @@ export default function UserDashboard({
           <button
             type="button"
             onClick={onLogout}
-            className="flex items-center gap-2 px-3 py-2 bg-slate-100 hover:bg-rose-50 dark:bg-(--color-bg-card-dark) dark:hover:bg-rose-950/40 border border-(--color-border) dark:border-(--color-border-dark) text-slate-500 hover:text-rose-600 dark:text-(--color-text-muted) dark:hover:text-rose-400 rounded-xl transition-all duration-200 cursor-pointer shadow-sm text-xs font-semibold"
+            className="flex items-center gap-2 px-3 py-2 bg-slate-100 hover:bg-rose-50 dark:bg-(--color-bg-card-dark) dark:hover:bg-rose-950/40 border border-white/70 dark:border-white/70 text-slate-500 hover:text-rose-600 dark:text-(--color-text-muted) dark:hover:text-rose-400 rounded-xl transition-all duration-200 cursor-pointer shadow-sm text-xs font-semibold"
             title="Log Out"
           >
             <LogOut className="w-4 h-4" />

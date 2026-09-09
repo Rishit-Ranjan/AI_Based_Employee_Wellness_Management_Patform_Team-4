@@ -37,7 +37,7 @@ export default function ThemeToggle({ className = '' }) {
       onClick={toggleTheme}
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       title={isDark ? "Switch to light mode" : "Switch to dark mode"}
-      className={`relative inline-flex items-center justify-center p-2.5 rounded-xl text-slate-500 hover:text-slate-900 dark:text-(--color-text-muted) dark:hover:text-white bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm cursor-pointer ${className}`}
+      className={`relative inline-flex items-center justify-center p-2.5 rounded-xl text-slate-500 hover:text-slate-900 dark:text-(--color-text-muted) dark:hover:text-white bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-white/70 dark:border-white/70 transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm cursor-pointer ${className}`}
     >
             <Lightbulb
           className={`w-4 h-4 transition-all duration-300 ${
