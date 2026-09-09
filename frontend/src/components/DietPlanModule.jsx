@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Utensils, Flame, Droplet, Beef, Sparkles } from 'lucide-react';
+import { Utensils, Flame, Droplet, Beef, BrainCircuit } from 'lucide-react';
 import { generateDietPlan } from '../services/api';
 
 const DIET_TYPES = ['Vegetarian', 'Vegan', 'Non-Veg', 'Diabetic', 'Weight Loss', 'Weight Gain'];
@@ -90,7 +90,7 @@ export default function DietPlanModule() {
           </div>
 
           <div className="p-4 bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-800 rounded-xl flex items-start gap-2.5 text-xs text-indigo-800 dark:text-indigo-300">
-            <Sparkles className="w-4 h-4 shrink-0 mt-0.5" />
+            <BrainCircuit className="w-4 h-4 shrink-0 mt-0.5" />
             <span>This plan is a general guideline based on your selected diet type — adjust portions based on your activity level, and consult a nutritionist for medical conditions.</span>
           </div>
         </>

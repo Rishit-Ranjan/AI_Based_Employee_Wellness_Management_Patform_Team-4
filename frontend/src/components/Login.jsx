@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { login as loginApi } from '../services/api';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Activity, Sparkles, Shield, UserCheck, UserCog, Hash, HeartPulse } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Activity, BrainCircuit, Shield, UserCheck, UserCog, Hash, HeartPulse } from 'lucide-react';
 import FloatingSupportButton from './FloatingSupportButton';
 import CustomerSupportModal from './CustomerSupportModal'; // This will now import the new styled component
 
@@ -186,7 +186,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
         <div className="my-auto relative z-10 mt-8">
           <div className="max-w-md">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-850 border border-slate-800 rounded-full text-xxs text-slate-300 mb-6 font-medium">
-              <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+              <BrainCircuit className="w-3.5 h-3.5 text-indigo-400" />
               Empowering Healthy & Engaged Workforces
             </div>
             <h1 className="font-display text-5xl xl:text-6xl font-normal leading-[1.1] tracking-tight text-white mb-6">
@@ -212,7 +212,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
               <p className="text-xs text-(--color-text-muted) mt-2">Anonymized surveys tracking employee mental wellbeing.</p>
             </div>
             <div className="p-4 bg-slate-850 border border-slate-800 rounded-xl">
-              <Sparkles className="w-5 h-5 text-purple-400 mb-2" />
+              <BrainCircuit className="w-5 h-5 text-purple-400 mb-2" />
               <div className="text-sm font-semibold text-white">Personalized Recs</div>
               <p className="text-xs text-(--color-text-muted) mt-2">AI-driven suggestions for fitness, diet, and mental peace.</p>
             </div>

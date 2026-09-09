@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, Mail, MessageSquare, HelpCircle, LifeBuoy, Send, Check, ChevronDown,
-  Headphones, BookOpen, Clock, AlertCircle, Sparkles
+  Headphones, BookOpen, Clock, AlertCircle, BrainCircuit
 } from 'lucide-react';
 import { submitSupportTicket } from '../services/api';
 import LoginSupportChat from './LoginSupportChat';

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Edit, MoreHorizontal, Activity, TrendingUp, Lightbulb, Smile, BarChart3, LogOut,
-  Search, Plus, X, ShieldAlert, AlertCircle, Check, Sparkles, Dumbbell, Apple, Brain, Clock, ChevronLeft, ChevronRight, Menu, Calendar, UserX, Eye,
+  Search, Plus, X, ShieldAlert, AlertCircle, Check, BrainCircuit, Dumbbell, Apple, Brain, Clock, ChevronLeft, ChevronRight, Menu, Calendar, UserX, Eye,
   ShieldCheck, Bell, Receipt, CalendarCheck, Siren, Zap, Target, Users, LineChart, Cog, Save, Pencil
 } from 'lucide-react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ScatterChart, Scatter, ResponsiveContainer } from 'recharts';
@@ -1588,7 +1588,7 @@ export function RiskPredictionModule({ risks }) {
 
                 <div className="pt-4 border-t border-(--color-border) dark:border-(--color-border-dark) space-y-1.5">
                   <div className="text-[10px] font-bold text-(--color-text-primary) dark:text-(--color-text-primary-dark) uppercase tracking-wider flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+                    <BrainCircuit className="w-3.5 h-3.5 text-indigo-500" />
                     Prescribed Action
                   </div>
                   <p className="text-[11px] text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) leading-relaxed font-light font-sans">
@@ -2310,7 +2310,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
   const renderAiSummary = () => (
     <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 border border-indigo-100 dark:border-indigo-800/50 rounded-xl p-6 space-y-3">
       <div className="flex items-center gap-2">
-        <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+        <BrainCircuit className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
         <h3 className="font-display font-semibold text-indigo-900 dark:text-indigo-200">AI Wellness Report Summary</h3>
       </div>
       <p className="text-sm text-indigo-700 dark:text-indigo-300 leading-relaxed font-light">

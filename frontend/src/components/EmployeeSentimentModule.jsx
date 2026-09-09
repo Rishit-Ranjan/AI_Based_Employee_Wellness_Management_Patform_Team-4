@@ -7,7 +7,7 @@ import {
   Activity,
   TrendingUp,
   Check,
-  Sparkles,
+  BrainCircuit,
   MessageSquare,
   Zap,
   Calendar,
@@ -373,7 +373,7 @@ const stressScore = Number(userRecord?.stressScore) || 0;
             : 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800'
         }`}
       >
-        <Sparkles className={`w-5 h-5 shrink-0 mt-0.5 ${riskColor}`} />
+        <BrainCircuit className={`w-5 h-5 shrink-0 mt-0.5 ${riskColor}`} />
         <div>
           <h4 className={`text-xs font-bold uppercase tracking-wider ${riskColor}`}>
             Mental Wellness Insight

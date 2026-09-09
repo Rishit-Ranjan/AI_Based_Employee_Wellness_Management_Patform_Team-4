@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   User, Lightbulb, Bot, X, LogOut,
-  Dumbbell, Apple, Brain, Clock, HeartPulse, Sparkles, Check, ShieldAlert, AlertCircle, Smile, Send,
+  Dumbbell, Apple, Brain, Clock, HeartPulse, BrainCircuit, Check, ShieldAlert, AlertCircle, Smile, Send,
   CalendarCheck, Siren, Receipt, ShieldCheck, Target, FileDown, Utensils, Bell, ExternalLink, PlayCircle,
   Mic, MicOff, Volume2, Sun, Moon, Activity, Trash2, Menu, ChevronLeft, ChevronRight, Calendar
 } from 'lucide-react';
@@ -633,7 +633,7 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-gradient-to-br from-blue-50 to-white dark:from-(--color-bg-subtle-dark) dark:to-(--color-bg-card-dark) border border-blue-100 dark:border-(--color-border-dark) rounded-2xl p-6 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
-            <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <BrainCircuit className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">AI Daily Wellness Tip</h3>
           </div>
           <p className="text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) text-xs leading-relaxed font-light">
@@ -663,7 +663,7 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
             disabled={loadingRoutine}
             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white text-xs font-semibold rounded-xl transition-all cursor-pointer flex items-center gap-2 shadow-sm"
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            <BrainCircuit className="w-3.5 h-3.5" />
             {loadingRoutine ? 'Generating...' : 'Generate New Routine'}
           </button>
         </div>

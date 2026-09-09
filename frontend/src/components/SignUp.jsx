@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, User, Hash, Check, AlertCircle, HeartPulse, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, User, Hash, Check, AlertCircle, HeartPulse, BrainCircuit, CheckCircle2 } from 'lucide-react';
 import { signup as signupApi } from '../services/api';
 import FloatingSupportButton from './FloatingSupportButton';
 import CustomerSupportModal from './CustomerSupportModal';
