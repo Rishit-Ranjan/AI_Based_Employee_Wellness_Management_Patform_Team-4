@@ -1774,13 +1774,13 @@ export function SentimentModule({ sentimentList = [], healthRecords = [], onPuls
             const recentFeedback = feedbackLogs.slice(0, 3);
 
             return (
-              <div key={record.employeeId} className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-4 space-y-3 shadow-sm animate-fadeIn">
+              <div key={record.employeeId} className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-5 space-y-4 shadow-sm animate-fadeIn">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h5 className="font-semibold text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{record.employeeName}</h5>
-                    <p className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">{record.employeeId} - {record.department}</p>
+                    <h5 className="font-semibold text-base text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{record.employeeName}</h5>
+                    <p className="text-[11px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">{record.employeeId} - {record.department}</p>
                   </div>
-                  <div className={`px-2 py-0.5 rounded text-xs font-bold ${
+                  <div className={`px-2.5 py-1 rounded-md text-xs font-bold ${
                     stressLevel === 'High' ? 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300' :
                     stressLevel === 'Medium' ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300' :
                     'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300'
