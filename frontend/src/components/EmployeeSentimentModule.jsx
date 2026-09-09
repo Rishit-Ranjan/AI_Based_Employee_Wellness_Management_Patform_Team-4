@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import {
   Brain,
   Smile,
+  Meh,
   ShieldAlert,
   Activity,
   TrendingUp,
@@ -233,7 +234,7 @@ const stressScore = Number(userRecord?.stressScore) || 0;
 
               <div>
                 <div className="flex items-center justify-between text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) mb-1.5">
-                  <span className="flex items-center gap-1.5"><Smile className="w-4 h-4 text-(--color-text-muted)" /> Neutral</span>
+                  <span className="flex items-center gap-1.5"><Meh className="w-4 h-4 text-(--color-text-muted)" /> Neutral</span>
                   <span className="font-mono font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark)">{neutralPct}%</span>
                 </div>
                 <div className="w-full bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) h-2 rounded-full overflow-hidden">

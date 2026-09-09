@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trash2, Edit, MoreHorizontal, Activity, TrendingUp, Lightbulb, Smile, BarChart3, LogOut,
+import { Trash2, Edit, MoreHorizontal, Activity, TrendingUp, Lightbulb, Smile, Meh, BarChart3, LogOut,
   Search, Plus, X, ShieldAlert, AlertCircle, Check, BrainCircuit, Dumbbell, Apple, Brain, Clock, ChevronLeft, ChevronRight, Menu, Calendar, UserX, Eye,
   ShieldCheck, Bell, Receipt, CalendarCheck, Siren, Zap, Target, Users, LineChart, Cog, Save, Pencil
 } from 'lucide-react';
@@ -1811,7 +1811,7 @@ export function SentimentModule({ sentimentList = [], healthRecords = [], onPuls
                   </div>
 
                   <div className="flex items-center justify-between text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
-                    <span className="flex items-center gap-1.5"><Smile className="w-3.5 h-3.5 text-(--color-text-muted)" /> Neutral</span>
+                    <span className="flex items-center gap-1.5"><Meh className="w-3.5 h-3.5 text-(--color-text-muted)" /> Neutral</span>
                     <span className="font-mono font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark)">{sentimentDistribution.neutral}%</span>
                   </div>
                   <div className="w-full bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) h-1.5 rounded-full overflow-hidden">
@@ -2974,8 +2974,8 @@ export default function AdminDashboard({ user,
                     title={tab.label}
                     className={`w-full text-left p-4 rounded-lg flex items-start gap-3 transition-all cursor-pointer border ${
                       isActive
-                        ? 'bg-indigo-50 border-indigo-100 text-indigo-900 font-semibold'
-                        : 'hover:bg-slate-50 border-transparent text-slate-500'
+                        ? 'bg-indigo-50 border-indigo-100 text-indigo-900 dark:bg-indigo-950/60 dark:border-indigo-800 dark:text-indigo-300 font-semibold'
+                        : 'hover:bg-slate-50 dark:hover:bg-(--color-bg-subtle-dark) border-transparent text-slate-500 dark:text-(--color-text-secondary-dark)'
                     }`}
                   >
                     <Icon className={`w-5 h-5 shrink-0 mt-0.5 ${isActive ? 'text-indigo-600' : 'text-(--color-text-muted)'}`} />
@@ -3034,8 +3034,8 @@ export default function AdminDashboard({ user,
                           }}
                           className={`w-full text-left p-3.5 rounded-lg flex items-start gap-3.5 transition-all cursor-pointer border ${
                             isActive
-                              ? 'bg-indigo-50 border-indigo-100 text-indigo-900 font-semibold'
-                              : 'hover:bg-slate-50 border-transparent text-slate-500'
+                              ? 'bg-indigo-50 border-indigo-100 text-indigo-900 dark:bg-indigo-950/60 dark:border-indigo-800 dark:text-indigo-300 font-semibold'
+                              : 'hover:bg-slate-50 dark:hover:bg-(--color-bg-subtle-dark) border-transparent text-slate-500 dark:text-(--color-text-secondary-dark)'
                           }`}
                         >
                           <Icon className={`w-5 h-5 shrink-0 mt-0.5 ${isActive ? 'text-indigo-600' : 'text-(--color-text-muted)'}`} />

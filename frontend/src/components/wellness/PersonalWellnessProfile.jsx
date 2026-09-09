@@ -1037,7 +1037,7 @@ smoker: smoker,
                 { label: '☕', name: 'Tired' },
                 { label: '⚡', name: 'Stressed' },
                 { label: '📉', name: 'Burned' },
-                { label: '🤔', name: 'Neutral' },
+                { label: '😐', name: 'Neutral' },
               ].map((m) => (
                 <button
                   key={m.name}
