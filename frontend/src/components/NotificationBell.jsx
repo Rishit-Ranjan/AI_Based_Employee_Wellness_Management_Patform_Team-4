@@ -54,7 +54,7 @@ export default function NotificationBell({ isAdmin = false, onAdminClick, refres
     <div className="relative">
       <button
         onClick={() => (isAdmin ? onAdminClick() : setOpen(!open))}
-        className="relative p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-(--color-bg-card-dark) dark:hover:bg-(--color-bg-subtle-dark) border border-white/70 dark:border-white/70 text-(--color-text-muted) dark:text-(--color-text-secondary-dark) rounded-lg cursor-pointer transition-all duration-200 shadow-sm"
+        className="relative p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-(--color-bg-card-dark) dark:hover:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-white/12 text-(--color-text-muted) dark:text-(--color-text-secondary-dark) rounded-lg cursor-pointer transition-all duration-200 shadow-sm"
       >
         <Bell className="w-4 h-4" />
         {unreadCount > 0 && (

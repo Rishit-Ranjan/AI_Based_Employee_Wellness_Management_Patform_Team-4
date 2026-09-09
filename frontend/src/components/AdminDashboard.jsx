@@ -2866,7 +2866,7 @@ export default function AdminDashboard({ user,
             </div>
           </div>
 
-          <div className="h-6 w-px bg-white/70 dark:bg-white/70 hidden md:block" />
+          <div className="h-6 w-px bg-(--color-border) dark:bg-white/12 hidden md:block" />
 
           {/* User Greeting & Date Header */}
           <div className="hidden md:block">
@@ -2885,7 +2885,7 @@ export default function AdminDashboard({ user,
           {/* System Settings Button */}
           <button
             onClick={() => setActiveTab(11)}
-            className="p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-(--color-bg-card-dark) dark:hover:bg-(--color-bg-subtle-dark) border border-white/70 dark:border-white/70 text-(--color-text-muted) dark:text-(--color-text-muted-dark) rounded-xl transition-all duration-200 cursor-pointer shadow-sm"
+            className="p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-(--color-bg-card-dark) dark:hover:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-white/12 text-(--color-text-muted) dark:text-(--color-text-muted-dark) rounded-xl transition-all duration-200 cursor-pointer shadow-sm"
             title="System Settings"
           >
             <Cog className="w-4 h-4" />
@@ -2897,10 +2897,10 @@ export default function AdminDashboard({ user,
           {/* Notification Bell */}
           <NotificationBell isAdmin={true} onAdminClick={() => setIsNotifCenterOpen(true)} refreshKey={notifRefreshKey} />
 
-          <div className="h-6 w-px bg-white/70 dark:bg-white/70 hidden sm:block" />
+          <div className="h-6 w-px bg-(--color-border) dark:bg-white/12 hidden sm:block" />
 
           <div
-            className="flex items-center gap-3 cursor-pointer group p-1 px-3 border-x border-white/70 dark:border-white/70 rounded-xl hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark)/60 transition-all"
+            className="flex items-center gap-3 cursor-pointer group p-1 px-3 border-x border-(--color-border) dark:border-white/12 rounded-xl hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark)/60 transition-all"
             onClick={() => setIsProfileModalOpen(true)}
             title="Edit Profile"
           >
@@ -2927,7 +2927,7 @@ export default function AdminDashboard({ user,
 
           <button
             onClick={onLogout}
-            className="flex items-center gap-2 px-3 py-2 bg-slate-100 hover:bg-rose-50 dark:bg-(--color-bg-card-dark) dark:hover:bg-rose-950/40 border border-white/70 dark:border-white/70 text-slate-500 hover:text-rose-600 dark:text-(--color-text-muted) dark:hover:text-rose-400 rounded-xl transition-all duration-200 cursor-pointer shadow-sm text-xs font-semibold"
+            className="flex items-center gap-2 px-3 py-2 bg-slate-100 hover:bg-rose-50 dark:bg-(--color-bg-card-dark) dark:hover:bg-rose-950/40 border border-(--color-border) dark:border-white/12 text-slate-500 hover:text-rose-600 dark:text-(--color-text-muted) dark:hover:text-rose-400 rounded-xl transition-all duration-200 cursor-pointer shadow-sm text-xs font-semibold"
             title="Log Out"
           >
             <LogOut className="w-4 h-4" />
