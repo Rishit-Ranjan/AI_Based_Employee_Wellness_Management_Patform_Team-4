@@ -35,6 +35,7 @@ import WellnessInsightsModule from '../WellnessInsightsModule';
 import WellnessProgressModule from './WellnessProgressModule';
 import DailyWellnessChecklist from './DailyWellnessChecklist';
 import SectionTitle from './SectionTitle';
+import { fetchHealthHistory } from '../../services/api';
 
 export default function PersonalWellnessProfile({
   user,
@@ -106,6 +107,7 @@ const [smoker, setSmoker] = useState(initialUserRecord.smoker || false);
   const [bloodGroup, setBloodGroup] = useState(initialUserRecord.bloodGroup || '');
   const [allergies, setAllergies] = useState(initialUserRecord.allergies || '');
   const [existingDiseases, setExistingDiseases] = useState(initialUserRecord.existingDiseases || '');
+  const [healthHistory, setHealthHistory] = useState([]);
 
   useEffect(() => {
     const currentRecord = records.find(r => r.employeeId === userEmpId);
@@ -135,6 +137,18 @@ setMedicalNotes(currentRecord.medicalNotes || '');
       setExistingDiseases(currentRecord.existingDiseases || '');
     }
   }, [records, userEmpId]);
+
+  useEffect(() => {
+    let active = true;
+    fetchHealthHistory(userEmpId)
+      .then((history) => {
+        if (active) setHealthHistory(Array.isArray(history) ? history : []);
+      })
+      .catch(() => {
+        if (active) setHealthHistory([]);
+      });
+    return () => { active = false; };
+  }, [userEmpId]);
 
   const [showSyncSuccess, setShowSyncSuccess] = useState(false);
   const [error, setError] = useState('');
@@ -332,6 +346,31 @@ smoker: smoker,
   // Estimated stats
   const healthScore = Math.max(40, 100 - riskScore);
   const caloriesBurned = Math.round(stepsCount * 0.04 + (Number(exercise) || 2) * 140 + 1350);
+  const historySnapshots = [...healthHistory]
+    .filter((entry) => entry.snapshotAt)
+    .sort((a, b) => new Date(a.snapshotAt) - new Date(b.snapshotAt))
+    .slice(-7);
+  const stressHistory = historySnapshots.map((entry, index) => ({
+    day: new Date(entry.snapshotAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    score: Number(entry.stressScore ?? entry.stressLevel) || 0,
+    index,
+  }));
+  const sleepHistory = historySnapshots.map((entry, index) => ({
+    day: new Date(entry.snapshotAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    hours: Number(entry.sleepHoursPerNight) || 0,
+    index,
+  }));
+  const bmiHistory = historySnapshots.map((entry, index) => ({
+    month: new Date(entry.snapshotAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    bmi: Number(entry.bmi) || 0,
+    index,
+  }));
+  const highStressCount = historySnapshots.filter((entry) => Number(entry.stressScore) >= 7 || entry.stressLevel === 'High').length;
+  const trendMessage = historySnapshots.length > 1
+    ? highStressCount > 0
+      ? `You've had ${highStressCount} high-stress check-in${highStressCount === 1 ? '' : 's'} in your recent history.`
+      : `Your recent check-ins show no high-stress readings.`
+    : 'Save your first check-in to start seeing your personal trends here.';
 
   return (
     <motion.div
@@ -340,6 +379,34 @@ smoker: smoker,
       transition={{ duration: 0.4 }}
             className="space-y-8 pb-12 lg:pr-16"
     >
+      <section className="rounded-2xl border border-emerald-200 dark:border-emerald-900/70 bg-emerald-50/80 dark:bg-emerald-950/25 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-300 font-mono">
+            <Check className="w-4 h-4" /> Today&apos;s wellness check-in
+          </div>
+          <h2 className="font-display text-lg font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) mt-1">How are you feeling today?</h2>
+          <p className="text-xs text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) mt-1">A quick private check-in helps you spot changes before they become patterns.</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => document.getElementById('today-wellness-check-in')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+          className="shrink-0 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition-colors cursor-pointer"
+        >
+          <Check className="w-4 h-4" /> Start check-in
+        </button>
+      </section>
+
+      <section className="rounded-2xl border border-(--color-border) dark:border-(--color-border-dark) bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">Your recent signals</span>
+            <h2 className="font-display text-base font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) mt-1">Personal history, not a generic score</h2>
+          </div>
+          <span className="text-[10px] font-mono text-(--color-text-muted) dark:text-(--color-text-muted-dark)">{historySnapshots.length} saved check-in{historySnapshots.length === 1 ? '' : 's'}</span>
+        </div>
+        <p className="text-xs text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) mt-3">{trendMessage}</p>
+      </section>
+
       {/* 1. Quick Stats Row (4 Stat Cards) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <StatCard
@@ -1000,19 +1067,19 @@ smoker: smoker,
       {/* 4. Recharts Visual Section (Weekly Stress, Sleep History, BMI Trend) */}
       <SectionTitle
         icon={Brain}
-        title="Self Analytics"
-        subtitle="Your mental wellness, sleep metrics, and body composition at a glance"
+        title="Your Wellness History"
+        subtitle="See how your sleep, stress, and body composition change over time"
       />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <HealthChart type="stress" extraProp={Number(stressScore) || 5} />
-        <HealthChart type="sleep" extraProp={8} />
-        <HealthChart type="bmi" extraProp={computedBmi()} />
+        <HealthChart type="stress" data={stressHistory.length ? stressHistory : undefined} extraProp={Number(stressScore) || 5} />
+        <HealthChart type="sleep" data={sleepHistory.length ? sleepHistory : undefined} extraProp={8} />
+        <HealthChart type="bmi" data={bmiHistory.length ? bmiHistory : undefined} extraProp={computedBmi()} />
       </div>
 
       {/* 5. Anonymized Department Pulse Check */}
       <ProfileCard
-        title="Anonymized Department Pulse Check"
-        subtitle="100% Encrypted & Aggregated Feedback"
+        title="Today's Wellness Check-in"
+        subtitle="Private stress and workload pulse"
         icon={Smile}
         badge="Privacy Protected"
         badgeColor="emerald"
@@ -1021,7 +1088,7 @@ smoker: smoker,
           Your individual input is aggregated into departmental wellness indexes without identifying information. Your scores help guide team load balancing.
         </p>
 
-        <form onSubmit={handlePulseSubmit} className="space-y-4">
+        <form id="today-wellness-check-in" onSubmit={handlePulseSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
             <div className="md:col-span-1 space-y-2">
               <div className="flex justify-between text-xs font-mono font-medium">

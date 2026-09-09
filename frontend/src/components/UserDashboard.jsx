@@ -1018,13 +1018,13 @@ export default function UserDashboard({
 
   const navTabs = [
     { id: 7, label: 'My Wellness Profile', icon: User, desc: 'Health vitals & personalized trackers' },
-    { id: 3, label: 'Personalized Recommender', icon: Lightbulb, desc: 'Fitness, diet & wellness routines' },
     { id: 15, label: 'My Mental Health & Sentiment', icon: Smile, desc: 'Personal stress & sentiment analysis' },
-    { id: 14, label: 'AI Wellness Assistant', icon: Brain, desc: 'Daily AI insights & routine engine' },
-    { id: 8, label: 'My Insurance', icon: ShieldCheck, desc: 'Coverage details & file claims' },
-    { id: 9, label: 'Diet Plans', icon: Utensils, desc: 'AI-generated meal schedules' },
     { id: 10, label: 'My Goals', icon: Target, desc: 'Track achievements & badges' },
     { id: 11, label: 'Health Reports', icon: FileDown, desc: 'Download PDF reports & view history' },
+    { id: 3, label: 'AI Recommendations', icon: Lightbulb, desc: 'Optional routines based on your data' },
+    { id: 14, label: 'AI Wellness Assistant', icon: Brain, desc: 'Optional daily coaching support' },
+    { id: 8, label: 'My Insurance', icon: ShieldCheck, desc: 'Coverage details & file claims' },
+    { id: 9, label: 'Diet Plans', icon: Utensils, desc: 'AI-generated meal schedules' },
     { id: 12, label: 'Health Checkups', icon: CalendarCheck, desc: 'Schedule & manage appointments' },
     { id: 13, label: 'Expenses', icon: Receipt, desc: 'Track health expense claims' },
   ];
