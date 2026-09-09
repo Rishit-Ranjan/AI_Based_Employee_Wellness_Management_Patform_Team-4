@@ -22,11 +22,11 @@
   --color-text-muted: #64748b;
 
   /* ── Semantic color tokens (dark — deeper, richer) ── */
-  --color-bg-dark: #060a12;
-  --color-bg-card-dark: #0d1219;
-  --color-bg-subtle-dark: #151c26;
-  --color-border-dark: #334155;
-  --color-border-strong-dark: #475569;
+  --color-bg-dark: #101214;
+  --color-bg-card-dark: #17191b;
+  --color-bg-subtle-dark: #222528;
+  --color-border-dark: #303438;
+  --color-border-strong-dark: #41464b;
   --color-text-primary-dark: #e8edf4;
   --color-text-secondary-dark: #b0bccd;
   --color-text-muted-dark: #7a8a9e;
