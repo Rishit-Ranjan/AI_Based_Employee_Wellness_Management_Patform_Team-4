@@ -122,10 +122,10 @@ export default function DailyWellnessChecklist({
         .dark .checkbox-scroll::-webkit-scrollbar-thumb { background: var(--color-border-strong-dark); }
       `}</style>
       <div className="flex items-start justify-between mb-1">
-        <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2">
+        <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2">
           <CheckCircle2 className="w-5 h-5 text-emerald-500" /> Today's Wellness Checklist
         </h3>
-        <span className="text-[10px] font-mono text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider pt-0.5">
+        <span className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider pt-0.5">
           {doneCount}/{total} done
         </span>
       </div>

@@ -152,7 +152,7 @@ const stressScore = Number(userRecord?.stressScore) || 0;
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-2xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[10px] font-bold text-(--color-text-muted) uppercase tracking-wider font-mono">Stress Index</span>
+            <span className="text-[10px] font-bold text-(--color-text-muted) uppercase tracking-wider">Stress Index</span>
             <Zap className="w-4 h-4 text-amber-400" />
           </div>
           <div className="flex items-baseline gap-1">
@@ -169,7 +169,7 @@ const stressScore = Number(userRecord?.stressScore) || 0;
 
         <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-2xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[10px] font-bold text-(--color-text-muted) uppercase tracking-wider font-mono">Latest Mood</span>
+            <span className="text-[10px] font-bold text-(--color-text-muted) uppercase tracking-wider">Latest Mood</span>
             <Smile className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="text-2xl font-display font-bold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{latestMood}</div>
@@ -178,7 +178,7 @@ const stressScore = Number(userRecord?.stressScore) || 0;
 
         <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-2xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[10px] font-bold text-(--color-text-muted) uppercase tracking-wider font-mono">Pulse Checks</span>
+            <span className="text-[10px] font-bold text-(--color-text-muted) uppercase tracking-wider">Pulse Checks</span>
             <MessageSquare className="w-4 h-4 text-indigo-400" />
           </div>
           <div className="text-3xl font-display font-bold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{totalLogs}</div>
@@ -187,7 +187,7 @@ const stressScore = Number(userRecord?.stressScore) || 0;
 
         <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-2xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[10px] font-bold text-(--color-text-muted) uppercase tracking-wider font-mono">Assessment</span>
+            <span className="text-[10px] font-bold text-(--color-text-muted) uppercase tracking-wider">Assessment</span>
             <Check className="w-4 h-4 text-sky-400" />
           </div>
           <div className="text-2xl font-display font-bold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{healthAssessment}</div>
@@ -204,7 +204,7 @@ const stressScore = Number(userRecord?.stressScore) || 0;
               <TrendingUp className="w-4 h-4" />
             </span>
             <div>
-              <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-sm">
+              <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-sm">
                 Your Sentiment Distribution
               </h3>
               <p className="text-xs text-(--color-text-muted) mt-0.5">Positive / Neutral / Negative breakdown from pulse feedback</p>
@@ -261,7 +261,7 @@ const stressScore = Number(userRecord?.stressScore) || 0;
               <MessageSquare className="w-4 h-4" />
             </span>
             <div>
-              <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-sm">Recent Feedback Logs</h3>
+              <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-sm">Recent Feedback Logs</h3>
               <p className="text-xs text-(--color-text-muted) mt-0.5">Your latest pulse check submissions</p>
             </div>
           </div>

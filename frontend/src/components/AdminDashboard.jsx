@@ -581,12 +581,12 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
 
       {/* Add Record Modal Popup */}
       {isAddOpen && (
-        <div className="fixed inset-0 bg-slate-900/60  flex items-center justify-center p-4 z-50 animate-fadeIn">
+        <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50 animate-fadeIn">
           <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl border border-(--color-border) dark:border-(--color-border-dark) w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh]">
             <div className="bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border-b border-(--color-border) dark:border-(--color-border-dark) px-6 py-4 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2">
                 <Activity className="w-5 h-5 text-(--color-text-primary) dark:text-(--color-text-primary-dark)" />
-                <h3 className="font-display font-semibold text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark)">
+                <h3 className="font-semibold text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark)">
                   {editingRecord ? 'Update Employee Health Record' : 'Add New Employee Health Record'}
                 </h3>
               </div>
@@ -839,12 +839,12 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
 
       {/* View Details Modal Popup */}
       {isViewDetailsOpen && viewingRecord && (
-        <div className="fixed inset-0 bg-slate-900/60  flex items-center justify-center p-4 z-50 animate-fadeIn">
+        <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50 animate-fadeIn">
           <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl border border-(--color-border) dark:border-(--color-border-dark) w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh]">
             <div className="bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border-b border-(--color-border) dark:border-(--color-border-dark) px-6 py-4 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2">
                 <Activity className="w-5 h-5 text-(--color-text-primary) dark:text-(--color-text-primary-dark)" />
-                <h3 className="font-display font-semibold text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark)">
+                <h3 className="font-semibold text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark)">
                   Health Record Details for {viewingRecord.employeeName}
                 </h3>
               </div>
@@ -1193,7 +1193,7 @@ function UserManagementModule({ allUsers, healthRecords, onDeleteUser, onUpdateU
 
       <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-xl border border-(--color-border) dark:border-(--color-border-dark) shadow-sm overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider font-mono">
+          <thead className="bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider">
             <tr>
               <th className="px-6 py-3 text-left font-semibold">Employee</th>
               <th className="px-6 py-3 text-left font-semibold">Department</th>
@@ -1260,7 +1260,7 @@ function UserManagementModule({ allUsers, healthRecords, onDeleteUser, onUpdateU
       {/* Edit User Modal */}
       {editingId && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60  animate-fadeIn p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 animate-fadeIn p-4"
           onClick={cancelEdit}
         >
           <div
@@ -1357,7 +1357,7 @@ function UserManagementModule({ allUsers, healthRecords, onDeleteUser, onUpdateU
 
       {pendingDelete && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60  animate-fadeIn p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 animate-fadeIn p-4"
           onClick={() => setPendingDelete(null)}
         >
           <div
@@ -1446,7 +1446,7 @@ export function RiskPredictionModule({ risks }) {
           }`}
         >
           <div className="flex justify-between items-start text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
-            <span className="text-[10px] font-bold uppercase tracking-wider font-mono">All Risks</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider">All Risks</span>
             <Users className="w-4 h-4 text-blue-500" />
           </div>
           <div className="flex items-baseline gap-1.5 mt-2">
@@ -1463,7 +1463,7 @@ export function RiskPredictionModule({ risks }) {
           }`}
         >
           <div className="flex justify-between items-start text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
-            <span className="text-[10px] font-bold uppercase tracking-wider font-mono">High Severity</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider">High Severity</span>
             <ShieldAlert className="w-4 h-4 text-red-500" />
           </div>
           <div className="flex items-baseline gap-1.5 mt-2">
@@ -1480,7 +1480,7 @@ export function RiskPredictionModule({ risks }) {
           }`}
         >
           <div className="flex justify-between items-start text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
-            <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Moderate Severity</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider">Moderate Severity</span>
             <AlertCircle className="w-4 h-4 text-amber-500" />
           </div>
           <div className="flex items-baseline gap-1.5 mt-2">
@@ -1497,7 +1497,7 @@ export function RiskPredictionModule({ risks }) {
           }`}
         >
           <div className="flex justify-between items-start text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
-            <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Low Severity</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider">Low Severity</span>
             <Check className="w-4 h-4 text-emerald-500" />
           </div>
           <div className="flex items-baseline gap-1.5 mt-2">
@@ -1576,7 +1576,7 @@ export function RiskPredictionModule({ risks }) {
                 </div>
 
                 <div className="space-y-1.5">
-                  <div className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest font-mono">Triggers Detected</div>
+                  <div className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest">Triggers Detected</div>
                   <div className="flex flex-wrap gap-1.5">
                     {risk.factors.map((factor, idx) => (
                       <span key={idx} className="px-2 py-0.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) text-[10px] rounded-md font-medium">
@@ -1686,7 +1686,7 @@ export function RecommendationModule({ recommendations = [], loading }) {
                         </span>
                       </div>
                       <div>
-                        <h5 className=" text-[14px] font-semibold text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{rec.title}</h5>
+                        <h5 className="text-[14px] font-semibold text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{rec.title}</h5>
                         <p className="text-[13px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) mt-1 leading-relaxed font-light">{rec.description}</p>
                       </div>
                       {rec.reasons && rec.reasons.length > 0 && (
@@ -1789,7 +1789,7 @@ export function SentimentModule({ sentimentList = [], healthRecords = [], onPuls
                 
                 <div className="text-center border-t border-b border-(--color-border) dark:border-(--color-border-dark) py-2">
                   <div className="text-2xl font-bold font-display text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{stressScore}<span className="text-xs text-(--color-text-muted)">/10</span></div>
-                  <div className="text-[9px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono uppercase">Stress Score</div>
+                  <div className="text-[9px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase">Stress Score</div>
                 </div>
 
                 <div className="flex justify-between text-xs items-center">
@@ -1828,7 +1828,7 @@ export function SentimentModule({ sentimentList = [], healthRecords = [], onPuls
                 </div>
 
                 <div className="pt-3 border-t border-(--color-border) dark:border-(--color-border-dark)">
-                  <p className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider font-mono">Recent Feedback</p>
+                  <p className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider">Recent Feedback</p>
                   <ul className="space-y-1 mt-1.5">
                     {recentFeedback.length > 0 ? recentFeedback.map((log, idx) => (
                       <li key={idx} className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-light flex items-start gap-2">
@@ -2265,7 +2265,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
 
 <div className="space-y-4">
                 <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-4 text-center">
-                  <div className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider font-mono mb-2">Stress Index</div>
+                  <div className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-2">Stress Index</div>
                   <div className={`text-4xl font-display font-bold ${avgStress >= 7 ? 'text-rose-600' : avgStress >= 5 ? 'text-amber-600' : 'text-emerald-600'}`}>{avgStress}</div>
                   <div className="text-[9px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono mt-1">/ 10</div>
                 </div>
@@ -2275,7 +2275,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
             {/* Feedback Logger: recent raw feedback entries per department */}
             {(Array.isArray(sent.feedbackLogs) && sent.feedbackLogs.length > 0) && (
               <div className="pt-3 border-t border-(--color-border) dark:border-(--color-border-dark)">
-                <div className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider font-mono mb-1.5">
+                <div className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">
                   Recent Feedback Logger
                 </div>
                 <ul className="space-y-1.5">
@@ -2348,7 +2348,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-xl border border-(--color-border) dark:border-(--color-border-dark) shadow-sm p-5 space-y-3 animate-pulse">
             <div className="flex justify-between items-center text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
-              <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Participation Rate</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider">Participation Rate</span>
               <Activity className="w-4 h-4 text-indigo-500" />
             </div>
             <div className="flex items-baseline gap-1.5">
@@ -2362,7 +2362,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
 
           <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-xl border border-(--color-border) dark:border-(--color-border-dark) shadow-sm p-5 space-y-3 animate-pulse">
             <div className="flex justify-between items-center text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
-              <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Absenteeism Rate</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider">Absenteeism Rate</span>
               <TrendingUp className="w-4 h-4 text-rose-500" />
             </div>
             <div className="flex items-baseline gap-1.5">
@@ -2376,7 +2376,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
 
           <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-xl border border-(--color-border) dark:border-(--color-border-dark) shadow-sm p-5 space-y-3 animate-pulse">
             <div className="flex justify-between items-center text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
-              <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Workforce Risk</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider">Workforce Risk</span>
               <ShieldAlert className="w-4 h-4 text-amber-500" />
             </div>
             <div className="flex items-baseline gap-1.5">
@@ -2390,7 +2390,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
 
           <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-xl border border-(--color-border) dark:border-(--color-border-dark) shadow-sm p-5 space-y-3 animate-pulse">
             <div className="flex justify-between items-center text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
-              <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Effectiveness</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider">Effectiveness</span>
               <Smile className="w-4 h-4 text-emerald-500" />
             </div>
             <div className="flex items-baseline gap-1.5">
@@ -2433,7 +2433,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-xl border border-(--color-border) dark:border-(--color-border-dark) shadow-sm p-5 space-y-3">
           <div className="flex justify-between items-center text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
-            <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Participation Rate</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider">Participation Rate</span>
             <Activity className="w-4 h-4 text-indigo-500" />
           </div>
           <div className="flex items-baseline gap-1.5">
@@ -2447,7 +2447,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
 
         <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-xl border border-(--color-border) dark:border-(--color-border-dark) shadow-sm p-5 space-y-3">
           <div className="flex justify-between items-center text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
-            <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Absenteeism Rate</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider">Absenteeism Rate</span>
             <TrendingUp className="w-4 h-4 text-rose-500" />
           </div>
           <div className="flex items-baseline gap-1.5">
@@ -2461,7 +2461,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
 
         <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-xl border border-(--color-border) dark:border-(--color-border-dark) shadow-sm p-5 space-y-3">
           <div className="flex justify-between items-center text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
-            <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Workforce Risk</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider">Workforce Risk</span>
             <ShieldAlert className="w-4 h-4 text-amber-500" />
           </div>
           <div className="flex items-baseline gap-1.5">
@@ -2475,7 +2475,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
 
         <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-xl border border-(--color-border) dark:border-(--color-border-dark) shadow-sm p-5 space-y-3">
           <div className="flex justify-between items-center text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
-            <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Effectiveness</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider">Effectiveness</span>
             <Smile className="w-4 h-4 text-emerald-500" />
           </div>
           <div className="flex items-baseline gap-1.5">
@@ -2516,7 +2516,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
             <div key={r.id} className="p-4 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl space-y-2 text-center transition-all hover:border-(--color-border-strong) dark:hover:border-(--color-border-strong-dark) shadow-xs">
               <div className="w-1.5 h-1.5 bg-slate-400 dark:bg-slate-500 rounded-full mx-auto" />
               <div className="font-semibold text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) truncate">{r.employeeName}</div>
-              <div className="text-[9px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider font-mono">{r.department}</div>
+              <div className="text-[9px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider">{r.department}</div>
               <div className="grid grid-cols-2 gap-1 text-[10px] font-mono bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) p-2 rounded border border-slate-150 dark:border-(--color-border-dark) mt-2">
                 <div>
                   <span className="block text-[8px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase font-sans">Sleep</span>
@@ -2609,7 +2609,7 @@ function SystemSettingsModule() {
       <p className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) mt-1 mb-4 font-light">{description}</p>
         </div>
         {title === "AI & Analytics" && (
-          <span className="px-2 py-1 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) text-(--color-text-muted) dark:text-(--color-text-muted-dark) text-[10px] font-mono font-bold rounded-md uppercase tracking-wider">
+          <span className="px-2 py-1 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) text-(--color-text-muted) dark:text-(--color-text-muted-dark) text-[10px] font-bold rounded-md uppercase tracking-wider">
             Active: Ollama
           </span>
         )}
@@ -2803,7 +2803,7 @@ export default function AdminDashboard({ user,
     <div className="h-screen overflow-hidden bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) text-(--color-text-primary) dark:text-(--color-text-primary-dark) flex flex-col font-sans transition-colors duration-300">
       
       {isNotifCenterOpen && (
-        <div className="fixed inset-0 bg-slate-900/60  z-[100] flex items-center justify-center p-4 animate-fadeIn" onClick={() => { setIsNotifCenterOpen(false); setNotifRefreshKey(k => k + 1); }}>
+        <div className="fixed inset-0 bg-slate-900/60 z-[100] flex items-center justify-center p-4 animate-fadeIn" onClick={() => { setIsNotifCenterOpen(false); setNotifRefreshKey(k => k + 1); }}>
           <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl w-full max-w-3xl shadow-2xl border border-(--color-border) dark:border-(--color-border-dark) max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
             <div className="p-5 border-b border-(--color-border) dark:border-(--color-border-dark) flex items-center justify-between bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark)">
               <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) flex items-center gap-2"><Bell className="w-5 h-5 text-(--color-text-muted)" /> Notification Center</h3>
@@ -2839,7 +2839,7 @@ export default function AdminDashboard({ user,
         />
       )}
       {/* Platform Header */}
-      <header className="sticky top-0 z-40 bg-white/85 dark:bg-(--color-bg-dark)  border-b border-(--color-border) dark:border-(--color-border-dark) px-4 md:px-8 py-3.5 flex items-center justify-between transition-colors">
+      <header className="sticky top-0 z-40 bg-white/85 dark:bg-(--color-bg-dark) border-b border-(--color-border) dark:border-(--color-border-dark) px-4 md:px-8 py-3.5 flex items-center justify-between transition-colors">
         
         {/* Left: Mobile Menu Toggle & App Logo / Greeting */}
         <div className="flex items-center gap-3 md:gap-5">
@@ -2857,10 +2857,10 @@ export default function AdminDashboard({ user,
           <div className="flex items-center gap-3">
             <img src={logo} alt="App Logo" className="w-12 h-10" />
             <div className="hidden sm:block">
-              <span className="font-display font-bold text-base tracking-tight block text-(--color-text-primary) dark:text-(--color-text-primary-dark) leading-none">
+              <span className="font-bold text-base tracking-tight block text-(--color-text-primary) dark:text-(--color-text-primary-dark) leading-none">
                 AI-Based Employee Wellness Management Platform
               </span>
-              <span className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono uppercase tracking-widest font-semibold mt-1 block">
+              <span className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest font-semibold mt-1 block">
                 Wellness Intelligence
               </span>
             </div>
@@ -2870,7 +2870,7 @@ export default function AdminDashboard({ user,
 
           {/* User Greeting & Date Header */}
           <div className="hidden md:block">
-            <h2 className="font-display font-semibold text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark) flex items-center gap-1.5">
+            <h2 className="font-semibold text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark) flex items-center gap-1.5">
               {getGreeting()}, {firstName} 👋
             </h2>
             <p className="text-[11px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono flex items-center gap-1 mt-0.5">
@@ -2907,7 +2907,7 @@ export default function AdminDashboard({ user,
             <div className="hidden sm:block text-right">
               <span className="block text-sm font-bold text-(--color-text-primary) dark:text-(--color-text-primary-dark) leading-tight group-hover:text-blue-600 transition-colors">{user.name}</span>
               <span className="block text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">{user.adminId}</span>
-              <span className="inline-block mt-1 px-2 py-0.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) text-[9px] font-mono font-bold rounded uppercase tracking-widest leading-none">
+              <span className="inline-block mt-1 px-2 py-0.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) text-[9px] font-bold rounded uppercase tracking-widest leading-none">
                 Administrator
               </span>
             </div>
@@ -2949,7 +2949,7 @@ export default function AdminDashboard({ user,
             <div className="shrink-0">
               <div className="flex items-center justify-between px-2 py-1 mb-4">
                 {!isSidebarCollapsed && (
-                  <span className="text-[13px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest font-mono">
+                  <span className="text-[13px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest">
                     Admin Navigation
                   </span>
                 )}
@@ -3001,7 +3001,7 @@ export default function AdminDashboard({ user,
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="lg:hidden fixed inset-0 z-50 bg-slate-900/60  flex"
+              className="lg:hidden fixed inset-0 z-50 bg-slate-900/60 flex"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               <motion.aside
@@ -3057,7 +3057,7 @@ export default function AdminDashboard({ user,
           {/* Active module display card header */}
           <div className="mb-6 pb-4 border-b border-white/20 dark:border-white/20 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800/60 rounded-md text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest font-mono mb-2">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800/60 rounded-md text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-2">
                 {adminNavTabs.find(tab => tab.id === activeTab)?.label || 'Admin Module'}
               </div>
               <h1 className="font-display text-2xl md:text-3xl font-bold text-(--color-text-primary) dark:text-(--color-text-primary-dark) tracking-tight">
@@ -3088,7 +3088,7 @@ export default function AdminDashboard({ user,
               </p>
             </div>
             <div className="min-w-[220px] rounded-3xl bg-slate-50/80 dark:bg-(--color-bg-dark) border border-white/20 dark:border-white/20 p-4">
-              <span className="text-[10px] font-bold text-(--color-text-muted) uppercase tracking-wider font-mono block mb-2">
+              <span className="text-[10px] font-bold text-(--color-text-muted) uppercase tracking-wider block mb-2">
                 System Vitals
               </span>
               <div className="text-sm font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) mb-1">

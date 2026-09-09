@@ -148,8 +148,8 @@ export function RecommendationModule({ recommendations, loading = false, onPlayV
                 </div>
 
                 <div>
-                  <h4 className="text-[17px] font-display font-semibold text-base text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{rec.title}</h4>
-                  <p className=" text-(--color-text-muted) dark:text-(--color-text-muted-dark) text-[15px] mt-1.5 leading-relaxed font-light">
+                  <h4 className="text-[17px] font-semibold text-base text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{rec.title}</h4>
+                  <p className="text-(--color-text-muted) dark:text-(--color-text-muted-dark) text-[15px] mt-1.5 leading-relaxed font-light">
                     {rec.description}
                   </p>
                 </div>
@@ -160,7 +160,7 @@ export function RecommendationModule({ recommendations, loading = false, onPlayV
               {/* NEW: Display multiple video thumbnails */}
               {rec.videoUrls && rec.videoUrls.length > 0 && (
                 <div className="pt-3">
-                  <p className="text-[13px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider font-mono mb-2">
+                  <p className="text-[13px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-2">
                     Video Recommendations for You
                   </p>
                   <div className="grid grid-cols-2 gap-2">
@@ -182,13 +182,13 @@ export function RecommendationModule({ recommendations, loading = false, onPlayV
               <div className="flex items-center justify-between pt-4 border-t border-(--color-border) dark:border-(--color-border-dark)">
                 <div className="flex items-center gap-1.5">
                   <span className={`w-2 h-2 rounded-full ${rec.severity === 'High' ? 'bg-red-500' : rec.severity === 'Medium' ? 'bg-amber-500' : 'bg-blue-500'}`} />
-                  <span className="text-[13px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase font-mono">{rec.severity} Severity</span>
+                  <span className="text-[13px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase">{rec.severity} Severity</span>
                 </div>
               </div>
 
               {rec.reasons && rec.reasons.length > 0 && (
                 <div className="pt-3 border-t border-(--color-border) dark:border-(--color-border-dark)">
-                  <p className="text-[12.5px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider font-mono">Why this is recommended for you:</p>
+                  <p className="text-[12.5px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider">Why this is recommended for you:</p>
                   <ul className="list-disc list-inside space-y-0.5 mt-1">
                     {rec.reasons.map((reason, i) => (
                       <li key={i} className="text-[12px] text-(--color-text-secondary) dark:text-(--color-text-secondary-dark)">{reason}</li>
@@ -581,7 +581,7 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-2xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider font-mono">Sleep Score</span>
+            <span className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider">Sleep Score</span>
             <Moon className="w-4 h-4 text-indigo-400" />
           </div>
           <div className="flex items-baseline gap-1.5">
@@ -595,7 +595,7 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
 
         <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-2xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider font-mono">Stress Index</span>
+            <span className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider">Stress Index</span>
             <Activity className="w-4 h-4 text-amber-400" />
           </div>
           <div className="flex items-baseline gap-1.5">
@@ -609,7 +609,7 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
 
         <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-2xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider font-mono">Activity Level</span>
+            <span className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider">Activity Level</span>
             <Dumbbell className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="flex items-baseline gap-1.5">
@@ -620,7 +620,7 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
 
         <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-2xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider font-mono">Nutrition</span>
+            <span className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider">Nutrition</span>
             <Apple className="w-4 h-4 text-sky-400" />
           </div>
           <div className="flex items-baseline gap-1.5">
@@ -673,7 +673,7 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
             <div className="bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded-xl p-4 border border-(--color-border) dark:border-(--color-border-dark)">
               <div className="flex items-center gap-2 mb-3">
                 <Sun className="w-4 h-4 text-amber-500" />
-                <h4 className="text-xs font-bold text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) uppercase font-mono">Morning</h4>
+                <h4 className="text-xs font-bold text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) uppercase">Morning</h4>
               </div>
               <ul className="space-y-2">
                 {routine.morning?.map((item, i) => (
@@ -688,7 +688,7 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
             <div className="bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded-xl p-4 border border-(--color-border) dark:border-(--color-border-dark)">
               <div className="flex items-center gap-2 mb-3">
                 <Clock className="w-4 h-4 text-sky-500" />
-                <h4 className="text-xs font-bold text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) uppercase font-mono">Afternoon</h4>
+                <h4 className="text-xs font-bold text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) uppercase">Afternoon</h4>
               </div>
               <ul className="space-y-2">
                 {routine.afternoon?.map((item, i) => (
@@ -703,7 +703,7 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
             <div className="bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded-xl p-4 border border-(--color-border) dark:border-(--color-border-dark)">
               <div className="flex items-center gap-2 mb-3">
                 <Moon className="w-4 h-4 text-indigo-400" />
-                <h4 className="text-xs font-bold text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) uppercase font-mono">Evening</h4>
+                <h4 className="text-xs font-bold text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) uppercase">Evening</h4>
               </div>
               <ul className="space-y-2">
                 {routine.evening?.map((item, i) => (
@@ -978,7 +978,7 @@ export default function UserDashboard({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-slate-900/60  flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-slate-900/60 flex items-center justify-center p-4"
             onClick={() => setIsSosModalOpen(false)}
           >
             <motion.div
@@ -1007,7 +1007,7 @@ export default function UserDashboard({
       </AnimatePresence>
       
       {/* 1. Header with Page Icon, Greeting, Date & Dark Mode Toggle */}
-      <header className="sticky top-0 z-40 bg-white/85 dark:bg-(--color-bg-dark)  border-b border-(--color-border) dark:border-(--color-border-dark) px-4 md:px-8 py-3.5 flex items-center justify-between transition-colors">
+      <header className="sticky top-0 z-40 bg-white/85 dark:bg-(--color-bg-dark) border-b border-(--color-border) dark:border-(--color-border-dark) px-4 md:px-8 py-3.5 flex items-center justify-between transition-colors">
         
         {/* Left: Mobile Menu Toggle & App Logo / Greeting */}
         <div className="flex items-center gap-3 md:gap-5">
@@ -1025,10 +1025,10 @@ export default function UserDashboard({
           <div className="flex items-center gap-3">
             <img src={logo} alt="App Logo" className="w-15 h-14" />
             <div className="hidden sm:block">
-              <span className="font-display font-bold text-base tracking-tight block text-(--color-text-primary) dark:text-(--color-text-primary-dark) leading-none">
+              <span className="font-bold text-base tracking-tight block text-(--color-text-primary) dark:text-(--color-text-primary-dark) leading-none">
                 AI-Based Employee Wellness Management Platform
               </span>
-              <span className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono uppercase tracking-widest font-semibold mt-1 block">
+              <span className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest font-semibold mt-1 block">
                 Wellness Intelligence
               </span>
             </div>
@@ -1038,7 +1038,7 @@ export default function UserDashboard({
 
           {/* User Greeting & Date Header */}
           <div className="hidden md:block">
-            <h2 className="font-display font-semibold text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark) flex items-center gap-1.5">
+            <h2 className="font-semibold text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark) flex items-center gap-1.5">
               {getGreeting()}, {firstName} 👋
             </h2>
             <p className="text-[11px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono flex items-center gap-1 mt-0.5">
@@ -1093,7 +1093,7 @@ export default function UserDashboard({
               <span className="block text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">
                 {user.employeeId}
               </span>
-              <span className="inline-block mt-1 px-2 py-0.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) text-[9px] font-mono font-bold rounded uppercase tracking-widest leading-none">
+              <span className="inline-block mt-1 px-2 py-0.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) text-[9px] font-bold rounded uppercase tracking-widest leading-none">
                 Employee
               </span>
             </div>
@@ -1155,7 +1155,7 @@ export default function UserDashboard({
           <div className="shrink-0 mb-4">
             <div className="flex items-center justify-between px-2 py-1">
               {!isSidebarCollapsed && (
-                <span className="text-[12px] font-semibold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider font-mono">
+                <span className="text-[12px] font-semibold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider">
                   Modules Navigation
                 </span>
               )}
@@ -1205,7 +1205,7 @@ export default function UserDashboard({
           {!isSidebarCollapsed && (
             <div className="pt-4 border-t border-(--color-border) dark:border-(--color-border-dark)">
               <div className="bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded-xl p-3.5 border border-(--color-border) dark:border-(--color-border-dark)/60">
-                <span className="text-[10px] font-bold text-(--color-text-muted) uppercase tracking-wider font-mono block mb-1">System Vitals</span>
+                <span className="text-[10px] font-bold text-(--color-text-muted) uppercase tracking-wider block mb-1">System Vitals</span>
                 <div className="text-xs font-bold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">
                   Analytics Active
                 </div>
@@ -1230,7 +1230,7 @@ export default function UserDashboard({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="lg:hidden fixed inset-0 z-50 bg-slate-900/60  flex"
+              className="lg:hidden fixed inset-0 z-50 bg-slate-900/60 flex"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               <motion.aside
@@ -1302,7 +1302,7 @@ export default function UserDashboard({
           {/* Active module title header */}
           <div className="mb-6 pb-4 border-b border-white/20 dark:border-white/20 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800/60 rounded-md text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest font-mono mb-2">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800/60 rounded-md text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-2">
                 {activeTab === 7 ? 'SaaS Portal' : activeTab === 15 ? 'Mental Wellness' : activeTab === 3 ? 'AI Recommender' : activeTab === 14 ? 'AI Coach' : activeTab === 8 ? 'Insurance' : activeTab === 9 ? 'Nutrition' : activeTab === 10 ? 'Goals' : activeTab === 11 ? 'Reports' : activeTab === 12 ? 'Emergency' : 'Financial'}
               </span>
               <h1 className="font-display text-2xl md:text-3xl font-bold text-(--color-text-primary) dark:text-(--color-text-primary-dark) tracking-tight">

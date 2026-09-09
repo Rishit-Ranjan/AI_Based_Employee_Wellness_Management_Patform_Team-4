@@ -50,7 +50,7 @@ const VitalsChip = ({ label, value, icon: Icon, unit }) => (
       <Icon className="w-3.5 h-3.5" />
       {label}
     </div>
-    <div className="text-sm font-display font-bold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">
+    <div className="text-sm font-bold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">
       {value} <span className="text-[10px] font-light text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">{unit}</span>
     </div>
   </div>
@@ -91,7 +91,7 @@ export default function WellnessProgressModule({
     <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300">
       <div className="flex items-start justify-between gap-3 mb-5">
         <div>
-          <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2">
+          <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2">
             <Target className="w-5 h-5 text-(--color-text-muted) dark:text-(--color-text-muted-dark)" /> Wellness Progress
           </h3>
           <p className="text-[11px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) mt-0.5">
@@ -141,7 +141,7 @@ export default function WellnessProgressModule({
       </div>
 
       {/* Key vitals snapshot */}
-      <h4 className="text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-3 font-mono">
+      <h4 className="text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-3">
         Vitals Snapshot
       </h4>
       <div className="grid grid-cols-3 gap-2.5">

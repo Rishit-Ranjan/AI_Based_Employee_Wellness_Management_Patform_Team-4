@@ -56,7 +56,7 @@ export default function CircularHealthScore({
           <span className="text-3xl font-display font-bold text-(--color-text-primary) dark:text-(--color-text-primary-dark) tracking-tight">
             {normalizedScore}%
           </span>
-          <span className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest font-mono font-medium mt-0.5">
+          <span className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest font-medium mt-0.5">
             {title}
           </span>
         </div>

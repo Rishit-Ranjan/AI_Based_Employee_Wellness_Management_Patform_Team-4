@@ -26,7 +26,7 @@ export function AdminCheckupsModule() {
   return (
     <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-        <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2"><CalendarCheck className="w-5 h-5 text-(--color-text-muted)" /> All Check-up Appointments</h3>
+        <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2"><CalendarCheck className="w-5 h-5 text-(--color-text-muted)" /> All Check-up Appointments</h3>
         <div className="relative w-full sm:w-64">
           <Search className="w-4 h-4 text-(--color-text-muted) absolute left-3 top-1/2 -translate-y-1/2" />
           <input
@@ -105,7 +105,7 @@ export function AdminSosMonitor() {
       )}
       <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-          <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2"><Siren className="w-5 h-5 text-(--color-text-muted)" /> Emergency SOS Alerts</h3>
+          <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2"><Siren className="w-5 h-5 text-(--color-text-muted)" /> Emergency SOS Alerts</h3>
           <div className="relative w-full sm:w-64">
             <Search className="w-4 h-4 text-(--color-text-muted) absolute left-3 top-1/2 -translate-y-1/2" />
             <input
@@ -173,7 +173,7 @@ export function AdminExpensesModule() {
   return (
     <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-        <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2"><Receipt className="w-5 h-5 text-(--color-text-muted)" /> Health Expense Claims</h3>
+        <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2"><Receipt className="w-5 h-5 text-(--color-text-muted)" /> Health Expense Claims</h3>
         <div className="relative w-full sm:w-64">
           <Search className="w-4 h-4 text-(--color-text-muted) absolute left-3 top-1/2 -translate-y-1/2" />
           <input

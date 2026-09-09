@@ -25,7 +25,7 @@ export default function AchievementsModule({ user }) {
 
   return (
     <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-6">
-      <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2 mb-4"><Award className="w-5 h-5 text-(--color-text-muted)" /> My Achievements</h3>
+      <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2 mb-4"><Award className="w-5 h-5 text-(--color-text-muted)" /> My Achievements</h3>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {(achievements?.badges || []).map((b, i) => (
           <div key={i} className="border border-amber-100 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/40 rounded-lg p-3.5 text-center">

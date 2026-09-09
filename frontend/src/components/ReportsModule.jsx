@@ -62,7 +62,7 @@ export default function ReportsModule({ user }) {
     <div className="space-y-6 lg:pr-20">
       <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
-          <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2"><FileDown className="w-5 h-5 text-(--color-text-muted)" /> Download Health Report</h3>
+          <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2"><FileDown className="w-5 h-5 text-(--color-text-muted)" /> Download Health Report</h3>
           <p className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) mt-1">Generates a PDF snapshot of your current wellness score, BMI, stress, sleep, and recommendations.</p>
         </div>
         <button
@@ -76,7 +76,7 @@ export default function ReportsModule({ user }) {
 
       <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-6">
         <div className="flex items-center justify-between mb-1">
-          <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2"><FileDown className="w-5 h-5 text-(--color-text-muted)" /> Downloaded Reports</h3>
+          <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2"><FileDown className="w-5 h-5 text-(--color-text-muted)" /> Downloaded Reports</h3>
           <button onClick={handleView} className="flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-700 cursor-pointer">
             <Eye className="w-3.5 h-3.5" /> View Latest
           </button>
@@ -121,7 +121,7 @@ export default function ReportsModule({ user }) {
       </div>
 
       <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-6">
-        <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2 mb-1"><History className="w-5 h-5 text-(--color-text-muted)" /> Old Reports Timeline</h3>
+        <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2 mb-1"><History className="w-5 h-5 text-(--color-text-muted)" /> Old Reports Timeline</h3>
         <p className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) mb-4">Every time your health profile is updated, a snapshot is saved here so you can track changes over time.</p>
 
         {loading ? (

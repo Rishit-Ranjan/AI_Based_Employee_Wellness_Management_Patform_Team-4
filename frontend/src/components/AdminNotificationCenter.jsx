@@ -141,7 +141,7 @@ export default function AdminNotificationCenter({ allUsers = [], onNavigate, onC
 
         {activeTab === 'compose' && (
           <div>
-            <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2 mb-4"><Send className="w-5 h-5 text-(--color-text-muted)" /> Compose Notification</h3>
+            <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2 mb-4"><Send className="w-5 h-5 text-(--color-text-muted)" /> Compose Notification</h3>
             <form onSubmit={handleSend} className="space-y-3">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title (e.g. Annual Health Camp)" className="px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)" />
@@ -165,7 +165,7 @@ export default function AdminNotificationCenter({ allUsers = [], onNavigate, onC
 
         {activeTab === 'sent' && (
           <div>
-            <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2 mb-4"><Bell className="w-5 h-5 text-(--color-text-muted)" /> Sent Notifications</h3>
+            <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2 mb-4"><Bell className="w-5 h-5 text-(--color-text-muted)" /> Sent Notifications</h3>
             {sentNotifications.length === 0 ? (
               <p className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark)">No notifications sent yet.</p>
             ) : (
@@ -209,7 +209,7 @@ export default function AdminNotificationCenter({ allUsers = [], onNavigate, onC
 
         {activeTab === 'received' && (
           <div>
-            <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2 mb-4"><Bell className="w-5 h-5 text-(--color-text-muted)" /> Received Notifications</h3>
+            <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2 mb-4"><Bell className="w-5 h-5 text-(--color-text-muted)" /> Received Notifications</h3>
             {receivedNotifications.length === 0 ? (
               <p className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark)">No notifications from employees yet.</p>
             ) : (

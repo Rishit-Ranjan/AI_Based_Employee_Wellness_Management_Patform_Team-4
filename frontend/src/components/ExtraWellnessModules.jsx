@@ -48,7 +48,7 @@ export function CheckupSchedulerModule({ user }) {
   return (
     <div className="space-y-6 lg:pr-20">
       <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-6">
-        <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2 mb-4"><CalendarPlus className="w-5 h-5 text-(--color-text-muted)" /> {editingId ? 'Edit Check-up' : 'Book a Check-up'}</h3>
+        <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2 mb-4"><CalendarPlus className="w-5 h-5 text-(--color-text-muted)" /> {editingId ? 'Edit Check-up' : 'Book a Check-up'}</h3>
         <form onSubmit={handleBook} className="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
           <div>
             <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-1">Date</label>
@@ -81,7 +81,7 @@ export function CheckupSchedulerModule({ user }) {
       </div>
 
       <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-6">
-        <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base mb-4">My Appointments</h3>
+        <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base mb-4">My Appointments</h3>
         {loading ? <p className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark)">Loading…</p> : appointments.length === 0 ? (
           <p className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark)">No check-ups booked yet.</p>
         ) : (
@@ -158,7 +158,7 @@ export function EmergencySOSModule({ user }) {
       </div>
 
       <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-6">
-        <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base mb-4">My SOS History</h3>
+        <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base mb-4">My SOS History</h3>
         {loading ? <p className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark)">Loading…</p> : alerts.length === 0 ? (
           <p className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark)">No alerts triggered.</p>
         ) : (
@@ -234,7 +234,7 @@ export function ExpenseTrackerModule({ user }) {
       </div>
 
       <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-6">
-        <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2 mb-4"><Receipt className="w-5 h-5 text-(--color-text-muted)" /> Log an Expense</h3>
+        <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2 mb-4"><Receipt className="w-5 h-5 text-(--color-text-muted)" /> Log an Expense</h3>
         <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
           <div className="sm:col-span-2">
             <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-1">Description</label>
@@ -259,7 +259,7 @@ export function ExpenseTrackerModule({ user }) {
       {/* Edit Expense Modal */}
       {editingId && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60  animate-fadeIn p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 animate-fadeIn p-4"
           onClick={resetForm}
         >
           <div
@@ -339,7 +339,7 @@ export function ExpenseTrackerModule({ user }) {
       )}
 
       <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-6">
-        <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base mb-4">Expense History</h3>
+        <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base mb-4">Expense History</h3>
         {loading ? <p className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark)">Loading…</p> : expenses.length === 0 ? (
           <p className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark)">No expenses logged yet.</p>
         ) : (

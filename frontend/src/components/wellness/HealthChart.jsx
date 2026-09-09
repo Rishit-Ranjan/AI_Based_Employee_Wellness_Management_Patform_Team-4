@@ -72,10 +72,10 @@ export const WeeklyStressChart = memo(({ data = defaultStressData, currentStress
     <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-lg border border-(--color-border) dark:border-(--color-border-dark) p-5 shadow-sm hover:shadow-lg transition-all duration-300">
       <div className="flex justify-between items-center mb-4">
         <div>
-          <span className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest font-mono">
+          <span className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest">
             Mental Wellness
           </span>
-          <h4 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-sm mt-0.5">
+          <h4 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-sm mt-0.5">
             Weekly Stress Score Trend
           </h4>
         </div>
@@ -110,10 +110,10 @@ export const SleepHistoryChart = memo(({ data = defaultSleepData, target = 8 }) 
     <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-lg border border-(--color-border) dark:border-(--color-border-dark) p-5 shadow-sm hover:shadow-lg transition-all duration-300">
       <div className="flex justify-between items-center mb-4">
         <div>
-          <span className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest font-mono">
+          <span className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest">
             Sleep Metrics
           </span>
-          <h4 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-sm mt-0.5">
+          <h4 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-sm mt-0.5">
             Sleep Duration History
           </h4>
         </div>
@@ -154,10 +154,10 @@ export const BmiTrendChart = memo(({ data = defaultBmiData, currentBmi = 22.5 })
     <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-lg border border-(--color-border) dark:border-(--color-border-dark) p-5 shadow-sm hover:shadow-lg transition-all duration-300">
       <div className="flex justify-between items-center mb-4">
         <div>
-          <span className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest font-mono">
+          <span className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest">
             Body Composition
           </span>
-          <h4 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-sm mt-0.5">
+          <h4 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-sm mt-0.5">
             BMI Trend & History
           </h4>
         </div>

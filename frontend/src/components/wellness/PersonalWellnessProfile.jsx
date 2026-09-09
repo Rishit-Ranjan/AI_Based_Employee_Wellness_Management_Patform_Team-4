@@ -381,7 +381,7 @@ smoker: smoker,
     >
       <section className="rounded-lg border border-emerald-200 dark:border-emerald-900/70 bg-emerald-50/80 dark:bg-emerald-950/25 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-300 font-mono">
+          <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-300">
             <Check className="w-4 h-4" /> Today&apos;s wellness check-in
           </div>
           <h2 className="font-display text-lg font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) mt-1">How are you feeling today?</h2>
@@ -399,8 +399,8 @@ smoker: smoker,
       <section className="rounded-lg border border-(--color-border) dark:border-(--color-border-dark) bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) p-5">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">Your recent signals</span>
-            <h2 className="font-display text-base font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) mt-1">Personal history, not a generic score</h2>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-(--color-text-muted) dark:text-(--color-text-muted-dark)">Your recent signals</span>
+            <h2 className="text-base font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) mt-1">Personal history, not a generic score</h2>
           </div>
           <span className="text-[10px] font-mono text-(--color-text-muted) dark:text-(--color-text-muted-dark)">{historySnapshots.length} saved check-in{historySnapshots.length === 1 ? '' : 's'}</span>
         </div>
@@ -464,7 +464,7 @@ smoker: smoker,
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">
                     Employee ID
                   </label>
                   <div className="w-full px-3.5 py-2.5 bg-slate-100 dark:bg-slate-950/60 border border-(--color-border) dark:border-(--color-border-dark)/80 rounded-xl text-xs font-semibold text-(--color-text-secondary) dark:text-(--color-text-primary-dark) font-mono select-none flex items-center justify-between">
@@ -476,7 +476,7 @@ smoker: smoker,
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">
                     Age
                   </label>
                   <input
@@ -490,7 +490,7 @@ smoker: smoker,
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">
                     Gender
                   </label>
                   <select
@@ -505,7 +505,7 @@ smoker: smoker,
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">
                     Department
                   </label>
                   <select
@@ -538,7 +538,7 @@ smoker: smoker,
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">
                     Height (cm)
                   </label>
                   <input
@@ -553,7 +553,7 @@ smoker: smoker,
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">
                     Weight (kg)
                   </label>
                   <input
@@ -568,7 +568,7 @@ smoker: smoker,
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">
                     Body Mass Index (BMI)
                   </label>
                   <input
@@ -582,7 +582,7 @@ smoker: smoker,
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">
                     Blood Pressure (Sys/Dia){' '}
                     <span 
                       ref={bpInfoRef}
@@ -621,7 +621,7 @@ smoker: smoker,
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">
                     Sleep Duration (Hrs/Night)
                   </label>
                   <input
@@ -636,7 +636,7 @@ smoker: smoker,
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">
                     Exercise Days (Per Week)
                   </label>
                   <input
@@ -652,7 +652,7 @@ smoker: smoker,
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">
                     Exercise Hours (Per Week)
                   </label>
                   <input
@@ -667,7 +667,7 @@ smoker: smoker,
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">
                     Self-Reported Stress Tier
                   </label>
                   <select
@@ -693,7 +693,7 @@ smoker: smoker,
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">
                     Stress Rating (1 - 10)
                   </label>
                   <input
@@ -710,7 +710,7 @@ smoker: smoker,
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">
                     Blood Glucose (mg/dL)
                   </label>
                   <input
@@ -725,7 +725,7 @@ smoker: smoker,
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">
                     Medical / Burnout Condition
                   </label>
                   <select
@@ -743,7 +743,7 @@ smoker: smoker,
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">
                     Medical Notes & Observations
                   </label>
                   <textarea
@@ -789,7 +789,7 @@ smoker: smoker,
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">
                     Emergency Contact Name
                   </label>
                   <input
@@ -802,7 +802,7 @@ smoker: smoker,
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">
                     Emergency Contact Phone
                   </label>
                   <input
@@ -815,7 +815,7 @@ smoker: smoker,
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">
                     Blood Group
                   </label>
                   <select
@@ -836,7 +836,7 @@ smoker: smoker,
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">
                     Allergies
                   </label>
                   <input
@@ -849,7 +849,7 @@ smoker: smoker,
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
+                  <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">
                     Existing Diseases / Conditions
                   </label>
                   <input
@@ -1025,7 +1025,7 @@ smoker: smoker,
           badgeColor="purple"
         >
           <div className="space-y-3">
-            <span className="text-[10px] text-(--color-text-muted) uppercase tracking-widest block font-mono font-bold">
+            <span className="text-[10px] text-(--color-text-muted) uppercase tracking-widest block font-bold">
               Select Today's State:
             </span>
 
@@ -1107,7 +1107,7 @@ smoker: smoker,
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
+              <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">
                 Feedback / Workload Notes
               </label>
               <input

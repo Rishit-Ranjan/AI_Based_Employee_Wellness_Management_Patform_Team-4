@@ -96,7 +96,7 @@ export default function CustomerSupportModal({ user, onClose }) {
   ];
 
   return (
-    <div className="fixed inset-0 z-[200] bg-slate-900/60  flex items-center justify-center p-4 animate-fadeIn">
+    <div className="fixed inset-0 z-[200] bg-slate-900/60 flex items-center justify-center p-4 animate-fadeIn">
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -204,7 +204,7 @@ export default function CustomerSupportModal({ user, onClose }) {
               <div className="border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-5 space-y-4">
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4 text-(--color-text-muted)" />
-                  <h4 className="text-xs font-bold text-(--color-text-secondary) dark:text-(--color-text-primary-dark) uppercase tracking-wider font-mono">
+                  <h4 className="text-xs font-bold text-(--color-text-secondary) dark:text-(--color-text-primary-dark) uppercase tracking-wider">
                     Submit a Support Ticket
                   </h4>
                 </div>
@@ -228,7 +228,7 @@ export default function CustomerSupportModal({ user, onClose }) {
                       </div>
                     )}
                     <div>
-                      <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
+                      <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">
                         Subject
                       </label>
                       <input
@@ -240,7 +240,7 @@ export default function CustomerSupportModal({ user, onClose }) {
                       />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5 font-mono">
+                      <label className="block text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">
                         Message
                       </label>
                       <textarea

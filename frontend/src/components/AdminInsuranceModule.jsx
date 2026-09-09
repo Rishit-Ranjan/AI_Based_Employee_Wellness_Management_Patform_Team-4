@@ -84,7 +84,7 @@ export default function AdminInsuranceModule({ allUsers = [] }) {
   return (
     <div className="space-y-6">
       <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-6">
-        <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2 mb-4"><Plus className="w-5 h-5 text-(--color-text-muted)" /> Assign / Update Policy</h3>
+        <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2 mb-4"><Plus className="w-5 h-5 text-(--color-text-muted)" /> Assign / Update Policy</h3>
         <form onSubmit={handleCreate} className="grid grid-cols-1 sm:grid-cols-5 gap-3 items-end">
           <div className="relative">
             <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-1">Employee</label>
@@ -153,7 +153,7 @@ export default function AdminInsuranceModule({ allUsers = [] }) {
       </div>
 
       <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-6">
-        <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2 mb-4"><CheckCircle2 className="w-5 h-5 text-(--color-text-muted)" /> Pending Claims ({filteredPendingClaims.length})</h3>
+        <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2 mb-4"><CheckCircle2 className="w-5 h-5 text-(--color-text-muted)" /> Pending Claims ({filteredPendingClaims.length})</h3>
         {filteredPendingClaims.length === 0 ? (
           <p className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark)">{query && pendingClaims.length > 0 ? `No pending claims match "${search}".` : 'No pending claims.'}</p>
         ) : (
@@ -175,7 +175,7 @@ export default function AdminInsuranceModule({ allUsers = [] }) {
       </div>
 
       <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-6">
-        <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2 mb-4"><ShieldCheck className="w-5 h-5 text-(--color-text-muted)" /> All Policies</h3>
+        <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2 mb-4"><ShieldCheck className="w-5 h-5 text-(--color-text-muted)" /> All Policies</h3>
         {loading ? (
           <p className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark)">Loading…</p>
         ) : filteredPolicies.length === 0 ? (
@@ -221,7 +221,7 @@ export default function AdminInsuranceModule({ allUsers = [] }) {
       </div>
 
       {confirmDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-slate-950/70  p-4" onClick={() => setConfirmDelete(null)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-slate-950/70 p-4" onClick={() => setConfirmDelete(null)}>
           <div
             className="w-full max-w-sm bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl shadow-xl p-6"
             onClick={(e) => e.stopPropagation()}
@@ -229,7 +229,7 @@ export default function AdminInsuranceModule({ allUsers = [] }) {
             <div className="flex items-start justify-between gap-4 mb-3">
               <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400">
                 <AlertTriangle className="w-5 h-5" />
-                <h4 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-sm">Delete insurance policy?</h4>
+                <h4 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-sm">Delete insurance policy?</h4>
               </div>
               <button
                 onClick={() => setConfirmDelete(null)}

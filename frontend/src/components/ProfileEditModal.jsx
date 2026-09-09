@@ -82,7 +82,7 @@ export default function ProfileEditModal({ user, isAdmin = false, onClose, onUpd
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60  z-[100] flex items-center justify-center p-4 animate-fadeIn" onClick={onClose}>
+    <div className="fixed inset-0 bg-slate-900/60 z-[100] flex items-center justify-center p-4 animate-fadeIn" onClick={onClose}>
       <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl w-full max-w-md shadow-2xl overflow-hidden border border-(--color-border) dark:border-(--color-border-dark)" onClick={(e) => e.stopPropagation()}>
         <div className="p-5 border-b border-(--color-border) dark:border-(--color-border-dark) flex items-center justify-between bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark)">
           <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) flex items-center gap-2"><User className="w-5 h-5 text-(--color-text-muted)" /> Edit Profile</h3>

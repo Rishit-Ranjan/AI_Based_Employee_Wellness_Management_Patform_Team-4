@@ -24,7 +24,7 @@ export default function SectionTitle({
           </div>
         )}
         <div>
-          <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base tracking-tight">
+          <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base tracking-tight">
             {title}
           </h3>
           {subtitle && (

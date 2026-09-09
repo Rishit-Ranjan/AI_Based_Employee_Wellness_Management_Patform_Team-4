@@ -43,7 +43,7 @@ export default function StatCard({
     <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-lg border border-(--color-border) dark:border-(--color-border-dark) p-5 shadow-sm hover:border-(--color-border-strong) dark:hover:border-(--color-border-strong-dark) transition-all duration-300 overflow-hidden">
       <div className="flex items-start justify-between">
         <div>
-          <span className="text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider font-mono">
+          <span className="text-[11px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider">
             {title}
           </span>
           <div className="mt-2 flex items-baseline gap-2">

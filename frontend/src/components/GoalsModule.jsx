@@ -68,7 +68,7 @@ export default function GoalsModule({ user }) {
     <div className="space-y-6 lg:pr-20">
       <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2"><Target className="w-5 h-5 text-(--color-text-muted)" /> My Goals</h3>
+          <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2"><Target className="w-5 h-5 text-(--color-text-muted)" /> My Goals</h3>
           <button onClick={toggleForm} className="flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-700 cursor-pointer">
             <Plus className="w-3.5 h-3.5" /> New Goal
           </button>

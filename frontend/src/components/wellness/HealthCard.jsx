@@ -47,7 +47,7 @@ export default function HealthCard({
             <Activity className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base">
+            <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base">
               Health Diagnostics Panel
             </h3>
             <p className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-normal">
@@ -77,7 +77,7 @@ export default function HealthCard({
         {/* Burnout Risk Card */}
         <div className="bg-slate-50/80 dark:bg-(--color-bg-subtle-dark) rounded-xl border border-(--color-border) dark:border-(--color-border-dark) p-4 space-y-3">
           <div className="flex justify-between items-center text-xs">
-            <span className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider font-mono font-bold">
+            <span className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider font-bold">
               Burnout Risk Index
             </span>
             <span className="inline-flex items-center text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">
@@ -107,7 +107,7 @@ export default function HealthCard({
 
       {/* Progress Bars for Detailed Vitals */}
       <div className="space-y-3.5 pt-2">
-        <h4 className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest font-mono">
+        <h4 className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest">
           Detailed Vitals Breakdown
         </h4>
 
@@ -159,7 +159,7 @@ export default function HealthCard({
 
       {/* Risk Factors */}
       <div className="space-y-2 pt-2 border-t border-(--color-border) dark:border-(--color-border-dark)">
-        <span className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest font-mono block">
+        <span className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest block">
           Contributing Factors:
         </span>
         {factors.length === 0 || (factors.length === 1 && factors[0] === "Awaiting data...") ? (
