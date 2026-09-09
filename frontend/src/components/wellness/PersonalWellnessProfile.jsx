@@ -1026,7 +1026,7 @@ smoker: smoker,
             <div className="md:col-span-1 space-y-2">
               <div className="flex justify-between text-xs font-mono font-medium">
                 <span className="text-(--color-text-muted) dark:text-(--color-text-muted-dark)">Stress Rating (1-10)</span>
-                <span className="font-bold text-blue-600 dark:text-blue-400">{pulseStress}</span>
+                <span className="font-bold" style={{ color: pulseStress >= 7 ? '#ef4444' : pulseStress >= 4 ? '#eab308' : '#22c55e' }}>{pulseStress}</span>
               </div>
               <input
                 type="range"
@@ -1034,7 +1034,8 @@ smoker: smoker,
                 max="10"
                 value={pulseStress}
                 onChange={(e) => setPulseStress(Number(e.target.value))}
-                className="w-full accent-blue-600 cursor-pointer h-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded-lg"
+                className="w-full cursor-pointer h-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded-lg"
+                style={{ accentColor: pulseStress >= 7 ? '#ef4444' : pulseStress >= 4 ? '#eab308' : '#22c55e' }}
               />
             </div>
 

@@ -131,7 +131,7 @@ export const SleepHistoryChart = memo(({ data = defaultSleepData, target = 8 }) 
             <Tooltip content={<CustomTooltip unit="hrs" />} />
             <Bar dataKey="hours" name="Sleep Hours" radius={[6, 6, 0, 0]}>
               {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.hours >= target ? '#0ea47a' : entry.hours >= 6 ? '#7c68ee' : '#e5484d'} />
+                <Cell key={`cell-${index}`} fill={entry.hours >= target ? '#0ea47a' : entry.hours >= 6 ? '#eab308' : '#e5484d'} />
               ))}
             </Bar>
           </BarChart>
