@@ -70,7 +70,7 @@ export default function WellnessInsightsModule({ records = [], dailyHabits = [],
   }, [records, dailyHabits, mentalHealthLogs]);
 
   return (
-    <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-6">
+    <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300">
       <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2 mb-4"><Lightbulb className="w-5 h-5 text-(--color-text-muted)" /> Wellness Insights</h3>
       <div className="space-y-4">
         {insights.map(insight => <Insight key={insight.id} {...insight} />)}

@@ -114,7 +114,7 @@ export default function DailyWellnessChecklist({
   const message = DONE_MESSAGES[new Date().getDate() % DONE_MESSAGES.length];
 
   return (
-    <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-6">
+    <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300">
       <style>{`
         .checkbox-scroll::-webkit-scrollbar { width: 6px; }
         .checkbox-scroll::-webkit-scrollbar-track { background: transparent; }
