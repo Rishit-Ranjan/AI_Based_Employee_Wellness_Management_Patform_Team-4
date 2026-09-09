@@ -3055,7 +3055,7 @@ export default function AdminDashboard({ user,
         {/* Module Content Stage */}
         <main className="flex-1 p-4 md:p-8 overflow-y-auto min-h-0">
           {/* Active module display card header */}
-          <div className="mb-6 pb-4 border-b border-(--color-border) dark:border-(--color-border-dark) flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="mb-6 pb-4 border-b border-white/20 dark:border-white/20 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800/60 rounded-md text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest font-mono mb-2">
                 {adminNavTabs.find(tab => tab.id === activeTab)?.label || 'Admin Module'}
@@ -3087,7 +3087,7 @@ export default function AdminDashboard({ user,
                 {activeTab === 11 && 'Manage application-wide settings and configurations.'}
               </p>
             </div>
-            <div className="min-w-[220px] rounded-3xl bg-slate-50/80 dark:bg-(--color-bg-dark) border border-slate-200/70 dark:border-(--color-border-dark) p-4">
+            <div className="min-w-[220px] rounded-3xl bg-slate-50/80 dark:bg-(--color-bg-dark) border border-white/20 dark:border-white/20 p-4">
               <span className="text-[10px] font-bold text-(--color-text-muted) uppercase tracking-wider font-mono block mb-2">
                 System Vitals
               </span>

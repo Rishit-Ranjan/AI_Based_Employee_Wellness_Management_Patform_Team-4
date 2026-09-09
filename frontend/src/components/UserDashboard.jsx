@@ -1373,7 +1373,7 @@ export default function UserDashboard({
         {/* 3. Main Workspace Canvas Stage */}
         <main className="flex-1 p-4 md:p-8 overflow-y-auto min-h-0">
           {/* Active module title header */}
-          <div className="mb-6 pb-4 border-b border-(--color-border) dark:border-(--color-border-dark) flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="mb-6 pb-4 border-b border-white/20 dark:border-white/20 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800/60 rounded-md text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest font-mono mb-2">
                 {activeTab === 7 ? 'SaaS Portal' : activeTab === 15 ? 'Mental Wellness' : activeTab === 3 ? 'AI Recommender' : activeTab === 14 ? 'AI Coach' : activeTab === 8 ? 'Insurance' : activeTab === 9 ? 'Nutrition' : activeTab === 10 ? 'Goals' : activeTab === 11 ? 'Reports' : activeTab === 12 ? 'Emergency' : 'Financial'}
