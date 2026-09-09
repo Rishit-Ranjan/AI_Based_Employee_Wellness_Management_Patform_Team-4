@@ -4,9 +4,29 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Space Grotesk", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* ── Semantic color tokens (light) ── */
+  --color-bg: #f8fafc;
+  --color-bg-card: #ffffff;
+  --color-bg-subtle: #f1f5f9;
+  --color-border: #e2e8f0;
+  --color-border-strong: #cbd5e1;
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #334155;
+  --color-text-muted: #64748b;
+
+  /* ── Semantic color tokens (dark — deeper, blue/indigo-biased, not pure slate) ── */
+  --color-bg-dark: #0c1320;
+  --color-bg-card-dark: #131a29;
+  --color-bg-subtle-dark: #1e293b;
+  --color-border-dark: #293a51;
+  --color-border-strong-dark: #334155;
+  --color-text-primary-dark: #f1f5f9;
+  --color-text-secondary-dark: #cbd5e1;
+  --color-text-muted-dark: #94a3b8;
 }
 
 /* Custom scrollbar */
@@ -18,30 +38,33 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--color-border-strong);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: var(--color-text-muted);
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: var(--color-border-strong-dark);
 }
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: var(--color-text-muted-dark);
 }
 
 body {
-  font-family: var(--font-sans);
-  background-color: #f8fafc;
-  color: #0f172a;
+  font-family: var(--font-mono);
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 html.dark body {
-  background-color: #0f172a;
-  color: #f8fafc;
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-primary-dark);
+  /* Subtle dot-noise texture — breaks the "flat OLED void" look that screams AI-generated */
+  background-image: radial-gradient(circle-at 1px 1px, rgba(88, 104, 137, 0.11) 1px, transparent 0);
+  background-size: 20px 20px;
 }
 
 /* Hide native browser password reveal/clear buttons so our custom toggle is the only one visible */
