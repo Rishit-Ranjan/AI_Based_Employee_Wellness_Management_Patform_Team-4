@@ -2427,10 +2427,6 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* KPI Cards */}
-      </div>
-      {renderBurnoutTrend()}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-xl border border-(--color-border) dark:border-(--color-border-dark) shadow-sm p-5 space-y-3">
           <div className="flex justify-between items-center text-(--color-text-muted) dark:text-(--color-text-muted-dark)">
             <span className="text-[10px] font-bold uppercase tracking-wider">Participation Rate</span>
@@ -2487,6 +2483,8 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
           </div>
         </div>
       </div>
+
+      {renderBurnoutTrend()}
 
       <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) p-6 rounded-xl border border-(--color-border) dark:border-(--color-border-dark) shadow-sm space-y-4">
         <h4 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">Health Vitals Scatter Overview</h4>
