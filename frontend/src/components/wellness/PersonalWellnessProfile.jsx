@@ -871,7 +871,7 @@ smoker: smoker,
 
               <button
                 type="submit"
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-xs rounded-xl shadow-md hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200 flex items-center gap-2 cursor-pointer"
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-xs rounded-xl shadow-md hover:shadow-xl transition-shadow duration-200 flex items-center gap-2 cursor-pointer"
               >
                 <BrainCircuit className="w-4 h-4" />
                 Sync & Save Vitals
@@ -1128,7 +1128,7 @@ smoker: smoker,
             <div className="md:col-span-1">
               <button
                 type="submit"
-                className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold text-xs rounded-xl shadow-md hover:scale-105 transition-all duration-200 cursor-pointer"
+                className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold text-xs rounded-xl shadow-md transition-shadow duration-200 cursor-pointer"
               >
                 Submit Anonymized Pulse
               </button>

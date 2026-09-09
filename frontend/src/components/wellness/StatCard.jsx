@@ -54,7 +54,7 @@ export default function StatCard({
         </div>
 
         {Icon && (
-          <div className={`p-3 rounded-md border ${selectedColor.iconBg} transition-transform duration-300 group-hover:scale-110 shadow-sm`}>
+          <div className={`p-3 rounded-md border ${selectedColor.iconBg} shadow-sm`}>
             <Icon className="w-5 h-5" />
           </div>
         )}

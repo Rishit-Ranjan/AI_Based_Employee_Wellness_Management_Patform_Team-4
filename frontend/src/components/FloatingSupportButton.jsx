@@ -6,12 +6,10 @@ const FloatingSupportButton = ({ onClick }) => {
     <div className="fixed bottom-6 right-6 z-[150]">
       <button
         onClick={onClick}
-        className="group relative p-4 bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-full shadow-lg shadow-slate-900/20 dark:shadow-blue-600/30 transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer"
+        className="group relative p-4 bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-full shadow-lg shadow-slate-900/20 dark:shadow-blue-600/30 transition-colors duration-200 flex items-center justify-center cursor-pointer"
         title="Customer Support"
         aria-label="Open Customer Support"
       >
-        {/* Pulse rings */}
-        <span className="absolute inset-0 rounded-full bg-blue-500/30 animate-ping" style={{ animationDuration: '2.5s' }} />
         <LifeBuoy className="w-6 h-6 relative" />
 
         {/* Tooltip Label */}

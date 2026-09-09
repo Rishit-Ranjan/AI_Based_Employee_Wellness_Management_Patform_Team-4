@@ -435,7 +435,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-slate-900 text-white font-semibold py-3 rounded-lg hover:bg-slate-800 transition-all transform active:scale-[0.98] cursor-pointer mt-2 flex items-center justify-center gap-2 shadow-sm"
+              className="w-full bg-slate-900 text-white font-semibold py-3 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer mt-2 flex items-center justify-center gap-2 shadow-sm"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/35 border-t-white rounded-full animate-spin" />

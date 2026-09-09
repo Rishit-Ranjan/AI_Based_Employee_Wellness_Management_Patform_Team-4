@@ -729,55 +729,20 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
 // NEW COMPONENT: FLOATING ROBOT ASSISTANT
 // ==========================================
 const FloatingBot = ({ onClick, isChatOpen }) => {
-  const [isPaused, setIsPaused] = useState(false);
-  const [isWaving, setIsWaving] = useState(false);
-  const [bubbleText, setBubbleText] = useState('Click me!');
+  const bubbleText = 'Chat with your wellness assistant';
   const botRef = useRef(null);
-
-  const bubbleMessages = useMemo(() => [
-    "Hey there! How can I assist you today?",
-    "My name's InfyWell",
-    "Let's chat!",
-    "Need some wellness tips?",
-    "How are you feeling today?",
-    "Why aren't you paying attention to me?",
-  ], []);
-
-  useEffect(() => {
-    if (isChatOpen) return;
-
-    const idleActions = [
-      () => { // Show bubble
-        setIsPaused(true);
-        setBubbleText(bubbleMessages[Math.floor(Math.random() * bubbleMessages.length)]);
-        setTimeout(() => setIsPaused(false), 4000);
-      },
-      () => { // Wave
-        setIsWaving(true);
-        setTimeout(() => setIsWaving(false), 2500); // Wave for 2.5s
-      },
-    ];
-
-    const idleInterval = setInterval(() => {
-      idleActions[Math.floor(Math.random() * idleActions.length)]();
-    }, 8000); // Trigger a random idle action every 8 seconds
-
-    return () => {
-      clearInterval(idleInterval);
-    };
-  }, [isChatOpen, bubbleMessages]);
 
   return (
     <div
       ref={botRef}
       onClick={onClick}
-      className="fixed bottom-4 right-6 z-50 cursor-pointer"
+      className="fixed bottom-4 right-6 z-50 cursor-pointer group"
       title="Toggle AI Assistant"
     >
       {!isChatOpen && (
         <div 
-          className={`absolute bottom-full right-0 mb-3 w-max max-w-[200px] sm:max-w-[220px] whitespace-normal break-words px-3 py-1.5 bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) text-(--color-text-primary) dark:text-(--color-text-primary-dark) rounded-lg text-[11px] font-semibold shadow-lg transition-opacity duration-300 ${
-            isPaused ? 'opacity-100' : 'opacity-0'
+          className={`absolute bottom-full right-0 mb-3 w-max max-w-[200px] sm:max-w-[220px] whitespace-normal break-words px-3 py-1.5 bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) text-(--color-text-primary) dark:text-(--color-text-primary-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-[11px] font-semibold shadow-lg transition-opacity duration-200 ${
+            isChatOpen ? 'opacity-0' : 'opacity-0 group-hover:opacity-100'
           }`}
         >
           {bubbleText}
@@ -796,47 +761,9 @@ const FloatingBot = ({ onClick, isChatOpen }) => {
         viewBox="0 0 80 120" 
         overflow="visible"
         xmlns="http://www.w3.org/2000/svg" 
-        className="drop-shadow-lg transition-transform"
+        className="drop-shadow-lg"
         style={{ transform: `scaleX(-1)` }}
       >
-        <style>
-          {`
-            /* Floating hover animation */
-            .bot-body { animation: ${!isPaused && !isChatOpen && !isWaving ? 'bob 2s infinite ease-in-out' : 'none'}; }
-            
-            /* 
-              Using absolute SVG coordinates for transform-origin to bypass Safari/browser bugs.
-              Left Arm X = 12 + (8/2) = 16px. Y = 48 + 4 = 52px.
-              Right Arm X = 60 + (8/2) = 64px. Y = 48 + 4 = 52px.
-            */
-            .bot-arm.left { 
-              /* Only the right arm waves — this stays at rest for a natural single-hand hello. */
-              transform-origin: 16px 52px; 
-            }
-            .bot-arm.right { 
-              animation: ${isWaving ? 'wave-hello 2.5s ease-in-out' : 'none'}; 
-              transform-origin: 64px 52px; 
-            }
-
-            @keyframes bob {
-              0%, 100% { transform: translateY(0); }
-              50% { transform: translateY(-5px); }
-            }
-
-            @keyframes wave-hello {
-              0%   { transform: rotate(0deg); }
-              12%  { transform: rotate(150deg); } /* lift the hand up into the air */
-              22%  { transform: rotate(125deg); } /* wave in */
-              32%  { transform: rotate(152deg); } /* wave out */
-              42%  { transform: rotate(128deg); } /* wave in */
-              52%  { transform: rotate(150deg); } /* wave out */
-              62%  { transform: rotate(130deg); } /* wave in */
-              75%  { transform: rotate(148deg); } /* wave out */
-              90%  { transform: rotate(150deg); } /* hold it up */
-              100% { transform: rotate(0deg); }   /* bring it back down */
-            }
-          `}
-        </style>
         <g className="bot-body">
           {/* Head */}
           <rect x="25" y="20" width="30" height="25" rx="6" fill="#a5b4fc" />
