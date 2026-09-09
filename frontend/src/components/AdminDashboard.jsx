@@ -2043,9 +2043,9 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
           <div className="animate-spin w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
           {/* Burnout probability cards */}
-          <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-3 self-start">
+          <div className="md:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-2xl p-3.5 shadow-sm min-h-[130px]">
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-[10px] font-bold text-rose-700 dark:text-rose-300 uppercase tracking-wider">High Risk</span>
@@ -2071,7 +2071,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
               <div className="text-[10px] text-emerald-500 dark:text-emerald-500 mt-1 font-mono">Employees</div>
             </div>
           </div>
-          <div className="h-64 md:h-72 min-h-[210px] flex items-center justify-center">
+          <div className="h-56 md:h-64 min-h-[210px] flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart margin={{ top: 10, right: 15, bottom: 10, left: 15 }}>
                 <Pie
