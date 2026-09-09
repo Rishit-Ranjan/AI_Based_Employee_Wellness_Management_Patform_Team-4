@@ -41,7 +41,7 @@ export default function InsuranceModule({ user }) {
   if (error === 'not_found' || !policy) {
     return (
       <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-10 text-center">
-        <ShieldCheck className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+        <ShieldCheck className="w-10 h-10 text-slate-300 dark:text-(--color-border-strong-dark) mx-auto mb-3" />
         <h3 className="font-display font-semibold text-(--color-text-secondary) dark:text-(--color-text-primary-dark) mb-1">No insurance policy on file yet</h3>
         <p className="text-sm text-(--color-text-muted) dark:text-(--color-text-muted-dark) max-w-md mx-auto">Your HR/Admin team hasn't linked a policy to your account. Once they do, your coverage, claims, and hospital network will appear here.</p>
       </div>
@@ -114,7 +114,7 @@ export default function InsuranceModule({ user }) {
         </div>
 
         {showClaimForm && (
-          <form onSubmit={handleFileClaim} className="mb-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-(--color-border) dark:border-(--color-border-dark) grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+          <form onSubmit={handleFileClaim} className="mb-4 p-4 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded-lg border border-(--color-border) dark:border-(--color-border-dark) grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
             <div className="sm:col-span-2">
               <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-1">Description</label>
               <input value={claimDesc} onChange={(e) => setClaimDesc(e.target.value)} placeholder="e.g. Dental treatment" className="w-full px-3 py-2 bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)" />

@@ -18,7 +18,7 @@ export default function PrivacyPolicy({ onNavigate }) {
         className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl shadow-2xl w-full max-w-4xl border border-(--color-border) dark:border-(--color-border-dark) flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the modal
       >
-        <div className="flex items-center justify-between p-5 border-b border-(--color-border) dark:border-(--color-border-dark) bg-slate-50 dark:bg-slate-900/50 shrink-0">
+        <div className="flex items-center justify-between p-5 border-b border-(--color-border) dark:border-(--color-border-dark) bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) shrink-0">
           <h2 className="text-xl font-bold font-display text-(--color-text-primary) dark:text-(--color-text-primary-dark)">Privacy Policy</h2>
           <button
             onClick={() => onNavigate('signup')} // Close button
@@ -71,8 +71,8 @@ export default function PrivacyPolicy({ onNavigate }) {
             We may update Our Privacy Policy from time to time. We will notify You of any changes by posting the new Privacy Policy on this page and, if the changes are significant, through a platform notification.
           </p>
         </div>
-        <div className="p-4 bg-slate-50 dark:bg-slate-900/50 border-t border-(--color-border) dark:border-(--color-border-dark) flex justify-end gap-3">
-          <button onClick={() => onNavigate('signup')} className="px-4 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) hover:bg-slate-200 dark:hover:bg-slate-600 text-(--color-text-secondary) dark:text-(--color-text-primary-dark) rounded-lg text-xs font-bold flex items-center gap-2">
+        <div className="p-4 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border-t border-(--color-border) dark:border-(--color-border-dark) flex justify-end gap-3">
+          <button onClick={() => onNavigate('signup')} className="px-4 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) hover:bg-slate-200 dark:hover:bg-(--color-bg-subtle-dark) text-(--color-text-secondary) dark:text-(--color-text-primary-dark) rounded-lg text-xs font-bold flex items-center gap-2">
             <XCircle className="w-4 h-4" /> Decline
           </button>
           <button onClick={() => onNavigate('signup')} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center gap-2">

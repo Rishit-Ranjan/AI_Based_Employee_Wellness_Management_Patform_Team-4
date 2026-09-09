@@ -122,7 +122,7 @@ export default function AdminNotificationCenter({ allUsers = [], onNavigate, onC
       className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
         activeTab === id
           ? 'bg-indigo-600 text-white'
-          : 'bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) hover:bg-slate-200 dark:hover:bg-slate-600'
+          : 'bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) hover:bg-slate-200 dark:hover:bg-(--color-bg-subtle-dark)'
       }`}
     >
       <Icon className="w-4 h-4" />
@@ -190,7 +190,7 @@ export default function AdminNotificationCenter({ allUsers = [], onNavigate, onC
                       </div>
                       <p className="text-[11px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) mt-0.5">{n.message}</p>
                       <div className="flex items-center gap-2">
-                        <span className="text-[9px] text-slate-300 dark:text-slate-600 font-mono">{new Date(n.createdAt).toLocaleString()}</span>
+                        <span className="text-[9px] text-slate-300 dark:text-(--color-border-strong-dark) font-mono">{new Date(n.createdAt).toLocaleString()}</span>
                         {canNavigate && (
                           <span className="text-[9px] font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-wider">
                             Click to view →

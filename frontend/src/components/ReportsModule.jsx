@@ -105,7 +105,7 @@ export default function ReportsModule({ user }) {
                     href={`/api/reports/health-report/${user.employeeId}?view=1`}
                     target="_blank"
                     rel="noreferrer"
-                    className="p-2 rounded-lg bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) hover:bg-indigo-50 dark:hover:bg-slate-600 text-(--color-text-muted) dark:text-(--color-text-secondary-dark) cursor-pointer"
+                    className="p-2 rounded-lg bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) hover:bg-indigo-50 dark:hover:bg-(--color-bg-subtle-dark) text-(--color-text-muted) dark:text-(--color-text-secondary-dark) cursor-pointer"
                     title="View report"
                   >
                     <Eye className="w-3.5 h-3.5" />

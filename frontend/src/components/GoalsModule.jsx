@@ -75,7 +75,7 @@ export default function GoalsModule({ user }) {
         </div>
 
         {showForm && (
-          <form onSubmit={handleSubmit} className="mb-5 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-(--color-border) dark:border-(--color-border-dark) grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
+          <form onSubmit={handleSubmit} className="mb-5 p-4 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded-lg border border-(--color-border) dark:border-(--color-border-dark) grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
             <div className="sm:col-span-2">
               <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-1">Goal</label>
               <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Walk 10,000 steps daily" className="w-full px-3 py-2 bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)" />
@@ -92,7 +92,7 @@ export default function GoalsModule({ user }) {
               <button type="submit" className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold">
                 {editingId ? 'Save Changes' : 'Add Goal'}
               </button>
-              <button type="button" onClick={resetForm} className="flex items-center gap-1 px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) hover:bg-slate-200 dark:hover:bg-slate-600 text-(--color-text-muted) dark:text-(--color-text-secondary-dark) rounded-lg text-xs font-bold">
+              <button type="button" onClick={resetForm} className="flex items-center gap-1 px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) hover:bg-slate-200 dark:hover:bg-(--color-bg-subtle-dark) text-(--color-text-muted) dark:text-(--color-text-secondary-dark) rounded-lg text-xs font-bold">
                 <X className="w-3.5 h-3.5" /> Cancel
               </button>
             </div>

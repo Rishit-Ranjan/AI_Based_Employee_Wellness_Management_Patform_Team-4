@@ -89,15 +89,15 @@ export const WeeklyStressChart = memo(({ data = defaultStressData, currentStress
           <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <defs>
               <linearGradient id="stressGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.4} />
-                <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
+                <stop offset="5%" stopColor="#f97316" stopOpacity={0.4} />
+                <stop offset="95%" stopColor="#f97316" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.15} />
             <XAxis dataKey="day" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
             <YAxis domain={[0, 10]} tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
             <Tooltip content={<CustomTooltip unit="/ 10" />} />
-            <Area type="monotone" dataKey="score" name="Stress Score" stroke="#f59e0b" strokeWidth={2.5} fillOpacity={1} fill="url(#stressGrad)" />
+            <Area type="monotone" dataKey="score" name="Stress Score" stroke="#f97316" strokeWidth={2.5} fillOpacity={1} fill="url(#stressGrad)" />
           </AreaChart>
         </ResponsiveContainer>
       </div>
@@ -131,7 +131,7 @@ export const SleepHistoryChart = memo(({ data = defaultSleepData, target = 8 }) 
             <Tooltip content={<CustomTooltip unit="hrs" />} />
             <Bar dataKey="hours" name="Sleep Hours" radius={[6, 6, 0, 0]}>
               {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.hours >= target ? '#10b981' : entry.hours >= 6 ? '#8b5cf6' : '#ef4444'} />
+                <Cell key={`cell-${index}`} fill={entry.hours >= target ? '#0ea47a' : entry.hours >= 6 ? '#7c68ee' : '#e5484d'} />
               ))}
             </Bar>
           </BarChart>
@@ -173,7 +173,7 @@ export const BmiTrendChart = memo(({ data = defaultBmiData, currentBmi = 22.5 })
             <XAxis dataKey="month" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
             <YAxis domain={[15, 35]} tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
             <Tooltip content={<CustomTooltip unit="BMI" />} />
-            <Line type="monotone" dataKey="bmi" name="BMI Index" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4, fill: '#3b82f6' }} activeDot={{ r: 6 }} />
+            <Line type="monotone" dataKey="bmi" name="BMI Index" stroke="#4f7cf7" strokeWidth={3} dot={{ r: 4, fill: '#4f7cf7' }} activeDot={{ r: 6 }} />
           </LineChart>
         </ResponsiveContainer>
       </div>

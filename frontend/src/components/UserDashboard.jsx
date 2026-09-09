@@ -417,7 +417,7 @@ const voices = speechSynthRef.current.getVoices();
 
   return (
     <div className={`flex flex-col h-full bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) ${isFloating ? '' : 'border border-(--color-border) dark:border-(--color-border-dark) rounded-2xl shadow-sm'}`}>
-      <div className="p-3.5 bg-slate-50 dark:bg-slate-900 border-b border-(--color-border) dark:border-(--color-border-dark)">
+      <div className="p-3.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border-b border-(--color-border) dark:border-(--color-border-dark)">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="p-1.5 bg-blue-600 text-white rounded-lg">
@@ -457,7 +457,7 @@ const voices = speechSynthRef.current.getVoices();
 <button
               type="button"
               onClick={toggleSpeech}
-              className={`p-1.5 rounded-lg border text-xs transition-all cursor-pointer ${isSpeechEnabled ? 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-950/60 dark:text-blue-400 dark:border-blue-800' : 'bg-slate-100 text-(--color-text-muted) border-slate-200 dark:bg-slate-800 dark:border-slate-700'}`}
+              className={`p-1.5 rounded-lg border text-xs transition-all cursor-pointer ${isSpeechEnabled ? 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-950/60 dark:text-blue-400 dark:border-blue-800' : 'bg-slate-100 text-(--color-text-muted) border-slate-200 dark:bg-(--color-bg-card-dark) dark:border-(--color-border-dark)'}`}
               title={isSpeechEnabled ? "Voice Output Active" : "Voice Output Muted"}
             >
               <Volume2 className="w-3.5 h-3.5" />
@@ -476,7 +476,7 @@ const voices = speechSynthRef.current.getVoices();
               className={`max-w-[80%] p-3 rounded-2xl text-xs leading-relaxed ${
                 m.sender === 'user'
                   ? 'bg-blue-600 text-white rounded-br-none shadow-md'
-                  : 'bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) text-(--color-text-primary) dark:text-(--color-text-primary-dark) rounded-bl-none border border-slate-200/60 dark:border-slate-600'
+                  : 'bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) text-(--color-text-primary) dark:text-(--color-text-primary-dark) rounded-bl-none border border-slate-200/60 dark:border-(--color-border-dark)'
               }`}
             >
               <p>{m.text}</p>
@@ -499,7 +499,7 @@ const voices = speechSynthRef.current.getVoices();
         <div ref={scrollRef} />
       </div>
 
-      <form onSubmit={handleSend} className="p-2.5 border-t border-(--color-border) dark:border-(--color-border-dark) flex items-center gap-2 bg-slate-50 dark:bg-slate-900">
+      <form onSubmit={handleSend} className="p-2.5 border-t border-(--color-border) dark:border-(--color-border-dark) flex items-center gap-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark)">
           <div className="flex items-center gap-2 w-full">
             {/* Main Chat Input */}
             <input
@@ -631,7 +631,7 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-gradient-to-br from-blue-50 to-white dark:from-slate-800 dark:to-slate-800/90 border border-blue-100 dark:border-slate-700 rounded-2xl p-6 shadow-sm">
+        <div className="bg-gradient-to-br from-blue-50 to-white dark:from-(--color-bg-subtle-dark) dark:to-(--color-bg-card-dark) border border-blue-100 dark:border-(--color-border-dark) rounded-2xl p-6 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
             <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">AI Daily Wellness Tip</h3>
@@ -641,7 +641,7 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
           </p>
         </div>
 
-        <div className="bg-gradient-to-br from-emerald-50 to-white dark:from-slate-800 dark:to-slate-800/90 border border-emerald-100 dark:border-slate-700 rounded-2xl p-6 shadow-sm">
+        <div className="bg-gradient-to-br from-emerald-50 to-white dark:from-(--color-bg-subtle-dark) dark:to-(--color-bg-card-dark) border border-emerald-100 dark:border-(--color-border-dark) rounded-2xl p-6 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
             <Target className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
             <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">This Week's Target Goal</h3>
@@ -670,7 +670,7 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
 
         {routine ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 border border-(--color-border) dark:border-(--color-border-dark)">
+            <div className="bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded-xl p-4 border border-(--color-border) dark:border-(--color-border-dark)">
               <div className="flex items-center gap-2 mb-3">
                 <Sun className="w-4 h-4 text-amber-500" />
                 <h4 className="text-xs font-bold text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) uppercase font-mono">Morning</h4>
@@ -685,7 +685,7 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
               </ul>
             </div>
 
-            <div className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 border border-(--color-border) dark:border-(--color-border-dark)">
+            <div className="bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded-xl p-4 border border-(--color-border) dark:border-(--color-border-dark)">
               <div className="flex items-center gap-2 mb-3">
                 <Clock className="w-4 h-4 text-sky-500" />
                 <h4 className="text-xs font-bold text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) uppercase font-mono">Afternoon</h4>
@@ -700,7 +700,7 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
               </ul>
             </div>
 
-            <div className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 border border-(--color-border) dark:border-(--color-border-dark)">
+            <div className="bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded-xl p-4 border border-(--color-border) dark:border-(--color-border-dark)">
               <div className="flex items-center gap-2 mb-3">
                 <Moon className="w-4 h-4 text-indigo-400" />
                 <h4 className="text-xs font-bold text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) uppercase font-mono">Evening</h4>
@@ -776,7 +776,7 @@ const FloatingBot = ({ onClick, isChatOpen }) => {
     >
       {!isChatOpen && (
         <div 
-          className={`absolute bottom-full right-0 mb-3 w-max max-w-[200px] sm:max-w-[220px] whitespace-normal break-words px-3 py-1.5 bg-white dark:bg-slate-700 text-(--color-text-primary) dark:text-(--color-text-primary-dark) rounded-lg text-[11px] font-semibold shadow-lg transition-opacity duration-300 ${
+          className={`absolute bottom-full right-0 mb-3 w-max max-w-[200px] sm:max-w-[220px] whitespace-normal break-words px-3 py-1.5 bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) text-(--color-text-primary) dark:text-(--color-text-primary-dark) rounded-lg text-[11px] font-semibold shadow-lg transition-opacity duration-300 ${
             isPaused ? 'opacity-100' : 'opacity-0'
           }`}
         >
@@ -1030,7 +1030,7 @@ export default function UserDashboard({
   ];
 
   return (
-    <div className="h-screen overflow-hidden bg-slate-50 dark:bg-slate-900 text-(--color-text-primary) dark:text-(--color-text-primary-dark) flex flex-col font-sans transition-colors duration-300">
+    <div className="h-screen overflow-hidden bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) text-(--color-text-primary) dark:text-(--color-text-primary-dark) flex flex-col font-sans transition-colors duration-300">
       
       {/* Video Player Modal */}
       <AnimatePresence>
@@ -1071,7 +1071,7 @@ export default function UserDashboard({
                 This will immediately send an emergency alert to the administrators with your location and health details. Are you sure you want to proceed?
               </p>
               <div className="flex justify-end gap-3">
-                <button onClick={() => setIsSosModalOpen(false)} className="px-4 py-2 text-sm font-semibold text-(--color-text-secondary) dark:text-(--color-text-primary-dark) bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">Cancel</button>
+                <button onClick={() => setIsSosModalOpen(false)} className="px-4 py-2 text-sm font-semibold text-(--color-text-secondary) dark:text-(--color-text-primary-dark) bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded-lg hover:bg-slate-200 dark:hover:bg-(--color-bg-subtle-dark) transition-colors">Cancel</button>
                 <button onClick={handleTriggerSos} className="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors shadow-md">Yes, Send Alert</button>
               </div>
             </motion.div>
@@ -1080,7 +1080,7 @@ export default function UserDashboard({
       </AnimatePresence>
       
       {/* 1. Header with Page Icon, Greeting, Date & Dark Mode Toggle */}
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80  border-b border-slate-200/80 dark:border-slate-700 px-4 md:px-8 py-3.5 flex items-center justify-between transition-colors">
+      <header className="sticky top-0 z-40 bg-white/85 dark:bg-(--color-bg-dark)  border-b border-(--color-border) dark:border-(--color-border-dark) px-4 md:px-8 py-3.5 flex items-center justify-between transition-colors">
         
         {/* Left: Mobile Menu Toggle & App Logo / Greeting */}
         <div className="flex items-center gap-3 md:gap-5">
@@ -1107,7 +1107,7 @@ export default function UserDashboard({
             </div>
           </div>
 
-          <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden md:block" />
+          <div className="h-6 w-px bg-slate-200 dark:bg-(--color-bg-card-dark) hidden md:block" />
 
           {/* User Greeting & Date Header */}
           <div className="hidden md:block">
@@ -1144,14 +1144,14 @@ export default function UserDashboard({
             <button
               type="button"
               onClick={() => setActiveTab(16)}
-              className="px-2 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-y border-r border-(--color-border) dark:border-(--color-border-dark) text-(--color-text-muted) dark:text-(--color-text-muted-dark) rounded-r-xl transition-all duration-200 cursor-pointer shadow-sm text-xs font-semibold"
+              className="px-2 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-(--color-bg-card-dark) dark:hover:bg-(--color-bg-subtle-dark) border-y border-r border-(--color-border) dark:border-(--color-border-dark) text-(--color-text-muted) dark:text-(--color-text-muted-dark) rounded-r-xl transition-all duration-200 cursor-pointer shadow-sm text-xs font-semibold"
               title="View SOS History"
             >
               <Clock className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block" />
+          <div className="h-6 w-px bg-slate-200 dark:bg-(--color-bg-card-dark) hidden sm:block" />
 
           {/* User Profile Info Trigger */}
           <div
@@ -1189,7 +1189,7 @@ export default function UserDashboard({
           <button
             type="button"
             onClick={onLogout}
-            className="flex items-center gap-2 px-3 py-2 bg-slate-100 hover:bg-rose-50 dark:bg-slate-800 dark:hover:bg-rose-950/40 border border-slate-200/80 dark:border-slate-700 text-slate-500 hover:text-rose-600 dark:text-(--color-text-muted) dark:hover:text-rose-400 rounded-xl transition-all duration-200 cursor-pointer shadow-sm text-xs font-semibold"
+            className="flex items-center gap-2 px-3 py-2 bg-slate-100 hover:bg-rose-50 dark:bg-(--color-bg-card-dark) dark:hover:bg-rose-950/40 border border-(--color-border) dark:border-(--color-border-dark) text-slate-500 hover:text-rose-600 dark:text-(--color-text-muted) dark:hover:text-rose-400 rounded-xl transition-all duration-200 cursor-pointer shadow-sm text-xs font-semibold"
             title="Log Out"
           >
             <LogOut className="w-4 h-4" />
@@ -1220,7 +1220,7 @@ export default function UserDashboard({
 
         {/* 2. Desktop Navigation Sidebar */}
         <aside
-          className={`hidden lg:flex flex-col h-full overflow-hidden bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-700 transition-all duration-300 shrink-0 p-4 justify-between ${
+          className={`hidden lg:flex flex-col h-full overflow-hidden bg-(--color-bg-card) dark:bg-(--color-bg-dark) border-r border-(--color-border) dark:border-(--color-border-dark) transition-all duration-300 shrink-0 p-4 justify-between ${
             isSidebarCollapsed ? 'w-20' : 'w-70'
           }`}
         >
@@ -1311,7 +1311,7 @@ export default function UserDashboard({
                 animate={{ x: 0 }}
                 exit={{ x: '-100%' }}
                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                className="w-72 bg-white dark:bg-slate-900 h-full p-5 space-y-4 shadow-2xl flex flex-col justify-between"
+                className="w-72 bg-(--color-bg-card) dark:bg-(--color-bg-dark) h-full p-5 space-y-4 shadow-2xl flex flex-col justify-between"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="space-y-4">
@@ -1373,7 +1373,7 @@ export default function UserDashboard({
         {/* 3. Main Workspace Canvas Stage */}
         <main className="flex-1 p-4 md:p-8 overflow-y-auto min-h-0">
           {/* Active module title header */}
-          <div className="mb-6 pb-4 border-b border-slate-200/80 dark:border-slate-700 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="mb-6 pb-4 border-b border-(--color-border) dark:border-(--color-border-dark) flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800/60 rounded-md text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest font-mono mb-2">
                 {activeTab === 7 ? 'SaaS Portal' : activeTab === 15 ? 'Mental Wellness' : activeTab === 3 ? 'AI Recommender' : activeTab === 14 ? 'AI Coach' : activeTab === 8 ? 'Insurance' : activeTab === 9 ? 'Nutrition' : activeTab === 10 ? 'Goals' : activeTab === 11 ? 'Reports' : activeTab === 12 ? 'Emergency' : 'Financial'}

@@ -105,7 +105,7 @@ export default function CustomerSupportModal({ user, onClose }) {
         className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl w-full max-w-2xl shadow-2xl border border-(--color-border) dark:border-(--color-border-dark) max-h-[90vh] flex flex-col overflow-hidden"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-(--color-border) dark:border-(--color-border-dark) bg-slate-50 dark:bg-slate-900/50 shrink-0">
+        <div className="flex items-center justify-between p-5 border-b border-(--color-border) dark:border-(--color-border-dark) bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-100 dark:bg-blue-950/50 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400">
               <LifeBuoy className="w-5 h-5" />
@@ -148,7 +148,7 @@ export default function CustomerSupportModal({ user, onClose }) {
                 return (
                   <div
                     key={i}
-                    className="border border-(--color-border) dark:border-(--color-border-dark) rounded-xl overflow-hidden bg-slate-50/50 dark:bg-slate-900/40"
+                    className="border border-(--color-border) dark:border-(--color-border-dark) rounded-xl overflow-hidden bg-slate-50/50 dark:bg-(--color-bg-dark)/40"
                   >
                     <button
                       onClick={() => setOpenFaq(isOpen ? -1 : i)}
@@ -236,7 +236,7 @@ export default function CustomerSupportModal({ user, onClose }) {
                         value={form.subject}
                         onChange={(e) => setForm({ ...form, subject: e.target.value })}
                         placeholder="e.g. Trouble scheduling a checkup"
-                        className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:border-blue-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark) placeholder-slate-400 outline-none transition-all"
+                        className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-blue-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark) placeholder-slate-400 outline-none transition-all"
                       />
                     </div>
                     <div>
@@ -248,7 +248,7 @@ export default function CustomerSupportModal({ user, onClose }) {
                         value={form.message}
                         onChange={(e) => setForm({ ...form, message: e.target.value })}
                         placeholder="Describe the issue you're facing..."
-                        className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:border-blue-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark) placeholder-slate-400 outline-none transition-all resize-none"
+                        className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-blue-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark) placeholder-slate-400 outline-none transition-all resize-none"
                       />
                     </div>
                     <button

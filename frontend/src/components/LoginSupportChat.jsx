@@ -60,7 +60,7 @@ export default function LoginSupportChat({ onEscalate }) {
   };
 
   return (
-    <div className="flex flex-col h-[450px] bg-slate-50 dark:bg-slate-900/50 border border-(--color-border) dark:border-(--color-border-dark) rounded-xl">
+    <div className="flex flex-col h-[450px] bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl">
       <div className="flex-1 p-4 overflow-y-auto space-y-3.5">
         {messages.map((m) => (
           <div

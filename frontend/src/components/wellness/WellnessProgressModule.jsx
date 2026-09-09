@@ -56,7 +56,7 @@ const VitalsChip = ({ label, value, icon: Icon, unit }) => (
   </div>
 );
 const overallColor = (pct) => ({
-  stroke: pct >= 80 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#ef4444',
+  stroke: pct >= 80 ? '#0ea47a' : pct >= 50 ? '#f97316' : '#e5484d',
   strokeWidth: 7,
 });
 

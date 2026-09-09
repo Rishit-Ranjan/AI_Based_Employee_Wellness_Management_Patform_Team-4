@@ -34,7 +34,7 @@ export default function DietPlanModule() {
               key={t}
               onClick={() => handleGenerate(t)}
               className={`px-4 py-2 rounded-full text-xs font-semibold border transition-all cursor-pointer ${
-                selected === t ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm' : 'bg-white dark:bg-slate-700 border-(--color-border) dark:border-(--color-border-dark) text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) hover:border-indigo-300 dark:hover:border-indigo-500'
+                selected === t ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm' : 'bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border-(--color-border) dark:border-(--color-border-dark) text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) hover:border-indigo-300 dark:hover:border-indigo-500'
               }`}
             >
               {t}

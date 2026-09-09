@@ -418,7 +418,7 @@ smoker: smoker,
                     value={age}
                     onChange={(e) => setAge(e.target.value)}
                     placeholder="e.g. 28"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
+                    className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
                   />
                 </div>
 
@@ -429,7 +429,7 @@ smoker: smoker,
                   <select
                     value={gender}
                     onChange={(e) => setGender(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all cursor-pointer"
+                    className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all cursor-pointer"
                   >
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
@@ -444,7 +444,7 @@ smoker: smoker,
                   <select
                     value={dept}
                     onChange={(e) => setDept(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all cursor-pointer"
+                    className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all cursor-pointer"
                   >
                     <option value="Engineering">Engineering</option>
                     <option value="Sales">Sales</option>
@@ -481,7 +481,7 @@ smoker: smoker,
                     value={heightCm}
                     onChange={(e) => setHeightCm(e.target.value)}
                     placeholder="e.g. 175.5"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 dark:focus:border-emerald-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
+                    className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 dark:focus:border-emerald-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
                   />
                 </div>
 
@@ -496,7 +496,7 @@ smoker: smoker,
                     value={weightKg}
                     onChange={(e) => setWeightKg(e.target.value)}
                     placeholder="e.g. 72.0"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 dark:focus:border-emerald-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
+                    className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 dark:focus:border-emerald-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
                   />
                 </div>
 
@@ -510,7 +510,7 @@ smoker: smoker,
                     required
                     value={bmi || computedBmi()}
                     onChange={(e) => setBmi(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 dark:focus:border-emerald-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all font-mono font-bold text-emerald-600 dark:text-emerald-400"
+                    className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 dark:focus:border-emerald-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all font-mono font-bold text-emerald-600 dark:text-emerald-400"
                   />
                 </div>
 
@@ -524,7 +524,7 @@ smoker: smoker,
                     >
                       <Info className="w-3.5 h-3.5 inline cursor-pointer" />
                       {showBpInfoPopup && (
-                        <div className="absolute z-30 w-64 p-3 top-2 mt-2 right-0 bg-slate-900 text-white dark:bg-slate-800 border border-slate-700 rounded-xl shadow-2xl text-[11px] font-normal animate-fadeIn space-y-1">
+                        <div className="absolute z-30 w-64 p-3 top-2 mt-2 right-0 bg-(--color-bg-card-dark) text-(--color-text-primary-dark) dark:bg-(--color-bg-card-dark) border border-slate-700 rounded-xl shadow-2xl text-[11px] font-normal animate-fadeIn space-y-1">
                           <div><strong>Systolic</strong> (top number) measures heart contraction;</div>
                           <div><strong>Diastolic</strong> (bottom number) measures resting pressure.</div>
                           <div>Normal is ~120/80 mmHg.</div>
@@ -538,7 +538,7 @@ smoker: smoker,
                     placeholder="e.g. 120/80"
                     value={bp}
                     onChange={(e) => setBp(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 dark:focus:border-emerald-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all font-mono"
+                    className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 dark:focus:border-emerald-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all font-mono"
                   />
                 </div>
               </div>
@@ -564,7 +564,7 @@ smoker: smoker,
                     value={sleep}
                     onChange={(e) => setSleep(e.target.value)}
                     placeholder="e.g. 7.5"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 dark:focus:border-amber-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
+                    className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 dark:focus:border-amber-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
                   />
                 </div>
 
@@ -580,7 +580,7 @@ smoker: smoker,
                     value={exerciseDaysPerWeek}
                     onChange={(e) => setExerciseDaysPerWeek(e.target.value)}
                     placeholder="e.g. 4"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 dark:focus:border-amber-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
+                    className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 dark:focus:border-amber-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
                   />
                 </div>
 
@@ -595,7 +595,7 @@ smoker: smoker,
                     value={exercise}
                     onChange={(e) => setExercise(e.target.value)}
                     placeholder="e.g. 3.5"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 dark:focus:border-amber-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
+                    className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 dark:focus:border-amber-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
                   />
                 </div>
 
@@ -606,7 +606,7 @@ smoker: smoker,
                   <select
                     value={stress}
                     onChange={(e) => setStress(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 dark:focus:border-amber-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all cursor-pointer"
+                    className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 dark:focus:border-amber-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all cursor-pointer"
                   >
                     <option value="Low">Low Stress</option>
                     <option value="Medium">Medium Stress</option>
@@ -638,7 +638,7 @@ smoker: smoker,
                     value={stressScore}
                     onChange={(e) => setStressScore(e.target.value)}
                     placeholder="5.0"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:focus:border-purple-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all font-mono"
+                    className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:focus:border-purple-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all font-mono"
                   />
                 </div>
 
@@ -653,7 +653,7 @@ smoker: smoker,
                     value={glucoseLevel}
                     onChange={(e) => setGlucoseLevel(e.target.value)}
                     placeholder="90"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:focus:border-purple-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
+                    className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:focus:border-purple-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
                   />
                 </div>
 
@@ -664,7 +664,7 @@ smoker: smoker,
                   <select
                     value={medicalCondition}
                     onChange={(e) => setMedicalCondition(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:focus:border-purple-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all cursor-pointer"
+                    className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:focus:border-purple-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all cursor-pointer"
                   >
                     <option value="No major condition">No major condition</option>
                     <option value="Stress-related fatigue">Stress-related fatigue</option>
@@ -684,7 +684,7 @@ smoker: smoker,
                     onChange={(e) => setMedicalNotes(e.target.value)}
                     placeholder="Any relevant medical history or notes..."
                     rows={2}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:focus:border-purple-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
+                    className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:focus:border-purple-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
                   />
                 </div>
 
@@ -730,7 +730,7 @@ smoker: smoker,
                     value={emergencyContactName}
                     onChange={(e) => setEmergencyContactName(e.target.value)}
                     placeholder="e.g. Priya Sharma"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 dark:focus:border-rose-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
+                    className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 dark:focus:border-rose-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
                   />
                 </div>
 
@@ -743,7 +743,7 @@ smoker: smoker,
                     value={emergencyContactPhone}
                     onChange={(e) => setEmergencyContactPhone(e.target.value)}
                     placeholder="e.g. +91 98765 43210"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 dark:focus:border-rose-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
+                    className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 dark:focus:border-rose-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
                   />
                 </div>
 
@@ -754,7 +754,7 @@ smoker: smoker,
                   <select
                     value={bloodGroup}
                     onChange={(e) => setBloodGroup(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 dark:focus:border-rose-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all cursor-pointer"
+                    className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 dark:focus:border-rose-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all cursor-pointer"
                   >
                     <option value="">Select blood group</option>
                     <option value="A+">A+</option>
@@ -777,7 +777,7 @@ smoker: smoker,
                     value={allergies}
                     onChange={(e) => setAllergies(e.target.value)}
                     placeholder="e.g. Peanuts, Penicillin"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 dark:focus:border-rose-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
+                    className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 dark:focus:border-rose-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
                   />
                 </div>
 
@@ -790,7 +790,7 @@ smoker: smoker,
                     value={existingDiseases}
                     onChange={(e) => setExistingDiseases(e.target.value)}
                     placeholder="e.g. Asthma, Hypertension"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 dark:focus:border-rose-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
+                    className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 dark:focus:border-rose-400 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
                   />
                 </div>
               </div>
@@ -902,7 +902,7 @@ smoker: smoker,
               <button
                 type="button"
                 onClick={() => updateWater(-1)}
-                className="flex-1 py-2 bg-slate-100 hover:bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) dark:hover:bg-slate-600 rounded-xl text-xs font-semibold text-(--color-text-secondary) dark:text-(--color-text-primary-dark) transition-all cursor-pointer"
+                className="flex-1 py-2 bg-slate-100 hover:bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) dark:hover:bg-(--color-bg-subtle-dark) rounded-xl text-xs font-semibold text-(--color-text-secondary) dark:text-(--color-text-primary-dark) transition-all cursor-pointer"
               >
                 - 1 Cup
               </button>
@@ -980,7 +980,7 @@ smoker: smoker,
                   className={`py-2 rounded-xl text-base border flex flex-col items-center justify-center transition-all cursor-pointer ${
                     mood === m.name
                       ? 'bg-blue-50 border-blue-300 dark:bg-blue-950/80 dark:border-blue-700 font-bold scale-105 text-blue-600 dark:text-blue-400'
-                      : 'bg-slate-50 border-slate-200 dark:bg-slate-900 dark:border-slate-700 hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark) text-(--color-text-secondary) dark:text-(--color-text-secondary-dark)'
+                      : 'bg-slate-50 border-slate-200 dark:bg-(--color-bg-dark) dark:border-(--color-border-dark) hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark) text-(--color-text-secondary) dark:text-(--color-text-secondary-dark)'
                   }`}
                 >
                   <span>{m.label}</span>
@@ -1047,7 +1047,7 @@ smoker: smoker,
                 value={pulseFeedback}
                 onChange={(e) => setPulseFeedback(e.target.value)}
                 placeholder="Share anonymized feedback regarding team workload..."
-                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none"
+                className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 rounded-xl text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none"
               />
               {pulseFeedbackError && (
                 <p className="mt-1.5 text-[11px] text-rose-600 dark:text-rose-400 flex items-center gap-1">

@@ -9,9 +9,9 @@ import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Toolti
 const DEPARTMENTS = ['Engineering', 'Sales', 'Marketing', 'Product', 'Operations', 'IT', 'Customer Support', 'HR', 'Finance'];
 
 const PIE_COLOR_MAP = {
-  High: '#ef4444',
+  High: '#e5484d',
   Moderate: '#f59e0b',
-  Low: '#10b981',
+  Low: '#0ea47a',
   'No Data': '#cbd5e1',
 };
 
@@ -79,14 +79,14 @@ const SearchableEmployeeSelect = ({
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-700 border border-(--color-border) dark:border-(--color-border-dark) rounded-lg shadow-lg z-50">
-          <div className="p-2 border-b border-slate-100 dark:border-slate-600">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg shadow-lg z-50">
+          <div className="p-2 border-b border-(--color-border) dark:border-(--color-border-dark)">
             <input
               type="text"
               placeholder="Search by name or ID..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-(--color-border) dark:border-(--color-border-dark) rounded text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none focus:border-indigo-500"
+              className="w-full px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none focus:border-indigo-500"
               autoFocus
             />
           </div>
@@ -99,7 +99,7 @@ const SearchableEmployeeSelect = ({
                   setIsOpen(false);
                   setSearchTerm('');
                 }}
-                className="w-full text-left px-4 py-2.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition-colors flex items-center justify-between border-b border-slate-100 dark:border-slate-600"
+                className="w-full text-left px-4 py-2.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition-colors flex items-center justify-between border-b border-(--color-border) dark:border-(--color-border-dark)"
               >
                 <span>Show All Employees</span>
                 {!value && <Check className="w-4 h-4 text-indigo-600" />}
@@ -561,7 +561,7 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
           <select
             value={filterDept}
             onChange={(e) => setFilterDept(e.target.value)}
-            className="w-full sm:w-44 px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all cursor-pointer"
+            className="w-full sm:w-44 px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all cursor-pointer"
           >
             <option value="">All Departments</option>
             {DEPARTMENTS.map(dept => (
@@ -583,7 +583,7 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
       {isAddOpen && (
         <div className="fixed inset-0 bg-slate-900/60  flex items-center justify-center p-4 z-50 animate-fadeIn">
           <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl border border-(--color-border) dark:border-(--color-border-dark) w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh]">
-            <div className="bg-slate-50 dark:bg-slate-900 border-b border-(--color-border) dark:border-(--color-border-dark) px-6 py-4 flex items-center justify-between shrink-0">
+            <div className="bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border-b border-(--color-border) dark:border-(--color-border-dark) px-6 py-4 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2">
                 <Activity className="w-5 h-5 text-(--color-text-primary) dark:text-(--color-text-primary-dark)" />
                 <h3 className="font-display font-semibold text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark)">
@@ -841,7 +841,7 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
       {isViewDetailsOpen && viewingRecord && (
         <div className="fixed inset-0 bg-slate-900/60  flex items-center justify-center p-4 z-50 animate-fadeIn">
           <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl border border-(--color-border) dark:border-(--color-border-dark) w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh]">
-            <div className="bg-slate-50 dark:bg-slate-900 border-b border-(--color-border) dark:border-(--color-border-dark) px-6 py-4 flex items-center justify-between shrink-0">
+            <div className="bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border-b border-(--color-border) dark:border-(--color-border-dark) px-6 py-4 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2">
                 <Activity className="w-5 h-5 text-(--color-text-primary) dark:text-(--color-text-primary-dark)" />
                 <h3 className="font-display font-semibold text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark)">
@@ -995,7 +995,7 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
                     <MoreHorizontal className="w-4 h-4" />
                   </button>
                   {openActionMenu === record.id && (
-                    <div ref={actionMenuRef} className="absolute top-full right-0 mt-1 w-32 bg-white dark:bg-slate-700 rounded-md shadow-lg border border-(--color-border) dark:border-(--color-border-dark) z-20">
+                    <div ref={actionMenuRef} className="absolute top-full right-0 mt-1 w-32 bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-md shadow-lg border border-(--color-border) dark:border-(--color-border-dark) z-20">
                       <button
                         onClick={() => { openEditModal(record); setOpenActionMenu(null); }}
                         className="w-full text-left px-4 py-2 text-xs text-(--color-text-secondary) dark:text-(--color-text-primary-dark) hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark) flex items-center gap-2"
@@ -1179,7 +1179,7 @@ function UserManagementModule({ allUsers, healthRecords, onDeleteUser, onUpdateU
             placeholder="Search by name, ID, or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) placeholder-slate-400 dark:placeholder-slate-500 outline-none transition-all"
+            className="w-full pl-10 pr-4 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) placeholder-slate-400 dark:placeholder-(--color-text-muted-dark) outline-none transition-all"
           />
         </div>
       </div>
@@ -1193,7 +1193,7 @@ function UserManagementModule({ allUsers, healthRecords, onDeleteUser, onUpdateU
 
       <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-xl border border-(--color-border) dark:border-(--color-border-dark) shadow-sm overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 dark:bg-slate-900/50 text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider font-mono">
+          <thead className="bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider font-mono">
             <tr>
               <th className="px-6 py-3 text-left font-semibold">Employee</th>
               <th className="px-6 py-3 text-left font-semibold">Department</th>
@@ -1271,7 +1271,7 @@ function UserManagementModule({ allUsers, healthRecords, onDeleteUser, onUpdateU
               <h3 className="text-lg font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">Edit User</h3>
               <button
                 onClick={cancelEdit}
-                className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-(--color-text-muted) hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                className="p-1.5 hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark) rounded-lg text-(--color-text-muted) hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                 title="Close"
               >
                 <X className="w-4 h-4" />
@@ -1291,7 +1291,7 @@ function UserManagementModule({ allUsers, healthRecords, onDeleteUser, onUpdateU
                   value={draft.name}
                   onChange={(e) => setDraft({ ...draft, name: e.target.value })}
                   required
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 rounded-lg text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-colors"
+                  className="w-full px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 rounded-lg text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-colors"
                   placeholder="Full name"
                 />
               </div>
@@ -1302,7 +1302,7 @@ function UserManagementModule({ allUsers, healthRecords, onDeleteUser, onUpdateU
                   value={draft.email}
                   onChange={(e) => setDraft({ ...draft, email: e.target.value })}
                   required
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 rounded-lg text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-colors"
+                  className="w-full px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 rounded-lg text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-colors"
                   placeholder="email@company.com"
                 />
               </div>
@@ -1312,7 +1312,7 @@ function UserManagementModule({ allUsers, healthRecords, onDeleteUser, onUpdateU
                   type="text"
                   value={draft.department}
                   onChange={(e) => setDraft({ ...draft, department: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 rounded-lg text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-colors"
+                  className="w-full px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 rounded-lg text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-colors"
                   placeholder="Department"
                 />
               </div>
@@ -1321,7 +1321,7 @@ function UserManagementModule({ allUsers, healthRecords, onDeleteUser, onUpdateU
                 <select
                   value={draft.role}
                   onChange={(e) => setDraft({ ...draft, role: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 rounded-lg text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-colors"
+                  className="w-full px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 rounded-lg text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-colors"
                 >
                   <option value="user">user</option>
                   <option value="admin">admin</option>
@@ -1338,7 +1338,7 @@ function UserManagementModule({ allUsers, healthRecords, onDeleteUser, onUpdateU
                 <button
                   type="button"
                   onClick={cancelEdit}
-                  className="px-4 py-2 text-sm font-medium text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                  className="px-4 py-2 text-sm font-medium text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark) rounded-lg transition-colors"
                 >
                   Cancel
                 </button>
@@ -1388,7 +1388,7 @@ function UserManagementModule({ allUsers, healthRecords, onDeleteUser, onUpdateU
             <div className="px-6 py-4 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border-t border-(--color-border) dark:border-(--color-border-dark) flex justify-end gap-3">
               <button
                 onClick={() => setPendingDelete(null)}
-                className="px-4 py-2 rounded-lg text-xs font-semibold text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) bg-white dark:bg-slate-700 border border-(--color-border) dark:border-(--color-border-dark) hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark) transition-colors"
+                className="px-4 py-2 rounded-lg text-xs font-semibold text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark) transition-colors"
               >
                 Cancel
               </button>
@@ -1441,7 +1441,7 @@ export function RiskPredictionModule({ risks }) {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         <div
           onClick={() => setFilter('ALL')}
-          className={`bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border p-4.5 rounded-xl cursor-pointer transition-all hover:bg-slate-50/50 dark:hover:bg-slate-700/50 shadow-sm ${
+          className={`bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border p-4.5 rounded-xl cursor-pointer transition-all hover:bg-slate-50/50 dark:hover:bg-(--color-bg-subtle-dark)/50 shadow-sm ${
             filter === 'ALL' ? 'border-blue-400 dark:border-blue-600 bg-blue-50/50 dark:bg-blue-950/40' : 'border-(--color-border) dark:border-(--color-border-dark) hover:border-blue-300 dark:hover:border-blue-700'
           }`}
         >
@@ -1458,7 +1458,7 @@ export function RiskPredictionModule({ risks }) {
 
         <div
           onClick={() => setFilter('HIGH')}
-          className={`bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border p-4.5 rounded-xl cursor-pointer transition-all hover:bg-slate-50/50 dark:hover:bg-slate-700/50 shadow-sm ${
+          className={`bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border p-4.5 rounded-xl cursor-pointer transition-all hover:bg-slate-50/50 dark:hover:bg-(--color-bg-subtle-dark)/50 shadow-sm ${
             filter === 'HIGH' ? 'border-red-400 dark:border-red-600 bg-red-50/50 dark:bg-red-950/40' : 'border-(--color-border) dark:border-(--color-border-dark) hover:border-red-300 dark:hover:border-red-700'
           }`}
         >
@@ -1475,7 +1475,7 @@ export function RiskPredictionModule({ risks }) {
 
         <div
           onClick={() => setFilter('MEDIUM')}
-          className={`bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border p-4.5 rounded-xl cursor-pointer transition-all hover:bg-slate-50/50 dark:hover:bg-slate-700/50 shadow-sm ${
+          className={`bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border p-4.5 rounded-xl cursor-pointer transition-all hover:bg-slate-50/50 dark:hover:bg-(--color-bg-subtle-dark)/50 shadow-sm ${
             filter === 'MEDIUM' ? 'border-amber-400 dark:border-amber-600 bg-amber-50/50 dark:bg-amber-950/40' : 'border-(--color-border) dark:border-(--color-border-dark) hover:border-amber-300 dark:hover:border-amber-700'
           }`}
         >
@@ -1492,7 +1492,7 @@ export function RiskPredictionModule({ risks }) {
 
         <div
           onClick={() => setFilter('LOW')}
-          className={`bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border p-4.5 rounded-xl cursor-pointer transition-all hover:bg-slate-50/50 dark:hover:bg-slate-700/50 shadow-sm ${
+          className={`bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border p-4.5 rounded-xl cursor-pointer transition-all hover:bg-slate-50/50 dark:hover:bg-(--color-bg-subtle-dark)/50 shadow-sm ${
             filter === 'LOW' ? 'border-emerald-400 dark:border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/40' : 'border-(--color-border) dark:border-(--color-border-dark) hover:border-emerald-300 dark:hover:border-emerald-700'
           }`}
         >
@@ -1516,7 +1516,7 @@ export function RiskPredictionModule({ risks }) {
             placeholder="Search by name or ID..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) placeholder-slate-400 dark:placeholder-slate-500 outline-none transition-all"
+            className="w-full pl-10 pr-4 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) placeholder-slate-400 dark:placeholder-(--color-text-muted-dark) outline-none transition-all"
           />
         </div>
       </div>
@@ -1627,7 +1627,7 @@ export function RecommendationModule({ recommendations = [], loading }) {
             placeholder="Search by employee name or ID..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) placeholder-slate-400 dark:placeholder-slate-500 outline-none transition-all"
+            className="w-full pl-10 pr-4 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) placeholder-slate-400 dark:placeholder-(--color-text-muted-dark) outline-none transition-all"
           />
         </div>
       </div>
@@ -1678,10 +1678,10 @@ export function RecommendationModule({ recommendations = [], loading }) {
                 return (
                   <div key={rec.recommendation_id || idx} className="bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg p-4 space-y-3">
                      <div className="flex items-center justify-between">
-                        <div className="p-2 bg-white dark:bg-slate-700 border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-indigo-600 dark:text-indigo-400">
+                        <div className="p-2 bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-indigo-600 dark:text-indigo-400">
                           <Icon className="w-4 h-4" />
                         </div>
-                        <span className="px-2 py-0.5 bg-white dark:bg-slate-700 border border-(--color-border) dark:border-(--color-border-dark) text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) text-[10px] font-bold uppercase rounded-md">
+                        <span className="px-2 py-0.5 bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) text-[10px] font-bold uppercase rounded-md">
                           {rec.category}
                         </span>
                       </div>
@@ -1744,7 +1744,7 @@ export function SentimentModule({ sentimentList = [], healthRecords = [], onPuls
             placeholder="Search by employee name or ID..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) placeholder-slate-400 dark:placeholder-slate-500 outline-none transition-all"
+            className="w-full pl-10 pr-4 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) placeholder-slate-400 dark:placeholder-(--color-text-muted-dark) outline-none transition-all"
           />
         </div>
       </div>
@@ -1951,7 +1951,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
     if (!active || !payload || !payload.length) return null;
     const point = payload[0].payload;
     return (
-      <div className="bg-white dark:bg-slate-900/95 border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-3 text-xs shadow-lg text-(--color-text-primary) dark:text-(--color-text-primary-dark)">
+      <div className="bg-(--color-bg-card) dark:bg-(--color-bg-dark)/95 border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-3 text-xs shadow-lg text-(--color-text-primary) dark:text-(--color-text-primary-dark)">
         <div className="font-semibold mb-1">Employee: {point.employeeName}</div>
         <div className="space-y-1">
           <div>Department: {point.department}</div>
@@ -2147,7 +2147,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
             <div key={dept.department} className="bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-5 space-y-4">
               <div className="flex items-center justify-between">
                 <h4 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{dept.department}</h4>
-                <span className="px-2 py-0.5 bg-white dark:bg-slate-600 border border-slate-200 dark:border-slate-500 rounded text-[9px] font-bold text-(--color-text-muted) dark:text-(--color-text-secondary-dark) font-mono">
+                <span className="px-2 py-0.5 bg-white dark:bg-slate-600 border border-(--color-border) dark:border-(--color-border-dark) rounded text-[9px] font-bold text-(--color-text-muted) dark:text-(--color-text-secondary-dark) font-mono">
                   {dept.employeeCount} employees
                 </span>
               </div>
@@ -2170,19 +2170,19 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
               </div>
 
               <div className="grid grid-cols-2 gap-3 text-[10px]">
-                <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-lg p-2.5 border border-slate-100 dark:border-slate-600">
+                <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-lg p-2.5 border border-(--color-border) dark:border-(--color-border-dark)">
                   <span className="block text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">Avg Stress</span>
                   <span className="font-bold text-(--color-text-secondary) dark:text-(--color-text-primary-dark)">{dept.avgStressScore}/10</span>
                 </div>
-                <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-lg p-2.5 border border-slate-100 dark:border-slate-600">
+                <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-lg p-2.5 border border-(--color-border) dark:border-(--color-border-dark)">
                   <span className="block text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">Avg BMI</span>
                   <span className="font-bold text-(--color-text-secondary) dark:text-(--color-text-primary-dark)">{dept.avgBmi}</span>
                 </div>
-                <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-lg p-2.5 border border-slate-100 dark:border-slate-600">
+                <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-lg p-2.5 border border-(--color-border) dark:border-(--color-border-dark)">
                   <span className="block text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">Avg Sleep</span>
                   <span className="font-bold text-(--color-text-secondary) dark:text-(--color-text-primary-dark)">{dept.avgSleep}h</span>
                 </div>
-                <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-lg p-2.5 border border-slate-100 dark:border-slate-600">
+                <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-lg p-2.5 border border-(--color-border) dark:border-(--color-border-dark)">
                   <span className="block text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">Avg Exercise</span>
                   <span className="font-bold text-(--color-text-secondary) dark:text-(--color-text-primary-dark)">{dept.avgExercise}h/wk</span>
                 </div>
@@ -2213,7 +2213,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
 
       {(!sentimentList || sentimentList.length === 0) ? (
         <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-10 text-center shadow-sm">
-          <Smile className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+          <Smile className="w-8 h-8 text-slate-300 dark:text-(--color-border-strong-dark) mx-auto mb-3" />
           <p className="text-sm font-semibold text-(--color-text-secondary) dark:text-(--color-text-secondary-dark)">No department sentiment data available yet.</p>
           <p className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) mt-1.5">Department sentiment analytics will appear here once employees submit their wellness pulse checks.</p>
         </div>
@@ -2264,7 +2264,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
               </div>
 
 <div className="space-y-4">
-                <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-slate-100 dark:border-slate-600 rounded-xl p-4 text-center">
+                <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-4 text-center">
                   <div className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider font-mono mb-2">Stress Index</div>
                   <div className={`text-4xl font-display font-bold ${avgStress >= 7 ? 'text-rose-600' : avgStress >= 5 ? 'text-amber-600' : 'text-emerald-600'}`}>{avgStress}</div>
                   <div className="text-[9px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono mt-1">/ 10</div>
@@ -2288,7 +2288,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
                         <span className={`shrink-0 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider ${
                           sentimentTag === 'Positive' ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800' :
                           sentimentTag === 'Negative' ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-100 dark:border-rose-800' :
-                          'bg-slate-100 dark:bg-slate-600 text-(--color-text-muted) dark:text-(--color-text-secondary-dark) border border-slate-200 dark:border-slate-500'
+                          'bg-slate-100 dark:bg-slate-600 text-(--color-text-muted) dark:text-(--color-text-secondary-dark) border border-(--color-border) dark:border-(--color-border-dark)'
                         }`}>
                           {sentimentTag}
                         </span>
@@ -2517,7 +2517,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
               <div className="w-1.5 h-1.5 bg-slate-400 dark:bg-slate-500 rounded-full mx-auto" />
               <div className="font-semibold text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) truncate">{r.employeeName}</div>
               <div className="text-[9px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider font-mono">{r.department}</div>
-              <div className="grid grid-cols-2 gap-1 text-[10px] font-mono bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) p-2 rounded border border-slate-150 dark:border-slate-700 mt-2">
+              <div className="grid grid-cols-2 gap-1 text-[10px] font-mono bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) p-2 rounded border border-slate-150 dark:border-(--color-border-dark) mt-2">
                 <div>
                   <span className="block text-[8px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase font-sans">Sleep</span>
                   <span className="font-bold text-(--color-text-secondary) dark:text-(--color-text-secondary-dark)">{r.sleepHoursPerNight}h</span>
@@ -2654,13 +2654,13 @@ function SystemSettingsModule() {
           <SettingRow label="Enable Email Notifications">
             <label className="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" checked={settings.enableEmailNotifications} onChange={(e) => handleSettingChange('enableEmailNotifications', e.target.checked)} className="sr-only peer" />
-              <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-slate-600 peer-checked:bg-blue-600"></div>
+              <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-(--color-bg-card-dark) peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-(--color-border-dark) peer-checked:bg-blue-600"></div>
             </label>
           </SettingRow>
           <SettingRow label="Enable SMS Notifications">
             <label className="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" checked={settings.enableSmsNotifications} onChange={(e) => handleSettingChange('enableSmsNotifications', e.target.checked)} className="sr-only peer" />
-              <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-slate-600 peer-checked:bg-blue-600"></div>
+              <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-(--color-bg-card-dark) peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-(--color-border-dark) peer-checked:bg-blue-600"></div>
             </label>
           </SettingRow>
         </SettingCard>
@@ -2672,7 +2672,7 @@ function SystemSettingsModule() {
           <SettingRow label="Anonymize Sentiment Data">
             <label className="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" checked={settings.anonymizeSentiment} onChange={(e) => handleSettingChange('anonymizeSentiment', e.target.checked)} className="sr-only peer" />
-              <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-slate-600 peer-checked:bg-blue-600"></div>
+              <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-(--color-bg-card-dark) peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-(--color-border-dark) peer-checked:bg-blue-600"></div>
             </label>
           </SettingRow>
         </SettingCard>
@@ -2800,12 +2800,12 @@ export default function AdminDashboard({ user,
   const firstName = user?.name ? user.name.split(' ')[0] : 'Admin';
 
   return (
-    <div className="h-screen overflow-hidden bg-slate-50 dark:bg-slate-900 text-(--color-text-primary) dark:text-(--color-text-primary-dark) flex flex-col font-sans transition-colors duration-300">
+    <div className="h-screen overflow-hidden bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) text-(--color-text-primary) dark:text-(--color-text-primary-dark) flex flex-col font-sans transition-colors duration-300">
       
       {isNotifCenterOpen && (
         <div className="fixed inset-0 bg-slate-900/60  z-[100] flex items-center justify-center p-4 animate-fadeIn" onClick={() => { setIsNotifCenterOpen(false); setNotifRefreshKey(k => k + 1); }}>
           <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl w-full max-w-3xl shadow-2xl border border-(--color-border) dark:border-(--color-border-dark) max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
-            <div className="p-5 border-b border-(--color-border) dark:border-(--color-border-dark) flex items-center justify-between bg-slate-50 dark:bg-slate-900">
+            <div className="p-5 border-b border-(--color-border) dark:border-(--color-border-dark) flex items-center justify-between bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark)">
               <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) flex items-center gap-2"><Bell className="w-5 h-5 text-(--color-text-muted)" /> Notification Center</h3>
               <button onClick={() => { setIsNotifCenterOpen(false); setNotifRefreshKey(k => k + 1); }} className="text-(--color-text-muted) hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer"><X className="w-5 h-5" /></button>
             </div>
@@ -2839,7 +2839,7 @@ export default function AdminDashboard({ user,
         />
       )}
       {/* Platform Header */}
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80  border-b border-slate-200/80 dark:border-slate-700 px-4 md:px-8 py-3.5 flex items-center justify-between transition-colors">
+      <header className="sticky top-0 z-40 bg-white/85 dark:bg-(--color-bg-dark)  border-b border-(--color-border) dark:border-(--color-border-dark) px-4 md:px-8 py-3.5 flex items-center justify-between transition-colors">
         
         {/* Left: Mobile Menu Toggle & App Logo / Greeting */}
         <div className="flex items-center gap-3 md:gap-5">
@@ -2866,7 +2866,7 @@ export default function AdminDashboard({ user,
             </div>
           </div>
 
-          <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden md:block" />
+          <div className="h-6 w-px bg-slate-200 dark:bg-(--color-bg-card-dark) hidden md:block" />
 
           {/* User Greeting & Date Header */}
           <div className="hidden md:block">
@@ -2885,7 +2885,7 @@ export default function AdminDashboard({ user,
           {/* System Settings Button */}
           <button
             onClick={() => setActiveTab(11)}
-            className="p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700 text-(--color-text-muted) dark:text-(--color-text-muted-dark) rounded-xl transition-all duration-200 cursor-pointer shadow-sm"
+            className="p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-(--color-bg-card-dark) dark:hover:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) text-(--color-text-muted) dark:text-(--color-text-muted-dark) rounded-xl transition-all duration-200 cursor-pointer shadow-sm"
             title="System Settings"
           >
             <Cog className="w-4 h-4" />
@@ -2897,7 +2897,7 @@ export default function AdminDashboard({ user,
           {/* Notification Bell */}
           <NotificationBell isAdmin={true} onAdminClick={() => setIsNotifCenterOpen(true)} refreshKey={notifRefreshKey} />
 
-          <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block" />
+          <div className="h-6 w-px bg-slate-200 dark:bg-(--color-bg-card-dark) hidden sm:block" />
 
           <div
             className="flex items-center gap-3 cursor-pointer group p-1 rounded-xl hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark)/60 transition-all"
@@ -2927,7 +2927,7 @@ export default function AdminDashboard({ user,
 
           <button
             onClick={onLogout}
-            className="flex items-center gap-2 px-3 py-2 bg-slate-100 hover:bg-rose-50 dark:bg-slate-800 dark:hover:bg-rose-950/40 border border-slate-200/80 dark:border-slate-700 text-slate-500 hover:text-rose-600 dark:text-(--color-text-muted) dark:hover:text-rose-400 rounded-xl transition-all duration-200 cursor-pointer shadow-sm text-xs font-semibold"
+            className="flex items-center gap-2 px-3 py-2 bg-slate-100 hover:bg-rose-50 dark:bg-(--color-bg-card-dark) dark:hover:bg-rose-950/40 border border-(--color-border) dark:border-(--color-border-dark) text-slate-500 hover:text-rose-600 dark:text-(--color-text-muted) dark:hover:text-rose-400 rounded-xl transition-all duration-200 cursor-pointer shadow-sm text-xs font-semibold"
             title="Log Out"
           >
             <LogOut className="w-4 h-4" />
@@ -2941,7 +2941,7 @@ export default function AdminDashboard({ user,
 
         {/* Navigation Sidebar */}
         <aside
-          className={`hidden lg:flex flex-col h-full overflow-hidden bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-700 transition-all duration-300 shrink-0 p-3 justify-between ${
+          className={`hidden lg:flex flex-col h-full overflow-hidden bg-(--color-bg-card) dark:bg-(--color-bg-dark) border-r border-(--color-border) dark:border-(--color-border-dark) transition-all duration-300 shrink-0 p-3 justify-between ${
             isSidebarCollapsed ? 'w-20' : 'w-67'
           }`}
         >
@@ -3009,7 +3009,7 @@ export default function AdminDashboard({ user,
                 animate={{ x: 0 }}
                 exit={{ x: '-100%' }}
                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                className="w-72 bg-white dark:bg-slate-900 h-full p-5 space-y-4 shadow-2xl flex flex-col justify-between"
+                className="w-72 bg-(--color-bg-card) dark:bg-(--color-bg-dark) h-full p-5 space-y-4 shadow-2xl flex flex-col justify-between"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="space-y-4">
@@ -3055,7 +3055,7 @@ export default function AdminDashboard({ user,
         {/* Module Content Stage */}
         <main className="flex-1 p-4 md:p-8 overflow-y-auto min-h-0">
           {/* Active module display card header */}
-          <div className="mb-6 pb-4 border-b border-slate-200/80 dark:border-slate-700 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="mb-6 pb-4 border-b border-(--color-border) dark:border-(--color-border-dark) flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800/60 rounded-md text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest font-mono mb-2">
                 {adminNavTabs.find(tab => tab.id === activeTab)?.label || 'Admin Module'}
@@ -3087,7 +3087,7 @@ export default function AdminDashboard({ user,
                 {activeTab === 11 && 'Manage application-wide settings and configurations.'}
               </p>
             </div>
-            <div className="min-w-[220px] rounded-3xl bg-slate-50/80 dark:bg-slate-900 border border-slate-200/70 dark:border-slate-700 p-4">
+            <div className="min-w-[220px] rounded-3xl bg-slate-50/80 dark:bg-(--color-bg-dark) border border-slate-200/70 dark:border-(--color-border-dark) p-4">
               <span className="text-[10px] font-bold text-(--color-text-muted) uppercase tracking-wider font-mono block mb-2">
                 System Vitals
               </span>

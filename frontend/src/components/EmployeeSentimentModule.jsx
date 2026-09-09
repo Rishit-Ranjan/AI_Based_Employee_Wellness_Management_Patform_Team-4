@@ -213,7 +213,7 @@ const stressScore = Number(userRecord?.stressScore) || 0;
 
           {totalLogs === 0 ? (
             <div className="py-8 text-center">
-              <Smile className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+              <Smile className="w-8 h-8 text-slate-300 dark:text-(--color-border-strong-dark) mx-auto mb-3" />
               <p className="text-sm font-semibold text-(--color-text-muted) dark:text-(--color-text-muted-dark)">No sentiment data yet</p>
               <p className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) mt-1">
                 Once you submit wellness pulse checks, your sentiment breakdown will appear here.
@@ -268,7 +268,7 @@ const stressScore = Number(userRecord?.stressScore) || 0;
 
           {recentFeedback.length === 0 ? (
             <div className="py-8 text-center">
-              <MessageSquare className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+              <MessageSquare className="w-8 h-8 text-slate-300 dark:text-(--color-border-strong-dark) mx-auto mb-3" />
               <p className="text-sm font-semibold text-(--color-text-muted) dark:text-(--color-text-muted-dark)">No feedback submitted yet</p>
               <p className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) mt-1">
                 Your pulse check feedback will be listed here.
@@ -325,7 +325,7 @@ const stressScore = Number(userRecord?.stressScore) || 0;
                             </button>
                             <button
                               onClick={cancelEdit}
-                              className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) hover:bg-slate-200 dark:hover:bg-slate-600 text-(--color-text-muted) dark:text-(--color-text-secondary-dark) rounded-md text-[10px] font-bold cursor-pointer"
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) hover:bg-slate-200 dark:hover:bg-(--color-bg-subtle-dark) text-(--color-text-muted) dark:text-(--color-text-secondary-dark) rounded-md text-[10px] font-bold cursor-pointer"
                             >
                               <X className="w-3 h-3" /> Cancel
                             </button>

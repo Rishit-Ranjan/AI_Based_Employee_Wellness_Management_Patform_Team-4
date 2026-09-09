@@ -15,7 +15,7 @@ const FloatingSupportButton = ({ onClick }) => {
         <LifeBuoy className="w-6 h-6 relative" />
 
         {/* Tooltip Label */}
-        <div className="absolute bottom-full mb-3 right-1/2 translate-x-1/2 w-max bg-slate-900 dark:bg-slate-700 text-white dark:text-slate-100 text-[11px] font-semibold px-3 py-1.5 rounded-lg shadow-lg border border-slate-700 dark:border-slate-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+        <div className="absolute bottom-full mb-3 right-1/2 translate-x-1/2 w-max bg-slate-900 dark:bg-(--color-bg-card-dark) text-white dark:text-(--color-text-primary-dark) text-[11px] font-semibold px-3 py-1.5 rounded-lg shadow-lg border border-(--color-border-strong) dark:border-(--color-border-dark) opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
           <span>Customer Support</span>
           <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-slate-900 dark:border-t-slate-700" />
         </div>
