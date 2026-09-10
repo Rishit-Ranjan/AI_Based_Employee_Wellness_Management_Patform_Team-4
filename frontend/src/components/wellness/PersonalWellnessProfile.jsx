@@ -31,7 +31,6 @@ import ProfileCard from './ProfileCard';
 import HealthCard from './HealthCard';
 import HealthChart from './HealthChart';
 import ThemeToggle from './ThemeToggle';
-import WellnessInsightsModule from '../WellnessInsightsModule';
 import WellnessProgressModule from './WellnessProgressModule';
 import DailyWellnessChecklist from './DailyWellnessChecklist';
 import SectionTitle from './SectionTitle';
@@ -926,11 +925,6 @@ smoker: smoker,
             stepsCount={stepsCount}
             exerciseHours={Number(exercise) || 0}
             sleepHours={Number(sleep) || 0}
-          />
-          <WellnessInsightsModule
-            records={records}
-            dailyHabits={dailyHabits}
-            mentalHealthLogs={mentalHealthLogs}
           />
         </div>
       </div>
