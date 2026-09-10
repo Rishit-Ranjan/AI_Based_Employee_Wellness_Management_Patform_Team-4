@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { CheckCircle2, Droplets, Footprints, Dumbbell, Moon, Smile, PartyPopper } from 'lucide-react';
+import { CheckCircle2, Droplets, Footprints, Dumbbell, Moon, Smile, PartyPopper, Plus, Trash2 } from 'lucide-react';
 
 const STORAGE_KEY = (employeeId, date) => `daily-wellness-checklist-${employeeId}-${date}`;
+const CUSTOM_KEY = (employeeId, date) => `daily-wellness-custom-${employeeId}-${date}`;
 
 const todayKey = () => new Date().toISOString().split('T')[0];
 
@@ -105,10 +106,54 @@ export default function DailyWellnessChecklist({
     localStorage.setItem(storageKey, JSON.stringify(checks));
   }, [checks, storageKey]);
 
+  // ── Custom habits (user-added), persisted per day ──
+  const customStorageKey = useMemo(() => CUSTOM_KEY(employeeId, todayKey()), [employeeId]);
+  const [customItems, setCustomItems] = useState(() => {
+    try {
+      const saved = localStorage.getItem(customStorageKey);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [newHabit, setNewHabit] = useState('');
+
+  useEffect(() => {
+    localStorage.setItem(customStorageKey, JSON.stringify(customItems));
+  }, [customItems, customStorageKey]);
+
+  const addHabit = () => {
+    const label = newHabit.trim();
+    if (!label) return;
+    const id = `custom-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    setCustomItems(prev => [...prev, {
+      id,
+      icon: 'CheckCircle2',
+      label,
+      caption: 'Custom habit',
+      met: false,
+      color: 'text-teal-500',
+      bg: 'bg-teal-100 dark:bg-teal-900/40',
+      custom: true,
+    }]);
+    setChecks(prev => ({ ...prev, [id]: false }));
+    setNewHabit('');
+  };
+
+  const deleteHabit = (id) => {
+    setCustomItems(prev => prev.filter(i => i.id !== id));
+    setChecks(prev => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+  };
+
   const toggle = (id) => setChecks((prev) => ({ ...prev, [id]: !prev[id] }));
 
-  const doneCount = baseItems.filter((i) => checks[i.id]).length;
-  const total = baseItems.length;
+  const items = [...baseItems, ...customItems];
+  const doneCount = items.filter((i) => checks[i.id]).length;
+  const total = items.length;
   const pct = Math.round((doneCount / total) * 100);
   const isDone = doneCount === total;
   const message = DONE_MESSAGES[new Date().getDate() % DONE_MESSAGES.length];
@@ -133,36 +178,70 @@ export default function DailyWellnessChecklist({
         Tick off each habit. Your progress is saved for today.
       </p>
 
-      <div className="checkbox-scroll max-h-[160px] overflow-y-auto pr-1 -mr-1 space-y-1">
-        {baseItems.map((item) => {
-          const Icon = item.icon;
+      <div className="checkbox-scroll h-[220px] overflow-y-auto pr-1 -mr-1 space-y-1 scrollbar-thin">
+        {items.map((item) => {
+          const Icon = typeof item.icon === 'string' ? CheckCircle2 : item.icon;
           const checked = !!checks[item.id];
           return (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => toggle(item.id)}
-              title={item.caption}
-              className={`h-[40px] w-full flex items-center gap-2 text-left px-2 rounded border transition-all cursor-pointer ${
-                checked
-                  ? 'bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border-emerald-200 dark:border-emerald-800'
-                  : 'bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border-(--color-border) dark:border-(--color-border-dark) hover:border-emerald-300 dark:hover:border-emerald-700'
-              }`}
-            >
-              <Icon className={`w-3 h-3 shrink-0 ${item.color}`} />
-              <span className={`flex-1 min-w-0 truncate text-[11px] font-semibold leading-none ${checked ? 'text-(--color-text-muted) dark:text-(--color-text-muted-dark) line-through' : 'text-(--color-text-secondary) dark:text-(--color-text-primary-dark)'}`}>
-                {item.label}
-              </span>
-              <span className={`w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 ${
-                checked
-                  ? 'bg-emerald-500 border-emerald-500 text-white'
-                  : 'border-(--color-border-strong) dark:border-(--color-border-strong-dark) text-transparent'
-              }`}>
-                <CheckCircle2 className="w-2.5 h-2.5" />
-              </span>
-            </button>
+            <div key={item.id} className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => toggle(item.id)}
+                title={item.caption}
+                className={`h-[40px] flex-1 min-w-0 flex items-center gap-2 text-left px-2 rounded border transition-all cursor-pointer ${
+                  checked
+                    ? 'bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border-emerald-200 dark:border-emerald-800'
+                    : 'bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border-(--color-border) dark:border-(--color-border-dark) hover:border-emerald-300 dark:hover:border-emerald-700'
+                }`}
+              >
+                <Icon className={`w-3 h-3 shrink-0 ${item.color}`} />
+                <span className={`flex-1 min-w-0 truncate text-[11px] font-semibold leading-none ${checked ? 'text-(--color-text-muted) dark:text-(--color-text-muted-dark) line-through' : 'text-(--color-text-secondary) dark:text-(--color-text-primary-dark)'}`}>
+                  {item.label}
+                </span>
+                <span className={`w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 ${
+                  checked
+                    ? 'bg-emerald-500 border-emerald-500 text-white'
+                    : 'border-(--color-border-strong) dark:border-(--color-border-strong-dark) text-transparent'
+                }`}>
+                  <CheckCircle2 className="w-2.5 h-2.5" />
+                </span>
+              </button>
+              {item.custom && (
+                <button
+                  type="button"
+                  onClick={() => deleteHabit(item.id)}
+                  title="Delete habit"
+                  className="shrink-0 p-1.5 rounded border border-(--color-border) dark:border-(--color-border-dark) text-(--color-text-muted) dark:text-(--color-text-muted-dark) hover:text-rose-500 hover:border-rose-300 transition-colors cursor-pointer"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              )}
+            </div>
           );
         })}
+      </div>
+
+      {/* Add custom habit */}
+      <div className="mt-2">
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            value={newHabit}
+            onChange={(e) => setNewHabit(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addHabit(); } }}
+            placeholder="Add a custom habit..."
+            maxLength={60}
+            className="flex-1 min-w-0 px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20 rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none transition-all"
+          />
+          <button
+            type="button"
+            onClick={addHabit}
+            disabled={!newHabit.trim()}
+            className="shrink-0 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer"
+          >
+            <Plus className="w-3.5 h-3.5" /> Add
+          </button>
+        </div>
       </div>
 
       <div className="mt-2">
