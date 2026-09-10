@@ -5,6 +5,7 @@ import {
   Droplets,
   Moon,
   Dumbbell,
+  Flame,
   HeartPulse,
   Scale,
   Brain,
@@ -70,6 +71,7 @@ export default function WellnessProgressModule({
   sleepHours = 7.5,
   exerciseDays = 0,
   exerciseHours = 0,
+  caloriesBurned = 0,
   waterCups = 0,
   stepsCount = 0,
   streakDays = 0,
@@ -138,6 +140,7 @@ export default function WellnessProgressModule({
         <GoalBar label="Daily Steps" icon={Footprints} value={stepsCount} target={10000} iconColor="text-emerald-500 dark:text-emerald-400" />
         <GoalBar label="Hydration" icon={Droplets} value={waterCups} target={8} suffix=" cups" iconColor="text-blue-500 dark:text-blue-400" />
         <GoalBar label="Exercise" icon={Dumbbell} value={exerciseDays} target={7} suffix=" days" iconColor="text-amber-500 dark:text-amber-400" />
+        <GoalBar label="Active Burn" icon={Flame} value={caloriesBurned} target={2500} suffix=" kcal" iconColor="text-orange-500 dark:text-orange-400" />
       </div>
 
       {/* Key vitals snapshot */}

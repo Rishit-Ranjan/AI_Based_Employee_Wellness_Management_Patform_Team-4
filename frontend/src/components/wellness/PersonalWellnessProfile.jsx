@@ -405,17 +405,6 @@ smoker: smoker,
         <p className="text-xs text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) mt-3">{trendMessage}</p>
       </section>
 
-      {/* 1. Quick Stats Row (4 Stat Cards) */}
-      <StatCard
-          title="Calories Burned"
-          value={`${caloriesBurned.toLocaleString()} kcal`}
-          subtext="Daily active burn"
-          trend="+12% active level"
-          trendUp={true}
-          icon={Flame}
-          color="amber"
-        />
-
       {/* 2. Main Grid: Form Split Cards (Left) & Visual Diagnostics (Right) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
@@ -884,6 +873,7 @@ smoker: smoker,
             sleepHours={Number(sleep) || 7.5}
             exerciseDays={Number(exerciseDaysPerWeek) || 0}
             exerciseHours={Number(exercise) || 0}
+            caloriesBurned={caloriesBurned}
             waterCups={waterCups}
             stepsCount={stepsCount}
             streakDays={streakDays}
