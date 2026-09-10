@@ -921,10 +921,6 @@ smoker: smoker,
           />
           <DailyWellnessChecklist
             user={user}
-            waterCups={waterCups}
-            stepsCount={stepsCount}
-            exerciseHours={Number(exercise) || 0}
-            sleepHours={Number(sleep) || 0}
           />
         </div>
       </div>
