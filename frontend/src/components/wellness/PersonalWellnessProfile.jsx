@@ -13,7 +13,6 @@ import {
   Clock,
   Smile,
   Flame,
-  Moon,
   Info,
   Calendar,
   Heart,
@@ -407,17 +406,7 @@ smoker: smoker,
       </section>
 
       {/* 1. Quick Stats Row (4 Stat Cards) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <StatCard
-          title="Health Score"
-          value={`${healthScore}%`}
-          subtext="Computed from vitals"
-          trend="+3.2% vs last month"
-          trendUp={true}
-          icon={HeartPulse}
-          color="blue"
-        />
-        <StatCard
+      <StatCard
           title="Calories Burned"
           value={`${caloriesBurned.toLocaleString()} kcal`}
           subtext="Daily active burn"
@@ -426,25 +415,6 @@ smoker: smoker,
           icon={Flame}
           color="amber"
         />
-        <StatCard
-          title="Exercise Days"
-          value={`${exerciseDaysPerWeek || 0} / 7 Days`}
-          subtext={`~${exercise || 0} hrs total weekly`}
-          trend={Number(exerciseDaysPerWeek) >= 3 ? "Optimal target reached" : "Below target"}
-          trendUp={Number(exerciseDaysPerWeek) >= 3}
-          icon={Dumbbell}
-          color="emerald"
-        />
-        <StatCard
-          title="Sleep Average"
-          value={`${sleep || 7.5} hrs`}
-          subtext="Nightly rest log"
-          trend={Number(sleep) >= 7 ? "Optimal recovery" : "Needs rest"}
-          trendUp={Number(sleep) >= 7}
-          icon={Moon}
-          color="purple"
-        />
-      </div>
 
       {/* 2. Main Grid: Form Split Cards (Left) & Visual Diagnostics (Right) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
