@@ -730,27 +730,7 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
 // ==========================================
 const FloatingBot = ({ onClick, isChatOpen }) => {
   const bubbleText = 'Chat with your wellness assistant';
-  const [isWaving, setIsWaving] = useState(false);
   const botRef = useRef(null);
-
-  useEffect(() => {
-    if (isChatOpen) return undefined;
-
-    let waveTimeout;
-    const triggerWave = () => {
-      setIsWaving(true);
-      waveTimeout = setTimeout(() => setIsWaving(false), 2400);
-    };
-
-    const initialWave = setTimeout(triggerWave, 5000);
-    const waveInterval = setInterval(triggerWave, 12000);
-
-    return () => {
-      clearTimeout(initialWave);
-      clearTimeout(waveTimeout);
-      clearInterval(waveInterval);
-    };
-  }, [isChatOpen]);
 
   return (
     <div
@@ -784,30 +764,7 @@ const FloatingBot = ({ onClick, isChatOpen }) => {
         className="drop-shadow-lg"
         aria-hidden="true"
       >
-        <style>{`
-          .infywell-body {
-            animation: ${!isChatOpen ? 'infywell-bob 3s ease-in-out infinite' : 'none'};
-          }
-          .infywell-wave {
-            transform-box: view-box;
-            transform-origin: 65px 77px;
-            animation: ${isWaving && !isChatOpen ? 'infywell-wave 2.4s ease-in-out 1' : 'none'};
-          }
-          @keyframes infywell-bob {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-2px); }
-          }
-          @keyframes infywell-wave {
-            0% { transform: rotate(0deg); }
-            18% { transform: rotate(62deg); }
-            32% { transform: rotate(48deg); }
-            46% { transform: rotate(66deg); }
-            60% { transform: rotate(48deg); }
-            76% { transform: rotate(62deg); }
-            100% { transform: rotate(0deg); }
-          }
-        `}</style>
-        <g className="infywell-body">
+        <g>
           {/* Wellness assistant head and status display */}
           <rect x="24" y="19" width="32" height="27" rx="8" fill="#d1fae5" stroke="#34d399" strokeWidth="1.5" />
           <rect x="29" y="27" width="22" height="12" rx="4" fill="#0f172a" />
@@ -824,7 +781,7 @@ const FloatingBot = ({ onClick, isChatOpen }) => {
 
           {/* Slim arms and grounded legs */}
           <rect x="11" y="49" width="8" height="28" rx="4" fill="#374151" />
-          <rect className="infywell-wave" x="61" y="49" width="8" height="28" rx="4" fill="#374151" />
+          <rect x="61" y="49" width="8" height="28" rx="4" fill="#374151" />
           <rect x="25" y="82" width="11" height="34" rx="5.5" fill="#111827" stroke="#10b981" strokeWidth="1" />
           <rect x="44" y="82" width="11" height="34" rx="5.5" fill="#111827" stroke="#10b981" strokeWidth="1" />
         </g>
