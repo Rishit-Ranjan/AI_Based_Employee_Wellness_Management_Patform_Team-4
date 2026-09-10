@@ -12,7 +12,6 @@ import {
   Dumbbell,
   Clock,
   Smile,
-  Flame,
   Info,
   Calendar,
   Heart,
@@ -25,7 +24,6 @@ import {
   ShieldCheck
 } from 'lucide-react';
 
-import StatCard from './StatCard';
 import ProfileCard from './ProfileCard';
 import HealthCard from './HealthCard';
 import HealthChart from './HealthChart';
