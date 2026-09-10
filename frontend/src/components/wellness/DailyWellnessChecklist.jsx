@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { CheckCircle2, Droplets, Footprints, Dumbbell, Moon, Smile, PartyPopper, Plus, Trash2 } from 'lucide-react';
+import { CheckCircle2, PartyPopper, Plus, Trash2 } from 'lucide-react';
 
 const STORAGE_KEY = (employeeId, date) => `daily-wellness-checklist-${employeeId}-${date}`;
 const CUSTOM_KEY = (employeeId, date) => `daily-wellness-custom-${employeeId}-${date}`;
@@ -14,64 +14,11 @@ const DONE_MESSAGES = [
 
 export default function DailyWellnessChecklist({
   user,
-  waterCups = 0,
-  stepsCount = 0,
-  exerciseHours = 0,
-  sleepHours = 0,
 }) {
   const employeeId = user?.employeeId || 'guest';
   const storageKey = useMemo(() => STORAGE_KEY(employeeId, todayKey()), [employeeId]);
 
-  // Build the checklist items from the employee's real data. Items the employee
-  // has already met for the day are pre-checked so the card reflects reality.
-  const baseItems = useMemo(() => [
-    {
-      id: 'water',
-      icon: Droplets,
-      label: 'Drink 8 cups of water',
-      caption: `Currently logged: ${waterCups} cups`,
-      met: waterCups >= 8,
-      color: 'text-sky-500',
-      bg: 'bg-sky-100 dark:bg-sky-900/40',
-    },
-    {
-      id: 'steps',
-      icon: Footprints,
-      label: 'Reach 7,500 steps',
-      caption: `Currently logged: ${Number(stepsCount).toLocaleString()} steps`,
-      met: stepsCount >= 7500,
-      color: 'text-emerald-500',
-      bg: 'bg-emerald-100 dark:bg-emerald-900/40',
-    },
-    {
-      id: 'exercise',
-      icon: Dumbbell,
-      label: 'Get 30 minutes of movement',
-      caption: `Logged this week: ${exerciseHours} hrs`,
-      met: exerciseHours >= 0.5,
-      color: 'text-amber-500',
-      bg: 'bg-amber-100 dark:bg-amber-900/40',
-    },
-    {
-      id: 'sleep',
-      icon: Moon,
-      label: 'Sleep 7+ hours',
-      caption: `Average: ${sleepHours} hrs a night`,
-      met: sleepHours >= 7,
-      color: 'text-indigo-500',
-      bg: 'bg-indigo-100 dark:bg-indigo-900/40',
-    },
-    {
-      id: 'mood',
-      icon: Smile,
-      label: 'Note how you\'re feeling today',
-      caption: 'A quick mood check-in helps you stay aware',
-      met: false,
-      color: 'text-rose-500',
-      bg: 'bg-rose-100 dark:bg-rose-900/40',
-    },
-  ], [waterCups, stepsCount, exerciseHours, sleepHours]);
-// Persisted, user-toggled state (survives refresh). Initialised from real data met flags.
+// Persisted, user-toggled state (survives refresh).
   const [checks, setChecks] = useState(() => {
     const stored = localStorage.getItem(storageKey);
     if (stored) {
@@ -81,25 +28,8 @@ export default function DailyWellnessChecklist({
         /* fall through to defaults */
       }
     }
-    return Object.fromEntries(baseItems.map((i) => [i.id, i.met]));
+    return {};
   });
-
-  // If the underlying data improves during the day, respect the user's manual toggles
-  // but never leave an already-met item unchecked.
-  useEffect(() => {
-    setChecks((prev) => {
-      const next = { ...prev };
-      let changed = false;
-      baseItems.forEach((item) => {
-        if (item.met && !next[item.id]) {
-          next[item.id] = true;
-          changed = true;
-        }
-      });
-      return changed ? next : prev;
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [baseItems]);
 
   // Persist every change.
   useEffect(() => {
@@ -151,7 +81,7 @@ export default function DailyWellnessChecklist({
 
   const toggle = (id) => setChecks((prev) => ({ ...prev, [id]: !prev[id] }));
 
-  const items = [...baseItems, ...customItems];
+  const items = customItems;
   const doneCount = items.filter((i) => checks[i.id]).length;
   const total = items.length;
   const pct = Math.round((doneCount / total) * 100);
