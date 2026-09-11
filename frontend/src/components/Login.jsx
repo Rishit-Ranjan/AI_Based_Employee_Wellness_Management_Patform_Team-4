@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { login as loginApi } from '../services/api';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Activity, Sparkles, Shield, UserCheck, UserCog, Hash, HeartPulse } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Activity, BrainCircuit, Shield, UserCheck, UserCog, Hash, HeartPulse } from 'lucide-react';
 import FloatingSupportButton from './FloatingSupportButton';
 import CustomerSupportModal from './CustomerSupportModal'; // This will now import the new styled component
 
@@ -168,8 +168,8 @@ export default function Login({ onNavigate, onLoginSuccess }) {
         className="hidden lg:flex lg:w-1/2 bg-slate-900 text-white p-12 flex-col justify-between relative overflow-hidden border-r border-slate-800"
       >
         {/* Abstract background graphics */}
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <div className="absolute top-[-10%] left-[-10%] w-[120%] h-[120%] bg-[radial-gradient(circle_at_50%_50%,#fff_0%,transparent_50%)]"></div>
+        <div className="absolute inset-0 opacity-9 pointer-events-none">
+          <div className="absolute top-[-10%] left-[-10%] w-[120%] h-[120%] bg-[radial-gradient(circle_at_50%_50%,#fff_0%,transparent_45%)]"></div>
           <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-slate-800 to-transparent"></div>
         </div>
         <div className="absolute top-1/4 right-10 w-96 h-96 bg-slate-800/40 rounded-full blur-3xl pointer-events-none" />
@@ -186,14 +186,14 @@ export default function Login({ onNavigate, onLoginSuccess }) {
         <div className="my-auto relative z-10 mt-8">
           <div className="max-w-md">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-850 border border-slate-800 rounded-full text-xxs text-slate-300 mb-6 font-medium">
-              <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+              <BrainCircuit className="w-3.5 h-3.5 text-indigo-400" />
               Empowering Healthy & Engaged Workforces
             </div>
             <h1 className="font-display text-5xl xl:text-6xl font-normal leading-[1.1] tracking-tight text-white mb-6">
               Transform your workplace <br />
               <span className="italic font-serif text-slate-300">with health</span> intelligence.
             </h1>
-            <p className="text-slate-400 text-base lg:text-lg leading-relaxed mb-8 font-normal">
+            <p className="text-(--color-text-muted) text-base lg:text-lg leading-relaxed mb-8 font-normal">
               Manage employee health records, monitor burnout risks, analyze organization sentiment, and provide personalized mental and physical
               wellness recommendations in real-time.
             </p>
@@ -204,22 +204,22 @@ export default function Login({ onNavigate, onLoginSuccess }) {
             <div className="p-4 bg-slate-850 border border-slate-800 rounded-xl">
               <Activity className="w-5 h-5 text-indigo-400 mb-2" />
               <div className="text-sm font-semibold text-white">Predictive Analytics</div>
-              <p className="text-xs text-slate-400 mt-2">Machine learning assessments for health and burnout risks.</p>
+              <p className="text-xs text-(--color-text-muted) mt-2">Machine learning assessments for health and burnout risks.</p>
             </div>
             <div className="p-4 bg-slate-850 border border-slate-800 rounded-xl">
               <Shield className="w-5 h-5 text-emerald-400 mb-2" />
               <div className="text-sm font-semibold text-white">Sentiment Tracker</div>
-              <p className="text-xs text-slate-400 mt-2">Anonymized surveys tracking employee mental wellbeing.</p>
+              <p className="text-xs text-(--color-text-muted) mt-2">Anonymized surveys tracking employee mental wellbeing.</p>
             </div>
             <div className="p-4 bg-slate-850 border border-slate-800 rounded-xl">
-              <Sparkles className="w-5 h-5 text-purple-400 mb-2" />
+              <BrainCircuit className="w-5 h-5 text-purple-400 mb-2" />
               <div className="text-sm font-semibold text-white">Personalized Recs</div>
-              <p className="text-xs text-slate-400 mt-2">AI-driven suggestions for fitness, diet, and mental peace.</p>
+              <p className="text-xs text-(--color-text-muted) mt-2">AI-driven suggestions for fitness, diet, and mental peace.</p>
             </div>
             <div className="p-4 bg-slate-850 border border-slate-800 rounded-xl">
               <HeartPulse className="w-5 h-5 text-rose-400 mb-2" />
               <div className="text-sm font-semibold text-white">Health Data Mgmt</div>
-              <p className="text-xs text-slate-400 mt-2">Comprehensive interface to manage employee health records.</p>
+              <p className="text-xs text-(--color-text-muted) mt-2">Comprehensive interface to manage employee health records.</p>
             </div>
           </div>
         </div>
@@ -227,7 +227,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
         {/* Footer info */}
         <div className="text-sm text-slate-500 flex items-center justify-between relative z-10 font-mono mt-8">
           <span>© 2026 Employee Wellness Inc.</span>
-          <span className="flex items-center gap-1.5 text-slate-400">
+          <span className="flex items-center gap-1.5 text-(--color-text-muted)">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
             All modules operational
           </span>
@@ -235,8 +235,11 @@ export default function Login({ onNavigate, onLoginSuccess }) {
       </div>
 
       {/* Right side: Interactive Login form */}
-      <div id="login-form-panel" className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12">
-        <div className="w-full max-w-md bg-white rounded-2xl border border-slate-200 p-8 shadow-xl">
+      <div id="login-form-panel" className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12 relative overflow-hidden bg-(--color-bg)">
+        {/* Soft light wellness backdrop — subtle, non-obstructive */}
+        <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1600&q=60" alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover opacity-800" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/75 via-white/55 to-white/90" />
+        <div className="relative w-full max-w-md bg-white/95 backdrop-blur-sm rounded-2xl border border-slate-200/80 p-8 shadow-xl">
           <div className="mb-8">
             <div className="lg:hidden flex items-center gap-2 mb-6">
               <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center">
@@ -326,7 +329,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
               </label>
               <div>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-(--color-text-muted)">
                     <Hash className="w-4 h-4" />
                   </div>
                   <input
@@ -352,7 +355,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
               </label>
               <div>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-(--color-text-muted)">
                     <Mail className="w-4 h-4" />
                   </div>
                   <input
@@ -390,7 +393,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
               </div>
               <div>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-(--color-text-muted)">
                     <Lock className="w-4 h-4" />
                   </div>
                   <input
@@ -406,7 +409,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600"
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-(--color-text-muted) hover:text-slate-600"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -432,7 +435,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-slate-900 text-white font-semibold py-3 rounded-lg hover:bg-slate-800 transition-all transform active:scale-[0.98] cursor-pointer mt-2 flex items-center justify-center gap-2 shadow-sm"
+              className="w-full bg-slate-900 text-white font-semibold py-3 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer mt-2 flex items-center justify-center gap-2 shadow-sm"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/35 border-t-white rounded-full animate-spin" />

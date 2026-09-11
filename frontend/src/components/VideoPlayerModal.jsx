@@ -75,7 +75,7 @@ export default function VideoPlayerModal({ videoUrls = [], initialVideoIndex = 0
             <div className="absolute inset-0 flex items-center justify-center bg-slate-900 z-10">
               <div className="text-center text-white p-4">
                 <p className="font-semibold">Video unavailable</p>
-                <p className="text-sm text-slate-400 mt-1">No playable video URL was found.</p>
+                <p className="text-sm text-(--color-text-muted) mt-1">No playable video URL was found.</p>
                 {hasNextVideo && (
                   <button
                     type="button"

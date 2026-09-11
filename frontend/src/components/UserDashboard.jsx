@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   User, Lightbulb, Bot, X, LogOut,
-  Dumbbell, Apple, Brain, Clock, HeartPulse, Sparkles, Check, ShieldAlert, AlertCircle, Smile, Send,
+  Dumbbell, Apple, Brain, Clock, HeartPulse, BrainCircuit, Check, ShieldAlert, AlertCircle, Smile, Send,
   CalendarCheck, Siren, Receipt, ShieldCheck, Target, FileDown, Utensils, Bell, ExternalLink, PlayCircle,
   Mic, MicOff, Volume2, Sun, Moon, Activity, Trash2, Menu, ChevronLeft, ChevronRight, Calendar
 } from 'lucide-react';
@@ -71,7 +71,7 @@ function RecommendationVideoThumbnail({ videoUrl, index, videoUrls, category, se
     <button
       type="button"
       onClick={() => onPlayVideo(videoUrls, index, category, severity)}
-      className="relative rounded-lg overflow-hidden group border border-slate-200 dark:border-slate-700 aspect-video"
+      className="relative rounded-lg overflow-hidden group border border-(--color-border) dark:border-(--color-border-dark) aspect-video"
     >
       <img
         src={thumbSrc}
@@ -100,19 +100,19 @@ export function RecommendationModule({ recommendations, loading = false, onPlayV
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-pulse">
         {[1, 2].map((i) => (
-          <div key={i} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 space-y-4 shadow-sm">
+          <div key={i} className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-2xl p-6 space-y-4 shadow-sm">
             <div className="flex items-center justify-between">
-              <div className="h-10 w-10 bg-slate-200 dark:bg-slate-700 rounded-xl" />
-              <div className="h-4 w-16 bg-slate-200 dark:bg-slate-700 rounded-md" />
+              <div className="h-10 w-10 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded-xl" />
+              <div className="h-4 w-16 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded-md" />
             </div>
             <div className="space-y-2">
-              <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4" />
-              <div className="h-3 bg-slate-100 dark:bg-slate-700/60 rounded w-full" />
-              <div className="h-3 bg-slate-100 dark:bg-slate-700/60 rounded w-5/6" />
+              <div className="h-4 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded w-3/4" />
+              <div className="h-3 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded w-full" />
+              <div className="h-3 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded w-5/6" />
             </div>
-            <div className="pt-3 border-t border-slate-100 dark:border-slate-700 space-y-1.5">
-              <div className="h-2 w-1/3 bg-slate-200 dark:bg-slate-700 rounded" />
-              <div className="h-2 w-1/2 bg-slate-100 dark:bg-slate-700/60 rounded" />
+            <div className="pt-3 border-t border-(--color-border) dark:border-(--color-border-dark) space-y-1.5">
+              <div className="h-2 w-1/3 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded" />
+              <div className="h-2 w-1/2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded" />
             </div>
           </div>
         ))}
@@ -132,7 +132,7 @@ export function RecommendationModule({ recommendations, loading = false, onPlayV
           const { iconColor, borderColor, bgColor } = getSeverityStyles(rec.severity);
 
           return (
-            <div key={rec.id} className="bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl flex flex-col justify-between hover:shadow-xl transition-all duration-300 shadow-sm overflow-hidden">
+            <div key={rec.id} className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-2xl flex flex-col justify-between hover:shadow-xl transition-all duration-300 shadow-sm overflow-hidden">
               {/* The main image container height is increased to show more of the image */}
               {rec.imageUrl && <img src={rec.imageUrl} alt={rec.title} className="w-full h-full object-cover" />}
 
@@ -148,8 +148,8 @@ export function RecommendationModule({ recommendations, loading = false, onPlayV
                 </div>
 
                 <div>
-                  <h4 className="text-[17px] font-display font-semibold text-base text-slate-900 dark:text-slate-100">{rec.title}</h4>
-                  <p className=" text-slate-500 dark:text-slate-400 text-[15px] mt-1.5 leading-relaxed font-light">
+                  <h4 className="text-[17px] font-semibold text-base text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{rec.title}</h4>
+                  <p className="text-(--color-text-muted) dark:text-(--color-text-muted-dark) text-[15px] mt-1.5 leading-relaxed font-light">
                     {rec.description}
                   </p>
                 </div>
@@ -160,7 +160,7 @@ export function RecommendationModule({ recommendations, loading = false, onPlayV
               {/* NEW: Display multiple video thumbnails */}
               {rec.videoUrls && rec.videoUrls.length > 0 && (
                 <div className="pt-3">
-                  <p className="text-[13px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono mb-2">
+                  <p className="text-[13px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-2">
                     Video Recommendations for You
                   </p>
                   <div className="grid grid-cols-2 gap-2">
@@ -179,19 +179,19 @@ export function RecommendationModule({ recommendations, loading = false, onPlayV
                 </div>
               )}
 
-              <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700/60">
+              <div className="flex items-center justify-between pt-4 border-t border-(--color-border) dark:border-(--color-border-dark)">
                 <div className="flex items-center gap-1.5">
                   <span className={`w-2 h-2 rounded-full ${rec.severity === 'High' ? 'bg-red-500' : rec.severity === 'Medium' ? 'bg-amber-500' : 'bg-blue-500'}`} />
-                  <span className="text-[13px] font-bold text-slate-500 dark:text-slate-400 uppercase font-mono">{rec.severity} Severity</span>
+                  <span className="text-[13px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase">{rec.severity} Severity</span>
                 </div>
               </div>
 
               {rec.reasons && rec.reasons.length > 0 && (
-                <div className="pt-3 border-t border-slate-100 dark:border-slate-700/60">
-                  <p className="text-[12.5px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider font-mono">Why this is recommended for you:</p>
+                <div className="pt-3 border-t border-(--color-border) dark:border-(--color-border-dark)">
+                  <p className="text-[12.5px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider">Why this is recommended for you:</p>
                   <ul className="list-disc list-inside space-y-0.5 mt-1">
                     {rec.reasons.map((reason, i) => (
-                      <li key={i} className="text-[12px] text-slate-600 dark:text-slate-300">{reason}</li>
+                      <li key={i} className="text-[12px] text-(--color-text-secondary) dark:text-(--color-text-secondary-dark)">{reason}</li>
                     ))}
                   </ul>
                 </div>
@@ -201,12 +201,12 @@ export function RecommendationModule({ recommendations, loading = false, onPlayV
           );
         })
       ) : (
-        <div className="md:col-span-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 text-center shadow-sm">
+        <div className="md:col-span-2 bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-2xl p-8 text-center shadow-sm">
           <div className="w-12 h-12 mx-auto bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-100 dark:border-emerald-800 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400">
             <Check className="w-6 h-6" />
           </div>
-          <h4 className="font-semibold text-slate-800 dark:text-slate-100 mt-4">All Clear!</h4>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">No specific wellness recommendations are needed at this time. Keep up the great work!</p>
+          <h4 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) mt-4">All Clear!</h4>
+          <p className="text-sm text-(--color-text-muted) dark:text-(--color-text-muted-dark) mt-1">No specific wellness recommendations are needed at this time. Keep up the great work!</p>
         </div>
       )}
     </div>
@@ -416,25 +416,25 @@ const voices = speechSynthRef.current.getVoices();
   };
 
   return (
-    <div className={`flex flex-col h-full bg-white dark:bg-slate-800 ${isFloating ? '' : 'border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm'}`}>
-      <div className="p-3.5 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
+    <div className={`flex flex-col h-full bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) ${isFloating ? '' : 'border border-(--color-border) dark:border-(--color-border-dark) rounded-lg shadow-sm'}`}>
+      <div className="p-3.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border-b border-(--color-border) dark:border-(--color-border-dark)">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 bg-blue-600 text-white rounded-lg">
+            <div className="p-1.5 bg-(--color-bg-dark) dark:bg-(--color-bg-dark) text-emerald-300 rounded-md border border-emerald-700/60">
               <Bot className="w-4 h-4" />
             </div>
             <div>
-              <span className="text-xxs font-bold text-slate-800 dark:text-slate-100 font-sans">
+              <span className="text-sm font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) font-sans">
                 InfyWell
               </span>
-              <div className="text-[11px] text-slate-400 dark:text-slate-500 -mt-0.5">AI Assistant</div>
+              <div className="text-[11px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) -mt-0.5">AI Assistant</div>
             </div>
           </div>
           {isFloating && (
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 rounded-lg border text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 transition-all"
+              className="p-2 rounded-md border text-(--color-text-muted) hover:text-slate-600 dark:hover:text-slate-300 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border-(--color-border) dark:border-(--color-border-dark) transition-all"
               title="Close Chat"
             >
               <X className="w-3.5 h-3.5" />
@@ -442,14 +442,14 @@ const voices = speechSynthRef.current.getVoices();
           )}
         </div>
         {isFloating && (
-          <div className="w-full border-t border-slate-200 dark:border-slate-700 mt-3" />
+          <div className="w-full border-t border-(--color-border) dark:border-(--color-border-dark) mt-3" />
         )}
         <div className="flex items-center justify-end mt-3">
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={handleClearChat}
-              className="p-1.5 rounded-lg border text-slate-400 hover:text-red-500 dark:hover:text-red-400 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-red-200 dark:hover:border-red-700 transition-all"
+              className="p-2 rounded-md border text-(--color-text-muted) hover:text-red-500 dark:hover:text-red-400 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border-(--color-border) dark:border-(--color-border-dark) hover:border-red-200 dark:hover:border-red-700 transition-all"
               title="Clear Chat History"
             >
               <Trash2 className="w-3.5 h-3.5" />
@@ -457,7 +457,7 @@ const voices = speechSynthRef.current.getVoices();
 <button
               type="button"
               onClick={toggleSpeech}
-              className={`p-1.5 rounded-lg border text-xs transition-all cursor-pointer ${isSpeechEnabled ? 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-950/60 dark:text-blue-400 dark:border-blue-800' : 'bg-slate-100 text-slate-400 border-slate-200 dark:bg-slate-800 dark:border-slate-700'}`}
+              className={`p-1.5 rounded-lg border text-xs transition-all cursor-pointer ${isSpeechEnabled ? 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-950/60 dark:text-blue-400 dark:border-blue-800' : 'bg-slate-100 text-(--color-text-muted) border-slate-200 dark:bg-(--color-bg-card-dark) dark:border-(--color-border-dark)'}`}
               title={isSpeechEnabled ? "Voice Output Active" : "Voice Output Muted"}
             >
               <Volume2 className="w-3.5 h-3.5" />
@@ -473,14 +473,14 @@ const voices = speechSynthRef.current.getVoices();
             className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`max-w-[80%] p-3 rounded-2xl text-xs leading-relaxed ${
+              className={`max-w-[80%] p-3 rounded-lg text-xs leading-relaxed ${
                 m.sender === 'user'
                   ? 'bg-blue-600 text-white rounded-br-none shadow-md'
-                  : 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-100 rounded-bl-none border border-slate-200/60 dark:border-slate-600'
+                  : 'bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) text-(--color-text-primary) dark:text-(--color-text-primary-dark) rounded-bl-none border border-slate-200/60 dark:border-(--color-border-dark)'
               }`}
             >
               <p>{m.text}</p>
-              <span className={`flex items-center justify-end gap-2 text-[9px] mt-1.5 font-mono ${m.sender === 'user' ? 'text-blue-100' : 'text-slate-400'}`}>
+              <span className={`flex items-center justify-end gap-2 text-[9px] mt-1.5 font-mono ${m.sender === 'user' ? 'text-blue-100' : 'text-(--color-text-muted)'}`}>
                 {m.sender === 'bot' && m.model && (
                   <span className="px-1.5 py-0.5 bg-black/10 dark:bg-black/20 rounded-sm">{m.model}</span>
                 )}
@@ -491,7 +491,7 @@ const voices = speechSynthRef.current.getVoices();
         ))}
         {isTyping && (
           <div className="flex justify-start">
-            <div className="bg-slate-100 dark:bg-slate-700 p-3 rounded-2xl rounded-bl-none text-xs text-slate-400 animate-pulse font-mono">
+            <div className="bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) p-3 rounded-lg rounded-bl-none text-xs text-(--color-text-muted) animate-pulse font-mono">
               InfyWell is thinking...
             </div>
           </div>
@@ -499,7 +499,7 @@ const voices = speechSynthRef.current.getVoices();
         <div ref={scrollRef} />
       </div>
 
-      <form onSubmit={handleSend} className="p-2.5 border-t border-slate-200 dark:border-slate-700 flex items-center gap-2 bg-slate-50 dark:bg-slate-900">
+      <form onSubmit={handleSend} className="p-2.5 border-t border-(--color-border) dark:border-(--color-border-dark) flex items-center gap-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark)">
           <div className="flex items-center gap-2 w-full">
             {/* Main Chat Input */}
             <input
@@ -507,15 +507,15 @@ const voices = speechSynthRef.current.getVoices();
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder={isListening ? "Listening..." : "Ask your AI assistant..."}
-              className="flex-1 px-3.5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500/20"
+              className="flex-1 px-3.5 py-2 bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none focus:ring-2 focus:ring-blue-500/20"
             />
             <button
               type="button"
               onClick={toggleListening}
-              className={`p-2 rounded-xl border transition-all cursor-pointer ${
+              className={`p-2 rounded-md border transition-colors cursor-pointer ${
                 isListening
                   ? 'bg-rose-500 text-white border-rose-600 animate-pulse'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:text-slate-800'
+                  : 'bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) text-(--color-text-muted) dark:text-(--color-text-muted-dark) border-(--color-border) dark:border-(--color-border-dark) hover:text-slate-800'
               }`}
               title="Voice Command"
             >
@@ -524,7 +524,7 @@ const voices = speechSynthRef.current.getVoices();
             <button
               type="submit"
               disabled={!inputText.trim()}
-              className="p-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white rounded-xl transition-all cursor-pointer shadow-sm"
+              className="p-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white rounded-md transition-colors cursor-pointer shadow-sm"
             >
               <Send className="w-4 h-4" />
             </button>
@@ -579,105 +579,105 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
   return (
     <div className="space-y-6 pb-10 lg:pr-20">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-sm">
+        <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-2xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider font-mono">Sleep Score</span>
+            <span className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider">Sleep Score</span>
             <Moon className="w-4 h-4 text-indigo-400" />
           </div>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-2xl font-display font-bold text-slate-900 dark:text-slate-100">{insights?.sleepScore || Math.min(100, Math.round(sleepVal * 11))}%</span>
-            <span className="text-[10px] text-slate-400 font-mono">/ 100</span>
+            <span className="text-2xl font-display font-bold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{insights?.sleepScore || Math.min(100, Math.round(sleepVal * 11))}%</span>
+            <span className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">/ 100</span>
           </div>
-          <div className="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full mt-2 overflow-hidden">
+          <div className="w-full bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) h-1.5 rounded-full mt-2 overflow-hidden">
             <div className="bg-indigo-500 h-full rounded-full" style={{ width: `${insights?.sleepScore || Math.min(100, Math.round(sleepVal * 11))}%` }} />
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-sm">
+        <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-2xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider font-mono">Stress Index</span>
+            <span className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider">Stress Index</span>
             <Activity className="w-4 h-4 text-amber-400" />
           </div>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-2xl font-display font-bold text-slate-900 dark:text-slate-100">{insights?.stressIndex || 42}%</span>
-            <span className="text-[10px] text-slate-400 font-mono">/ 100</span>
+            <span className="text-2xl font-display font-bold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{insights?.stressIndex || 42}%</span>
+            <span className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">/ 100</span>
           </div>
-          <div className="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full mt-2 overflow-hidden">
+          <div className="w-full bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) h-1.5 rounded-full mt-2 overflow-hidden">
             <div className="bg-amber-500 h-full rounded-full" style={{ width: `${insights?.stressIndex || 42}%` }} />
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-sm">
+        <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-2xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider font-mono">Activity Level</span>
+            <span className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider">Activity Level</span>
             <Dumbbell className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-2xl font-display font-bold text-slate-900 dark:text-slate-100">{insights?.activityLevel || 'Active'}</span>
+            <span className="text-2xl font-display font-bold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{insights?.activityLevel || 'Active'}</span>
           </div>
-          <p className="text-[10px] text-slate-400 mt-2 font-mono">Based on weekly fitness logs</p>
+          <p className="text-[10px] text-(--color-text-muted) mt-2 font-mono">Based on weekly fitness logs</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-sm">
+        <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-2xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider font-mono">Nutrition</span>
+            <span className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider">Nutrition</span>
             <Apple className="w-4 h-4 text-sky-400" />
           </div>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-2xl font-display font-bold text-slate-900 dark:text-slate-100">{insights?.nutritionQuality || 'Balanced'}</span>
+            <span className="text-2xl font-display font-bold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{insights?.nutritionQuality || 'Balanced'}</span>
           </div>
-          <p className="text-[10px] text-slate-400 mt-2 font-mono">Diet quality index</p>
+          <p className="text-[10px] text-(--color-text-muted) mt-2 font-mono">Diet quality index</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-gradient-to-br from-blue-50 to-white dark:from-slate-800 dark:to-slate-800/90 border border-blue-100 dark:border-slate-700 rounded-2xl p-6 shadow-sm">
+        <div className="bg-gradient-to-br from-blue-50 to-white dark:from-(--color-bg-subtle-dark) dark:to-(--color-bg-card-dark) border border-blue-100 dark:border-(--color-border-dark) rounded-2xl p-6 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
-            <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-            <h3 className="font-display font-semibold text-slate-900 dark:text-slate-100">AI Daily Wellness Tip</h3>
+            <BrainCircuit className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">AI Daily Wellness Tip</h3>
           </div>
-          <p className="text-slate-600 dark:text-slate-300 text-xs leading-relaxed font-light">
+          <p className="text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) text-xs leading-relaxed font-light">
             {loadingInsights ? 'Loading your personalized tip...' : (insights?.dailyTip || 'Take 5 minutes between sprint tasks for deep diaphragmatic breathing to stabilize blood pressure.')}
           </p>
         </div>
 
-        <div className="bg-gradient-to-br from-emerald-50 to-white dark:from-slate-800 dark:to-slate-800/90 border border-emerald-100 dark:border-slate-700 rounded-2xl p-6 shadow-sm">
+        <div className="bg-gradient-to-br from-emerald-50 to-white dark:from-(--color-bg-subtle-dark) dark:to-(--color-bg-card-dark) border border-emerald-100 dark:border-(--color-border-dark) rounded-2xl p-6 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
             <Target className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-            <h3 className="font-display font-semibold text-slate-900 dark:text-slate-100">This Week's Target Goal</h3>
+            <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">This Week's Target Goal</h3>
           </div>
-          <p className="text-slate-600 dark:text-slate-300 text-xs leading-relaxed font-light">
+          <p className="text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) text-xs leading-relaxed font-light">
             {loadingInsights ? 'Setting your weekly goal...' : (insights?.weeklyGoal || 'Aim for 10,000 daily steps and complete 4 days of cardio workout routines.')}
           </p>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm">
+      <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-2xl p-6 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Sun className="w-5 h-5 text-amber-500" />
-            <h3 className="font-display font-semibold text-slate-900 dark:text-slate-100">AI-Generated Daily Routine</h3>
+            <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">AI-Generated Daily Routine</h3>
           </div>
           <button
             onClick={handleGenerateRoutine}
             disabled={loadingRoutine}
             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white text-xs font-semibold rounded-xl transition-all cursor-pointer flex items-center gap-2 shadow-sm"
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            <BrainCircuit className="w-3.5 h-3.5" />
             {loadingRoutine ? 'Generating...' : 'Generate New Routine'}
           </button>
         </div>
 
         {routine ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+            <div className="bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded-xl p-4 border border-(--color-border) dark:border-(--color-border-dark)">
               <div className="flex items-center gap-2 mb-3">
                 <Sun className="w-4 h-4 text-amber-500" />
-                <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase font-mono">Morning</h4>
+                <h4 className="text-xs font-bold text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) uppercase">Morning</h4>
               </div>
               <ul className="space-y-2">
                 {routine.morning?.map((item, i) => (
-                  <li key={i} className="text-[11px] text-slate-600 dark:text-slate-400 flex items-start gap-2">
+                  <li key={i} className="text-[11px] text-(--color-text-secondary) dark:text-(--color-text-muted-dark) flex items-start gap-2">
                     <span className="w-1.5 h-1.5 bg-amber-400 rounded-full mt-1 shrink-0" />
                     {item}
                   </li>
@@ -685,14 +685,14 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
               </ul>
             </div>
 
-            <div className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+            <div className="bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded-xl p-4 border border-(--color-border) dark:border-(--color-border-dark)">
               <div className="flex items-center gap-2 mb-3">
                 <Clock className="w-4 h-4 text-sky-500" />
-                <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase font-mono">Afternoon</h4>
+                <h4 className="text-xs font-bold text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) uppercase">Afternoon</h4>
               </div>
               <ul className="space-y-2">
                 {routine.afternoon?.map((item, i) => (
-                  <li key={i} className="text-[11px] text-slate-600 dark:text-slate-400 flex items-start gap-2">
+                  <li key={i} className="text-[11px] text-(--color-text-secondary) dark:text-(--color-text-muted-dark) flex items-start gap-2">
                     <span className="w-1.5 h-1.5 bg-sky-400 rounded-full mt-1 shrink-0" />
                     {item}
                   </li>
@@ -700,14 +700,14 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
               </ul>
             </div>
 
-            <div className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+            <div className="bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded-xl p-4 border border-(--color-border) dark:border-(--color-border-dark)">
               <div className="flex items-center gap-2 mb-3">
                 <Moon className="w-4 h-4 text-indigo-400" />
-                <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase font-mono">Evening</h4>
+                <h4 className="text-xs font-bold text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) uppercase">Evening</h4>
               </div>
               <ul className="space-y-2">
                 {routine.evening?.map((item, i) => (
-                  <li key={i} className="text-[11px] text-slate-600 dark:text-slate-400 flex items-start gap-2">
+                  <li key={i} className="text-[11px] text-(--color-text-secondary) dark:text-(--color-text-muted-dark) flex items-start gap-2">
                     <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full mt-1 shrink-0" />
                     {item}
                   </li>
@@ -716,7 +716,7 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
             </div>
           </div>
         ) : (
-          <div className="text-center py-8 text-slate-400 dark:text-slate-500 font-mono text-xs">
+          <div className="text-center py-8 text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono text-xs">
             Click "Generate New Routine" for an AI-customized daily routine.
           </div>
         )}
@@ -729,55 +729,20 @@ export function WellnessCoachDashboard({ user, healthRecords = [] }) {
 // NEW COMPONENT: FLOATING ROBOT ASSISTANT
 // ==========================================
 const FloatingBot = ({ onClick, isChatOpen }) => {
-  const [isPaused, setIsPaused] = useState(false);
-  const [isWaving, setIsWaving] = useState(false);
-  const [bubbleText, setBubbleText] = useState('Click me!');
+  const bubbleText = 'Chat with your wellness assistant';
   const botRef = useRef(null);
-
-  const bubbleMessages = useMemo(() => [
-    "Hey there! How can I assist you today?",
-    "My name's InfyWell",
-    "Let's chat!",
-    "Need some wellness tips?",
-    "How are you feeling today?",
-    "Why aren't you paying attention to me?",
-  ], []);
-
-  useEffect(() => {
-    if (isChatOpen) return;
-
-    const idleActions = [
-      () => { // Show bubble
-        setIsPaused(true);
-        setBubbleText(bubbleMessages[Math.floor(Math.random() * bubbleMessages.length)]);
-        setTimeout(() => setIsPaused(false), 4000);
-      },
-      () => { // Wave
-        setIsWaving(true);
-        setTimeout(() => setIsWaving(false), 2500); // Wave for 2.5s
-      },
-    ];
-
-    const idleInterval = setInterval(() => {
-      idleActions[Math.floor(Math.random() * idleActions.length)]();
-    }, 8000); // Trigger a random idle action every 8 seconds
-
-    return () => {
-      clearInterval(idleInterval);
-    };
-  }, [isChatOpen, bubbleMessages]);
 
   return (
     <div
       ref={botRef}
       onClick={onClick}
-      className="fixed bottom-4 right-6 z-50 cursor-pointer"
+      className="fixed bottom-4 right-6 z-50 cursor-pointer group"
       title="Toggle AI Assistant"
     >
       {!isChatOpen && (
         <div 
-          className={`absolute bottom-full right-0 mb-3 w-max max-w-[200px] sm:max-w-[220px] whitespace-normal break-words px-3 py-1.5 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 rounded-lg text-[11px] font-semibold shadow-lg transition-opacity duration-300 ${
-            isPaused ? 'opacity-100' : 'opacity-0'
+          className={`absolute bottom-full right-0 mb-3 w-max max-w-[200px] sm:max-w-[220px] whitespace-normal break-words px-3 py-1.5 bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) text-(--color-text-primary) dark:text-(--color-text-primary-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-[11px] font-semibold shadow-lg transition-opacity duration-200 ${
+            isChatOpen ? 'opacity-0' : 'opacity-0 group-hover:opacity-100'
           }`}
         >
           {bubbleText}
@@ -790,75 +755,35 @@ const FloatingBot = ({ onClick, isChatOpen }) => {
       )}
 
       {/* overflow="visible" remains to prevent clipping */}
-      <svg 
-        width="60"
-        height="90" 
-        viewBox="0 0 80 120" 
+      <svg
+        width="68"
+        height="96"
+        viewBox="0 0 80 120"
         overflow="visible"
-        xmlns="http://www.w3.org/2000/svg" 
-        className="drop-shadow-lg transition-transform"
-        style={{ transform: `scaleX(-1)` }}
+        xmlns="http://www.w3.org/2000/svg"
+        className="drop-shadow-lg"
+        aria-hidden="true"
       >
-        <style>
-          {`
-            /* Floating hover animation */
-            .bot-body { animation: ${!isPaused && !isChatOpen && !isWaving ? 'bob 2s infinite ease-in-out' : 'none'}; }
-            
-            /* 
-              Using absolute SVG coordinates for transform-origin to bypass Safari/browser bugs.
-              Left Arm X = 12 + (8/2) = 16px. Y = 48 + 4 = 52px.
-              Right Arm X = 60 + (8/2) = 64px. Y = 48 + 4 = 52px.
-            */
-            .bot-arm.left { 
-              /* Only the right arm waves — this stays at rest for a natural single-hand hello. */
-              transform-origin: 16px 52px; 
-            }
-            .bot-arm.right { 
-              animation: ${isWaving ? 'wave-hello 2.5s ease-in-out' : 'none'}; 
-              transform-origin: 64px 52px; 
-            }
+        <g>
+          {/* Wellness assistant head and status display */}
+          <rect x="24" y="19" width="32" height="27" rx="8" fill="#d1fae5" stroke="#34d399" strokeWidth="1.5" />
+          <rect x="29" y="27" width="22" height="12" rx="4" fill="#0f172a" />
+          <circle cx="36" cy="33" r="2" fill="#6ee7b7" />
+          <circle cx="44" cy="33" r="2" fill="#6ee7b7" />
+          <line x1="40" y1="19" x2="40" y2="13" stroke="#34d399" strokeWidth="2" />
+          <circle cx="40" cy="11" r="2.5" fill="#10b981" />
 
-            @keyframes bob {
-              0%, 100% { transform: translateY(0); }
-              50% { transform: translateY(-5px); }
-            }
+          {/* Graphite shell with wellness pulse display */}
+          <rect x="19" y="45" width="42" height="37" rx="10" fill="#1f2937" stroke="#374151" strokeWidth="1.5" />
+          <rect x="29" y="55" width="22" height="14" rx="5" fill="#064e3b" />
+          <path d="M31 62h4l2-4 3 8 3-6 2 2h4" fill="none" stroke="#6ee7b7" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          <circle cx="54" cy="51" r="2" fill="#34d399" />
 
-            @keyframes wave-hello {
-              0%   { transform: rotate(0deg); }
-              12%  { transform: rotate(150deg); } /* lift the hand up into the air */
-              22%  { transform: rotate(125deg); } /* wave in */
-              32%  { transform: rotate(152deg); } /* wave out */
-              42%  { transform: rotate(128deg); } /* wave in */
-              52%  { transform: rotate(150deg); } /* wave out */
-              62%  { transform: rotate(130deg); } /* wave in */
-              75%  { transform: rotate(148deg); } /* wave out */
-              90%  { transform: rotate(150deg); } /* hold it up */
-              100% { transform: rotate(0deg); }   /* bring it back down */
-            }
-          `}
-        </style>
-        <g className="bot-body">
-          {/* Head */}
-          <rect x="25" y="20" width="30" height="25" rx="6" fill="#a5b4fc" />
-          <rect x="30" y="28" width="20" height="10" rx="3" fill="#1e293b" />
-          <circle cx="36" cy="33" r="2" fill="#4ade80" />
-          <circle cx="44" cy="33" r="2" fill="#4ade80" />
-          <line x1="35" y1="20" x2="35" y2="15" stroke="#a5b4fc" strokeWidth="2" />
-          <circle cx="35" cy="14" r="2" fill="#818cf8" />
-          
-          {/* Body */}
-          <rect x="20" y="45" width="40" height="35" rx="8" fill="#4f46e5" />
-          <circle cx="40" cy="62" r="8" fill="#312e81" />
-          
-          {/* Arms */}
-          <rect className="bot-arm left" x="12" y="48" width="8" height="28" rx="4" fill="#6366f1" />
-          <rect className="bot-arm right" x="60" y="48" width="8" height="28" rx="4" fill="#6366f1" />
-        </g>
-        
-        {/* Legs (Placed inside bot-body so they float with the rest of the body) */}
-        <g className="bot-body">
-          <rect className="bot-leg left" x="25" y="80" width="10" height="35" rx="5" fill="#4338ca" />
-          <rect className="bot-leg right" x="45" y="80" width="10" height="35" rx="5" fill="#4338ca" />
+          {/* Slim arms and grounded legs */}
+          <rect x="11" y="49" width="8" height="28" rx="4" fill="#374151" />
+          <rect x="61" y="49" width="8" height="28" rx="4" fill="#374151" />
+          <rect x="25" y="82" width="11" height="34" rx="5.5" fill="#111827" stroke="#10b981" strokeWidth="1" />
+          <rect x="44" y="82" width="11" height="34" rx="5.5" fill="#111827" stroke="#10b981" strokeWidth="1" />
         </g>
       </svg>
     </div>
@@ -1018,19 +943,19 @@ export default function UserDashboard({
 
   const navTabs = [
     { id: 7, label: 'My Wellness Profile', icon: User, desc: 'Health vitals & personalized trackers' },
-    { id: 3, label: 'Personalized Recommender', icon: Lightbulb, desc: 'Fitness, diet & wellness routines' },
     { id: 15, label: 'My Mental Health & Sentiment', icon: Smile, desc: 'Personal stress & sentiment analysis' },
-    { id: 14, label: 'AI Wellness Assistant', icon: Brain, desc: 'Daily AI insights & routine engine' },
-    { id: 8, label: 'My Insurance', icon: ShieldCheck, desc: 'Coverage details & file claims' },
-    { id: 9, label: 'Diet Plans', icon: Utensils, desc: 'AI-generated meal schedules' },
     { id: 10, label: 'My Goals', icon: Target, desc: 'Track achievements & badges' },
     { id: 11, label: 'Health Reports', icon: FileDown, desc: 'Download PDF reports & view history' },
+    { id: 3, label: 'AI Recommendations', icon: Lightbulb, desc: 'Optional routines based on your data' },
+    { id: 14, label: 'AI Wellness Assistant', icon: Brain, desc: 'Optional daily coaching support' },
+    { id: 8, label: 'My Insurance', icon: ShieldCheck, desc: 'Coverage details & file claims' },
+    { id: 9, label: 'Diet Plans', icon: Utensils, desc: 'AI-generated meal schedules' },
     { id: 12, label: 'Health Checkups', icon: CalendarCheck, desc: 'Schedule & manage appointments' },
     { id: 13, label: 'Expenses', icon: Receipt, desc: 'Track health expense claims' },
   ];
 
   return (
-    <div className="h-screen overflow-hidden bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col font-sans transition-colors duration-300">
+    <div className="h-screen overflow-hidden bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) text-(--color-text-primary) dark:text-(--color-text-primary-dark) flex flex-col font-sans transition-colors duration-300">
       
       {/* Video Player Modal */}
       <AnimatePresence>
@@ -1051,27 +976,27 @@ export default function UserDashboard({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-slate-900/60 flex items-center justify-center p-4"
             onClick={() => setIsSosModalOpen(false)}
           >
             <motion.div
               initial={{ scale: 0.9, y: -20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: -20, opacity: 0 }}
-              className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 w-full max-w-md border border-slate-200 dark:border-slate-700"
+              className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl shadow-2xl p-6 w-full max-w-md border border-(--color-border) dark:border-(--color-border-dark)"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 bg-red-100 dark:bg-red-950/50 rounded-full flex items-center justify-center text-red-600 dark:text-red-400">
                   <Siren className="w-6 h-6" />
                 </div>
-                <h2 className="text-xl font-bold font-display text-slate-900 dark:text-slate-100">Confirm Emergency SOS</h2>
+                <h2 className="text-xl font-bold font-display text-(--color-text-primary) dark:text-(--color-text-primary-dark)">Confirm Emergency SOS</h2>
               </div>
-              <p className="text-sm text-slate-600 dark:text-slate-300 mb-6">
+              <p className="text-sm text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) mb-6">
                 This will immediately send an emergency alert to the administrators with your location and health details. Are you sure you want to proceed?
               </p>
               <div className="flex justify-end gap-3">
-                <button onClick={() => setIsSosModalOpen(false)} className="px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-700 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">Cancel</button>
+                <button onClick={() => setIsSosModalOpen(false)} className="px-4 py-2 text-sm font-semibold text-(--color-text-secondary) dark:text-(--color-text-primary-dark) bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded-lg hover:bg-slate-200 dark:hover:bg-(--color-bg-subtle-dark) transition-colors">Cancel</button>
                 <button onClick={handleTriggerSos} className="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors shadow-md">Yes, Send Alert</button>
               </div>
             </motion.div>
@@ -1080,7 +1005,7 @@ export default function UserDashboard({
       </AnimatePresence>
       
       {/* 1. Header with Page Icon, Greeting, Date & Dark Mode Toggle */}
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-700 px-4 md:px-8 py-3.5 flex items-center justify-between transition-colors">
+      <header className="sticky top-0 z-40 bg-white/85 dark:bg-(--color-bg-dark) border-b border-(--color-border) dark:border-(--color-border-dark) px-4 md:px-8 py-3.5 flex items-center justify-between transition-colors">
         
         {/* Left: Mobile Menu Toggle & App Logo / Greeting */}
         <div className="flex items-center gap-3 md:gap-5">
@@ -1088,7 +1013,7 @@ export default function UserDashboard({
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+            className="lg:hidden p-2 rounded-xl bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) border border-(--color-border) dark:border-(--color-border-dark)"
             aria-label="Toggle menu"
           >
             {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -1098,23 +1023,23 @@ export default function UserDashboard({
           <div className="flex items-center gap-3">
             <img src={logo} alt="App Logo" className="w-15 h-14" />
             <div className="hidden sm:block">
-              <span className="font-display font-bold text-base tracking-tight block text-slate-900 dark:text-slate-50 leading-none">
+              <span className="font-bold text-base tracking-tight block text-(--color-text-primary) dark:text-(--color-text-primary-dark) leading-none">
                 AI-Based Employee Wellness Management Platform
               </span>
-              <span className="text-[10px] text-slate-400 dark:text-slate-400 font-mono uppercase tracking-widest font-semibold mt-1 block">
+              <span className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest font-semibold mt-1 block">
                 Wellness Intelligence
               </span>
             </div>
           </div>
 
-          <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden md:block" />
+          <div className="h-6 w-px bg-(--color-border) dark:bg-white/12 hidden md:block" />
 
           {/* User Greeting & Date Header */}
           <div className="hidden md:block">
-            <h2 className="font-display font-semibold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
+            <h2 className="font-semibold text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark) flex items-center gap-1.5">
               {getGreeting()}, {firstName} 👋
             </h2>
-            <p className="text-[11px] text-slate-400 dark:text-slate-400 font-mono flex items-center gap-1 mt-0.5">
+            <p className="text-[11px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono flex items-center gap-1 mt-0.5">
               <Calendar className="w-3 h-3 text-blue-500" />
               {currentDateFormatted}
             </p>
@@ -1144,29 +1069,29 @@ export default function UserDashboard({
             <button
               type="button"
               onClick={() => setActiveTab(16)}
-              className="px-2 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-y border-r border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 rounded-r-xl transition-all duration-200 cursor-pointer shadow-sm text-xs font-semibold"
+              className="px-2 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-(--color-bg-card-dark) dark:hover:bg-(--color-bg-subtle-dark) border-y border-r border-(--color-border) dark:border-white/12 text-(--color-text-muted) dark:text-(--color-text-muted-dark) rounded-r-xl transition-all duration-200 cursor-pointer shadow-sm text-xs font-semibold"
               title="View SOS History"
             >
               <Clock className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block" />
+          <div className="h-6 w-px bg-slate-200 dark:bg-(--color-bg-card-dark) hidden sm:block" />
 
           {/* User Profile Info Trigger */}
           <div
-            className="flex items-center gap-3 cursor-pointer group p-1 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-all"
+            className="flex items-center gap-3 cursor-pointer group p-1 px-3 border-x border-(--color-border) dark:border-white/12 rounded-xl hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark)/60 transition-all"
             onClick={() => setIsProfileModalOpen(true)}
             title="Edit Profile"
           >
             <div className="hidden sm:block text-right">
-              <span className="block text-sm font-bold text-slate-800 dark:text-slate-100 leading-tight group-hover:text-blue-600 transition-colors">
+              <span className="block text-sm font-bold text-(--color-text-primary) dark:text-(--color-text-primary-dark) leading-tight group-hover:text-blue-600 transition-colors">
                 {user.name}
               </span>
-              <span className="block text-xs text-slate-400 font-mono">
+              <span className="block text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">
                 {user.employeeId}
               </span>
-              <span className="inline-block mt-1 px-2 py-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[9px] font-mono font-bold rounded uppercase tracking-widest leading-none">
+              <span className="inline-block mt-1 px-2 py-0.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) text-[9px] font-bold rounded uppercase tracking-widest leading-none">
                 Employee
               </span>
             </div>
@@ -1176,10 +1101,10 @@ export default function UserDashboard({
                 src={user.avatarUrl}
                 alt={user.name}
                 referrerPolicy="no-referrer"
-                className="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-700 shadow-md object-cover"
+                className="w-9 h-9 rounded-full border border-(--color-border) dark:border-(--color-border-dark) shadow-md object-cover"
               />
             ) : (
-              <div className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center font-bold text-sm text-slate-700 dark:text-slate-200">
+              <div className="w-9 h-9 rounded-full bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) flex items-center justify-center font-bold text-sm text-(--color-text-secondary) dark:text-(--color-text-primary-dark)">
                 {user.name ? user.name.substring(0, 2).toUpperCase() : 'SU'}
               </div>
             )}
@@ -1189,7 +1114,7 @@ export default function UserDashboard({
           <button
             type="button"
             onClick={onLogout}
-            className="flex items-center gap-2 px-3 py-2 bg-slate-100 hover:bg-rose-50 dark:bg-slate-800 dark:hover:bg-rose-950/40 border border-slate-200/80 dark:border-slate-700 text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 rounded-xl transition-all duration-200 cursor-pointer shadow-sm text-xs font-semibold"
+            className="flex items-center gap-2 px-3 py-2 bg-slate-100 hover:bg-rose-50 dark:bg-(--color-bg-card-dark) dark:hover:bg-rose-950/40 border border-(--color-border) dark:border-white/12 text-slate-500 hover:text-rose-600 dark:text-(--color-text-muted) dark:hover:text-rose-400 rounded-xl transition-all duration-200 cursor-pointer shadow-sm text-xs font-semibold"
             title="Log Out"
           >
             <LogOut className="w-4 h-4" />
@@ -1220,7 +1145,7 @@ export default function UserDashboard({
 
         {/* 2. Desktop Navigation Sidebar */}
         <aside
-          className={`hidden lg:flex flex-col h-full overflow-hidden bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-700 transition-all duration-300 shrink-0 p-4 justify-between ${
+          className={`hidden lg:flex flex-col h-full overflow-hidden bg-(--color-bg-card) dark:bg-(--color-bg-dark) border-r border-(--color-border) dark:border-(--color-border-dark) transition-all duration-300 shrink-0 p-4 justify-between ${
             isSidebarCollapsed ? 'w-20' : 'w-70'
           }`}
         >
@@ -1228,14 +1153,14 @@ export default function UserDashboard({
           <div className="shrink-0 mb-4">
             <div className="flex items-center justify-between px-2 py-1">
               {!isSidebarCollapsed && (
-                <span className="text-[12px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono">
+                <span className="text-[12px] font-semibold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider">
                   Modules Navigation
                 </span>
               )}
               <button
                 type="button"
                 onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer border border-slate-200 dark:border-slate-700"
+                className="p-1.5 rounded-lg text-(--color-text-muted) hover:text-(--color-text-secondary) dark:hover:text-(--color-text-primary-dark) hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark) transition-all cursor-pointer border border-(--color-border) dark:border-(--color-border-dark)"
                 title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
               >
                 {isSidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -1256,15 +1181,15 @@ export default function UserDashboard({
                     onClick={() => setActiveTab(tab.id)}
                     className={`w-full text-left p-4 rounded-lg flex items-start gap-3 transition-all cursor-pointer border ${
                       isActive
-                        ? 'bg-indigo-50 border-indigo-100 text-indigo-900 font-semibold'
-                        : 'hover:bg-slate-50 border-transparent text-slate-500'
+                        ? 'bg-indigo-50 border-indigo-100 text-indigo-900 dark:bg-indigo-950/60 dark:border-indigo-800 dark:text-indigo-300 font-semibold'
+                        : 'hover:bg-slate-50 dark:hover:bg-(--color-bg-subtle-dark) border-transparent text-slate-500 dark:text-(--color-text-secondary-dark)'
                     }`}
                       >
-                        <Icon className={`w-5.5 h-5.5 shrink-0 mt-0.5 ${isActive ? 'text-indigo-600' : 'text-slate-400'}`} />
+                        <Icon className={`w-5.5 h-5.5 shrink-0 mt-0.5 ${isActive ? 'text-indigo-600' : 'text-(--color-text-muted)'}`} />
                     {!isSidebarCollapsed && (
                       <div className="truncate">
                               <div className="text-[12px] font-semibold">{tab.label}</div>
-                              <div className="text-[11px] text-slate-400 mt-0.5 line-clamp-1">
+                              <div className="text-[11px] text-(--color-text-muted) mt-0.5 line-clamp-1">
                                 {tab.desc}
                               </div>
                         </div>
@@ -1276,19 +1201,19 @@ export default function UserDashboard({
           </div>
 
           {!isSidebarCollapsed && (
-            <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
-              <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3.5 border border-slate-200/60 dark:border-slate-700/60">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono block mb-1">System Vitals</span>
-                <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
+            <div className="pt-4 border-t border-(--color-border) dark:border-(--color-border-dark)">
+              <div className="bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) rounded-xl p-3.5 border border-(--color-border) dark:border-(--color-border-dark)/60">
+                <span className="text-[10px] font-bold text-(--color-text-muted) uppercase tracking-wider block mb-1">System Vitals</span>
+                <div className="text-xs font-bold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">
                   Analytics Active
                 </div>
                 <div className="text-lg font-bold text-emerald-600 dark:text-emerald-400 mt-1">
                   {systemVitals.analyticsActive}%
                 </div>
-                <div className="text-[11px] text-slate-600 dark:text-slate-300 font-mono mb-1">
+                <div className="text-[11px] text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) font-mono mb-1">
                   {systemVitals.totalHealthRecords}/{systemVitals.totalUsers} employees with health data
                 </div>
-                <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full mt-1 overflow-hidden">
+                <div className="w-full bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) h-1.5 rounded-full mt-1 overflow-hidden">
                   <div className="bg-emerald-500 h-full rounded-full transition-all duration-700" style={{ width: `${systemVitals.analyticsActive}%` }} />
                 </div>
               </div>
@@ -1303,7 +1228,7 @@ export default function UserDashboard({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="lg:hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex"
+              className="lg:hidden fixed inset-0 z-50 bg-slate-900/60 flex"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               <motion.aside
@@ -1311,18 +1236,18 @@ export default function UserDashboard({
                 animate={{ x: 0 }}
                 exit={{ x: '-100%' }}
                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                className="w-72 bg-white dark:bg-slate-900 h-full p-5 space-y-4 shadow-2xl flex flex-col justify-between"
+                className="w-72 bg-(--color-bg-card) dark:bg-(--color-bg-dark) h-full p-5 space-y-4 shadow-2xl flex flex-col justify-between"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-                      <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                  <div className="flex items-center justify-between pb-3 border-b border-(--color-border) dark:border-(--color-border-dark)">
+                      <span className="text-sm font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">
                         Wellness Modules
                       </span>
                     <button
                       type="button"
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="p-1 text-slate-400 hover:text-slate-700"
+                      className="p-1 text-(--color-text-muted) hover:text-slate-700"
                     >
                       <X className="w-5 h-5" />
                     </button>
@@ -1342,11 +1267,11 @@ export default function UserDashboard({
                           }}
                           className={`w-full text-left p-4 rounded-lg flex items-start gap-4 transition-all cursor-pointer border ${
                             isActive
-                              ? 'bg-indigo-50 border-indigo-100 text-indigo-900 font-semibold'
-                              : 'hover:bg-slate-50 border-transparent text-slate-500'
+                              ? 'bg-indigo-50 border-indigo-100 text-indigo-900 dark:bg-indigo-950/60 dark:border-indigo-800 dark:text-indigo-300 font-semibold'
+                              : 'hover:bg-slate-50 dark:hover:bg-(--color-bg-subtle-dark) border-transparent text-slate-500 dark:text-(--color-text-secondary-dark)'
                           }`}
                         >
-                            <Icon className={`w-6 h-6 shrink-0 mt-0.5 ${isActive ? 'text-indigo-600' : 'text-slate-400'}`} />
+                            <Icon className={`w-6 h-6 shrink-0 mt-0.5 ${isActive ? 'text-indigo-600' : 'text-(--color-text-muted)'}`} />
                             <div className="truncate">
                               <div className="text-[11px] font-semibold">{tab.label}</div>
                             </div>
@@ -1356,7 +1281,7 @@ export default function UserDashboard({
                   </nav>
                 </div>
 
-                <div className="pt-4 border-t border-slate-100 dark:border-slate-800 text-center">
+                <div className="pt-4 border-t border-(--color-border) dark:border-(--color-border-dark) text-center">
                   <button
                     type="button"
                     onClick={onLogout}
@@ -1373,12 +1298,12 @@ export default function UserDashboard({
         {/* 3. Main Workspace Canvas Stage */}
         <main className="flex-1 p-4 md:p-8 overflow-y-auto min-h-0">
           {/* Active module title header */}
-          <div className="mb-6 pb-4 border-b border-slate-200/80 dark:border-slate-700 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="mb-6 pb-4 border-b border-white/20 dark:border-white/20 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800/60 rounded-md text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest font-mono mb-2">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800/60 rounded-md text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-2">
                 {activeTab === 7 ? 'SaaS Portal' : activeTab === 15 ? 'Mental Wellness' : activeTab === 3 ? 'AI Recommender' : activeTab === 14 ? 'AI Coach' : activeTab === 8 ? 'Insurance' : activeTab === 9 ? 'Nutrition' : activeTab === 10 ? 'Goals' : activeTab === 11 ? 'Reports' : activeTab === 12 ? 'Emergency' : 'Financial'}
               </span>
-              <h1 className="font-display text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-50 tracking-tight">
+              <h1 className="font-display text-2xl md:text-3xl font-bold text-(--color-text-primary) dark:text-(--color-text-primary-dark) tracking-tight">
                 {activeTab === 7 && 'My Personal Wellness Profile'}
                 {activeTab === 15 && 'My Mental Health & Sentiment'}
                 {activeTab === 3 && 'Personalized Wellness Recommender'}
@@ -1391,7 +1316,7 @@ export default function UserDashboard({
                 {activeTab === 16 && 'Emergency SOS History'}
                 {activeTab === 13 && 'Health Expenses Tracker'}
               </h1>
-              <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 max-w-2xl font-light">
+              <p className="text-(--color-text-muted) dark:text-(--color-text-muted-dark) text-xs mt-1 max-w-2xl font-light">
 {activeTab === 7 && 'Track health vitals, monitor diagnostics analytics, daily hydration, steps, mood, and stress.'}
                 {activeTab === 15 && 'Your own mental health & sentiment analysis, including stress index, sentiment distribution, and feedback logs.'}
                 {activeTab === 3 && 'Tailored, evidence-based fitness routines, diet schedules, and mental wellbeing recommendations.'}
@@ -1478,7 +1403,7 @@ export default function UserDashboard({
       {/* AI Chat Assistant & Robot - MOVED OUTSIDE of overflow-hidden parent */}
       <FloatingBot onClick={() => setIsChatOpen(!isChatOpen)} isChatOpen={isChatOpen} />
       {isChatOpen && (
-        <div className="fixed bottom-24 right-6 z-50 w-[340px] sm:w-[390px] max-w-[calc(100vw-2rem)] h-[525px] shadow-2xl rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden flex flex-col transition-all duration-300 animate-fadeIn">
+        <div className="fixed bottom-24 right-6 z-50 w-[340px] sm:w-[390px] max-w-[calc(100vw-2rem)] h-[525px] shadow-2xl rounded-2xl border border-(--color-border) dark:border-(--color-border-dark) bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) overflow-hidden flex flex-col transition-all duration-300 animate-fadeIn">
           <ChatbotModule user={user} isFloating={true} onClose={() => setIsChatOpen(false)} />
         </div>
       )}

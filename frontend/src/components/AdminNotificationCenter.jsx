@@ -112,7 +112,7 @@ export default function AdminNotificationCenter({ allUsers = [], onNavigate, onC
       case 'Expense Claim':
         return 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800';
       default:
-        return 'bg-slate-50 dark:bg-slate-700';
+        return 'bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark)';
     }
   };
 
@@ -122,7 +122,7 @@ export default function AdminNotificationCenter({ allUsers = [], onNavigate, onC
       className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
         activeTab === id
           ? 'bg-indigo-600 text-white'
-          : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
+          : 'bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) hover:bg-slate-200 dark:hover:bg-(--color-bg-subtle-dark)'
       }`}
     >
       <Icon className="w-4 h-4" />
@@ -132,7 +132,7 @@ export default function AdminNotificationCenter({ allUsers = [], onNavigate, onC
 
   return (
     <div className="space-y-6">
-      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
+      <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-6">
         <div className="flex items-center gap-3 mb-6 overflow-x-auto pb-2">
           <TabButton id="compose" label="Compose" icon={Send} />
           <TabButton id="sent" label="Sent Notifications" icon={Bell} />
@@ -141,17 +141,17 @@ export default function AdminNotificationCenter({ allUsers = [], onNavigate, onC
 
         {activeTab === 'compose' && (
           <div>
-            <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2 mb-4"><Send className="w-5 h-5 text-slate-400" /> Compose Notification</h3>
+            <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2 mb-4"><Send className="w-5 h-5 text-(--color-text-muted)" /> Compose Notification</h3>
             <form onSubmit={handleSend} className="space-y-3">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title (e.g. Annual Health Camp)" className="px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200" />
-                <select value={category} onChange={(e) => setCategory(e.target.value)} className="px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200">
+                <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title (e.g. Annual Health Camp)" className="px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)" />
+                <select value={category} onChange={(e) => setCategory(e.target.value)} className="px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)">
                   {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
-              <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={3} placeholder="Message…" className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs resize-y text-slate-800 dark:text-slate-200" />
+              <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={3} placeholder="Message…" className="w-full px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs resize-y text-(--color-text-primary) dark:text-(--color-text-primary-dark)" />
               <div className="flex items-center gap-3">
-                <select value={targetEmployeeId} onChange={(e) => setTargetEmployeeId(e.target.value)} className="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200">
+                <select value={targetEmployeeId} onChange={(e) => setTargetEmployeeId(e.target.value)} className="flex-1 px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)">
                   <option value="">Broadcast to all employees</option>
                   {allUsers.map((u) => <option key={u.employeeId} value={u.employeeId}>{u.name} ({u.employeeId})</option>)}
                 </select>
@@ -165,9 +165,9 @@ export default function AdminNotificationCenter({ allUsers = [], onNavigate, onC
 
         {activeTab === 'sent' && (
           <div>
-            <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2 mb-4"><Bell className="w-5 h-5 text-slate-400" /> Sent Notifications</h3>
+            <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2 mb-4"><Bell className="w-5 h-5 text-(--color-text-muted)" /> Sent Notifications</h3>
             {sentNotifications.length === 0 ? (
-              <p className="text-xs text-slate-400 dark:text-slate-500">No notifications sent yet.</p>
+              <p className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark)">No notifications sent yet.</p>
             ) : (
               <div className="space-y-2">
                 {sentNotifications.map((n) => {
@@ -178,19 +178,19 @@ export default function AdminNotificationCenter({ allUsers = [], onNavigate, onC
                     onClick={() => handleNotificationClick(n)}
                     className={`flex items-start justify-between border rounded-lg p-3 transition-colors ${
                       canNavigate
-                        ? 'border-slate-100 dark:border-slate-700 cursor-pointer hover:bg-indigo-50/60 dark:hover:bg-indigo-950/30 hover:border-indigo-200 dark:hover:border-indigo-800'
-                        : 'border-slate-100 dark:border-slate-700'
+                        ? 'border-(--color-border) dark:border-(--color-border-dark) cursor-pointer hover:bg-indigo-50/60 dark:hover:bg-indigo-950/30 hover:border-indigo-200 dark:hover:border-indigo-800'
+                        : 'border-(--color-border) dark:border-(--color-border-dark)'
                     } ${!n.read ? 'bg-indigo-50/40 dark:bg-indigo-950/20' : ''}`}
                   >
                     <div className="min-w-0">
-                      <div className="text-xs font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                      <div className="text-xs font-semibold text-(--color-text-secondary) dark:text-(--color-text-primary-dark) flex items-center gap-1.5">
                         {!n.read && <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full shrink-0" />}
                         <span className="truncate">{n.title}</span>
-                        <span className="text-[9px] text-slate-400 dark:text-slate-500 font-mono ml-1 shrink-0">{n.targetEmployeeId ? `→ ${n.targetEmployeeId}` : '→ all'}</span>
+                        <span className="text-[9px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono ml-1 shrink-0">{n.targetEmployeeId ? `→ ${n.targetEmployeeId}` : '→ all'}</span>
                       </div>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{n.message}</p>
+                      <p className="text-[11px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) mt-0.5">{n.message}</p>
                       <div className="flex items-center gap-2">
-                        <span className="text-[9px] text-slate-300 dark:text-slate-600 font-mono">{new Date(n.createdAt).toLocaleString()}</span>
+                        <span className="text-[9px] text-slate-300 dark:text-(--color-border-strong-dark) font-mono">{new Date(n.createdAt).toLocaleString()}</span>
                         {canNavigate && (
                           <span className="text-[9px] font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-wider">
                             Click to view →
@@ -198,7 +198,7 @@ export default function AdminNotificationCenter({ allUsers = [], onNavigate, onC
                         )}
                       </div>
                     </div>
-                    <button onClick={(e) => { e.stopPropagation(); handleDelete(n.id); }} className="p-1.5 border border-slate-200 dark:border-slate-600 rounded-md text-slate-500 dark:text-slate-400 hover:text-rose-500 hover:border-rose-300 dark:hover:text-rose-400 cursor-pointer shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
+                    <button onClick={(e) => { e.stopPropagation(); handleDelete(n.id); }} className="p-1.5 border border-(--color-border) dark:border-(--color-border-dark) rounded-md text-(--color-text-muted) dark:text-(--color-text-muted-dark) hover:text-rose-500 hover:border-rose-300 dark:hover:text-rose-400 cursor-pointer shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
                   </div>
                   );
                 })}
@@ -209,9 +209,9 @@ export default function AdminNotificationCenter({ allUsers = [], onNavigate, onC
 
         {activeTab === 'received' && (
           <div>
-            <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2 mb-4"><Bell className="w-5 h-5 text-slate-400" /> Received Notifications</h3>
+            <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2 mb-4"><Bell className="w-5 h-5 text-(--color-text-muted)" /> Received Notifications</h3>
             {receivedNotifications.length === 0 ? (
-              <p className="text-xs text-slate-400 dark:text-slate-500">No notifications from employees yet.</p>
+              <p className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark)">No notifications from employees yet.</p>
             ) : (
               <div className="space-y-2">
                 {receivedNotifications.map((n) => {
@@ -223,16 +223,16 @@ export default function AdminNotificationCenter({ allUsers = [], onNavigate, onC
                     className={`flex items-start justify-between border rounded-lg p-3 transition-colors ${getCategoryColor(n.category)} ${canNavigate ? 'cursor-pointer hover:opacity-80' : ''}`}
                   >
                     <div className="min-w-0 flex-1">
-                      <div className="text-xs font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-2">
-                        <span className="text-slate-500 dark:text-slate-400">{getCategoryIcon(n.category)}</span>
+                      <div className="text-xs font-semibold text-(--color-text-secondary) dark:text-(--color-text-primary-dark) flex items-center gap-2">
+                        <span className="text-(--color-text-muted) dark:text-(--color-text-muted-dark)">{getCategoryIcon(n.category)}</span>
                         <span className="truncate">{n.title}</span>
-                        <span className="text-[9px] text-slate-400 dark:text-slate-500 font-mono ml-1 shrink-0">({n.targetEmployeeId || 'System'})</span>
+                        <span className="text-[9px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono ml-1 shrink-0">({n.targetEmployeeId || 'System'})</span>
                       </div>
-                      <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-1">{n.message}</p>
+                      <p className="text-[11px] text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) mt-1">{n.message}</p>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-[9px] text-slate-400 dark:text-slate-500 font-mono">{new Date(n.createdAt).toLocaleString()}</span>
+                        <span className="text-[9px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">{new Date(n.createdAt).toLocaleString()}</span>
                         {NAVIGABLE_CATEGORIES.includes(n.category) && (
-                          <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                          <span className="text-[9px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider">
                             {n.category}
                           </span>
                         )}
@@ -243,7 +243,7 @@ export default function AdminNotificationCenter({ allUsers = [], onNavigate, onC
                         )}
                       </div>
                     </div>
-                    <button onClick={(e) => { e.stopPropagation(); deleteNotification(n.id).then(() => loadReceivedNotifications()); }} className="p-1.5 border border-slate-200 dark:border-slate-600 rounded-md text-slate-500 dark:text-slate-400 hover:text-rose-500 hover:border-rose-300 dark:hover:text-rose-400 cursor-pointer shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
+                    <button onClick={(e) => { e.stopPropagation(); deleteNotification(n.id).then(() => loadReceivedNotifications()); }} className="p-1.5 border border-(--color-border) dark:border-(--color-border-dark) rounded-md text-(--color-text-muted) dark:text-(--color-text-muted-dark) hover:text-rose-500 hover:border-rose-300 dark:hover:text-rose-400 cursor-pointer shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
                   </div>
                   );
                 })}

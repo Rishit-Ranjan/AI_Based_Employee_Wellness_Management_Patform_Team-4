@@ -1,12 +1,35 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
+/* stylelint-disable-next-line */
 @custom-variant dark (&:where(.dark, .dark *));
 
-@theme {
+/* Theme tokens are declared in :root so standard CSS tooling does not flag
+  Tailwind-specific @theme as an unknown at-rule. */
+:root {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Space Grotesk", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* ── Semantic color tokens (light) ── */
+  --color-bg: #f8fafc;
+  --color-bg-card: #ffffff;
+  --color-bg-subtle: #f1f5f9;
+  --color-border: #e2e8f0;
+  --color-border-strong: #cbd5e1;
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #334155;
+  --color-text-muted: #64748b;
+
+  /* ── Semantic color tokens (dark — deeper, richer) ── */
+  --color-bg-dark: #101214;
+  --color-bg-card-dark: #17191b;
+  --color-bg-subtle-dark: #222528;
+  --color-border-dark: #303438;
+  --color-border-strong-dark: #41464b;
+  --color-text-primary-dark: #e8edf4;
+  --color-text-secondary-dark: #b0bccd;
+  --color-text-muted-dark: #7a8a9e;
 }
 
 /* Custom scrollbar */
@@ -18,30 +41,72 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--color-border-strong);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: var(--color-text-muted);
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: var(--color-border-strong-dark);
 }
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: var(--color-text-muted-dark);
 }
 
 body {
   font-family: var(--font-sans);
-  background-color: #f8fafc;
-  color: #0f172a;
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 html.dark body {
-  background-color: #0f172a;
-  color: #f8fafc;
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-primary-dark);
+}
+
+/* Keep the stress slider track readable in both themes. */
+.stress-range {
+  appearance: none;
+  background: var(--color-border-strong);
+}
+
+.stress-range::-webkit-slider-runnable-track {
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: var(--color-border-strong);
+}
+
+.stress-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: -0.375rem;
+  border: 0;
+  border-radius: 9999px;
+  background: var(--stress-color);
+}
+
+.stress-range::-moz-range-track {
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: var(--color-border-strong);
+}
+
+.stress-range::-moz-range-thumb {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 0;
+  border-radius: 9999px;
+  background: var(--stress-color);
+}
+
+.dark .stress-range,
+.dark .stress-range::-webkit-slider-runnable-track,
+.dark .stress-range::-moz-range-track {
+  background: var(--color-border-strong-dark);
 }
 
 /* Hide native browser password reveal/clear buttons so our custom toggle is the only one visible */

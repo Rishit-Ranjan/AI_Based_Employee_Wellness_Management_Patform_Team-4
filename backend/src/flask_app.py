@@ -2384,7 +2384,17 @@ def change_password():
     return jsonify({'detail': 'Password updated successfully.'}), 200
 
 # --- AI Wellness Service Endpoints ---
-from ai_service import get_ai_service
+from ai_service import get_ai_service, get_ollama_status
+@app.route('/api/ai/status', methods=['GET'])
+@jwt_required(locations=["cookies"])
+def ai_status():
+    """Diagnostics: which Ollama models are installed and which will be used."""
+    try:
+        return jsonify(get_ollama_status(db)), 200
+    except Exception as e:
+        app.logger.exception(f"AI Status error: {e}")
+        return jsonify({'detail': 'AI status unavailable'}), 500
+
 @app.route('/api/ai/chat', methods=['POST'])
 @jwt_required(locations=["cookies"])
 def ai_chat():
@@ -3238,7 +3248,7 @@ def get_system_settings():
             '_id': 'system_config',
             'llmProvider': 'ollama',
             # Default model name from env or hardcoded fallback
-            'aiModelName': os.getenv('AI_MODEL_NAME', 'qwen3:1.7b'), 
+            'aiModelName': (os.getenv('AI_MODEL_NAME') or os.getenv('OLLAMA_MODEL') or 'gemma2:2b'), 
             'highRiskThreshold': 70,
             'mediumRiskThreshold': 45,
             'enableEmailNotifications': False,

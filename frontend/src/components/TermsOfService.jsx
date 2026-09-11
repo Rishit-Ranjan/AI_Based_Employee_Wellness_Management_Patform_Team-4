@@ -8,26 +8,26 @@ export default function TermsOfService({ onNavigate }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[200] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4"
+      className="fixed inset-0 z-[200] bg-slate-900/70 flex items-center justify-center p-4"
       onClick={() => onNavigate('signup')} // Close on backdrop click
     >
       <motion.div
         initial={{ scale: 0.9, y: -20 }}
         animate={{ scale: 1, y: 0 }}
         exit={{ scale: 0.9, y: -20, opacity: 0 }}
-        className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-4xl border border-slate-200 dark:border-slate-700 flex flex-col max-h-[90vh]"
+        className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl shadow-2xl w-full max-w-4xl border border-(--color-border) dark:border-(--color-border-dark) flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the modal
       >
-        <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 shrink-0">
-          <h2 className="text-xl font-bold font-display text-slate-900 dark:text-slate-100">Terms of Service</h2>
+        <div className="flex items-center justify-between p-5 border-b border-(--color-border) dark:border-(--color-border-dark) bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) shrink-0">
+          <h2 className="text-xl font-bold font-display text-(--color-text-primary) dark:text-(--color-text-primary-dark)">Terms of Service</h2>
           <button
             onClick={() => onNavigate('signup')} // Close button
-            className="p-1.5 rounded-full text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+            className="p-1.5 rounded-full text-(--color-text-muted) hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark) transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto p-6 prose prose-slate max-w-none text-sm text-slate-600 dark:text-slate-300">
+        <div className="flex-1 overflow-y-auto p-6 prose prose-slate max-w-none text-sm text-(--color-text-secondary) dark:text-(--color-text-secondary-dark)">
           <p className="lead">Last updated: August 13, 2024</p>
           <p>
             Please read these terms and conditions carefully before using Our Service.
@@ -63,8 +63,8 @@ export default function TermsOfService({ onNavigate }) {
             The laws of the Country, excluding its conflicts of law rules, shall govern this Terms and Your use of the Service. Your use of the Application may also be subject to other local, state, national, or international laws.
           </p>
         </div>
-        <div className="p-4 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-200 dark:border-slate-700 flex justify-end gap-3">
-          <button onClick={() => onNavigate('signup')} className="px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-bold flex items-center gap-2">
+        <div className="p-4 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border-t border-(--color-border) dark:border-(--color-border-dark) flex justify-end gap-3">
+          <button onClick={() => onNavigate('signup')} className="px-4 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) hover:bg-slate-200 dark:hover:bg-(--color-bg-subtle-dark) text-(--color-text-secondary) dark:text-(--color-text-primary-dark) rounded-lg text-xs font-bold flex items-center gap-2">
             <XCircle className="w-4 h-4" /> Decline
           </button>
           <button onClick={() => onNavigate('signup')} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center gap-2">

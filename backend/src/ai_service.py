@@ -11,7 +11,9 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, List, Any
 from dotenv import load_dotenv
 from model_loader import get_risk_model, get_recommendation_engine, get_target_encoder, get_feature_columns
+import pathlib as _pathlib
 load_dotenv()
+load_dotenv(dotenv_path=_pathlib.Path(__file__).resolve().parents[1] / '.env')
 
 
 AI_POLICY_GUARDRAIL = """
@@ -151,62 +153,99 @@ class AIWellnessService:
         
         return context
     
-    def _get_current_llm_config(self) -> Dict[str, Any]:
-        """Fetch the current LLM configuration from system settings or environment variables.
+    def _get_ollama_base_url(self) -> str:
+        return (os.getenv('OLLAMA_BASE_URL') or os.getenv('OLLAMA_HOST') or 'http://localhost:11434').rstrip('/')
 
-        The app uses Ollama (local LLM). The model name is resolved with this
-        precedence:
-          - DB system settings (admin UI) ``aiModelName`` override
-          - ``AI_MODEL_NAME`` environment variable
-          - sensible default (``qwen3:1.7b``)
+    def _list_local_ollama_models(self, base_url: str) -> List[str]:
+        """Query Ollama GET /api/tags for installed model names."""
+        try:
+            resp = http_requests.get(f"{base_url}/api/tags", timeout=5)
+            if resp.status_code != 200:
+                return []
+            data = resp.json() or {}
+            names: List[str] = []
+            for m in data.get('models', []) or []:
+                n = m.get('name')
+                if n:
+                    names.append(str(n))
+            return names
+        except Exception:
+            return []
+
+    def _pick_usable_model(self, requested: str, available: List[str]) -> str:
+        """Resolve requested -> actually-installed model with auto-fallback."""
+        req = (requested or '').strip()
+        if not available:
+            return req
+        if req in available:
+            return req
+
+        def _key(n: str) -> str:
+            n = (n or '').strip().lower()
+            return n[:-7] if n.endswith(':latest') else n
+
+        req_key = _key(req)
+        for cand in available:
+            if _key(cand) == req_key:
+                return cand
+        req_base = req_key.split(':')[0]
+        for cand in available:
+            if _key(cand).split(':')[0] == req_base and req_base:
+                return cand
+        non_embed = [m for m in available if 'embed' not in m.lower()]
+        return (non_embed[0] if non_embed else available[0])
+
+    def _get_current_llm_config(self) -> Dict[str, Any]:
+        """Fetch LLM config, resolving to a model actually installed locally.
+
+        Priority: DB system_settings aiModelName > AI_MODEL_NAME (or legacy
+        OLLAMA_MODEL) env var > first non-embedding local model > gemma2:2b.
         """
         # Provider is now fixed to Ollama
         provider = 'ollama'
+        base_url = self._get_ollama_base_url()
 
-        # Generic AI_MODEL_NAME from environment
-        env_ai_model_name = os.getenv('AI_MODEL_NAME')
+        # Generic AI_MODEL_NAME from environment (also honour legacy OLLAMA_MODEL)
+        env_ai_model_name = (os.getenv('AI_MODEL_NAME') or os.getenv('OLLAMA_MODEL') or '').strip()
 
         model_name_from_settings = None
         if self.db is not None:
-            settings = self.db['system_settings'].find_one({'_id': 'system_config'}) # Assuming 'system_config' is the ID
-            if settings:
-                model_name_from_settings = settings.get('aiModelName')
-        
-        # Prioritize DB setting, then environment variable, then hardcoded default
-        model_name = model_name_from_settings if model_name_from_settings is not None else env_ai_model_name
+            try:
+                settings = self.db['system_settings'].find_one({'_id': 'system_config'})
+                if settings:
+                    model_name_from_settings = (settings.get('aiModelName') or '').strip() or None
+            except Exception:
+                model_name_from_settings = None
+
+        # Prioritize DB setting, then environment variable, then installed model
+        requested = (model_name_from_settings or env_ai_model_name or '').strip()
+        if not requested or 'gemini' in requested.lower():
+            requested = env_ai_model_name or 'gemma2:2b'
+
+        # Auto-resolve to a model that is actually installed (any local model works)
+        try:
+            available = self._list_local_ollama_models(base_url)
+        except Exception:
+            available = []
+        model_name = self._pick_usable_model(requested, available)
         if not model_name:
-            model_name = 'qwen3:1.7b' # Ultimate fallback
+            model_name = requested or 'gemma2:2b'
 
         return {
             'provider': provider,
             'model_name': model_name,
+            'requested_model': requested,
+            'available_models': available,
+            'ollama_base_url': base_url,
         }
 
-    def _generate_llm_response(self, message: str, context: str, employee_id: str, llm_config: Dict) -> Optional[tuple[str, str]]:
-        """Try to get response from the Ollama LLM. Returns (response_text, model_name) or None.
-        The provider is now fixed to Ollama."""
-
-        # The llm_config contains the model name from user input or from _get_current_llm_config.
-        # We prioritize the user's input if it exists.
-        model_name_to_use = llm_config.get('model_name')
-        
-        # If the resolved model name is empty or looks like a Gemini model, fall back to a safe Ollama default.
-        if not model_name_to_use or 'gemini' in str(model_name_to_use).lower():
-            model_name_to_use = os.getenv('AI_MODEL_NAME', 'qwen3:1.7b') # Fallback to env var or hardcoded default
-
+    def _call_ollama_generate(self, base_url: str, model: str, prompt: str) -> Optional[str]:
+        """Single POST to /api/generate. Returns text on 200, None otherwise."""
         try:
-            prompt = f"""Context (Employee Health Data): {context}
-
-User message: {message}
-
-As an AI Wellness Assistant, provide a helpful, concise response (max 150 words) with practical wellness advice.
-
-{AI_POLICY_GUARDRAIL}"""
-            ollama_base_url = os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')
             response = http_requests.post(
-                f"{ollama_base_url}/api/generate",
+                f"{base_url}/api/generate",
                 json={
-                    "model": model_name_to_use,
+                    "model": model,
                     "prompt": prompt,
                     "stream": False
                 },
@@ -221,27 +260,76 @@ As an AI Wellness Assistant, provide a helpful, concise response (max 150 words)
                 }
             )
             if response.status_code == 200:
-                return response.json().get('response', ''), model_name_to_use
-            else:
-                print(f"Ollama API error: Returned status {response.status_code}: {response.text}")
-                # Return a generic error to the user
-                return "I'm having trouble connecting to the AI service right now. Please try again in a moment.", "Service Error"
-            
-        except http_requests.exceptions.ConnectionError as e:
-            error_msg = f"Could not connect to Ollama server at {ollama_base_url}. Please ensure the Ollama application is running and your respective AI model is downloaded."
+                return response.json().get('response', '')
+            if response.status_code == 404:
+                print(f"Ollama API 404 for model '{model}': {response.text}")
+                return None
+            print(f"Ollama API error: Returned status {response.status_code}: {response.text}")
+            return None
+        except (http_requests.exceptions.ConnectionError, http_requests.exceptions.Timeout) as e:
+            raise e
+        except Exception as e:
+            print(f"Ollama API unexpected error for model '{model}': {e}")
+            return None
 
-            print(f"Ollama API error: {error_msg} - {e}")
-            return "The AI assistant is currently unavailable. Please ensure the Ollama application is running and the respective AI model is downloaded.", "Service Unavailable"
-        
-        except http_requests.exceptions.Timeout as e:
-            error_msg = f"Ollama API request timed out after 30 seconds."
-            print(f"Ollama API error: {error_msg}")
-            return "The AI assistant is taking too long to respond. Please try again in a moment.", "Service Timeout"
+    def _generate_llm_response(self, message: str, context: str, employee_id: str, llm_config: Dict) -> Optional[tuple[str, str]]:
+        """Try Ollama LLM. Returns (response_text, model_name) or None for rule fallback.
 
-        except Exception as e: # Catch any other unexpected errors during the API call
-            error_msg = f"An unexpected error occurred during Ollama API call: {e}"
-            print(f"Ollama API error: {error_msg}")
-            return f"Ollama model failed: {error_msg}", "Ollama Error"
+        Any locally installed model works: tries the resolved model first, then
+        retries once with each other installed (non-embedding) model on 404.
+        Returns None (never an error string) so chat() falls back to rules.
+        """
+
+        # The llm_config contains the resolved model from _get_current_llm_config.
+        model_name_to_use = (llm_config.get('model_name') or '').strip()
+        ollama_base_url = llm_config.get('ollama_base_url') or self._get_ollama_base_url()
+        available = llm_config.get('available_models') or []
+
+        # If the resolved model name is empty or looks like a Gemini model, fix it.
+        if not model_name_to_use or 'gemini' in model_name_to_use.lower():
+            env_fallback = (os.getenv('AI_MODEL_NAME') or os.getenv('OLLAMA_MODEL') or 'gemma2:2b').strip()
+            model_name_to_use = self._pick_usable_model(env_fallback, available) or env_fallback
+
+        try:
+            prompt = f"""Context (Employee Health Data): {context}
+
+User message: {message}
+
+As an AI Wellness Assistant, provide a helpful, concise response (max 150 words) with practical wellness advice.
+
+{AI_POLICY_GUARDRAIL}"""
+            # Build candidate list: resolved model first, then other installed
+            # (non-embedding) models as automatic 404 retry fallbacks.
+            candidates = [model_name_to_use]
+            for m in available:
+                if m not in candidates and 'embed' not in m.lower():
+                    candidates.append(m)
+            for m in list(candidates):
+                if 'embed' in m.lower() and len(candidates) > 1:
+                    candidates.remove(m)
+            if not candidates:
+                return None
+
+            last_error = None
+            for candidate in candidates:
+                try:
+                    text = self._call_ollama_generate(ollama_base_url, candidate, prompt)
+                except http_requests.exceptions.ConnectionError as e:
+                    print(f"Ollama API error: cannot connect at {ollama_base_url} - {e}")
+                    return None
+                except http_requests.exceptions.Timeout:
+                    print("Ollama API error: request timed out after 25s")
+                    return None
+                if text:  # success (non-empty)
+                    return text, candidate
+                last_error = f"model '{candidate}' not found or empty"
+                print(f"Ollama retry: {last_error}, trying next model...")
+            print(f"Ollama API: all candidates failed ({candidates}). Last: {last_error}")
+            return None
+
+        except Exception as e:
+            print(f"Ollama API unexpected error: {e}")
+            return None
         
     def _generate_rule_response(self, message: str, intent: str) -> str:
         """Generate rule-based response when LLM is not available."""
@@ -1105,7 +1193,27 @@ def get_ai_service(db=None):
     global _ai_service_instance
     if _ai_service_instance is None:
         _ai_service_instance = AIWellnessService(db)
+    elif db is not None:
+        # Keep the singleton's DB handle fresh (flask_app passes db each request).
+        # Without this, a first call with db=None pins a stale handle and the
+        # model resolution never sees DB/env updates.
+        _ai_service_instance.db = db
     return _ai_service_instance
+
+def get_ollama_status(db=None) -> Dict[str, Any]:
+    """Diagnostics helper: installed models + resolved model. No LLM call."""
+    service = get_ai_service(db)
+    base_url = service._get_ollama_base_url()
+    available = service._list_local_ollama_models(base_url)
+    cfg = service._get_current_llm_config()
+    return {
+        'ollama_base_url': base_url,
+        'ollama_reachable': len(available) > 0,
+        'available_models': available,
+        'requested_model': cfg.get('requested_model'),
+        'resolved_model': cfg.get('model_name'),
+        'env_ai_model_name': (os.getenv('AI_MODEL_NAME') or os.getenv('OLLAMA_MODEL') or '').strip() or None,
+    }
 
 def get_ai_diet_plan(employee_id: str, preferences: Dict = None) -> Dict[str, Any]:
     """Convenience function to generate a diet plan."""

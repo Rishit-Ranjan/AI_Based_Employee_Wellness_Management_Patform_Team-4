@@ -36,7 +36,7 @@ export default function CircularHealthScore({
             cy={size / 2}
             r={radius}
             strokeWidth={strokeWidth}
-            className="stroke-slate-100 dark:stroke-slate-700/60 fill-none"
+            className="stroke-(--color-bg-subtle) dark:stroke-(--color-bg-subtle-dark) fill-none"
           />
           {/* Progress Circle */}
           <circle
@@ -53,10 +53,10 @@ export default function CircularHealthScore({
 
         {/* Center Label */}
         <div className="absolute flex flex-col items-center justify-center text-center">
-          <span className="text-3xl font-display font-bold text-slate-900 dark:text-slate-50 tracking-tight">
+          <span className="text-3xl font-display font-bold text-(--color-text-primary) dark:text-(--color-text-primary-dark) tracking-tight">
             {normalizedScore}%
           </span>
-          <span className="text-[10px] text-slate-400 dark:text-slate-400 uppercase tracking-widest font-mono font-medium mt-0.5">
+          <span className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest font-medium mt-0.5">
             {title}
           </span>
         </div>
@@ -66,7 +66,7 @@ export default function CircularHealthScore({
         <span className={`px-2.5 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider ${statusBg}`}>
           {statusBadge}
         </span>
-        <span className="text-xs text-slate-400 dark:text-slate-400 font-mono">
+        <span className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">
           {subtitle}
         </span>
       </div>

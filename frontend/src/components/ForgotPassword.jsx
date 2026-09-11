@@ -210,7 +210,7 @@ const handlePasswordReset = async (e) => {
           <p className="text-slate-500 text-sm">
             Your credentials have been successfully updated. You can now use your new password to sign in.
           </p>
-          <div className="text-xs text-slate-400 font-mono">
+          <div className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">
             Redirecting to the login portal...
           </div>
         </div>
@@ -270,7 +270,7 @@ const handlePasswordReset = async (e) => {
                 Work Email
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-(--color-text-muted)">
                   <Mail className="w-4 h-4" />
                 </div>
                 <input
@@ -288,7 +288,7 @@ const handlePasswordReset = async (e) => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-slate-900 text-white font-semibold py-3 rounded-lg hover:bg-slate-800 transition-all transform active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2 shadow-sm"
+              className="w-full bg-slate-900 text-white font-semibold py-3 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-sm"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/35 border-t-white rounded-full animate-spin" />
@@ -324,7 +324,7 @@ const handlePasswordReset = async (e) => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-slate-900 text-white font-semibold py-3 rounded-lg hover:bg-slate-800 transition-all transform active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2 shadow-sm"
+              className="w-full bg-slate-900 text-white font-semibold py-3 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-sm"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/35 border-t-white rounded-full animate-spin" />
@@ -346,7 +346,7 @@ const handlePasswordReset = async (e) => {
                 New Password
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-(--color-text-muted)">
                   <Lock className="w-4 h-4" />
                 </div>
                 <input
@@ -361,7 +361,7 @@ const handlePasswordReset = async (e) => {
                 <button
                   type="button"
                   onClick={() => setShowNewPassword(!showNewPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600"
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-(--color-text-muted) hover:text-slate-600"
                 >
                   {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -386,7 +386,7 @@ const handlePasswordReset = async (e) => {
                 Confirm New Password
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-(--color-text-muted)">
                   <Lock className="w-4 h-4" />
                 </div>
                 <input
@@ -401,7 +401,7 @@ const handlePasswordReset = async (e) => {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600"
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-(--color-text-muted) hover:text-slate-600"
                 >
                   {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -411,7 +411,7 @@ const handlePasswordReset = async (e) => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-slate-900 text-white font-semibold py-3 rounded-lg hover:bg-slate-800 transition-all transform active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2 shadow-sm"
+              className="w-full bg-slate-900 text-white font-semibold py-3 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-sm"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/35 border-t-white rounded-full animate-spin" />

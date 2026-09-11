@@ -83,35 +83,35 @@ export default function AdminInsuranceModule({ allUsers = [] }) {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
-        <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2 mb-4"><Plus className="w-5 h-5 text-slate-400" /> Assign / Update Policy</h3>
+      <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-6">
+        <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2 mb-4"><Plus className="w-5 h-5 text-(--color-text-muted)" /> Assign / Update Policy</h3>
         <form onSubmit={handleCreate} className="grid grid-cols-1 sm:grid-cols-5 gap-3 items-end">
           <div className="relative">
-            <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">Employee</label>
+            <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-1">Employee</label>
             <div className="relative">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-(--color-text-muted) absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 value={empQuery}
                 onChange={(e) => { setEmpQuery(e.target.value); setShowEmpList(true); if (!e.target.value) setSelectedEmp(''); }}
                 onFocus={() => setShowEmpList(true)}
                 onBlur={() => setTimeout(() => setShowEmpList(false), 150)}
                 placeholder="Search & select employee…"
-                className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200 placeholder:text-slate-400"
+                className="w-full pl-9 pr-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) placeholder:text-(--color-text-muted)"
               />
             </div>
             {showEmpList && (
-              <div className="absolute z-20 mt-1 w-full max-h-52 overflow-y-auto bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg shadow-lg">
+              <div className="absolute z-20 mt-1 w-full max-h-52 overflow-y-auto bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg shadow-lg">
                 {filteredEmployees.length === 0 ? (
-                  <div className="px-3 py-2 text-xs text-slate-400 dark:text-slate-500">No employees match "{empQuery}".</div>
+                  <div className="px-3 py-2 text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark)">No employees match "{empQuery}".</div>
                 ) : (
                   filteredEmployees.map((u) => (
                     <button
                       type="button"
                       key={u.employeeId}
                       onMouseDown={() => selectEmployee(u)}
-                      className="w-full text-left px-3 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 cursor-pointer"
+                      className="w-full text-left px-3 py-2 text-xs text-(--color-text-secondary) dark:text-(--color-text-primary-dark) hover:bg-indigo-50 dark:hover:bg-indigo-950/40 cursor-pointer"
                     >
-                      <span className="font-semibold">{u.name}</span> <span className="text-slate-400 font-mono">({u.employeeId})</span>
+                      <span className="font-semibold">{u.name}</span> <span className="text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">({u.employeeId})</span>
                     </button>
                   ))
                 )}
@@ -119,20 +119,20 @@ export default function AdminInsuranceModule({ allUsers = [] }) {
             )}
           </div>
           <div>
-            <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">Provider</label>
-            <input value={form.provider} onChange={(e) => setForm({ ...form, provider: e.target.value })} placeholder="Star Health" className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200" />
+            <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-1">Provider</label>
+            <input value={form.provider} onChange={(e) => setForm({ ...form, provider: e.target.value })} placeholder="Star Health" className="w-full px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)" />
           </div>
           <div>
-            <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">Policy No.</label>
-            <input value={form.policyNumber} onChange={(e) => setForm({ ...form, policyNumber: e.target.value })} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200" />
+            <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-1">Policy No.</label>
+            <input value={form.policyNumber} onChange={(e) => setForm({ ...form, policyNumber: e.target.value })} className="w-full px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)" />
           </div>
           <div>
-            <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">Coverage (₹)</label>
-            <input type="number" value={form.coverage} onChange={(e) => setForm({ ...form, coverage: e.target.value })} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200" />
+            <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-1">Coverage (₹)</label>
+            <input type="number" value={form.coverage} onChange={(e) => setForm({ ...form, coverage: e.target.value })} className="w-full px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)" />
           </div>
           <div>
-            <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">Expiry</label>
-            <input type="date" value={form.expiryDate} onChange={(e) => setForm({ ...form, expiryDate: e.target.value })} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200" />
+            <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-1">Expiry</label>
+            <input type="date" value={form.expiryDate} onChange={(e) => setForm({ ...form, expiryDate: e.target.value })} className="w-full px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)" />
           </div>
           <button type="submit" disabled={saving} className="sm:col-span-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-2">
             <Save className="w-3.5 h-3.5" /> {saving ? 'Saving…' : 'Save Policy'}
@@ -140,29 +140,29 @@ export default function AdminInsuranceModule({ allUsers = [] }) {
         </form>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4">
+      <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-4">
         <div className="relative w-full">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-(--color-text-muted) absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search insurance by employee, provider, policy no., coverage, expiry…"
-            className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200 placeholder:text-slate-400"
+            className="w-full pl-9 pr-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) placeholder:text-(--color-text-muted)"
           />
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
-        <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2 mb-4"><CheckCircle2 className="w-5 h-5 text-slate-400" /> Pending Claims ({filteredPendingClaims.length})</h3>
+      <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-6">
+        <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2 mb-4"><CheckCircle2 className="w-5 h-5 text-(--color-text-muted)" /> Pending Claims ({filteredPendingClaims.length})</h3>
         {filteredPendingClaims.length === 0 ? (
-          <p className="text-xs text-slate-400 dark:text-slate-500">{query && pendingClaims.length > 0 ? `No pending claims match "${search}".` : 'No pending claims.'}</p>
+          <p className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark)">{query && pendingClaims.length > 0 ? `No pending claims match "${search}".` : 'No pending claims.'}</p>
         ) : (
           <div className="space-y-2">
             {filteredPendingClaims.map((c) => (
-              <div key={c.id} className="flex items-center justify-between border border-slate-100 dark:border-slate-700 rounded-lg p-3">
+              <div key={c.id} className="flex items-center justify-between border border-(--color-border) dark:border-(--color-border-dark) rounded-lg p-3">
                 <div>
-                  <div className="text-xs font-semibold text-slate-700 dark:text-slate-200">{c.employeeId} — {c.description}</div>
-                  <div className="text-[10px] text-slate-400 dark:text-slate-500">₹{Number(c.amount).toLocaleString('en-IN')} · {new Date(c.date).toLocaleDateString()}</div>
+                  <div className="text-xs font-semibold text-(--color-text-secondary) dark:text-(--color-text-primary-dark)">{c.employeeId} — {c.description}</div>
+                  <div className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark)">₹{Number(c.amount).toLocaleString('en-IN')} · {new Date(c.date).toLocaleDateString()}</div>
                 </div>
                 <div className="flex gap-2">
                   <button onClick={() => handleClaim(c.employeeId, c.id, 'Approved')} className="p-1.5 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/80 border border-emerald-200 dark:border-emerald-800 rounded-lg text-emerald-600 dark:text-emerald-400 cursor-pointer"><CheckCircle2 className="w-3.5 h-3.5" /></button>
@@ -174,16 +174,16 @@ export default function AdminInsuranceModule({ allUsers = [] }) {
         )}
       </div>
 
-      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
-        <h3 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2 mb-4"><ShieldCheck className="w-5 h-5 text-slate-400" /> All Policies</h3>
+      <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-6">
+        <h3 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-base flex items-center gap-2 mb-4"><ShieldCheck className="w-5 h-5 text-(--color-text-muted)" /> All Policies</h3>
         {loading ? (
-          <p className="text-xs text-slate-400 dark:text-slate-500">Loading…</p>
+          <p className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark)">Loading…</p>
         ) : filteredPolicies.length === 0 ? (
-          <p className="text-xs text-slate-400 dark:text-slate-500">{query && policies.length > 0 ? `No policies match "${search}".` : 'No policies assigned yet.'}</p>
+          <p className="text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark)">{query && policies.length > 0 ? `No policies match "${search}".` : 'No policies assigned yet.'}</p>
         ) : (
           <table className="w-full text-xs">
             <thead>
-              <tr className="text-left text-slate-400 dark:text-slate-500 border-b border-slate-100 dark:border-slate-700">
+              <tr className="text-left text-(--color-text-muted) dark:text-(--color-text-muted-dark) border-b border-(--color-border) dark:border-(--color-border-dark)">
                 <th className="pb-2 font-semibold">Employee</th>
                 <th className="pb-2 font-semibold">Provider</th>
                 <th className="pb-2 font-semibold">Coverage</th>
@@ -195,11 +195,11 @@ export default function AdminInsuranceModule({ allUsers = [] }) {
             <tbody>
               {filteredPolicies.map((p) => (
                 <tr key={p.id} className="border-b border-slate-50 dark:border-slate-800">
-                  <td className="py-2 font-mono text-slate-600 dark:text-slate-400">{p.employeeId}</td>
-                  <td className="py-2 text-slate-700 dark:text-slate-200">{p.provider}</td>
-                  <td className="py-2 text-slate-700 dark:text-slate-200">₹{Number(p.coverage || 0).toLocaleString('en-IN')}</td>
-                  <td className="py-2 text-slate-700 dark:text-slate-200">₹{Number(p.claimUsed || 0).toLocaleString('en-IN')}</td>
-                  <td className="py-2 text-slate-500 dark:text-slate-400">{p.expiryDate || '—'}</td>
+                  <td className="py-2 font-mono text-(--color-text-secondary) dark:text-(--color-text-muted-dark)">{p.employeeId}</td>
+                  <td className="py-2 text-(--color-text-secondary) dark:text-(--color-text-primary-dark)">{p.provider}</td>
+                  <td className="py-2 text-(--color-text-secondary) dark:text-(--color-text-primary-dark)">₹{Number(p.coverage || 0).toLocaleString('en-IN')}</td>
+                  <td className="py-2 text-(--color-text-secondary) dark:text-(--color-text-primary-dark)">₹{Number(p.claimUsed || 0).toLocaleString('en-IN')}</td>
+                  <td className="py-2 text-(--color-text-muted) dark:text-(--color-text-muted-dark)">{p.expiryDate || '—'}</td>
                   <td className="py-2">
                     <button
                       onClick={() => {
@@ -221,28 +221,28 @@ export default function AdminInsuranceModule({ allUsers = [] }) {
       </div>
 
       {confirmDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-slate-950/70 backdrop-blur-sm p-4" onClick={() => setConfirmDelete(null)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-slate-950/70 p-4" onClick={() => setConfirmDelete(null)}>
           <div
-            className="w-full max-w-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl p-6"
+            className="w-full max-w-sm bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl shadow-xl p-6"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-4 mb-3">
               <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400">
                 <AlertTriangle className="w-5 h-5" />
-                <h4 className="font-display font-semibold text-slate-800 dark:text-slate-100 text-sm">Delete insurance policy?</h4>
+                <h4 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-sm">Delete insurance policy?</h4>
               </div>
               <button
                 onClick={() => setConfirmDelete(null)}
-                className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                className="p-1 text-(--color-text-muted) hover:text-(--color-text-secondary) dark:hover:text-(--color-text-primary-dark) cursor-pointer"
                 title="Cancel"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
+            <p className="text-xs text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) leading-relaxed mb-4">
               This will permanently remove the policy for{' '}
-              <span className="font-mono font-semibold text-slate-800 dark:text-slate-100">{confirmDelete.employeeId}</span>
+              <span className="font-mono font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{confirmDelete.employeeId}</span>
               {confirmDelete.provider && <span> ({confirmDelete.provider}{confirmDelete.policyNumber ? ` · ${confirmDelete.policyNumber}` : ''})</span>}.
               This action cannot be undone.
             </p>
@@ -257,7 +257,7 @@ export default function AdminInsuranceModule({ allUsers = [] }) {
               <button
                 onClick={() => setConfirmDelete(null)}
                 disabled={deleting === confirmDelete.employeeId}
-                className="px-3 py-2 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 rounded-lg text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer disabled:opacity-50"
+                className="px-3 py-2 border border-(--color-border) dark:border-(--color-border-dark) text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) rounded-lg text-xs font-bold hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark) cursor-pointer disabled:opacity-50"
               >
                 Cancel
               </button>

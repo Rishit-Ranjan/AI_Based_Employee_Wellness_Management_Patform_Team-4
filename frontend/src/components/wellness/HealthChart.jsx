@@ -47,8 +47,8 @@ const defaultBmiData = [
 const CustomTooltip = ({ active, payload, label, unit = '' }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-slate-900/90 text-white dark:bg-slate-800 dark:text-slate-100 p-2.5 rounded-xl text-xs shadow-xl border border-slate-700/80 font-mono">
-        <p className="font-bold text-slate-300">{label}</p>
+      <div className="bg-(--color-bg-card-dark) text-(--color-text-primary-dark) p-2.5 rounded-xl text-xs shadow-xl border border-(--color-border-dark) font-mono">
+        <p className="font-bold text-(--color-text-secondary-dark)">{label}</p>
         <p className="text-blue-400 font-semibold mt-0.5">
           {payload[0].name || 'Value'}: {payload[0].value} {unit}
         </p>
@@ -69,17 +69,17 @@ export const WeeklyStressChart = memo(({ data = defaultStressData, currentStress
   ];
 
   return (
-    <div className="bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 p-5 shadow-sm hover:shadow-xl transition-all duration-300">
+    <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-lg border border-(--color-border) dark:border-(--color-border-dark) p-5 shadow-sm hover:shadow-lg transition-all duration-300">
       <div className="flex justify-between items-center mb-4">
         <div>
-          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest font-mono">
+          <span className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest">
             Mental Wellness
           </span>
-          <h4 className="font-display font-semibold text-slate-900 dark:text-slate-100 text-sm mt-0.5">
+          <h4 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-sm mt-0.5">
             Weekly Stress Score Trend
           </h4>
         </div>
-        <span className="text-xs font-mono font-bold text-amber-500 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 px-2 py-0.5 rounded-lg">
+        <span className="text-xs font-mono font-bold text-amber-500 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 px-2 py-0.5 rounded-md">
           1 - 10 Scale
         </span>
       </div>
@@ -89,15 +89,15 @@ export const WeeklyStressChart = memo(({ data = defaultStressData, currentStress
           <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <defs>
               <linearGradient id="stressGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.4} />
-                <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
+                <stop offset="5%" stopColor="#f97316" stopOpacity={0.4} />
+                <stop offset="95%" stopColor="#f97316" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.15} />
             <XAxis dataKey="day" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
             <YAxis domain={[0, 10]} tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
             <Tooltip content={<CustomTooltip unit="/ 10" />} />
-            <Area type="monotone" dataKey="score" name="Stress Score" stroke="#f59e0b" strokeWidth={2.5} fillOpacity={1} fill="url(#stressGrad)" />
+            <Area type="monotone" dataKey="score" name="Stress Score" stroke="#f97316" strokeWidth={2.5} fillOpacity={1} fill="url(#stressGrad)" />
           </AreaChart>
         </ResponsiveContainer>
       </div>
@@ -107,17 +107,17 @@ export const WeeklyStressChart = memo(({ data = defaultStressData, currentStress
 
 export const SleepHistoryChart = memo(({ data = defaultSleepData, target = 8 }) => {
   return (
-    <div className="bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 p-5 shadow-sm hover:shadow-xl transition-all duration-300">
+    <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-lg border border-(--color-border) dark:border-(--color-border-dark) p-5 shadow-sm hover:shadow-lg transition-all duration-300">
       <div className="flex justify-between items-center mb-4">
         <div>
-          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest font-mono">
+          <span className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest">
             Sleep Metrics
           </span>
-          <h4 className="font-display font-semibold text-slate-900 dark:text-slate-100 text-sm mt-0.5">
+          <h4 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-sm mt-0.5">
             Sleep Duration History
           </h4>
         </div>
-        <span className="text-xs font-mono font-bold text-purple-500 bg-purple-50 dark:bg-purple-950/50 border border-purple-200 dark:border-purple-800 px-2 py-0.5 rounded-lg">
+        <span className="text-xs font-mono font-bold text-purple-500 bg-purple-50 dark:bg-purple-950/50 border border-purple-200 dark:border-purple-800 px-2 py-0.5 rounded-md">
           Target: {target}h
         </span>
       </div>
@@ -131,7 +131,7 @@ export const SleepHistoryChart = memo(({ data = defaultSleepData, target = 8 }) 
             <Tooltip content={<CustomTooltip unit="hrs" />} />
             <Bar dataKey="hours" name="Sleep Hours" radius={[6, 6, 0, 0]}>
               {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.hours >= target ? '#10b981' : entry.hours >= 6 ? '#8b5cf6' : '#ef4444'} />
+                <Cell key={`cell-${index}`} fill={entry.hours >= target ? '#0ea47a' : entry.hours >= 6 ? '#eab308' : '#e5484d'} />
               ))}
             </Bar>
           </BarChart>
@@ -151,17 +151,17 @@ export const BmiTrendChart = memo(({ data = defaultBmiData, currentBmi = 22.5 })
   ];
 
   return (
-    <div className="bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 p-5 shadow-sm hover:shadow-xl transition-all duration-300">
+    <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-lg border border-(--color-border) dark:border-(--color-border-dark) p-5 shadow-sm hover:shadow-lg transition-all duration-300">
       <div className="flex justify-between items-center mb-4">
         <div>
-          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest font-mono">
+          <span className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-widest">
             Body Composition
           </span>
-          <h4 className="font-display font-semibold text-slate-900 dark:text-slate-100 text-sm mt-0.5">
+          <h4 className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) text-sm mt-0.5">
             BMI Trend & History
           </h4>
         </div>
-        <span className="text-xs font-mono font-bold text-blue-500 bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 px-2 py-0.5 rounded-lg">
+        <span className="text-xs font-mono font-bold text-blue-500 bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 px-2 py-0.5 rounded-md">
           Optimal: 18.5 - 24.9
         </span>
       </div>
@@ -173,7 +173,7 @@ export const BmiTrendChart = memo(({ data = defaultBmiData, currentBmi = 22.5 })
             <XAxis dataKey="month" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
             <YAxis domain={[15, 35]} tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
             <Tooltip content={<CustomTooltip unit="BMI" />} />
-            <Line type="monotone" dataKey="bmi" name="BMI Index" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4, fill: '#3b82f6' }} activeDot={{ r: 6 }} />
+            <Line type="monotone" dataKey="bmi" name="BMI Index" stroke="#4f7cf7" strokeWidth={3} dot={{ r: 4, fill: '#4f7cf7' }} activeDot={{ r: 6 }} />
           </LineChart>
         </ResponsiveContainer>
       </div>
