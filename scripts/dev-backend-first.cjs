@@ -53,7 +53,7 @@ const spawnProcess = (command, args, cwd, childArgs) => {
   });
 
   proc.on('error', (err) => {
-    console.error(`[dev] Failed to start "${command}": ${err.message}`);
+    console.error(`Failed to start "${command}": ${err.message}`);
   });
 
   return proc;
@@ -72,14 +72,14 @@ const cleanup = (exitCode = 0) => {
 process.on('SIGINT', () => cleanup(0));
 process.on('SIGTERM', () => cleanup(0));
 process.on('uncaughtException', (err) => {
-  console.error('[dev] Unexpected error:', err);
+  console.error('Unexpected error:', err);
   cleanup(1);
 });
 
 const startFrontend = () => {
   if (frontendStarted) return;
   frontendStarted = true;
-  console.log('[dev] Starting frontend (Vite dev server)...');
+  console.log('Starting frontend (Vite dev server)...');
   frontendProcess = spawnProcess('npm', ['run', 'dev', '--', '--host'], frontendDir);
 
   frontendProcess.on('exit', (code) => {
@@ -119,10 +119,10 @@ backendProcess = spawnProcess(
 backendProcess.on('exit', (code) => {
   if (!frontendStarted) {
     backendExitedEarly = true;
-    console.warn(`[dev] Backend stopped before the frontend started (exit code ${code}). Starting the frontend anyway.`);
+    console.warn(`Backend stopped before the frontend started (exit code ${code}). Starting the frontend anyway.`);
     startFrontend();
   } else {
-    console.warn(`[dev] Backend stopped (exit code ${code}). The frontend keeps running at http://localhost:5173/.`);
+    console.warn(`Backend stopped (exit code ${code}). The frontend keeps running at http://localhost:5173/.`);
   }
 });
 
@@ -155,9 +155,9 @@ const waitForBackend = async (timeoutMs = backendReadyTimeoutMs, intervalMs = ba
     const spinnerChars = ['|', '/', '-', '\\'];
     const spinnerChar = spinnerChars[elapsedSeconds % spinnerChars.length];
     if (process.stdout.isTTY) {
-      process.stdout.write(`\r[dev] Waiting for the backend to be ready... (${elapsedSeconds}s) ${spinnerChar}`);
+      process.stdout.write(`\rWaiting for the backend to be ready... (${elapsedSeconds}s) ${spinnerChar}`);
     } else {
-      console.log(`[dev] Waiting for the backend to be ready... (${elapsedSeconds}s)`);
+      console.log(`Waiting for the backend to be ready... (${elapsedSeconds}s)`);
     }
 
     await new Promise((resolve) => setTimeout(resolve, intervalMs));
@@ -172,10 +172,10 @@ const waitForBackend = async (timeoutMs = backendReadyTimeoutMs, intervalMs = ba
   if (ready) {
     if (waitOnHandled) return;
     waitOnHandled = true;
-    console.log('[dev] Backend is ready  ->  http://localhost:8000');
+    console.log('Backend is ready  ->  http://localhost:8000');
     startFrontend();
   } else {
-    console.warn(`[dev] Backend was not ready after ${backendReadyTimeoutMs / 1000}s - starting the frontend anyway.`);
+    console.warn(`Backend was not ready after ${backendReadyTimeoutMs / 1000}s - starting the frontend anyway.`);
     startFrontend();
   }
 })();
