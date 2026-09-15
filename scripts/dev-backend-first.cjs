@@ -14,15 +14,37 @@ let frontendStarted = false;
 let waitOnHandled = false;
 let backendExitedEarly = false;
 
-  const spawnProcess = (command, args, cwd, childArgs) => {
-  // Pass-through argv for child scripts (e.g. start-backend.cjs)
+// Quote a single argv entry for cmd.exe when it contains characters the
+// shell would otherwise interpret.
+const shellQuote = (value) => {
+  const s = String(value);
+  return /[\s"^&|<>()]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+};
+
+// Fold a command + argv into one safely quoted command line. Required for
+// `npm.cmd`, which cannot be spawned without a shell on Windows (Node refuses
+// .cmd/.bat for security) -- and Node emits the DEP0190 deprecation warning
+// when an args array is combined with `shell: true`, so the whole line is
+// passed as the command and no args array is supplied.
+const buildShellCommand = (command, args) =>
+  [command, ...(args || [])].map(shellQuote).join(' ');
+
+const spawnProcess = (command, args, cwd, childArgs) => {
+  // Pass-through argv for child scripts (e.g. start-backend.cjs). Run them
+  // with the current Node executable: `.cjs` is neither in PATHEXT nor a
+  // registered file association on Windows, so handing the file straight to
+  // cmd.exe silently does nothing. Going through `node` avoids the shell
+  // entirely -- no quoting, no DEP0190 warning -- and works on every platform.
   if (cwd === null && command.endsWith('cjs')) {
-    return spawn(command, childArgs || args || [], { stdio: 'inherit', shell: true });
+    return spawn(process.execPath, [command, ...(childArgs || args || [])], {
+      stdio: 'inherit',
+      shell: false,
+    });
   }
   const executable = process.platform === 'win32' && command === 'npm' ? 'npm.cmd' : command;
   const useShell = process.platform === 'win32' && command === 'npm';
-  const spawnArgs = useShell ? undefined : (childArgs || args);
-  const spawnCommand = useShell ? `${executable} ${(childArgs || args).join(' ')}` : executable;
+  const spawnArgs = useShell ? [] : (childArgs || args);
+  const spawnCommand = useShell ? buildShellCommand(executable, childArgs || args) : executable;
 
   const proc = spawn(spawnCommand, spawnArgs, {
     cwd,

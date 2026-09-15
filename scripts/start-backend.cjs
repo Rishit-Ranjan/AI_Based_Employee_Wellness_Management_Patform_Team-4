@@ -71,11 +71,30 @@ const args = waitressArgs.length
 console.log(`[start-backend] using Python: ${python}`);
 console.log(`[start-backend] serving from: ${backendSrc}`);
 
-const pyProc = spawn(python, ['-m', 'waitress', ...args], {
-  cwd: backendSrc,
-  stdio: 'inherit',
-  shell: process.platform === 'win32',
-});
+// A real interpreter (.exe) is spawned directly, so no shell is involved and
+// no argument escaping is needed. Only shell shims (.cmd/.bat) and Windows
+// Store execution aliases require one. For those we fold the argv into a
+// single quoted command line, because Node emits the DEP0190 deprecation
+// warning whenever an args array is combined with `shell: true`.
+const shellQuote = (value) => {
+  const s = String(value);
+  return /[\s"^&|<>()]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+};
+
+const pyArgs = ['-m', 'waitress', ...args];
+const useShell =
+  /\.(cmd|bat)$/i.test(python) ||
+  (process.platform === 'win32' && /WindowsApps/i.test(python));
+
+const pyProc = spawn(
+  useShell ? [python, ...pyArgs].map(shellQuote).join(' ') : python,
+  useShell ? [] : pyArgs,
+  {
+    cwd: backendSrc,
+    stdio: 'inherit',
+    shell: useShell,
+  }
+);
 
 pyProc.on('error', (err) => {
   console.error('[start-backend] Failed to start Waitress:', err.message);
