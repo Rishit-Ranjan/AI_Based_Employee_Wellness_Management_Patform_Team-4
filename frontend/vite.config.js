@@ -22,15 +22,36 @@ export default defineConfig(() => {
                     target: process.env.BACKEND_URL || 'http://127.0.0.1:8000',
                     changeOrigin: true,
                     secure: false,
-                    // --- ADD THIS BLOCK ---
                     configure: (proxy) => {
+                        // Throttle "backend down" logs: one line per outage window
+                        // instead of one per failed request.
+                        let outSince = 0;
+                        let suppressed = 0;
+                        const isConnErr = (e) =>
+                            e && (e.code === 'ECONNREFUSED' || e.code === 'ECONNRESET' || e.code === 'ECONNABORTED' || e.code === 'EPIPE');
                         proxy.on('error', (err) => {
-                            if (err.code === 'ECONNREFUSED') {
-                                console.log('[vite] Backend starting up, waiting for connection...');
+                            if (!isConnErr(err)) {
+                                console.log('[vite] Proxy error:', err.code || err.message || err);
+                                return;
+                            }
+                            const now = Date.now();
+                            if (now - outSince > 5000) {
+                                const note = suppressed ? ` (${suppressed} previous requests suppressed)` : '';
+                                suppressed = 0;
+                                outSince = now;
+                                console.log(`[vite] Backend unreachable, waiting for it to come up...${note}`);
+                            } else {
+                                suppressed++;
+                            }
+                        });
+                        proxy.on('proxyRes', () => {
+                            if (outSince) {
+                                console.log('[vite] Backend connection restored.');
+                                outSince = 0;
+                                suppressed = 0;
                             }
                         });
                     },
-                    // ----------------------
                 },
             },
             hmr: process.env.DISABLE_HMR !== 'true',

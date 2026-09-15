@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { CheckCircle2, PartyPopper, Plus, Trash2 } from 'lucide-react';
 
 const STORAGE_KEY = (employeeId, date) => `daily-wellness-checklist-${employeeId}-${date}`;
@@ -18,7 +18,7 @@ export default function DailyWellnessChecklist({
   const employeeId = user?.employeeId || 'guest';
   const storageKey = useMemo(() => STORAGE_KEY(employeeId, todayKey()), [employeeId]);
 
-// Persisted, user-toggled state (survives refresh).
+  // Persisted, user-toggled state (survives refresh).
   const [checks, setChecks] = useState(() => {
     const stored = localStorage.getItem(storageKey);
     if (stored) {
@@ -81,11 +81,28 @@ export default function DailyWellnessChecklist({
 
   const toggle = (id) => setChecks((prev) => ({ ...prev, [id]: !prev[id] }));
 
+  // Today's items = only the custom habits the user has added for today.
   const items = customItems;
+  // Ensure every custom item has a checked key persisted in localStorage.
+  const allIds = items.map((i) => i.id);
+  useEffect(() => {
+    setChecks((prev) => {
+      const next = { ...prev };
+      let changed = false;
+      for (const id of allIds) {
+        if (!(id in next)) { next[id] = false; changed = true; }
+      }
+      for (const id of Object.keys(next)) {
+        if (!allIds.includes(id)) { delete next[id]; changed = true; }
+      }
+      return changed ? next : prev;
+    });
+  }, [allIds.join(',')]);
+
   const doneCount = items.filter((i) => checks[i.id]).length;
   const total = items.length;
-  const pct = Math.round((doneCount / total) * 100);
-  const isDone = doneCount === total;
+  const pct = total === 0 ? 0 : Math.round((doneCount / total) * 100);
+  const isDone = total > 0 && doneCount === total;
   const message = DONE_MESSAGES[new Date().getDate() % DONE_MESSAGES.length];
 
   return (
@@ -109,46 +126,52 @@ export default function DailyWellnessChecklist({
       </p>
 
       <div className="checkbox-scroll h-[220px] overflow-y-auto pr-1 -mr-1 space-y-1 scrollbar-thin">
-        {items.map((item) => {
-          const Icon = typeof item.icon === 'string' ? CheckCircle2 : item.icon;
-          const checked = !!checks[item.id];
-          return (
-            <div key={item.id} className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => toggle(item.id)}
-                title={item.caption}
-                className={`h-[40px] flex-1 min-w-0 flex items-center gap-2 text-left px-2 rounded border transition-all cursor-pointer ${
-                  checked
-                    ? 'bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border-emerald-200 dark:border-emerald-800'
-                    : 'bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border-(--color-border) dark:border-(--color-border-dark) hover:border-emerald-300 dark:hover:border-emerald-700'
-                }`}
-              >
-                <Icon className={`w-3 h-3 shrink-0 ${item.color}`} />
-                <span className={`flex-1 min-w-0 truncate text-[11px] font-semibold leading-none ${checked ? 'text-(--color-text-muted) dark:text-(--color-text-muted-dark) line-through' : 'text-(--color-text-secondary) dark:text-(--color-text-primary-dark)'}`}>
-                  {item.label}
-                </span>
-                <span className={`w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 ${
-                  checked
-                    ? 'bg-emerald-500 border-emerald-500 text-white'
-                    : 'border-(--color-border-strong) dark:border-(--color-border-strong-dark) text-transparent'
-                }`}>
-                  <CheckCircle2 className="w-2.5 h-2.5" />
-                </span>
-              </button>
-              {item.custom && (
+        {items.length === 0 ? (
+          <div className="p-4 text-center text-sm text-(--color-text-muted) dark:text-(--color-text-muted-dark) italic">
+            Your checklist habit is empty, add your custom habit for today
+          </div>
+        ) : (
+          items.map((item) => {
+            const Icon = typeof item.icon === 'string' ? CheckCircle2 : item.icon;
+            const checked = !!checks[item.id];
+            return (
+              <div key={item.id} className="flex items-center gap-1.5">
                 <button
                   type="button"
-                  onClick={() => deleteHabit(item.id)}
-                  title="Delete habit"
-                  className="shrink-0 p-1.5 rounded border border-(--color-border) dark:border-(--color-border-dark) text-(--color-text-muted) dark:text-(--color-text-muted-dark) hover:text-rose-500 hover:border-rose-300 transition-colors cursor-pointer"
+                  onClick={() => toggle(item.id)}
+                  title={item.caption}
+                  className={`h-[40px] flex-1 min-w-0 flex items-center gap-2 text-left px-2 rounded border transition-all cursor-pointer ${
+                    checked
+                      ? 'bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border-emerald-200 dark:border-emerald-800'
+                      : 'bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border-(--color-border) dark:border-(--color-border-dark) hover:border-emerald-300 dark:hover:border-emerald-700'
+                  }`}
                 >
-                  <Trash2 className="w-3 h-3" />
+                  <Icon className={`w-3 h-3 shrink-0 ${item.color}`} />
+                  <span className={`flex-1 min-w-0 truncate text-[11px] font-semibold leading-none ${checked ? 'text-(--color-text-muted) dark:text-(--color-text-muted-dark) line-through' : 'text-(--color-text-secondary) dark:text-(--color-text-primary-dark)'}`}>
+                    {item.label}
+                  </span>
+                  <span className={`w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 ${
+                    checked
+                      ? 'bg-emerald-500 border-emerald-500 text-white'
+                      : 'border-(--color-border-strong) dark:border-(--color-border-strong-dark) text-transparent'
+                  }`}>
+                    <CheckCircle2 className="w-2.5 h-2.5" />
+                  </span>
                 </button>
-              )}
-            </div>
-          );
-        })}
+                {item.custom && (
+                  <button
+                    type="button"
+                    onClick={() => deleteHabit(item.id)}
+                    title="Delete habit"
+                    className="shrink-0 p-1.5 rounded border border-(--color-border) dark:border-(--color-border-dark) text-(--color-text-muted) dark:text-(--color-text-muted-dark) hover:text-rose-500 hover:border-rose-300 transition-colors cursor-pointer"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
+            );
+          })
+        )}
       </div>
 
       {/* Add custom habit */}

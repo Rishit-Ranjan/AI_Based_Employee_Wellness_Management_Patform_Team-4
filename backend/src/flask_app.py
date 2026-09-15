@@ -630,6 +630,54 @@ def get_all_users():
         app.logger.exception(f"An unexpected error occurred while fetching all users: {e}")
         return jsonify({'detail': 'Internal Server Error'}), 500
 
+# --- Authenticated User Self-Delete Endpoint ---
+@app.route('/api/users/me', methods=['DELETE'])
+@jwt_required(locations=["cookies"])
+def delete_own_account():
+    """
+    Allows the currently authenticated employee to permanently delete
+    their own account and all associated data across all collections.
+    """
+    jwt_payload = get_jwt()
+    user_info = jwt_payload.get("user_info", {})
+    employee_id = user_info.get('employeeId')
+
+    if not employee_id:
+        return jsonify({'detail': 'Could not identify the current user.'}), 400
+
+    try:
+        # Primary deletion from the users collection
+        user_deletion_result = users_collection.delete_one({'employeeId': employee_id})
+
+        if user_deletion_result.deleted_count == 0:
+            return jsonify({'detail': 'User not found.'}), 404
+
+        # Cascade delete from all other related collections
+        collections_to_clean = [
+            health_records_collection,
+            daily_habits_collection,
+            mental_health_logs_collection,
+            sentiment_pulses_collection,
+            health_history_collection,
+            report_downloads_collection,
+            insurance_collection,
+            goals_collection,
+            checkup_appointments_collection,
+            sos_alerts_collection,
+            expenses_collection,
+            support_tickets_collection,
+        ]
+        for collection in collections_to_clean:
+            collection.delete_many({'employeeId': employee_id})
+
+        # Clear the auth cookie since the account no longer exists
+        resp = make_response('', 204)
+        resp.set_cookie('access_token', '', expires=0)
+        return resp
+    except Exception as e:
+        app.logger.exception(f"An unexpected error occurred while deleting own account {employee_id}: {e}")
+        return jsonify({'detail': 'Internal Server Error'}), 500
+
 # --- Admin-Only Endpoint to Delete a User and All Their Data ---
 @app.route('/api/users/<employee_id>', methods=['DELETE'])
 @jwt_required(locations=["cookies"])
@@ -2331,7 +2379,10 @@ def update_profile():
     if 'avatarUrl' in data:
         allowed_fields['avatarUrl'] = data['avatarUrl']
     if 'phone' in data: # Ensure phone is processed
-        allowed_fields['phone'] = data['phone'] 
+        allowed_fields['phone'] = data['phone']
+    for extra_field in ('designation', 'dateOfBirth', 'bloodGroup', 'emergencyContactName', 'emergencyContactPhone'):
+        if extra_field in data:
+            allowed_fields[extra_field] = data[extra_field]
 
     if not allowed_fields:
         return jsonify({'detail': 'No editable fields provided'}), 400
@@ -2350,7 +2401,12 @@ def update_profile():
             "employeeId": updated_doc.get('employeeId'),
             "role": updated_doc.get('role', role),
             "avatarUrl": updated_doc.get("avatarUrl", user_info.get('avatarUrl')),
-            "phone": updated_doc.get("phone")
+            "phone": updated_doc.get("phone"),
+            "designation": updated_doc.get("designation"),
+            "dateOfBirth": updated_doc.get("dateOfBirth"),
+            "bloodGroup": updated_doc.get("bloodGroup"),
+            "emergencyContactName": updated_doc.get("emergencyContactName"),
+            "emergencyContactPhone": updated_doc.get("emergencyContactPhone")
         }
         access_token = create_access_token(identity=user_id_str, additional_claims={"user_info": new_user_info})
         resp = make_response(jsonify({'user': new_user_info}))
