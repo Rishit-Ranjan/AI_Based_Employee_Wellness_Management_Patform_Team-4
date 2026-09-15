@@ -775,10 +775,6 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
                   </label>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Blood Group</label>
-                  <input type="text" value={bloodGroup} onChange={(e) => setBloodGroup(e.target.value)} placeholder="O+" className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none" />
-                </div>
-                <div>
                   <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">Allergies</label>
                   <input type="text" value={allergies} onChange={(e) => setAllergies(e.target.value)} placeholder="None" className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark) outline-none" />
                 </div>
@@ -1282,7 +1278,7 @@ function UserManagementModule({ allUsers, healthRecords, onDeleteUser, onUpdateU
               className="p-6 space-y-4"
             >
               <div className="text-xs font-mono text-(--color-text-muted) dark:text-(--color-text-muted-dark) mb-1">
-                Employee ID: <span className="font-bold text-(--color-text-secondary) dark:text-(--color-text-secondary-dark)">{editingId}</span>
+                Admin ID: <span className="font-bold text-(--color-text-secondary) dark:text-(--color-text-secondary-dark)">{editingId}</span>
               </div>
               <div>
                 <label className="block text-[11px] font-semibold uppercase tracking-wider text-(--color-text-muted) dark:text-(--color-text-muted-dark) mb-1.5">Name</label>
