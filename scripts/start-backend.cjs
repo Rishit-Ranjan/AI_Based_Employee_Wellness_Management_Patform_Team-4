@@ -68,7 +68,7 @@ const args = waitressArgs.length
   ? waitressArgs
   : ['--listen=0.0.0.0:8000', '--threads=8', '--channel-timeout=20', 'flask_app:app'];
 
-console.log('[backend] Launching Flask API with Waitress');
+console.log('Launching Flask API with Waitress');
 
 // A real interpreter (.exe) is spawned directly, so no shell is involved and
 // no argument escaping is needed. Only shell shims (.cmd/.bat) and Windows

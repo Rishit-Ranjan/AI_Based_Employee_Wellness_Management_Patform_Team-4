@@ -29,7 +29,9 @@ const shellQuote = (value) => {
 const buildShellCommand = (command, args) =>
   [command, ...(args || [])].map(shellQuote).join(' ');
 
-const spawnProcess = (command, args, cwd, childArgs) => {
+// `extraOptions` is merged into the spawn options, which lets callers pipe a
+// child's output instead of inheriting our stdio (see the backend spawn).
+const spawnProcess = (command, args, cwd, childArgs, extraOptions = {}) => {
   // Pass-through argv for child scripts (e.g. start-backend.cjs). Run them
   // with the current Node executable: `.cjs` is neither in PATHEXT nor a
   // registered file association on Windows, so handing the file straight to
@@ -39,6 +41,7 @@ const spawnProcess = (command, args, cwd, childArgs) => {
     return spawn(process.execPath, [command, ...(childArgs || args || [])], {
       stdio: 'inherit',
       shell: false,
+      ...extraOptions,
     });
   }
   const executable = process.platform === 'win32' && command === 'npm' ? 'npm.cmd' : command;
@@ -50,6 +53,7 @@ const spawnProcess = (command, args, cwd, childArgs) => {
     cwd,
     stdio: 'inherit',
     shell: useShell,
+    ...extraOptions,
   });
 
   proc.on('error', (err) => {
@@ -97,23 +101,25 @@ const backendArgs = [
   'run_flask:app',
 ];
 
-console.log('');
-console.log('==============================================================');
-console.log('Employee Wellness Analytics - local development');
-console.log('Backend (Flask API) starts first, then the frontend (Vite).');
-console.log('Press Ctrl+C once to stop both servers.');
-console.log('==============================================================');
-console.log('');
 console.log('Starting backend (Waitress + Flask)...');
 
 // Spawn backend using the project Python venv interpreter so NO manual
 // `venv\Scripts\Activate.ps1` is required. Works identically after activation
 // (the venv is then resolved via PATH precedence instead).
+//
+// Its output is PIPED (not inherited) so it can be re-emitted by `forwardLines`
+// without corrupting the countdown line -- see the status helpers further down.
+// Piped stdout is block-buffered in Python, so PYTHONUNBUFFERED keeps the
+// backend's own prints (e.g. startup diagnostics) visible immediately.
 backendProcess = spawnProcess(
   path.join(__dirname, 'start-backend.cjs'),
   [],
   null,
   backendArgs,
+  {
+    stdio: ['inherit', 'pipe', 'pipe'],
+    env: { ...process.env, PYTHONUNBUFFERED: process.env.PYTHONUNBUFFERED || '1' },
+  },
 );
 
 backendProcess.on('exit', (code) => {
@@ -143,36 +149,129 @@ const isBackendReady = () => new Promise((resolve) => {
   req.end();
 });
 
+// ---------------------------------------------------------------------------
+// Single-line status indicator
+// ---------------------------------------------------------------------------
+// Readiness is polled once per second, so logging the whole sentence on every
+// tick would repeat the same message on a new line each time and split the
+// countdown across the terminal. Instead the status is redrawn IN PLACE: the
+// cursor goes back to the start of the line, the previous text is erased and
+// only the number between the parentheses changes, so the elapsed seconds keep
+// counting on one single line:
+//
+//   Waiting for the backend to be ready... (1s) /
+//   Waiting for the backend to be ready... (2s) -
+//
+// When stdout is not a TTY (piped into `Tee-Object`, redirected to a log file,
+// captured by CI, ...) there is no cursor to move, so the message is written
+// exactly once and the elapsed time is reported on the completion line.
+const statusMessage = 'Waiting for the backend to be ready...';
+const spinnerChars = ['|', '/', '-', '\\'];
+let statusDrawn = false; // true while an unfinished status line is on screen
+let statusWidth = 0; // width of the widest status line drawn so far
+let statusPrinted = false; // non-TTY: the single status line was already sent
+let lastStatusText = ''; // most recent status text, reused when redrawing
+
+const drawStatus = (liveText) => {
+  lastStatusText = liveText;
+  if (!process.stdout.isTTY) {
+    // No cursor to move: emit the waiting message once, never once per second.
+    if (statusPrinted) return;
+    statusPrinted = true;
+    process.stdout.write(`${statusMessage}\n`);
+    return;
+  }
+
+  // Pad to the widest text drawn so far and erase the rest of the line, so a
+  // shorter update (e.g. `(10s)` -> `(9s)`) never leaves leftover characters.
+  const width = Math.max(statusWidth, liveText.length);
+  process.stdout.write(`\r${liveText.padEnd(width, ' ')}\x1b[K`);
+  statusWidth = width;
+  statusDrawn = true;
+};
+
+// Erase the status line and park the cursor at the start of it, so the next
+// message is not appended to the countdown text.
+const clearStatus = () => {
+  if (process.stdout.isTTY && statusDrawn) {
+    process.stdout.write('\r\x1b[K');
+  }
+  statusDrawn = false;
+  statusWidth = 0;
+};
+
+// ---------------------------------------------------------------------------
+// Child output forwarding
+// ---------------------------------------------------------------------------
+// A child spawned with `stdio: 'inherit'` writes straight into the terminal, so
+// a log line produced while the countdown is on screen gets glued to it
+// ("Waiting for the backend to be ready... (0s) |Launching Flask API") and the
+// next redraw then starts a completely new line. The backend is therefore
+// spawned with piped output and re-emitted here instead: the status line is
+// erased, the child's line takes its place and the countdown is redrawn
+// underneath it -- so the seconds always keep updating on one line.
+const emitChildLine = (target, line) => {
+  const statusOnScreen = statusDrawn; // only ever true on a TTY
+  clearStatus();
+  target.write(`${line}\n`);
+  if (statusOnScreen) drawStatus(lastStatusText);
+};
+
+// Pipes deliver arbitrary chunks, so whole lines are buffered before they are
+// re-emitted (this also keeps a partial line from breaking the status line).
+const forwardLines = (stream, target) => {
+  if (!stream) return;
+  let pending = '';
+  stream.on('data', (chunk) => {
+    pending += chunk.toString();
+    let newlineIndex = pending.indexOf('\n');
+    while (newlineIndex !== -1) {
+      emitChildLine(target, pending.slice(0, newlineIndex).replace(/\r$/, ''));
+      pending = pending.slice(newlineIndex + 1);
+      newlineIndex = pending.indexOf('\n');
+    }
+  });
+  stream.on('end', () => {
+    if (pending) emitChildLine(target, pending.replace(/\r$/, ''));
+    pending = '';
+  });
+};
+
 const waitForBackend = async (timeoutMs = backendReadyTimeoutMs, intervalMs = backendReadyIntervalMs) => {
   const start = Date.now();
   const deadline = start + timeoutMs;
   while (Date.now() < deadline) {
-    const ready = await isBackendReady();
-    if (ready) return true;
-    if (backendExitedEarly) return false;
-
-    const elapsedSeconds = Math.floor((Date.now() - start) / 1000);
-    const spinnerChars = ['|', '/', '-', '\\'];
-    const spinnerChar = spinnerChars[elapsedSeconds % spinnerChars.length];
-    if (process.stdout.isTTY) {
-      process.stdout.write(`\rWaiting for the backend to be ready... (${elapsedSeconds}s) ${spinnerChar}`);
-    } else {
-      console.log(`Waiting for the backend to be ready... (${elapsedSeconds}s)`);
+    if (await isBackendReady()) {
+      return { ready: true, waitedMs: Date.now() - start };
     }
+    if (backendExitedEarly) {
+      return { ready: false, waitedMs: Date.now() - start };
+    }
+
+    const waitedMs = Date.now() - start;
+    const elapsedSeconds = Math.floor(waitedMs / 1000);
+    const spinnerChar = spinnerChars[elapsedSeconds % spinnerChars.length];
+    drawStatus(`${statusMessage} (${elapsedSeconds}s) ${spinnerChar}`);
 
     await new Promise((resolve) => setTimeout(resolve, intervalMs));
   }
-  return false;
+  return { ready: false, waitedMs: Date.now() - start };
 };
 
 (async () => {
-  const ready = await waitForBackend();
-  // Clear the waiting line and move to a fresh line so backend logs appear below the spinner
-  if (process.stdout.isTTY) process.stdout.write('\r\x1b[K\n');
+  // Re-emit the backend's own log lines above the countdown line, so they can
+  // never be appended to it (which used to push each retry onto a new line).
+  forwardLines(backendProcess.stdout, process.stdout);
+  forwardLines(backendProcess.stderr, process.stderr);
+
+  const { ready, waitedMs } = await waitForBackend();
+  // Erase the countdown line (if one is on screen) and reuse it for the result,
+  // so the terminal keeps a single "Waiting..." line instead of one per second.
+  clearStatus();
   if (ready) {
     if (waitOnHandled) return;
     waitOnHandled = true;
-    console.log('Backend is ready  ->  http://localhost:8000');
+    console.log(`Backend is ready  ->  http://localhost:8000 (${Math.round(waitedMs / 1000)}s)`);
     startFrontend();
   } else {
     console.warn(`Backend was not ready after ${backendReadyTimeoutMs / 1000}s - starting the frontend anyway.`);
