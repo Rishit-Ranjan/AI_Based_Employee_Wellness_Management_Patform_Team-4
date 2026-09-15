@@ -14,11 +14,15 @@ let frontendStarted = false;
 let waitOnHandled = false;
 let backendExitedEarly = false;
 
-const spawnProcess = (command, args, cwd) => {
+  const spawnProcess = (command, args, cwd, childArgs) => {
+  // Pass-through argv for child scripts (e.g. start-backend.cjs)
+  if (cwd === null && command.endsWith('cjs')) {
+    return spawn(command, childArgs || args || [], { stdio: 'inherit', shell: true });
+  }
   const executable = process.platform === 'win32' && command === 'npm' ? 'npm.cmd' : command;
   const useShell = process.platform === 'win32' && command === 'npm';
-  const spawnArgs = useShell ? undefined : args;
-  const spawnCommand = useShell ? `${executable} ${args.join(' ')}` : executable;
+  const spawnArgs = useShell ? undefined : (childArgs || args);
+  const spawnCommand = useShell ? `${executable} ${(childArgs || args).join(' ')}` : executable;
 
   const proc = spawn(spawnCommand, spawnArgs, {
     cwd,
@@ -62,15 +66,25 @@ const startFrontend = () => {
   });
 };
 
-backendProcess = spawnProcess('waitress-serve', [
+const backendArgs = [
   '--listen=0.0.0.0:8000',
   // Match backend/waitress.ini so the dev server uses the intended worker
   // threads and channel timeout (avoids Waitress's default of only 4 threads,
   // which caused request queue build-up under concurrent load).
   '--threads=8',
   '--channel-timeout=20',
-  'run_flask:app'
-], backendDir);
+  'run_flask:app',
+];
+
+// Spawn backend using the project Python venv interpreter so NO manual
+// `venv\Scripts\Activate.ps1` is required. Works identically after activation
+// (the venv is then resolved via PATH precedence instead).
+backendProcess = spawnProcess(
+  path.join(__dirname, 'start-backend.cjs'),
+  [],
+  null,
+  backendArgs,
+);
 
 backendProcess.on('exit', (code) => {
   if (!frontendStarted) {
