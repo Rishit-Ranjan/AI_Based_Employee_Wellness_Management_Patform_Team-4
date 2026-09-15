@@ -1,10 +1,11 @@
 import React, { useState, useRef } from 'react';
-import { X, User, Save, KeyRound, Check, AlertCircle, UploadCloud, Trash2 } from 'lucide-react';
+import { X, User, Save, KeyRound, Check, AlertCircle, UploadCloud, Trash2, Settings, ShieldAlert } from 'lucide-react';
 import { updateProfile, changePassword } from '../services/api';
 
 const DEPARTMENTS = ['Engineering', 'Sales', 'Marketing', 'Product', 'Operations', 'IT', 'Customer Support', 'HR', 'Finance'];
 
-export default function ProfileEditModal({ user, isAdmin = false, onClose, onUpdated, onUpdateAvatar }) {
+export default function ProfileEditModal({ user, isAdmin = false, onClose, onUpdated, onUpdateAvatar, onDeleteAccount }) {
+  const [activeSection, setActiveSection] = useState('profile'); // 'profile' | 'account'
   const [name, setName] = useState(user.name || '');
   const [phone, setPhone] = useState(user.phone || '');
   const [department, setDepartment] = useState(user.department || 'Engineering');
@@ -83,11 +84,47 @@ export default function ProfileEditModal({ user, isAdmin = false, onClose, onUpd
 
   return (
     <div className="fixed inset-0 bg-slate-900/60 z-[100] flex items-center justify-center p-4 animate-fadeIn" onClick={onClose}>
-      <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl w-full max-w-md shadow-2xl overflow-hidden border border-(--color-border) dark:border-(--color-border-dark)" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden border border-(--color-border) dark:border-(--color-border-dark) flex flex-col" onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
         <div className="p-5 border-b border-(--color-border) dark:border-(--color-border-dark) flex items-center justify-between bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark)">
-          <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) flex items-center gap-2"><User className="w-5 h-5 text-(--color-text-muted)" /> Edit Profile</h3>
+          <h3 className="font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) flex items-center gap-2">
+            {activeSection === 'profile' ? <User className="w-5 h-5 text-(--color-text-muted)" /> : <Settings className="w-5 h-5 text-(--color-text-muted)" />}
+            {activeSection === 'profile' ? 'Edit Profile' : 'My Account'}
+          </h3>
           <button onClick={onClose} className="text-(--color-text-muted) hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer"><X className="w-5 h-5" /></button>
         </div>
+
+        <div className="flex flex-col md:flex-row flex-1 min-h-0">
+          {/* Left Sidebar */}
+          <div className="md:w-48 shrink-0 border-b md:border-b-0 md:border-r border-(--color-border) dark:border-(--color-border-dark) bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) p-3 flex md:flex-col gap-2">
+            <button
+              type="button"
+              onClick={() => setActiveSection('profile')}
+              className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                activeSection === 'profile'
+                  ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800'
+                  : 'text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) hover:bg-(--color-bg-card) dark:hover:bg-(--color-bg-card-dark) border border-transparent'
+              }`}
+            >
+              <User className="w-4 h-4 shrink-0" /> Edit Profile
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveSection('account')}
+              className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                activeSection === 'account'
+                  ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800'
+                  : 'text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) hover:bg-(--color-bg-card) dark:hover:bg-(--color-bg-card-dark) border border-transparent'
+              }`}
+            >
+              <Settings className="w-4 h-4 shrink-0" /> My Account
+            </button>
+          </div>
+
+          {/* Main Window */}
+          <div className="flex-1 min-w-0 overflow-y-auto max-h-[70vh]">
+          {activeSection === 'profile' ? (
+            <>
 
         <form onSubmit={handleSaveProfile} className="p-5 space-y-3.5">
           <div className="flex flex-col items-center gap-3">
@@ -170,6 +207,54 @@ export default function ProfileEditModal({ user, isAdmin = false, onClose, onUpd
               {pwSaving ? 'Updating…' : 'Update Password'}
             </button>
           </form>
+        </div>
+            </>
+          ) : (
+            /* My Account Section */
+            <div className="p-5 space-y-5">
+              {/* Account Details */}
+              <div>
+                <h4 className="text-xs font-bold text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) uppercase tracking-wide mb-3">Account Details</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="p-3 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg">
+                    <p className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-0.5">Name</p>
+                    <p className="text-xs font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) truncate">{user.name || '—'}</p>
+                  </div>
+                  <div className="p-3 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg">
+                    <p className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-0.5">Employee ID</p>
+                    <p className="text-xs font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) font-mono truncate">{user.employeeId || '—'}</p>
+                  </div>
+                  <div className="p-3 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg">
+                    <p className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-0.5">Email</p>
+                    <p className="text-xs font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) truncate">{user.email || '—'}</p>
+                  </div>
+                  <div className="p-3 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg">
+                    <p className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-0.5">Role</p>
+                    <p className="text-xs font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) capitalize truncate">{user.role || 'user'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Danger Zone */}
+              <div className="border border-red-200 dark:border-red-900/60 bg-red-50/60 dark:bg-red-950/30 rounded-xl p-4 space-y-3">
+                <h4 className="text-xs font-bold text-red-700 dark:text-red-300 flex items-center gap-2">
+                  <ShieldAlert className="w-4 h-4" /> Danger Zone
+                </h4>
+                <p className="text-[11px] text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) leading-relaxed">
+                  Permanently delete your account and all your associated data — health records, goals,
+                  check-ups, SOS alerts, expenses and more. This action cannot be undone.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => onDeleteAccount?.()}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm shadow-red-600/30 transition-colors cursor-pointer"
+                >
+                  <Trash2 className="w-3.5 h-3.5" /> Delete Account
+                </button>
+              </div>
+            </div>
+          )}
+          </div>
         </div>
       </div>
     </div>

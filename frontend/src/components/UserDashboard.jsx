@@ -1138,23 +1138,12 @@ export default function UserDashboard({
             <LogOut className="w-4 h-4" />
             <span className="hidden sm:inline">Logout</span>
           </button>
-
-          {/* Delete Account Button */}
-          <button
-            type="button"
-            onClick={() => { setDeleteAccountError(''); setShowDeleteConfirm(true); }}
-            className="flex items-center gap-2 px-3 py-2 bg-slate-100 hover:bg-red-50 dark:bg-(--color-bg-card-dark) dark:hover:bg-red-950/40 border border-(--color-border) dark:border-white/12 text-slate-500 hover:text-red-600 dark:text-(--color-text-muted) dark:hover:text-red-400 rounded-xl transition-all duration-200 cursor-pointer shadow-sm text-xs font-semibold"
-            title="Delete Account"
-          >
-            <Trash2 className="w-4 h-4" />
-            <span className="hidden sm:inline">Delete Account</span>
-          </button>
         </div>
       </header>
 
       {/* Delete Account Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => { if (!isDeletingAccount) setShowDeleteConfirm(false); }}
@@ -1210,6 +1199,7 @@ export default function UserDashboard({
           user={user}
           isAdmin={false}
           onClose={() => setIsProfileModalOpen(false)}
+          onDeleteAccount={() => { setDeleteAccountError(''); setShowDeleteConfirm(true); }}
           onUpdateAvatar={onUpdateAvatar}
           onUpdated={(updatedUser) => {
             if (updatedUser) onUserUpdate(updatedUser);
@@ -1369,13 +1359,6 @@ export default function UserDashboard({
                     className="w-full py-2.5 bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 rounded-xl text-xs font-semibold flex items-center justify-center gap-2"
                   >
                     <LogOut className="w-4 h-4" /> Log Out
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setIsMobileMenuOpen(false); setDeleteAccountError(''); setShowDeleteConfirm(true); }}
-                    className="w-full py-2.5 bg-red-50 text-red-700 dark:bg-red-950/60 dark:text-red-300 rounded-xl text-xs font-semibold flex items-center justify-center gap-2"
-                  >
-                    <Trash2 className="w-4 h-4" /> Delete Account
                   </button>
                 </div>
               </motion.aside>
