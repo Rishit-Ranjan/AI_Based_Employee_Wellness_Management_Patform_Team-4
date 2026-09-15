@@ -68,8 +68,7 @@ const args = waitressArgs.length
   ? waitressArgs
   : ['--listen=0.0.0.0:8000', '--threads=8', '--channel-timeout=20', 'flask_app:app'];
 
-console.log(`[start-backend] using Python: ${python}`);
-console.log(`[start-backend] serving from: ${backendSrc}`);
+console.log('[backend] Launching Flask API with Waitress');
 
 // A real interpreter (.exe) is spawned directly, so no shell is involved and
 // no argument escaping is needed. Only shell shims (.cmd/.bat) and Windows
@@ -97,20 +96,22 @@ const pyProc = spawn(
 );
 
 pyProc.on('error', (err) => {
-  console.error('[start-backend] Failed to start Waitress:', err.message);
-  console.error(
-    '[start-backend] Ensure the Python venv exists and has waitress installed ' +
-      '(run: .venv\\Scripts\\pip install -r backend\\..\\requirements.txt).'
-  );
+  console.error(`[backend] ERROR: could not start Waitress - ${err.message}`);
+  console.error('[backend] Make sure the Python venv exists and its dependencies are installed:');
+  console.error('[backend]   .venv\\Scripts\\python.exe -m pip install -r requirements.txt');
   process.exit(1);
 });
 
 pyProc.on('exit', (code, signal) => {
-  if (code) process.exit(code);
+  if (code) {
+    console.error(`[backend] Waitress exited with code ${code}.`);
+    process.exit(code);
+  }
   if (signal) {
-    console.error(`[start-backend] Process killed (signal: ${signal})`);
+    console.error(`[backend] Waitress stopped (signal: ${signal}).`);
     process.exit(1);
   }
+  console.log('[backend] Waitress stopped.');
   process.exit(0);
 });
 
