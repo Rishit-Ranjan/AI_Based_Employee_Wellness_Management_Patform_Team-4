@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { CheckCircle2, PartyPopper, Plus, Trash2 } from 'lucide-react';
 
 const STORAGE_KEY = (employeeId, date) => `daily-wellness-checklist-${employeeId}-${date}`;
@@ -10,14 +10,6 @@ const todayKey = () => new Date().toISOString().split('T')[0];
 const DONE_MESSAGES = [
   'You crushed today\'s checklist — great work! 🎉',
   'All checked off. Small habits, big wins. 💪',
-];
-
-// Default wellness habits shown for every user each day.
-const DEFAULT_ITEMS = [
-  { id: 'sleep-7h', icon: 'CheckCircle2', label: 'Sleep 7-8 hours last night', caption: 'Aim for 7-8h of quality sleep', color: 'text-indigo-500', bg: 'bg-indigo-100 dark:bg-indigo-900/40', met: false },
-  { id: 'water-8', icon: 'CheckCircle2', label: 'Drink 8 glasses of water', caption: 'Stay hydrated throughout the day', color: 'text-blue-500', bg: 'bg-blue-100 dark:bg-blue-900/40', met: false },
-  { id: 'steps-5k', icon: 'CheckCircle2', label: 'Walk 5,000+ steps', caption: 'Movement boosts energy and mood', color: 'text-green-500', bg: 'bg-green-100 dark:bg-green-900/40', met: false },
-  { id: 'mindful', icon: 'CheckCircle2', label: 'Take 5 min for mindfulness', caption: 'Breathing, meditation or gratitude', color: 'text-purple-500', bg: 'bg-purple-100 dark:bg-purple-900/40', met: false },
 ];
 
 export default function DailyWellnessChecklist({
@@ -89,9 +81,9 @@ export default function DailyWellnessChecklist({
 
   const toggle = (id) => setChecks((prev) => ({ ...prev, [id]: !prev[id] }));
 
-  // Today's items = defaults + user's custom habits (defaults first).
-  const items = [...DEFAULT_ITEMS, ...customItems];
-  // Ensure every default/custom item has a checked key persisted in localStorage.
+  // Today's items = only the custom habits the user has added for today.
+  const items = customItems;
+  // Ensure every custom item has a checked key persisted in localStorage.
   const allIds = items.map((i) => i.id);
   useEffect(() => {
     setChecks((prev) => {
@@ -109,8 +101,8 @@ export default function DailyWellnessChecklist({
 
   const doneCount = items.filter((i) => checks[i.id]).length;
   const total = items.length;
-  const pct = Math.round((doneCount / total) * 100);
-  const isDone = doneCount === total;
+  const pct = total === 0 ? 0 : Math.round((doneCount / total) * 100);
+  const isDone = total > 0 && doneCount === total;
   const message = DONE_MESSAGES[new Date().getDate() % DONE_MESSAGES.length];
 
   return (
@@ -136,7 +128,7 @@ export default function DailyWellnessChecklist({
       <div className="checkbox-scroll h-[220px] overflow-y-auto pr-1 -mr-1 space-y-1 scrollbar-thin">
         {items.length === 0 ? (
           <div className="p-4 text-center text-sm text-(--color-text-muted) dark:text-(--color-text-muted-dark) italic">
-            Your checklist is empty — click the + button below to add a wellness habit!
+            Your checklist habit is empty, add your custom habit for today
           </div>
         ) : (
           items.map((item) => {

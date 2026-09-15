@@ -149,22 +149,6 @@ const isBackendReady = () => new Promise((resolve) => {
   req.end();
 });
 
-// ---------------------------------------------------------------------------
-// Single-line status indicator
-// ---------------------------------------------------------------------------
-// Readiness is polled once per second, so logging the whole sentence on every
-// tick would repeat the same message on a new line each time and split the
-// countdown across the terminal. Instead the status is redrawn IN PLACE: the
-// cursor goes back to the start of the line, the previous text is erased and
-// only the number between the parentheses changes, so the elapsed seconds keep
-// counting on one single line:
-//
-//   Waiting for the backend to be ready... (1s) /
-//   Waiting for the backend to be ready... (2s) -
-//
-// When stdout is not a TTY (piped into `Tee-Object`, redirected to a log file,
-// captured by CI, ...) there is no cursor to move, so the message is written
-// exactly once and the elapsed time is reported on the completion line.
 const statusMessage = 'Waiting for the backend to be ready...';
 const spinnerChars = ['|', '/', '-', '\\'];
 let statusDrawn = false; // true while an unfinished status line is on screen
@@ -200,16 +184,6 @@ const clearStatus = () => {
   statusWidth = 0;
 };
 
-// ---------------------------------------------------------------------------
-// Child output forwarding
-// ---------------------------------------------------------------------------
-// A child spawned with `stdio: 'inherit'` writes straight into the terminal, so
-// a log line produced while the countdown is on screen gets glued to it
-// ("Waiting for the backend to be ready... (0s) |Launching Flask API") and the
-// next redraw then starts a completely new line. The backend is therefore
-// spawned with piped output and re-emitted here instead: the status line is
-// erased, the child's line takes its place and the countdown is redrawn
-// underneath it -- so the seconds always keep updating on one line.
 const emitChildLine = (target, line) => {
   const statusOnScreen = statusDrawn; // only ever true on a TTY
   clearStatus();
