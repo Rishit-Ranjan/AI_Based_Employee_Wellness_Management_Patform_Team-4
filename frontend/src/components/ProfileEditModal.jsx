@@ -197,15 +197,17 @@ export default function ProfileEditModal({ user, isAdmin = false, onClose, onUpd
             </div>
           </div>
 
-          {/* Blood Group & Emergency Contact */}
+          {/* Blood Group (employees only) & Emergency Contact */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-1">Blood Group <span className="text-red-500">*</span></label>
-              <select value={bloodGroup} onChange={(e) => setBloodGroup(e.target.value)} required className="w-full px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)">
-                <option value="" disabled>Select blood group</option>
-                {BLOOD_GROUPS.map((bg) => <option key={bg} value={bg}>{bg}</option>)}
-              </select>
-            </div>
+            {!isAdmin && (
+              <div>
+                <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-1">Blood Group <span className="text-red-500">*</span></label>
+                <select value={bloodGroup} onChange={(e) => setBloodGroup(e.target.value)} required className="w-full px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)">
+                  <option value="" disabled>Select blood group</option>
+                  {BLOOD_GROUPS.map((bg) => <option key={bg} value={bg}>{bg}</option>)}
+                </select>
+              </div>
+            )}
             <div>
               <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-1">Emergency Contact Phone <span className="text-red-500">*</span></label>
               <input value={emergencyContactPhone} onChange={(e) => setEmergencyContactPhone(e.target.value)} required type="tel" placeholder="Emergency contact number" className="w-full px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)" />
@@ -259,8 +261,8 @@ export default function ProfileEditModal({ user, isAdmin = false, onClose, onUpd
                     <p className="text-xs font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) truncate">{user.name || '—'}</p>
                   </div>
                   <div className="p-3 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg">
-                    <p className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-0.5">Employee ID</p>
-                    <p className="text-xs font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) font-mono truncate">{user.employeeId || '—'}</p>
+                    <p className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-0.5">{isAdmin ? 'Admin ID' : 'Employee ID'}</p>
+                    <p className="text-xs font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark) font-mono truncate">{isAdmin ? (user.adminId || '—') : (user.employeeId || '—')}</p>
                   </div>
                   <div className="p-3 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg">
                     <p className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-0.5">Email</p>
