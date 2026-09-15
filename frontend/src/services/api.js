@@ -147,6 +147,12 @@ export const fetchUsers = () => request('/users');
  * @returns {Promise<Object>} A promise that resolves on successful deletion.
  */
 export const deleteUser = (employeeId) => request(`/users/${employeeId}`, { method: 'DELETE' });
+/**
+ * Permanently deletes the currently authenticated employee's own account
+ * and all of their associated data.
+ * @returns {Promise<Object>} A promise that resolves on successful deletion.
+ */
+export const deleteOwnAccount = () => request('/users/me', { method: 'DELETE' });
 export const updateEmployee = (employeeId, fields) => request(`/users/${employeeId}`, {
   method: 'PUT',
   body: JSON.stringify(fields),
