@@ -2379,7 +2379,10 @@ def update_profile():
     if 'avatarUrl' in data:
         allowed_fields['avatarUrl'] = data['avatarUrl']
     if 'phone' in data: # Ensure phone is processed
-        allowed_fields['phone'] = data['phone'] 
+        allowed_fields['phone'] = data['phone']
+    for extra_field in ('designation', 'dateOfBirth', 'bloodGroup', 'emergencyContactName', 'emergencyContactPhone'):
+        if extra_field in data:
+            allowed_fields[extra_field] = data[extra_field]
 
     if not allowed_fields:
         return jsonify({'detail': 'No editable fields provided'}), 400
@@ -2398,7 +2401,12 @@ def update_profile():
             "employeeId": updated_doc.get('employeeId'),
             "role": updated_doc.get('role', role),
             "avatarUrl": updated_doc.get("avatarUrl", user_info.get('avatarUrl')),
-            "phone": updated_doc.get("phone")
+            "phone": updated_doc.get("phone"),
+            "designation": updated_doc.get("designation"),
+            "dateOfBirth": updated_doc.get("dateOfBirth"),
+            "bloodGroup": updated_doc.get("bloodGroup"),
+            "emergencyContactName": updated_doc.get("emergencyContactName"),
+            "emergencyContactPhone": updated_doc.get("emergencyContactPhone")
         }
         access_token = create_access_token(identity=user_id_str, additional_claims={"user_info": new_user_info})
         resp = make_response(jsonify({'user': new_user_info}))

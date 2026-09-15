@@ -3,12 +3,18 @@ import { X, User, Save, KeyRound, Check, AlertCircle, UploadCloud, Trash2, Setti
 import { updateProfile, changePassword } from '../services/api';
 
 const DEPARTMENTS = ['Engineering', 'Sales', 'Marketing', 'Product', 'Operations', 'IT', 'Customer Support', 'HR', 'Finance'];
+const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
 export default function ProfileEditModal({ user, isAdmin = false, onClose, onUpdated, onUpdateAvatar, onDeleteAccount }) {
   const [activeSection, setActiveSection] = useState('profile'); // 'profile' | 'account'
   const [name, setName] = useState(user.name || '');
   const [phone, setPhone] = useState(user.phone || '');
   const [department, setDepartment] = useState(user.department || 'Engineering');
+  const [designation, setDesignation] = useState(user.designation || '');
+  const [dateOfBirth, setDateOfBirth] = useState(user.dateOfBirth || '');
+  const [bloodGroup, setBloodGroup] = useState(user.bloodGroup || '');
+  const [emergencyContactName, setEmergencyContactName] = useState(user.emergencyContactName || '');
+  const [emergencyContactPhone, setEmergencyContactPhone] = useState(user.emergencyContactPhone || '');
   const [avatarUrl, setAvatarUrl] = useState(user.avatarUrl || '');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -45,7 +51,7 @@ export default function ProfileEditModal({ user, isAdmin = false, onClose, onUpd
     setSaving(true);
     setError('');
     try {
-      const profileData = { name, department, phone }; // Re-add phone to payload
+      const profileData = { name, department, phone, designation, dateOfBirth, bloodGroup, emergencyContactName, emergencyContactPhone }; // Re-add phone to payload
 
       // First, handle avatar changes before updating other profile info
       if (avatarFile) {
@@ -169,16 +175,48 @@ export default function ProfileEditModal({ user, isAdmin = false, onClose, onUpd
           </div>
 
           <div>
-            <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-1">Name</label>
-            <input value={name} onChange={(e) => setName(e.target.value)} className="w-full px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)" />
+            <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-1">Name <span className="text-red-500">*</span></label>
+            <input value={name} onChange={(e) => setName(e.target.value)} required placeholder="Your full name" className="w-full px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)" />
           </div>
 
           {/* Re-add phone number input field */}
           <div>
-            <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-1">Phone Number</label>
-            <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Your contact number" className="w-full px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)" />
+            <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-1">Phone Number <span className="text-red-500">*</span></label>
+            <input value={phone} onChange={(e) => setPhone(e.target.value)} required type="tel" placeholder="Your contact number" className="w-full px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)" />
           </div>
-          
+
+          {/* Designation & Date of Birth */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-1">Designation <span className="text-red-500">*</span></label>
+              <input value={designation} onChange={(e) => setDesignation(e.target.value)} required placeholder="e.g. Software Engineer" className="w-full px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)" />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-1">Date of Birth <span className="text-red-500">*</span></label>
+              <input value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} required type="date" max={new Date().toISOString().split('T')[0]} className="w-full px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)" />
+            </div>
+          </div>
+
+          {/* Blood Group & Emergency Contact */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-1">Blood Group <span className="text-red-500">*</span></label>
+              <select value={bloodGroup} onChange={(e) => setBloodGroup(e.target.value)} required className="w-full px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)">
+                <option value="" disabled>Select blood group</option>
+                {BLOOD_GROUPS.map((bg) => <option key={bg} value={bg}>{bg}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-1">Emergency Contact Phone <span className="text-red-500">*</span></label>
+              <input value={emergencyContactPhone} onChange={(e) => setEmergencyContactPhone(e.target.value)} required type="tel" placeholder="Emergency contact number" className="w-full px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)" />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-1">Emergency Contact Name <span className="text-red-500">*</span></label>
+            <input value={emergencyContactName} onChange={(e) => setEmergencyContactName(e.target.value)} required placeholder="e.g. Parent / Spouse / Sibling" className="w-full px-3 py-2 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-xs text-(--color-text-primary) dark:text-(--color-text-primary-dark)" />
+          </div>
+
           {!isAdmin && (
             <div>
               <label className="block text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase mb-1">Department</label>
