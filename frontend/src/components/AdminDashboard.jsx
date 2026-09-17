@@ -2748,20 +2748,11 @@ export default function AdminDashboard({ user,
     };
   }, [loadVitals]);
 
-  // Find the logged-in admin's department from their health record.
-  // This is used to filter the sentiment module to only show the admin's own department.
-  const adminRecord = healthRecords.find(r => r.employeeId === user.employeeId);
-  const adminDepartment = adminRecord ? adminRecord.department : null;
-
-  // Filter the sentiment list. If the admin has a department, only show the card for that department.
-  // Otherwise (e.g., a super-admin without a department record), show all.
-  const filteredSentimentList = useMemo(() => {
-    if (adminDepartment) {
-      return sentimentList.filter(s => s.department === adminDepartment);
-    }
-    // If the admin's department isn't found, return the full list.
-    return sentimentList;
-  }, [sentimentList, adminDepartment]);
+  // Show all departments in the sentiment module for admins.
+  // (Previously this was filtered to the admin's own department, which hid
+  //  every other department's card. The backend already returns an
+  //  aggregated list for all departments that have submitted pulses.)
+  const filteredSentimentList = useMemo(() => sentimentList, [sentimentList]);
 
   const adminNavTabs = [
     { id: 1, label: 'User Management', icon: Users, desc: 'Manage employee accounts' },
