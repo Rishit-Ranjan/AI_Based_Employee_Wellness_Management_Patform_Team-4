@@ -197,7 +197,7 @@ const stressScore = Number(userRecord?.stressScore) || 0;
       </div>
 
       {/* Main Grid: Sentiment Distribution + Recent Feedback */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         {/* Sentiment Distribution */}
         <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-2xl p-6 shadow-sm space-y-5">
           <div className="flex items-center gap-2 border-b border-(--color-border) dark:border-(--color-border-dark) pb-4">
@@ -276,7 +276,7 @@ const stressScore = Number(userRecord?.stressScore) || 0;
               </p>
             </div>
           ) : (
-            <ul className="space-y-3">
+            <ul className="space-y-3 max-h-96 overflow-y-auto pr-1.5 -mr-1.5">
               {recentFeedback.map((log, idx) => (
                 <li
                   key={log.id || idx}

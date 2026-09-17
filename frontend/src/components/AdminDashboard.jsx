@@ -2274,7 +2274,7 @@ export function PerformanceDashboard({ kpis, records, performanceData, loadingPe
                 <div className="text-[10px] font-bold text-(--color-text-muted) dark:text-(--color-text-muted-dark) uppercase tracking-wider mb-1.5">
                   Recent Feedback Logger
                 </div>
-                <ul className="space-y-1.5">
+                <ul className="space-y-1.5 max-h-40 overflow-y-auto pr-1.5 -mr-1.5">
                   {sent.feedbackLogs.slice(0, 5).map((log, idx) => {
                     const cIdx = log.indexOf(':');
                     const sentimentTag = cIdx > -1 ? log.slice(0, cIdx).trim() : 'Neutral';
