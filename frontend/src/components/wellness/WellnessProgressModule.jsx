@@ -56,11 +56,6 @@ const VitalsChip = ({ label, value, icon: Icon, unit }) => (
     </div>
   </div>
 );
-const overallColor = (pct) => ({
-  stroke: pct >= 80 ? '#0ea47a' : pct >= 50 ? '#f97316' : '#e5484d',
-  strokeWidth: 7,
-});
-
 export default function WellnessProgressModule({
   healthScore = 88,
   riskScore = 25,
@@ -87,7 +82,6 @@ export default function WellnessProgressModule({
     Math.min(100, Math.round((exerciseDays / 7) * 100)),
   ];
   const overall = Math.round(goalPercentages.reduce((a, b) => a + b, 0) / goalPercentages.length);
-  const overallStroke = overallColor(overall);
 
   return (
     <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300">
@@ -110,19 +104,6 @@ export default function WellnessProgressModule({
 
       {/* Overall progress ring */}
       <div className="flex flex-wrap items-center gap-4 mb-5 p-4 bg-gradient-to-r from-(--color-bg-subtle) to-transparent dark:from-(--color-bg-subtle-dark) rounded-xl border border-(--color-border) dark:border-(--color-border-dark)">
-        <div className="relative w-16 h-16 shrink-0">
-          <svg className="w-16 h-16 -rotate-90" viewBox="0 0 64 64">
-            <circle cx="32" cy="32" r="27" fill="none" strokeWidth="7" className="stroke-slate-100 dark:stroke-slate-700/60" />
-            <circle
-              cx="32" cy="32" r="27" fill="none" strokeLinecap="round"
-              stroke={overallStroke.stroke} strokeWidth={overallStroke.strokeWidth}
-            />
-          </svg>
-          <span className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="font-display font-bold text-lg text-(--color-text-primary) dark:text-(--color-text-primary-dark) leading-none">{healthScore}%</span>
-            <span className="text-[9px] font-mono text-(--color-text-muted)">Health</span>
-          </span>
-        </div>
         <div className="min-w-0 flex-1">
           <p className="text-xs font-bold text-(--color-text-secondary) dark:text-(--color-text-primary-dark) flex items-center gap-1.5">
             <TrendingUp className="w-4 h-4 text-emerald-500" />
