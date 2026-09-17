@@ -443,7 +443,7 @@ def logout():
 
 # --- Avatar Upload Endpoint ---
 @app.route('/api/users/avatar', methods=['POST'])
-#@jwt_required(locations=["cookies"])
+@jwt_required(locations=["cookies"])
 def upload_avatar():
     """Uploads a new avatar for the current user."""
     user_id = get_jwt_identity()
@@ -454,7 +454,14 @@ def upload_avatar():
     if file.filename == '':
         return jsonify({'detail': 'No selected file'}), 400
 
-    if file:
+    try:
+        # Image-only validation (avatar endpoint accepts images only)
+        allowed_exts = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+        original_name = file.filename or ''
+        ext = original_name.rsplit('.', 1)[-1].lower() if '.' in original_name else ''
+        if ext not in allowed_exts:
+            return jsonify({'detail': f'Unsupported file type ".{ext}". Allowed: PNG, JPG, JPEG, GIF, WEBP'}), 400
+
         # Create a secure, unique filename
         filename = secure_filename(f"{user_id}_{file.filename}")
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -467,21 +474,24 @@ def upload_avatar():
         jwt_payload = get_jwt()
         user_info = jwt_payload.get("user_info", {})
         is_admin = user_info.get('role', '').lower() == 'admin'
-        
+
         collection_to_update = admin_collection if is_admin else users_collection
-        
+
         # Update the user's document
-        collection_to_update.update_one(
-            {'_id': ObjectId(user_id)},
+        result = collection_to_update.update_one(
+            {'_id': ObjectId(str(user_id))},
             {'$set': {'avatarUrl': avatar_url}}
         )
+        if result.matched_count == 0:
+            return jsonify({'detail': 'User record not found'}), 404
 
         # Return the updated user info, including the new avatar URL
         updated_user_info = {**user_info, "avatarUrl": get_full_avatar_url(avatar_url)}
 
         return jsonify({'detail': 'Avatar updated successfully', 'user': updated_user_info}), 200
-
-    return jsonify({'detail': 'File upload failed'}), 500
+    except Exception as e:
+        app.logger.exception(f"Avatar upload failed for user {user_id}: {e}")
+        return jsonify({'detail': 'Avatar upload failed. Please try a different image or contact support.'}), 500
 
 
 # --- Wellness API Endpoints ---
