@@ -1,7 +1,6 @@
 # AI-Based Employee Wellness Management Platform
 
-<img width="1064" height="565" alt="image" src="https://github.com/user-attachments/assets/06c76782-f3a0-4229-af62-5e16c1bc091b" />
-<br/>
+<img width="1064" height="565" alt="image" src="https://github.com/user-attachments/assets/06c76782-f3a0-4229-af62-5e16c1bc091b" /><br/>
 
 An intelligent, full-stack web application designed to monitor and enhance employee wellbeing through data-driven analytics, personalized recommendations, and AI-powered assistance. This platform provides a comprehensive suite of tools for both employees and administrators to proactively manage health, stress, and overall wellness in the workplace.
 
