@@ -1698,7 +1698,7 @@ export function RecommendationModule({ recommendations = [], loading }) {
                   </div>
                 );
               })}
-               {empRec.recommendations.length === 0 && (
+               {(empRec.recommendations || []).length === 0 && (
                 <div className="md:col-span-2 xl:col-span-3 text-center text-xs text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono py-5">
                   No specific recommendations triggered for this low-risk employee.
                 </div>
