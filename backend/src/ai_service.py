@@ -5,6 +5,7 @@ Uses a hybrid approach: rule-based reasoning + optional LLM integration.
 
 import os
 import json
+import re
 import random
 import requests as http_requests
 from datetime import datetime, timedelta, timezone
@@ -1076,7 +1077,7 @@ Focus on whole foods. Be specific with meal items and ensure they respect the di
 
         combined = ' '.join(meal_items)
 
-        # Non-vegetarian / animal products that must NOT appear for veg/vegan.
+                        # Non-vegetarian / animal products that must NOT appear for veg/vegan.
         animal_terms = [
             'chicken', 'mutton', 'lamb', 'pork', 'bacon', 'ham', 'beef', 'turkey',
             'sausage', 'steak', 'meat', 'fish', 'salmon', 'tuna', 'prawn', 'shrimp',
@@ -1088,15 +1089,25 @@ Focus on whole foods. Be specific with meal items and ensure they respect the di
             'ghee', 'buttermilk', 'dahi', 'cream'
         ]
 
+        # Match whole words only so that ingredients like "eggplant" (common in
+        # vegetarian Indian dishes such as baingan bharta) are not falsely flagged
+        # as containing "egg". Without word boundaries, every Vegetarian plan that
+        # mentions eggplant is wrongly rejected and the AI plan is discarded in
+        # favour of the generic rule-based fallback.
+        def _contains_any(text, terms):
+            pattern = r'\b(' + '|'.join(re.escape(term) for term in terms) + r')\b'
+            return re.search(pattern, text, flags=re.IGNORECASE) is not None
+
         if diet_type == 'Vegan':
-            if any(term in combined for term in animal_terms + dairy_terms):
+            if _contains_any(combined, animal_terms + dairy_terms):
                 return None
         elif diet_type == 'Vegetarian':
-            if any(term in combined for term in animal_terms):
+            if _contains_any(combined, animal_terms):
                 return None
         elif diet_type == 'Diabetic':
             # No-added-sugar check: flag obvious sugar sources.
-            if any(term in combined for term in ['sugar', 'sweets', 'dessert', 'jaggery', 'milk shake', 'milkshake', 'soft drink', 'cola']):
+            sugar_terms = ['sugar', 'sweets', 'dessert', 'jaggery', 'milk shake', 'milkshake', 'soft drink', 'cola']
+            if _contains_any(combined, sugar_terms):
                 return None
 
         # Weight Loss / Weight Gain / Non-Veg / Balanced / others: accept as-is.
