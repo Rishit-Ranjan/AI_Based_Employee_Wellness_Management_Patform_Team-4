@@ -1678,6 +1678,40 @@ def update_daily_habit(employee_id):
         app.logger.exception(f"An unexpected error occurred while updating daily habits for {employee_id}: {e}")
         return jsonify({'detail': 'Internal Server Error'}), 500
 
+# --- Mental Health Logs helpers ---
+def _mental_log_is_today(date_val):
+    """Return True if a stored log date value falls on today's UTC date.
+
+    Handles all formats seen in the wild: full ISO datetimes
+    (e.g. '2026-09-26T10:30:00+00:00'), short 'YYYY-MM-DD' strings sent
+    by older frontend builds, and real datetime objects.
+    """
+    try:
+        if date_val is None:
+            return False
+        if isinstance(date_val, datetime):
+            dt = date_val
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            return dt.astimezone(timezone.utc).date() == datetime.now(timezone.utc).date()
+        s = str(date_val).strip()
+        if not s:
+            return False
+        # Short 'YYYY-MM-DD' form
+        if len(s) == 10 and s[4] == '-' and s[7] == '-':
+            return s == datetime.now(timezone.utc).date().isoformat()
+        # Full ISO datetime — compare just the date part (first 10 chars
+        # are YYYY-MM-DD for every ISO-8601 representation we store).
+        if len(s) >= 10 and s[4] == '-' and s[7] == '-':
+            return s[:10] == datetime.now(timezone.utc).date().isoformat()
+        parsed = datetime.fromisoformat(s.replace('Z', '+00:00'))
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=timezone.utc)
+        return parsed.astimezone(timezone.utc).date() == datetime.now(timezone.utc).date()
+    except Exception:
+        return False
+
+
 # --- Mental Health Logs API Endpoints ---
 @app.route('/api/wellness/mental-health-logs/<employee_id>', methods=['GET'])
 # @jwt_required(locations=["cookies"]) # Temporarily remove auth for public access
@@ -1689,11 +1723,16 @@ def get_mental_health_logs(employee_id):
     #     return jsonify({'detail': 'Forbidden: You can only view your own mental health logs.'}), 403
 
     try:
-        # For simplicity, we'll store one log per day, so find the latest one for today
-        today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
-        log_record = mental_health_logs_collection.find_one(
-            {'employeeId': employee_id, 'date': {'$gte': today_start.isoformat()}},
-            sort=[('date', -1)]
+        # One log per day: scan this employee's recent logs and pick the one
+        # dated today (robust to 'YYYY-MM-DD' vs full ISO vs datetime).
+        candidates = list(
+            mental_health_logs_collection.find({'employeeId': employee_id})
+            .sort('date', -1)
+            .limit(20)
+        )
+        log_record = next(
+            (doc for doc in candidates if _mental_log_is_today(doc.get('date'))),
+            None,
         )
         if not log_record:
             # Return an empty object instead of 404 if no log is found for today.
@@ -1721,8 +1760,19 @@ def add_mental_health_log():
     #     return jsonify({'detail': 'Forbidden: You can only add your own mental health logs.'}), 403
 
     # For simplicity, prevent adding multiple logs for the same employee on the same day
-    today_start_dt = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
-    if mental_health_logs_collection.find_one({'employeeId': new_log['employeeId'], 'date': {'$gte': today_start_dt}}):
+    # (scan recent docs instead of a $gte string query so legacy
+    # 'YYYY-MM-DD' documents also match).
+    existing_today = next(
+        (
+            doc
+            for doc in mental_health_logs_collection.find({'employeeId': new_log['employeeId']})
+            .sort('date', -1)
+            .limit(20)
+            if _mental_log_is_today(doc.get('date'))
+        ),
+        None,
+    )
+    if existing_today:
         return jsonify({'detail': 'Mental health log already exists for this employee today. Please update instead.'}), 409
 
     try:
@@ -1753,17 +1803,24 @@ def update_mental_health_log(employee_id):
 
     if 'id' in updated_data:
         del updated_data['id']
-    
-    # Only update today's log
-    today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    if '_id' in updated_data:
+        del updated_data['_id']
+
+    # Only update today's log (robust to legacy 'YYYY-MM-DD' stored dates)
     try:
-        result = mental_health_logs_collection.update_one(
-            {'employeeId': employee_id, 'date': {'$gte': today_start.isoformat()}},
-            {'$set': updated_data}
+        existing = next(
+            (d for d in mental_health_logs_collection.find({'employeeId': employee_id}).sort('date', -1).limit(20) if _mental_log_is_today(d.get('date'))),
+            None,
         )
-        if result.matched_count == 0:
-            return jsonify({'detail': 'Mental health log not found for today'}), 404
-        return jsonify({'detail': 'Mental health log updated successfully'}), 200
+        if existing is not None:
+            mental_health_logs_collection.update_one({'_id': existing['_id']}, {'$set': updated_data})
+            return jsonify({'detail': 'Mental health log updated successfully'}), 200
+        # No log for today yet: create one instead of 404 so the UI can save.
+        updated_data['employeeId'] = employee_id
+        updated_data['date'] = datetime.now(timezone.utc).isoformat()
+        result = mental_health_logs_collection.insert_one(updated_data)
+        updated_data['id'] = str(result.inserted_id)
+        return jsonify(updated_data), 201
     except Exception as e:
         app.logger.exception(f"An unexpected error occurred while updating mental health log for {employee_id}: {e}")
         return jsonify({'detail': 'Internal Server Error'}), 500
