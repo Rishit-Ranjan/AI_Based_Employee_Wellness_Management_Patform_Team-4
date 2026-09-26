@@ -3262,14 +3262,27 @@ def get_all_sentiment_pulses():
 @app.route('/api/wellness/sentiment-pulse/<pulse_id>', methods=['DELETE'])
 @jwt_required(locations=["cookies"])
 def delete_sentiment_pulse(pulse_id):
-    """ Deletes a single sentiment pulse by its ID. Admin-only. """
+    """ Deletes a single sentiment pulse by its ID.
+
+    An admin can delete any pulse; an employee can delete only their own feedback
+    log (the delete action offered in the "Recent Feedback Logs" card).
+    """
     jwt_payload = get_jwt()
     user_info = jwt_payload.get("user_info", {})
-    if user_info.get('role', '').lower() != 'admin':
-        return jsonify({'detail': 'Forbidden'}), 403
+    is_admin = user_info.get('role', '').lower() == 'admin'
+    requester_id = str(user_info.get('employeeId') or '')
 
     try:
-        result = sentiment_pulses_collection.delete_one({'_id': ObjectId(pulse_id)})
+        query = {'_id': ObjectId(pulse_id)}
+        if not is_admin:
+            # Non-admins may only delete pulses that belong to them.
+            existing = sentiment_pulses_collection.find_one(query)
+            if not existing:
+                return jsonify({'detail': 'Pulse not found'}), 404
+            if str(existing.get('employeeId')) != requester_id:
+                return jsonify({'detail': 'Forbidden: You can only delete your own feedback logs.'}), 403
+
+        result = sentiment_pulses_collection.delete_one(query)
         if result.deleted_count == 0:
             return jsonify({'detail': 'Pulse not found'}), 404
         return '', 204

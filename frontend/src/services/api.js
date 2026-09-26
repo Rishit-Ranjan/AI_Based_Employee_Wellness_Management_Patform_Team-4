@@ -304,7 +304,8 @@ export const submitSentimentPulse = (employeeId, department, stressScore, feedba
 };
 
 /**
- * Deletes a single sentiment pulse. Admin-only.
+ * Deletes a single sentiment pulse. Admins can delete any pulse; employees can
+ * delete only their own feedback logs.
  * @param {string} pulseId The ID of the pulse to delete.
  * @returns {Promise<Object>} A promise that resolves on successful deletion.
  */

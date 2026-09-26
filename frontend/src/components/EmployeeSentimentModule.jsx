@@ -13,10 +13,11 @@ import {
   Zap,
   Calendar,
   Pencil,
+  Trash2,
   X,
   Save
 } from 'lucide-react';
-import { updateSentimentPulse, fetchEmployeeSentimentPulses } from '../services/api';
+import { updateSentimentPulse, fetchEmployeeSentimentPulses, deleteSentimentPulse } from '../services/api';
 
 /**
  * EmployeeSentimentModule
@@ -34,6 +35,7 @@ export default function EmployeeSentimentModule({ user, record, records }) {
   const [editText, setEditText] = React.useState('');
   const [editStress, setEditStress] = React.useState(5);
   const [saving, setSaving] = React.useState(false);
+  const [deletingId, setDeletingId] = React.useState(null);
   const totalLogs = feedbackLogs.length;
 
 const stressScore = Number(userRecord?.stressScore) || 0;
@@ -118,6 +120,23 @@ const stressScore = Number(userRecord?.stressScore) || 0;
       console.error('Failed to update feedback:', err);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDelete = async (logId) => {
+    if (!logId) return;
+    if (!window.confirm('Delete this feedback log? This cannot be undone.')) return;
+    setDeletingId(logId);
+    try {
+      await deleteSentimentPulse(logId);
+      // Drop it from the list immediately, then re-sync with the server.
+      setFeedbackLogs((prev) => prev.filter((log) => log.id !== logId));
+      if (editingId === logId) cancelEdit();
+      refreshLogs();
+    } catch (err) {
+      console.error('Failed to delete feedback:', err);
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -349,13 +368,23 @@ const stressScore = Number(userRecord?.stressScore) || 0;
                     )}
                   </div>
                   {editingId !== log.id && (
-                    <button
-                      onClick={() => startEdit(log)}
-                      className="shrink-0 p-1.5 border border-(--color-border) dark:border-(--color-border-dark) rounded-md text-(--color-text-muted) dark:text-(--color-text-muted-dark) hover:text-indigo-500 hover:border-indigo-300 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-800 cursor-pointer"
-                      title="Edit feedback"
-                    >
-                      <Pencil className="w-3.5 h-3.5" />
-                    </button>
+                    <div className="shrink-0 flex flex-col gap-1.5">
+                      <button
+                        onClick={() => startEdit(log)}
+                        className="p-1.5 border border-(--color-border) dark:border-(--color-border-dark) rounded-md text-(--color-text-muted) dark:text-(--color-text-muted-dark) hover:text-indigo-500 hover:border-indigo-300 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-800 cursor-pointer"
+                        title="Edit feedback"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(log.id)}
+                        disabled={deletingId === log.id}
+                        className="p-1.5 border border-(--color-border) dark:border-(--color-border-dark) rounded-md text-(--color-text-muted) dark:text-(--color-text-muted-dark) hover:text-rose-500 hover:border-rose-300 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Delete feedback"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   )}
                 </li>
               ))}
