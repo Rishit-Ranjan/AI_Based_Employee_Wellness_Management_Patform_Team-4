@@ -75,6 +75,9 @@ health_records_collection = db.get_collection('health_records')
 daily_habits_collection = db.get_collection('daily_habits')
 mental_health_logs_collection = db.get_collection('mental_health_logs')
 sentiment_pulses_collection = db.get_collection('sentiment_pulses')
+# Append-only audit trail for feedback-log deletions, kept separate from the
+# pulses themselves so a removal can still be traced after the fact.
+sentiment_pulse_deletions_collection = db.get_collection('sentiment_pulse_deletions')
 
 health_history_collection = db.get_collection('health_history')
 report_downloads_collection = db.get_collection('report_downloads')
@@ -86,6 +89,62 @@ sos_alerts_collection = db.get_collection('sos_alerts')
 expenses_collection = db.get_collection('health_expenses')
 system_settings_collection = db.get_collection('system_settings')
 support_tickets_collection = db.get_collection('support_tickets')
+
+
+# --- Feedback-log deletion safeguards -----------------------------------------
+# Feedback pulses feed both the employee's own sentiment distribution and the
+# anonymised department analytics, so removing them is rate-limited and audited
+# instead of being freely repeatable.
+SENTIMENT_DELETE_LIMIT_PER_DAY = int(os.getenv('SENTIMENT_DELETE_LIMIT_PER_DAY') or 3)
+SENTIMENT_DELETE_COOLDOWN_SECONDS = int(os.getenv('SENTIMENT_DELETE_COOLDOWN_SECONDS') or 30)
+
+
+def _sentiment_delete_policy(employee_id):
+    """Reports how many feedback-log deletions the employee still has left.
+
+    Usage is counted from the audit trail over a rolling 24 hour window (rather
+    than a calendar day or a client-side counter), so the fair-use limit cannot
+    be reset by clearing cookies or reopening the app.
+    """
+    now = datetime.now(timezone.utc)
+    window_start = (now - timedelta(hours=24)).isoformat()
+    policy = {
+        'limitPerDay': SENTIMENT_DELETE_LIMIT_PER_DAY,
+        'usedLast24h': 0,
+        'remainingToday': SENTIMENT_DELETE_LIMIT_PER_DAY,
+        'cooldownSeconds': SENTIMENT_DELETE_COOLDOWN_SECONDS,
+        'nextAllowedAt': None,
+    }
+    if not employee_id:
+        return policy
+
+    try:
+        recent = list(
+            sentiment_pulse_deletions_collection
+            .find({'employeeId': employee_id, 'deletedAt': {'$gte': window_start}})
+            .sort('deletedAt', -1)
+        )
+    except Exception as e:
+        app.logger.exception(f"Failed to read the deletion audit for {employee_id}: {e}")
+        return policy
+
+    policy['usedLast24h'] = len(recent)
+    policy['remainingToday'] = max(0, SENTIMENT_DELETE_LIMIT_PER_DAY - len(recent))
+
+    if recent:
+        try:
+            last_deleted = datetime.fromisoformat(str(recent[0].get('deletedAt')))
+            if last_deleted.tzinfo is None:
+                last_deleted = last_deleted.replace(tzinfo=timezone.utc)
+            next_allowed = last_deleted + timedelta(seconds=SENTIMENT_DELETE_COOLDOWN_SECONDS)
+            if next_allowed > now:
+                policy['nextAllowedAt'] = next_allowed.isoformat()
+        except (TypeError, ValueError):
+            # A malformed timestamp must never block an otherwise valid request.
+            pass
+
+    return policy
+
 
 def _notify_admins(title, message, category='General'):
     """Creates an admin-visible notification (e.g. new booking / SOS / expense claim)."""
@@ -668,6 +727,7 @@ def delete_own_account():
             daily_habits_collection,
             mental_health_logs_collection,
             sentiment_pulses_collection,
+            sentiment_pulse_deletions_collection,
             health_history_collection,
             report_downloads_collection,
             insurance_collection,
@@ -717,6 +777,7 @@ def delete_user_and_data(employee_id):
             daily_habits_collection,
             mental_health_logs_collection,
             sentiment_pulses_collection,
+            sentiment_pulse_deletions_collection,
             health_history_collection,
             report_downloads_collection,
             insurance_collection,
@@ -3268,6 +3329,33 @@ def get_all_sentiment_pulses():
         app.logger.exception(f"Failed to fetch all sentiment pulses: {e}")
         return jsonify({'detail': 'Internal Server Error'}), 500
 
+@app.route('/api/wellness/sentiment-pulse/deletion-policy', methods=['GET'])
+@jwt_required(locations=["cookies"])
+def get_sentiment_delete_policy():
+    """Reports the caller's remaining feedback-log deletions for the UI.
+
+    Declared before the dynamic `<pulse_id>` routes below - Werkzeug prefers a
+    static rule over a converter rule, so the same trick the admin `/all` route
+    relies on keeps this from ever being read as a pulse id.
+    """
+    user_info = get_jwt().get("user_info", {})
+    if user_info.get('role', '').lower() == 'admin':
+        # Admins moderate feedback logs rather than own them, so the employee
+        # fair-use limit does not apply to them.
+        return jsonify({
+            'isAdmin': True,
+            'limitPerDay': None,
+            'usedLast24h': 0,
+            'remainingToday': None,
+            'cooldownSeconds': 0,
+            'nextAllowedAt': None,
+        }), 200
+
+    policy = _sentiment_delete_policy(str(user_info.get('employeeId') or ''))
+    policy['isAdmin'] = False
+    return jsonify(policy), 200
+
+
 @app.route('/api/wellness/sentiment-pulse/<pulse_id>', methods=['DELETE'])
 @jwt_required(locations=["cookies"])
 def delete_sentiment_pulse(pulse_id):
@@ -3275,26 +3363,83 @@ def delete_sentiment_pulse(pulse_id):
 
     An admin can delete any pulse; an employee can delete only their own feedback
     log (the delete action offered in the "Recent Feedback Logs" card).
+
+    Because pulses also feed the anonymised department sentiment analytics, an
+    employee-side deletion is (a) limited by a fair-use quota per 24 hours,
+    (b) spaced out by a short cooldown, and (c) recorded in an audit collection
+    together with a snapshot of what was removed.
     """
     jwt_payload = get_jwt()
     user_info = jwt_payload.get("user_info", {})
     is_admin = user_info.get('role', '').lower() == 'admin'
     requester_id = str(user_info.get('employeeId') or '')
 
+    # The dialog sends an optional reason; tolerate a missing or non-JSON body.
+    reason = str((request.get_json(silent=True) or {}).get('reason') or '').strip()[:200]
+
     try:
         query = {'_id': ObjectId(pulse_id)}
+        existing = sentiment_pulses_collection.find_one(query)
+        if not existing:
+            return jsonify({'detail': 'Pulse not found'}), 404
+        if not is_admin and str(existing.get('employeeId')) != requester_id:
+            return jsonify({'detail': 'Forbidden: You can only delete your own feedback logs.'}), 403
+
+        # --- Anti-abuse safeguards (employees only; admins are trusted operators)
         if not is_admin:
-            # Non-admins may only delete pulses that belong to them.
-            existing = sentiment_pulses_collection.find_one(query)
-            if not existing:
-                return jsonify({'detail': 'Pulse not found'}), 404
-            if str(existing.get('employeeId')) != requester_id:
-                return jsonify({'detail': 'Forbidden: You can only delete your own feedback logs.'}), 403
+            policy = _sentiment_delete_policy(requester_id)
+            if policy['remainingToday'] <= 0:
+                return jsonify({
+                    'detail': (
+                        f"You have reached the fair-use limit of {policy['limitPerDay']} feedback-log "
+                        "deletions per 24 hours. Please try again later."
+                    ),
+                    **policy,
+                }), 429
+            if policy['nextAllowedAt']:
+                return jsonify({
+                    'detail': (
+                        "Please wait a few seconds before removing another feedback log "
+                        f"(cooldown: {policy['cooldownSeconds']}s)."
+                    ),
+                    **policy,
+                }), 429
+
+        # Snapshot before removal so the audit trail still holds what was deleted.
+        audit_doc = {
+            'employeeId': existing.get('employeeId'),
+            'pulseId': pulse_id,
+            'department': existing.get('department'),
+            'stressScore': existing.get('stressScore'),
+            'sentiment': existing.get('sentiment'),
+            'feedbackText': existing.get('feedbackText'),
+            'pulseCreatedAt': existing.get('createdAt'),
+            'deletedAt': datetime.now(timezone.utc).isoformat(),
+            'deletedBy': requester_id or None,
+            'deletedByRole': user_info.get('role') or 'employee',
+            'reason': reason,
+        }
 
         result = sentiment_pulses_collection.delete_one(query)
         if result.deleted_count == 0:
             return jsonify({'detail': 'Pulse not found'}), 404
-        return '', 204
+
+        try:
+            sentiment_pulse_deletions_collection.insert_one(audit_doc)
+        except Exception as audit_error:
+            # The pulse is already gone, so failing now would only mislead the
+            # caller; log the gap so it stays visible to admins instead.
+            app.logger.exception(f"Failed to audit the deletion of pulse {pulse_id}: {audit_error}")
+
+        response = {'detail': 'Feedback log deleted.', 'deletedId': pulse_id, 'isAdmin': is_admin}
+        if is_admin:
+            response.update({
+                'limitPerDay': None, 'usedLast24h': 0, 'remainingToday': None,
+                'cooldownSeconds': 0, 'nextAllowedAt': None,
+            })
+        else:
+            response.update(_sentiment_delete_policy(requester_id))
+        return jsonify(response), 200
     except Exception as e:
         app.logger.exception(f"Failed to delete sentiment pulse {pulse_id}: {e}")
         return jsonify({'detail': 'Internal Server Error'}), 500

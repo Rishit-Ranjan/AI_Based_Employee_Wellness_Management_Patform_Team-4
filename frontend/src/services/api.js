@@ -306,10 +306,27 @@ export const submitSentimentPulse = (employeeId, department, stressScore, feedba
 /**
  * Deletes a single sentiment pulse. Admins can delete any pulse; employees can
  * delete only their own feedback logs.
+ *
+ * Employee deletions are rate-limited server-side (fair-use quota per 24 hours
+ * plus a short cooldown); a 429 error carries the policy so the UI can explain
+ * why a delete was refused.
+ *
  * @param {string} pulseId The ID of the pulse to delete.
- * @returns {Promise<Object>} A promise that resolves on successful deletion.
+ * @param {string} [reason] Optional reason stored in the deletion audit trail.
+ * @returns {Promise<Object>} The remaining deletion allowance after the delete.
  */
-export const deleteSentimentPulse = (pulseId) => request(`/wellness/sentiment-pulse/${pulseId}`, { method: 'DELETE' });
+export const deleteSentimentPulse = (pulseId, reason = '') => request(`/wellness/sentiment-pulse/${pulseId}`, {
+  method: 'DELETE',
+  body: JSON.stringify({ reason }),
+});
+
+/**
+ * Fetches the caller's feedback-log deletion allowance: the fair-use quota, the
+ * cooldown between deletions, and how many deletions remain in the 24 hour window.
+ * @param {Object} [options] Request options (e.g. { forceRefresh: true }).
+ * @returns {Promise<Object>} The deletion policy for the signed-in user.
+ */
+export const fetchSentimentDeletionPolicy = (options) => request('/wellness/sentiment-pulse/deletion-policy', { method: 'GET', ...options });
 
 /**
  * Updates a single sentiment pulse (feedback text / stress score). Used to edit a
@@ -494,7 +511,7 @@ export default {
   fetchUsers, uploadAvatar, updateProfile, changePassword,
   fetchHealthRecords, addHealthRecord, updateHealthRecord, deleteHealthRecord,
   fetchRisks, fetchRecommendations, fetchSentiments, saveSentiments, submitSentimentPulse,
-  deleteSentimentPulse, updateSentimentPulse,
+  deleteSentimentPulse, updateSentimentPulse, fetchSentimentDeletionPolicy,
   fetchAllSentimentPulses, fetchEmployeeSentimentPulses,
   fetchDailyHabits, addDailyHabit, updateDailyHabit,
   fetchMentalHealthLogs, addMentalHealthLog, updateMentalHealthLog,
