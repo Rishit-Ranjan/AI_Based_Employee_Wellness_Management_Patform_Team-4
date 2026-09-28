@@ -100,11 +100,37 @@ const stressScore = Number(userRecord?.stressScore) || 0;
       ? 'text-amber-600'
       : 'text-emerald-600';
 
-  const refreshLogs = () => {
-    fetchEmployeeSentimentPulses(user.employeeId, { forceRefresh: true })
+  const employeeId = user?.employeeId;
+
+  // Memoised so the polling effect below can depend on it without re-subscribing
+  // on every render (same shape as `loadVitals` in UserDashboard).
+  const refreshLogs = React.useCallback(() => {
+    if (!employeeId) return;
+    fetchEmployeeSentimentPulses(employeeId, { forceRefresh: true })
       .then(pulses => setFeedbackLogs((pulses || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))))
       .catch(console.error);
-  };
+  }, [employeeId]);
+
+  // Live-update this section: load on mount, then poll and refresh whenever the
+  // tab regains focus (the same real-time pattern as NotificationBell and the
+  // vitals gauge).
+  //
+  // This is also what makes the two cards fill in reliably: the App layer attaches
+  // `feedbackLogs` to the health record only *after* its own async fetch resolves,
+  // while the `useState` above is a one-time seed. So when this module mounted
+  // before that payload arrived (reloading straight onto this tab, which is
+  // restored from localStorage), the cards were left showing their empty
+  // placeholders until another reload happened to win that race.
+  React.useEffect(() => {
+    refreshLogs();
+    const interval = setInterval(refreshLogs, 15000);
+    const onFocus = () => refreshLogs();
+    window.addEventListener('focus', onFocus);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [refreshLogs]);
 
   const startEdit = (log) => {
     setEditingId(log.id);
