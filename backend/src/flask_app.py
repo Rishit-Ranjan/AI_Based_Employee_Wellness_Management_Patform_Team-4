@@ -1644,7 +1644,10 @@ def add_daily_habit():
         if 'id' in new_habit:
             del new_habit['id']
         result = daily_habits_collection.insert_one(new_habit)
+        # insert_one() adds an ObjectId `_id` to the dict in place; swap it for
+        # the string id so the response stays JSON serialisable.
         new_habit['id'] = str(result.inserted_id)
+        del new_habit['_id']
         return jsonify(new_habit), 201
     except Exception as e:
         app.logger.exception(f"An unexpected error occurred while adding a daily habit record: {e}")
@@ -1780,7 +1783,10 @@ def add_mental_health_log():
             del new_log['id']
         new_log['date'] = datetime.now(timezone.utc).isoformat() # Ensure date is set by backend
         result = mental_health_logs_collection.insert_one(new_log)
+        # insert_one() mutates `new_log` in place by adding an ObjectId `_id`,
+        # which jsonify() cannot serialise, so drop it in favour of the string id.
         new_log['id'] = str(result.inserted_id)
+        del new_log['_id']
         return jsonify(new_log), 201
     except Exception as e:
         app.logger.exception(f"An unexpected error occurred while adding a mental health log: {e}")
@@ -1819,7 +1825,10 @@ def update_mental_health_log(employee_id):
         updated_data['employeeId'] = employee_id
         updated_data['date'] = datetime.now(timezone.utc).isoformat()
         result = mental_health_logs_collection.insert_one(updated_data)
+        # insert_one() adds an ObjectId `_id` to the dict in place; swap it for
+        # the string id so the response stays JSON serialisable.
         updated_data['id'] = str(result.inserted_id)
+        del updated_data['_id']
         return jsonify(updated_data), 201
     except Exception as e:
         app.logger.exception(f"An unexpected error occurred while updating mental health log for {employee_id}: {e}")

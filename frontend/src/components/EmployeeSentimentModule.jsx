@@ -15,7 +15,9 @@ import {
   Pencil,
   Trash2,
   X,
-  Save
+  Save,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { updateSentimentPulse, fetchEmployeeSentimentPulses, deleteSentimentPulse } from '../services/api';
 
@@ -36,6 +38,7 @@ export default function EmployeeSentimentModule({ user, record, records }) {
   const [editStress, setEditStress] = React.useState(5);
   const [saving, setSaving] = React.useState(false);
   const [deletingId, setDeletingId] = React.useState(null);
+  const [showAllLogs, setShowAllLogs] = React.useState(false);
   const totalLogs = feedbackLogs.length;
 
 const stressScore = Number(userRecord?.stressScore) || 0;
@@ -62,7 +65,12 @@ const stressScore = Number(userRecord?.stressScore) || 0;
   const neutralPct = totalLogs > 0 ? Math.round((neutralCount / totalLogs) * 100) : 0;
   const negativePct = totalLogs > 0 ? Math.round((negativeCount / totalLogs) * 100) : 0;
 
-  const recentFeedback = feedbackLogs.slice(0, 5);
+  // Only the newest few logs are rendered by default, but the employee's whole
+  // history is already loaded (the API returns every pulse for this employee),
+  // so older entries stay reachable through `showAllLogs`.
+  const RECENT_LOG_LIMIT = 5;
+  const visibleFeedback = showAllLogs ? feedbackLogs : feedbackLogs.slice(0, RECENT_LOG_LIMIT);
+  const hasOlderLogs = feedbackLogs.length > RECENT_LOG_LIMIT;
 
   const stressColor =
     stressLevel === 'High'
@@ -286,7 +294,7 @@ const stressScore = Number(userRecord?.stressScore) || 0;
             </div>
           </div>
 
-          {recentFeedback.length === 0 ? (
+          {feedbackLogs.length === 0 ? (
             <div className="py-8 text-center">
               <MessageSquare className="w-8 h-8 text-slate-300 dark:text-(--color-border-strong-dark) mx-auto mb-3" />
               <p className="text-sm font-semibold text-(--color-text-muted) dark:text-(--color-text-muted-dark)">No feedback submitted yet</p>
@@ -295,8 +303,8 @@ const stressScore = Number(userRecord?.stressScore) || 0;
               </p>
             </div>
           ) : (
-            <ul className="space-y-3 max-h-96 overflow-y-auto pr-1.5 -mr-1.5">
-              {recentFeedback.map((log, idx) => (
+            <ul className={`space-y-3 overflow-y-auto pr-1.5 -mr-1.5 ${showAllLogs ? 'max-h-[32rem]' : 'max-h-96'}`}>
+              {visibleFeedback.map((log, idx) => (
                 <li
                   key={log.id || idx}
                   className="bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-3.5 flex items-start gap-3"
@@ -389,6 +397,26 @@ const stressScore = Number(userRecord?.stressScore) || 0;
                 </li>
               ))}
             </ul>
+          )}
+
+          {hasOlderLogs && (
+            <button
+              onClick={() => setShowAllLogs(prev => !prev)}
+              className="mt-3 w-full flex items-center justify-center gap-1.5 py-2 border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-[11px] font-semibold text-(--color-text-muted) dark:text-(--color-text-muted-dark) hover:text-indigo-500 hover:border-indigo-300 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-800 cursor-pointer"
+              title={showAllLogs ? 'Collapse back to the most recent logs' : 'Load the full feedback history'}
+            >
+              {showAllLogs ? (
+                <>
+                  <ChevronUp className="w-3.5 h-3.5" />
+                  Show latest {RECENT_LOG_LIMIT} only
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="w-3.5 h-3.5" />
+                  Show all {feedbackLogs.length} logs
+                </>
+              )}
+            </button>
           )}
         </div>
       </div>
