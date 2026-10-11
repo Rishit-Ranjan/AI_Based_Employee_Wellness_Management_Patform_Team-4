@@ -30,8 +30,6 @@ An intelligent, full-stack web application designed to monitor and enhance emplo
 - **Notification Center:** Send targeted or broadcast notifications to employees.
 - **System Settings:** Configure application-wide settings, including risk thresholds and notification preferences (Email/SMS).
 
----
-
 ## 🛠️ Tech Stack
 
 | Category           | Technology                                                                           |
@@ -43,8 +41,6 @@ An intelligent, full-stack web application designed to monitor and enhance emplo
 | **Comms**    | Twilio (for SMS notifications), SMTP (for email)                                     |
 | **Tooling**  | `concurrently` (for parallel dev servers), `dotenv` (for environment management) |
 
----
-
 ## 🚀 Getting Started
 
 Follow these instructions to get the project up and running on your local machine.
@@ -54,6 +50,8 @@ Follow these instructions to get the project up and running on your local machin
 - **Node.js** (v18 or later)
 - **Python** (v3.9 or later) with `pip`
 - **MongoDB** instance (local or a cloud service like MongoDB Atlas)
+
+---
 
 ### 1. Clone the Repository
 
@@ -134,6 +132,7 @@ SMTP_USE_TLS=true
 SMTP_USERNAME="your_email@example.com"
 SMTP_PASSWORD="your_app_password" #<-- create this from manage your google account-> home-> search for "App Passwords"-> create new app name, get the code-> copy and paste that code here
 ```
+---
 
 ### Get the JWT Secret Key
 
@@ -144,6 +143,8 @@ python3 -c "import secrets; print(secrets.token_hex(32))"
 ```
 
 Paste the result string into the JWT_SECRET_KEY in `.env` file.
+
+---
 
 ### 3. Frontend Setup
 
@@ -171,7 +172,9 @@ This will:
 
 Open your browser and navigate to **http://localhost:5173**.
 
-#### Backend First startup (Optional)
+**Note:** The app can also be run by pressing **F5** key.
+
+#### Backend first startup (Optional)
 
 If you want the backend to attempt startup first, use:
 
@@ -188,7 +191,6 @@ This command will:
 
 This gives a backend-first flow without blocking the web app entirely if backend startup fails.
 
----
 
 ## ⚙️ Usage
 
@@ -208,8 +210,6 @@ The application has two primary roles with default credentials of Admin for demo
 - **Email:** `admin@platform.com`
 - **Password:** `admin`
 
----
-
 ## 🤝 Contributing
 
 Contributions are welcome! If you have suggestions for improvements or want to fix a bug, please feel free to:
@@ -219,8 +219,6 @@ Contributions are welcome! If you have suggestions for improvements or want to f
 3. Make your changes and commit them (`git commit -m 'Add some YourAmazingFeature'`).
 4. Push to the branch (`git push origin feature/YourAmazingFeature`).
 5. Open a Pull Request.
-
----
 
 ## Software Specification
 
