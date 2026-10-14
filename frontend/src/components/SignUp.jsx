@@ -202,7 +202,7 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
           <ArrowLeft className="h-4 w-4 transition-transform duration-200 group-hover:-translate-x-0.5" />
           <span>Back</span>
         </button>
-        <div className="relative w-full max-w-md bg-white/95 backdrop-blur-sm rounded-2xl border border-slate-200/80 p-8 shadow-xl">
+        <div className="relative w-full max-w-md rounded-2xl border border-slate-200/80 bg-white/85 p-8 shadow-xl backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-2xl hover:shadow-slate-900/15">
           <div className="mb-6">
             <div className="lg:hidden flex items-center gap-2 mb-4">
               <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center">
@@ -237,7 +237,7 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="John Doe"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-indigo-500 focus:bg-white transition-colors"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 outline-none hover:border-slate-300 hover:bg-white focus:border-indigo-500 focus:bg-white transition-colors"
                 />
               </div>
             </div>
@@ -257,7 +257,7 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="john.doe@company.com"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-indigo-500 focus:bg-white transition-colors"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 outline-none hover:border-slate-300 hover:bg-white focus:border-indigo-500 focus:bg-white transition-colors"
                 />
               </div>
             </div>
@@ -277,7 +277,7 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="At least 6 characters"
-                  className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-indigo-500 focus:bg-white transition-colors"
+                  className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 outline-none hover:border-slate-300 hover:bg-white focus:border-indigo-500 focus:bg-white transition-colors"
                 />
                 <button
                   type="button"
@@ -323,7 +323,7 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Match password"
-                  className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-indigo-500 focus:bg-white transition-colors"
+                  className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 outline-none hover:border-slate-300 hover:bg-white focus:border-indigo-500 focus:bg-white transition-colors"
                 />
                 <button
                   type="button"

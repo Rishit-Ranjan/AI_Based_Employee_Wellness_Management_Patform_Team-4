@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { login as loginApi } from '../services/api';
-import { Mail, Lock, Eye, EyeOff, ArrowLeft, ArrowRight, Activity, BrainCircuit, Shield, UserCheck, UserCog, Hash, HeartPulse } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowLeft, ArrowRight, Activity, BrainCircuit, Shield, UserCheck, UserCog, Hash, HeartPulse, UsersRound, IdCard, LockKeyhole, LayoutDashboard } from 'lucide-react';
 import FloatingSupportButton from './FloatingSupportButton';
 import CustomerSupportModal from './CustomerSupportModal'; // This will now import the new styled component
 
@@ -201,22 +201,22 @@ export default function Login({ onNavigate, onLoginSuccess }) {
           {/* Responsive sign-in steps: 1 col mobile, 2 cols tablet, 4 cols desktop */}
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
             <div className="p-4 bg-slate-850 border border-slate-800 rounded-xl">
-              <Activity className="w-5 h-5 text-indigo-400 mb-2" />
+              <UsersRound className="w-5 h-5 text-indigo-400 mb-2" />
               <div className="text-sm font-semibold text-white">Choose Your Role</div>
               <p className="text-xs text-(--color-text-muted) mt-2">Select employee or administrator access.</p>
             </div>
             <div className="p-4 bg-slate-850 border border-slate-800 rounded-xl">
-              <Shield className="w-5 h-5 text-emerald-400 mb-2" />
+              <IdCard className="w-5 h-5 text-emerald-400 mb-2" />
               <div className="text-sm font-semibold text-white">Identify Your Account</div>
               <p className="text-xs text-(--color-text-muted) mt-2">Use your registered email and employee ID when required.</p>
             </div>
             <div className="p-4 bg-slate-850 border border-slate-800 rounded-xl">
-              <BrainCircuit className="w-5 h-5 text-purple-400 mb-2" />
+              <LockKeyhole className="w-5 h-5 text-purple-400 mb-2" />
               <div className="text-sm font-semibold text-white">Enter Your Password</div>
               <p className="text-xs text-(--color-text-muted) mt-2">Sign in with the password linked to your account.</p>
             </div>
             <div className="p-4 bg-slate-850 border border-slate-800 rounded-xl">
-              <HeartPulse className="w-5 h-5 text-rose-400 mb-2" />
+              <LayoutDashboard className="w-5 h-5 text-rose-400 mb-2" />
               <div className="text-sm font-semibold text-white">Continue to Your Dashboard</div>
               <p className="text-xs text-(--color-text-muted) mt-2">Pick up where you left off in your wellness workspace.</p>
             </div>
@@ -247,7 +247,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
           <ArrowLeft className="h-4 w-4 transition-transform duration-200 group-hover:-translate-x-0.5" />
           <span>Back</span>
         </button>
-        <div className="relative w-full max-w-md bg-white/95 backdrop-blur-sm rounded-2xl border border-slate-200/80 p-8 shadow-xl">
+        <div className="relative w-full max-w-md rounded-2xl border border-slate-200/80 bg-white/85 p-8 shadow-xl backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-2xl hover:shadow-slate-900/15">
           <div className="mb-8">
             <div className="lg:hidden flex items-center gap-2 mb-6">
               <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center">
@@ -348,7 +348,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
                     value={entityId}
                     onChange={(e) => setEntityId(e.target.value)}
                     placeholder={role === 'Admin' ? 'e.g. ADM001' : 'e.g. EMP101'}
-                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-indigo-500 focus:bg-white transition-all"
+                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 outline-none hover:border-slate-300 hover:bg-white focus:border-indigo-500 focus:bg-white transition-all"
                   />
                 </div>
                 {fieldErrors.entityId && (
@@ -377,7 +377,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
                       setEmail(e.target.value);
                     }}
                     placeholder="name@company.com"
-                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-indigo-500 focus:bg-white transition-all"
+                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 outline-none hover:border-slate-300 hover:bg-white focus:border-indigo-500 focus:bg-white transition-all"
                   />
                 </div>
                 {fieldErrors.email && (
@@ -412,7 +412,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••••••"
-                    className="w-full pl-10 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-indigo-500 focus:bg-white transition-all"
+                    className="w-full pl-10 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 outline-none hover:border-slate-300 hover:bg-white focus:border-indigo-500 focus:bg-white transition-all"
                   />
                   <button
                     type="button"
