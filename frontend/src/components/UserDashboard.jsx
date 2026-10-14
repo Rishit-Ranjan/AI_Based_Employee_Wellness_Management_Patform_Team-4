@@ -123,7 +123,7 @@ export function RecommendationModule({ recommendations, loading = false, onPlayV
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {recommendations && recommendations.length > 0 ? (
-        recommendations.map((rec) => {
+        recommendations.map((rec, index) => {
           const Icon = rec.category === 'Fitness' ? Dumbbell :
                        rec.category === 'Diet' ? Apple :
                        rec.category === 'Mental Wellness' ? Brain :
@@ -132,7 +132,7 @@ export function RecommendationModule({ recommendations, loading = false, onPlayV
           const { iconColor, borderColor, bgColor } = getSeverityStyles(rec.severity);
 
           return (
-            <div key={rec.id} className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-2xl flex flex-col justify-between hover:shadow-xl transition-all duration-300 shadow-sm overflow-hidden">
+            <div key={`${rec.recommendation_id ?? rec.id ?? 'recommendation'}-${index}`} className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-2xl flex flex-col justify-between hover:shadow-xl transition-all duration-300 shadow-sm overflow-hidden">
               {/* The main image container height is increased to show more of the image */}
               {rec.imageUrl && <img src={rec.imageUrl} alt={rec.title} className="w-full h-full object-cover" />}
 
