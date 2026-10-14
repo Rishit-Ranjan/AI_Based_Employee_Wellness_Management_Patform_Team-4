@@ -150,6 +150,9 @@ export function HealthDataModule({ records, allUsers, onAddRecord, onUpdateRecor
   const [isViewDetailsOpen, setIsViewDetailsOpen] = useState(false); // New state for view details modal
   const [viewingRecord, setViewingRecord] = useState(null); // Track which record is being viewed
   const [openActionMenu, setOpenActionMenu] = useState(null); // Track which action menu is open
+  const [pendingDeleteRecord, setPendingDeleteRecord] = useState(null);
+  const [isDeletingRecord, setIsDeletingRecord] = useState(false);
+  const [deleteRecordError, setDeleteRecordError] = useState('');
   
   // Form states (using selectedEmployee to hold "employeeId|employeeName")
   const [selectedEmployee, setSelectedEmployee] = useState('');
@@ -230,6 +233,22 @@ const [smoker, setSmoker] = useState(false);
       minute: '2-digit',
       hour12: true,
     }).replace(/,/g, '');
+  };
+
+  const handleConfirmDeleteRecord = async () => {
+    if (!pendingDeleteRecord || isDeletingRecord) return;
+
+    setIsDeletingRecord(true);
+    setDeleteRecordError('');
+    try {
+      await onDeleteRecord(pendingDeleteRecord.employeeId);
+      setPendingDeleteRecord(null);
+    } catch (err) {
+      console.error('Failed to delete health record:', err);
+      setDeleteRecordError(err?.message || 'Failed to delete the health record. Please try again.');
+    } finally {
+      setIsDeletingRecord(false);
+    }
   };
 
 
@@ -1006,7 +1025,7 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
                       </button>
 
                       <button
-                        onClick={() => { if (window.confirm(`Are you sure you want to delete the health record for ${record.employeeName}? This only removes the health record, not the user account.`)) { onDeleteRecord(record.employeeId); } setOpenActionMenu(null); }}
+                        onClick={() => { setPendingDeleteRecord(record); setDeleteRecordError(''); setOpenActionMenu(null); }}
                         className="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/50 flex items-center gap-2"
                       >
                         <Trash2 className="w-3.5 h-3.5" /> Delete Health Record
@@ -1089,6 +1108,69 @@ setMedicalNotes(''); setMedicalCondition('No major condition'); setSmoker(false)
           </>
         )}
       </div>
+
+      {pendingDeleteRecord && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 dark:bg-slate-950/70 animate-fadeIn p-4"
+          onClick={() => {
+            if (!isDeletingRecord) setPendingDeleteRecord(null);
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-health-record-title"
+            className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl shadow-2xl border border-(--color-border) dark:border-(--color-border-dark) w-full max-w-md overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-6">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800 flex items-center justify-center shrink-0">
+                  <ShieldAlert className="w-6 h-6 text-red-500" />
+                </div>
+                <div className="flex-1">
+                  <h3 id="delete-health-record-title" className="text-lg font-display font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">
+                    Delete health record?
+                  </h3>
+                  <p className="mt-2 text-sm text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) leading-relaxed">
+                    Delete the health record for{' '}
+                    <span className="font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">
+                      {pendingDeleteRecord.employeeName}
+                    </span>
+                    ? This only removes the health record, not the employee account.
+                  </p>
+                </div>
+              </div>
+
+              {deleteRecordError && (
+                <div className="mt-4 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-xs flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>{deleteRecordError}</span>
+                </div>
+              )}
+            </div>
+            <div className="px-6 py-4 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border-t border-(--color-border) dark:border-(--color-border-dark) flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setPendingDeleteRecord(null)}
+                disabled={isDeletingRecord}
+                className="px-4 py-2 rounded-lg text-xs font-semibold text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark) transition-colors cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDeleteRecord}
+                disabled={isDeletingRecord}
+                className="px-4 py-2 rounded-lg text-xs font-bold text-white bg-red-600 hover:bg-red-700 shadow-sm shadow-red-600/30 transition-colors flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                {isDeletingRecord ? 'Deleting…' : 'Delete Health Record'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
