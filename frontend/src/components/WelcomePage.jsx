@@ -119,7 +119,7 @@ export default function WelcomePage({ onNavigate }) {
               <span className="font-serif italic text-indigo-700">prioritizing employee health.</span>
             </h2>
             <p className="mt-6 max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg">
-              Establishing a wellness program can reduce absenteeism by 25% and increase overall workspace productivity. Get started with custom employee health indexing today.
+              Establishing a wellness program can reduce absenteeism by <span className="font-semibold text-[#808000]">25%</span> and increase overall workspace productivity. Get started with custom employee health indexing today.
             </p>
           </div>
 
