@@ -1252,11 +1252,11 @@ export default function UserDashboard({
                     onClick={() => setActiveTab(tab.id)}
                     className={`w-full text-left p-4 rounded-lg flex items-start gap-3 transition-all cursor-pointer border ${
                       isActive
-                        ? 'bg-indigo-50 border-indigo-100 text-indigo-900 dark:bg-indigo-950/60 dark:border-indigo-800 dark:text-indigo-300 font-semibold'
+                        ? 'bg-indigo-50 border-indigo-100 text-indigo-900 dark:bg-white/10 dark:border-white/30 dark:text-white font-semibold'
                         : 'hover:bg-slate-50 dark:hover:bg-(--color-bg-subtle-dark) border-transparent text-slate-500 dark:text-(--color-text-secondary-dark)'
                     }`}
                       >
-                        <Icon className={`w-5.5 h-5.5 shrink-0 mt-0.5 ${isActive ? 'text-indigo-600' : 'text-(--color-text-muted)'}`} />
+                        <Icon className={`w-5.5 h-5.5 shrink-0 mt-0.5 ${isActive ? 'text-indigo-600 dark:text-white' : 'text-(--color-text-muted)'}`} />
                     {!isSidebarCollapsed && (
                       <div className="truncate">
                               <div className="text-[12px] font-semibold">{tab.label}</div>
@@ -1338,11 +1338,11 @@ export default function UserDashboard({
                           }}
                           className={`w-full text-left p-4 rounded-lg flex items-start gap-4 transition-all cursor-pointer border ${
                             isActive
-                              ? 'bg-indigo-50 border-indigo-100 text-indigo-900 dark:bg-indigo-950/60 dark:border-indigo-800 dark:text-indigo-300 font-semibold'
+                              ? 'bg-indigo-50 border-indigo-100 text-indigo-900 dark:bg-white/10 dark:border-white/30 dark:text-white font-semibold'
                               : 'hover:bg-slate-50 dark:hover:bg-(--color-bg-subtle-dark) border-transparent text-slate-500 dark:text-(--color-text-secondary-dark)'
                           }`}
                         >
-                            <Icon className={`w-6 h-6 shrink-0 mt-0.5 ${isActive ? 'text-indigo-600' : 'text-(--color-text-muted)'}`} />
+                            <Icon className={`w-6 h-6 shrink-0 mt-0.5 ${isActive ? 'text-indigo-600 dark:text-white' : 'text-(--color-text-muted)'}`} />
                             <div className="truncate">
                               <div className="text-[11px] font-semibold">{tab.label}</div>
                             </div>
