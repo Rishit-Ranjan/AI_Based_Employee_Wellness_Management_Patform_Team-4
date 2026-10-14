@@ -196,10 +196,10 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
         <button
           type="button"
           onClick={() => onNavigate('welcome')}
-          className="absolute left-6 top-6 z-20 inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+          className="group absolute left-6 top-6 z-20 inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo-300 hover:bg-white hover:text-indigo-700 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
           aria-label="Back to welcome page"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-4 w-4 transition-transform duration-200 group-hover:-translate-x-0.5" />
           <span>Back</span>
         </button>
         <div className="relative w-full max-w-md bg-white/95 backdrop-blur-sm rounded-2xl border border-slate-200/80 p-8 shadow-xl">

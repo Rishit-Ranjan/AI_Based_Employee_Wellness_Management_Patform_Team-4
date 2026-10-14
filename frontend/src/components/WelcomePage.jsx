@@ -93,9 +93,9 @@ export default function WelcomePage({ onNavigate }) {
               {FEATURES.map(({ icon: Icon, title, description, color }) => (
                 <article
                   key={title}
-                  className="rounded-2xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-200/60"
+                  className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-200/60 transition-all duration-200 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-100/70"
                 >
-                  <Icon className={`mb-4 h-5 w-5 ${color}`} />
+                  <Icon className={`mb-4 h-5 w-5 transition-transform duration-200 group-hover:scale-110 ${color}`} />
                   <h2 className="text-sm font-semibold text-slate-900">{title}</h2>
                   <p className="mt-2 text-xs leading-relaxed text-slate-600">
                     {description}
@@ -132,7 +132,7 @@ export default function WelcomePage({ onNavigate }) {
             ].map((benefit) => (
               <li
                 key={benefit}
-                className="flex min-h-24 items-start gap-3 rounded-xl border border-slate-200 bg-white p-5 text-sm leading-relaxed text-slate-700 shadow-sm"
+                className="flex min-h-24 items-start gap-3 rounded-xl border border-slate-200 bg-white p-5 text-sm leading-relaxed text-slate-700 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-emerald-300 hover:shadow-md hover:shadow-emerald-100/70"
               >
                 <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-emerald-200 bg-emerald-50 text-emerald-700">
                   <Shield className="h-3.5 w-3.5" />
