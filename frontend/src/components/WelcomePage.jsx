@@ -1,6 +1,42 @@
 import {
-  Activity, ArrowRight, BrainCircuit, HeartPulse, Shield, UserRound, Users
+  Activity, ArrowRight, HeartPulse, Shield, UserRound, Users
 } from 'lucide-react';
+
+function BrainIcon({ className }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M11.8 4.1c-.7-1.2-2-1.8-3.3-1.5-1.6.3-2.6 1.8-2.4 3.3-1.6-.2-3.1.9-3.3 2.5-.2 1.3.5 2.4 1.5 3-1.4.7-2 2.3-1.5 3.8.5 1.4 1.8 2.2 3.2 2-.1 1.6 1.1 3 2.7 3.1 1.2.1 2.3-.5 2.9-1.5l.2-14.7Z"
+        fill="#FDBA99"
+        stroke="#414141"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M12.2 4.1c.7-1.2 2-1.8 3.3-1.5 1.6.3 2.6 1.8 2.4 3.3 1.6-.2 3.1.9 3.3 2.5.2 1.3-.5 2.4-1.5 3 1.4.7 2 2.3 1.5 3.8-.5 1.4-1.8 2.2-3.2 2 .1 1.6-1.1 3-2.7 3.1-1.2.1-2.3-.5-2.9-1.5l-.2-14.7Z"
+        fill="#FDBA99"
+        stroke="#414141"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M12 3.2v17.6M5 7.2c1 .1 1.7.6 2.1 1.4m-2.7 5c1.1.5 2.1.3 2.9-.4m1.1 4.1c.8.7 1.7.9 2.6.6m8-10.7c-1 .1-1.7.6-2.1 1.4m2.7 5c-1.1.5-2.1.3-2.9-.4m-1.1 4.1c-.8.7-1.7.9-2.6.6"
+        stroke="#414141"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
 const FEATURES = [
   {
@@ -16,7 +52,7 @@ const FEATURES = [
     color: 'text-emerald-400',
   },
   {
-    icon: BrainCircuit,
+    icon: BrainIcon,
     title: 'Personalized Wellness',
     description: 'Offer practical fitness, diet, and mental wellness guidance.',
     color: 'text-purple-400',
@@ -53,9 +89,9 @@ export default function WelcomePage({ onNavigate }) {
           </header>
 
           <section className="grid flex-1 items-center gap-12 py-14 lg:grid-cols-[1.15fr_0.85fr] lg:gap-20 lg:py-16">
-            <div className="max-w-2xl">
-              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-600 shadow-sm">
-                <BrainCircuit className="h-4 w-4 text-indigo-600" />
+            <div className="max-w-2xl text-left">
+              <div className="mb-6 flex w-fit items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-600 shadow-sm">
+                <BrainIcon className="h-4 w-4" />
                 Empowering healthy and engaged workforces
               </div>
               <h1 className="font-display text-4xl font-semibold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
