@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { login as loginApi } from '../services/api';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Activity, BrainCircuit, Shield, UserCheck, UserCog, Hash, HeartPulse } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowLeft, ArrowRight, Activity, BrainCircuit, Shield, UserCheck, UserCog, Hash, HeartPulse } from 'lucide-react';
 import FloatingSupportButton from './FloatingSupportButton';
 import CustomerSupportModal from './CustomerSupportModal'; // This will now import the new styled component
 
@@ -182,44 +182,43 @@ export default function Login({ onNavigate, onLoginSuccess }) {
           <span className="text-2xl font-extrabold tracking-tighter text-white">AI-Based Employee Wellness Management Platform</span>
         </div>
 
-        {/* Dynamic Centerpiece Quote / Info */}
+        {/* Sign-in guidance */}
         <div className="my-auto relative z-10 mt-8">
           <div className="max-w-md">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-850 border border-slate-800 rounded-full text-xxs text-slate-300 mb-6 font-medium">
               <BrainCircuit className="w-3.5 h-3.5 text-indigo-400" />
-              Empowering Healthy & Engaged Workforces
+              Secure access to your wellness workspace
             </div>
             <h1 className="font-display text-5xl xl:text-6xl font-normal leading-[1.1] tracking-tight text-white mb-6">
-              Transform your workplace <br />
-              <span className="italic font-serif text-slate-300">with health</span> intelligence.
+              Welcome <br />
+              <span className="italic font-serif text-slate-300">back to</span> your team.
             </h1>
             <p className="text-(--color-text-muted) text-base lg:text-lg leading-relaxed mb-8 font-normal">
-              Manage employee health records, monitor burnout risks, analyze organization sentiment, and provide personalized mental and physical
-              wellness recommendations in real-time.
+              Sign in with your registered details to continue to your wellness workspace. Choose your role and enter your account credentials to get started.
             </p>
           </div>
 
-          {/* Responsive feature cards: 1 col mobile, 2 cols tablet, 4 cols desktop */}
+          {/* Responsive sign-in steps: 1 col mobile, 2 cols tablet, 4 cols desktop */}
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
             <div className="p-4 bg-slate-850 border border-slate-800 rounded-xl">
               <Activity className="w-5 h-5 text-indigo-400 mb-2" />
-              <div className="text-sm font-semibold text-white">Predictive Analytics</div>
-              <p className="text-xs text-(--color-text-muted) mt-2">Machine learning assessments for health and burnout risks.</p>
+              <div className="text-sm font-semibold text-white">Choose Your Role</div>
+              <p className="text-xs text-(--color-text-muted) mt-2">Select employee or administrator access.</p>
             </div>
             <div className="p-4 bg-slate-850 border border-slate-800 rounded-xl">
               <Shield className="w-5 h-5 text-emerald-400 mb-2" />
-              <div className="text-sm font-semibold text-white">Sentiment Tracker</div>
-              <p className="text-xs text-(--color-text-muted) mt-2">Anonymized surveys tracking employee mental wellbeing.</p>
+              <div className="text-sm font-semibold text-white">Identify Your Account</div>
+              <p className="text-xs text-(--color-text-muted) mt-2">Use your registered email and employee ID when required.</p>
             </div>
             <div className="p-4 bg-slate-850 border border-slate-800 rounded-xl">
               <BrainCircuit className="w-5 h-5 text-purple-400 mb-2" />
-              <div className="text-sm font-semibold text-white">Personalized Recs</div>
-              <p className="text-xs text-(--color-text-muted) mt-2">AI-driven suggestions for fitness, diet, and mental peace.</p>
+              <div className="text-sm font-semibold text-white">Enter Your Password</div>
+              <p className="text-xs text-(--color-text-muted) mt-2">Sign in with the password linked to your account.</p>
             </div>
             <div className="p-4 bg-slate-850 border border-slate-800 rounded-xl">
               <HeartPulse className="w-5 h-5 text-rose-400 mb-2" />
-              <div className="text-sm font-semibold text-white">Health Data Mgmt</div>
-              <p className="text-xs text-(--color-text-muted) mt-2">Comprehensive interface to manage employee health records.</p>
+              <div className="text-sm font-semibold text-white">Continue to Your Dashboard</div>
+              <p className="text-xs text-(--color-text-muted) mt-2">Pick up where you left off in your wellness workspace.</p>
             </div>
           </div>
         </div>
@@ -239,6 +238,15 @@ export default function Login({ onNavigate, onLoginSuccess }) {
         {/* Soft light wellness backdrop — subtle, non-obstructive */}
         <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1600&q=60" alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover opacity-800" />
         <div className="absolute inset-0 bg-gradient-to-b from-white/75 via-white/55 to-white/90" />
+        <button
+          type="button"
+          onClick={() => onNavigate('welcome')}
+          className="absolute left-6 top-6 z-20 inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+          aria-label="Back to welcome page"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back</span>
+        </button>
         <div className="relative w-full max-w-md bg-white/95 backdrop-blur-sm rounded-2xl border border-slate-200/80 p-8 shadow-xl">
           <div className="mb-8">
             <div className="lg:hidden flex items-center gap-2 mb-6">

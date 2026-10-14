@@ -2,6 +2,7 @@ import  { useState, useEffect, useMemo, useCallback, useRef, lazy, Suspense } fr
 import Login from './components/Login';
 import SignUp from './components/SignUp';
 import ForgotPassword from './components/ForgotPassword'; 
+import WelcomePage from './components/WelcomePage';
 import * as api from './services/api';
 
 const UserDashboard = lazy(() => import('./components/UserDashboard'));
@@ -19,7 +20,7 @@ const INITIAL_RECOMMENDATIONS = [];
 const INITIAL_SENTIMENTS = [];
 
 export default function App() {
-    const [screen, setScreen] = useState('login');
+    const [screen, setScreen] = useState('welcome');
     const [currentUser, setCurrentUser] = useState(null);
     const [loadingSession, setLoadingSession] = useState(true); // New state to indicate session loading
     const [loadingWellnessData, setLoadingWellnessData] = useState(false);
@@ -76,7 +77,7 @@ export default function App() {
         await api.logout().catch(err => console.error('Logout API call failed:', err));
         setCurrentUser(null);
         localStorage.removeItem('wellness_current_user');
-        setScreen('login');
+        setScreen('welcome');
     }, []); // No dependencies, as it only uses setters and localStorage
 
     // Initialize theme on app mount
@@ -109,8 +110,8 @@ export default function App() {
                         handleLogout();
                     }
                 } else {
-                    // No saved user in localStorage, stay on login screen
-                    setScreen('login');
+                    // No saved user in localStorage, show the welcome screen
+                    setScreen('welcome');
                 }
             } catch (err) {
                 console.error('Failed to verify user session:', err);
@@ -498,6 +499,8 @@ export default function App() {
 
             {screen === 'signup' && (<SignUp onNavigate={handleNavigate}
                 onSignUpSuccess={handleSignUpSuccess} />)}
+
+            {screen === 'welcome' && (<WelcomePage onNavigate={handleNavigate} />)}
 
             {screen === 'forgot_password' && (<ForgotPassword
                 onNavigate={handleNavigate} />)}

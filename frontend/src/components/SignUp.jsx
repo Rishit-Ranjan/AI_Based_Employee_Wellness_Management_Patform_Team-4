@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, User, Hash, Check, AlertCircle, HeartPulse, BrainCircuit, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowLeft, ArrowRight, User, Hash, Check, AlertCircle, HeartPulse, BrainCircuit, CheckCircle2 } from 'lucide-react';
 import { signup as signupApi } from '../services/api';
 import FloatingSupportButton from './FloatingSupportButton';
 import CustomerSupportModal from './CustomerSupportModal';
@@ -156,21 +156,21 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
           <span className="text-2xl font-extrabold tracking-tighter text-white">AI-Based Employee Wellness Management Platform</span>
         </div>
 
-        {/* Center quote */}
+        {/* Sign-up guidance */}
         <div className="my-auto relative z-10 max-w-md mb-12">
           <h1 className="font-display text-5xl font-normal tracking-tight leading-tight mb-6 text-white">
-            Join thousands of teams <br/><span className="italic font-serif text-slate-300">prioritizing employee</span> health.
+            Start your <br/><span className="italic font-serif text-slate-300">wellness</span> account.
           </h1>
           <p className="text-(--color-text-muted) text-base leading-relaxed mb-6 font-normal">
-            Establishing a wellness program can reduce absenteeism by 25% and increase overall workspace productivity. Get started with custom employee health indexing today.
+            Create an account with your name, work email, and password to get started. Once registered, you can sign in to access the employee wellness platform.
           </p>
 
           <ul className="space-y-3.5">
             {[
-              'Compliant and anonymized analytics standard',
-              'Integrated mental distress notification system',
-              'Direct AI-assisted personalized action plans',
-              'Granular real-time team feedback widgets'
+              'Add your name and work email',
+              'Create and confirm your password',
+              'Register your employee wellness account',
+              'Sign in to continue to your workspace'
             ].map((benefit, idx) => (
               <li key={idx} className="flex items-center gap-2.5 text-base text-slate-300">
                 <div className="p-0.5 bg-slate-800 border border-slate-700 text-emerald-400 rounded-md">
@@ -193,6 +193,15 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
         {/* Soft light wellness backdrop — subtle, non-obstructive */}
         <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1600&q=60" alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover opacity-700" />
         <div className="absolute inset-0 bg-gradient-to-b from-white/75 via-white/55 to-white/90" />
+        <button
+          type="button"
+          onClick={() => onNavigate('welcome')}
+          className="absolute left-6 top-6 z-20 inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+          aria-label="Back to welcome page"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back</span>
+        </button>
         <div className="relative w-full max-w-md bg-white/95 backdrop-blur-sm rounded-2xl border border-slate-200/80 p-8 shadow-xl">
           <div className="mb-6">
             <div className="lg:hidden flex items-center gap-2 mb-4">
