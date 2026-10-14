@@ -4,7 +4,7 @@ import {
   User, Lightbulb, Bot, X, LogOut,
   Dumbbell, Apple, Brain, Clock, HeartPulse, BrainCircuit, Check, ShieldAlert, AlertCircle, Smile, Send,
   CalendarCheck, Siren, Receipt, ShieldCheck, Target, FileDown, Utensils, Bell, ExternalLink, PlayCircle,
-  Mic, MicOff, Volume2, Sun, Moon, Activity, Trash2, Menu, ChevronLeft, ChevronRight, Calendar
+  Mic, MicOff, Volume2, VolumeX, Pause, Play, Square, Sun, Moon, Activity, Trash2, Menu, ChevronLeft, ChevronRight, Calendar
 } from 'lucide-react';
 import ProfileEditModal from './ProfileEditModal';
 import { CheckupSchedulerModule, EmergencySOSModule, ExpenseTrackerModule } from './ExtraWellnessModules';
@@ -221,11 +221,30 @@ export function ChatbotModule({ user, isFloating = false, onClose }) {
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [isSpeechEnabled, setIsSpeechEnabled] = useState(true); 
+  const [isSpeechMuted, setIsSpeechMuted] = useState(false);
+  const [isSpeechPlaying, setIsSpeechPlaying] = useState(false);
+  const [isSpeechPaused, setIsSpeechPaused] = useState(false);
   const [isVoiceInput, setIsVoiceInput] = useState(false);
   const scrollRef = useRef(null);
   const recognitionRef = useRef(null);
-  const speechSynthRef = useRef(window.speechSynthesis);
+  const speechSynthRef = useRef(typeof window !== 'undefined' ? window.speechSynthesis : null);
+  const utteranceRef = useRef(null);
+  const activeSpeechTextRef = useRef('');
+  const speechOffsetRef = useRef(0);
+  const chatRootRef = useRef(null);
+
+  useEffect(() => {
+    if (!isFloating || !onClose) return undefined;
+
+    const handleOutsidePointerDown = (event) => {
+      if (chatRootRef.current && !chatRootRef.current.contains(event.target)) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('pointerdown', handleOutsidePointerDown);
+    return () => document.removeEventListener('pointerdown', handleOutsidePointerDown);
+  }, [isFloating, onClose]);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
@@ -264,50 +283,95 @@ export function ChatbotModule({ user, isFloating = false, onClose }) {
     };
   }, []);
 
-  const lastSpokenTextRef = useRef('');
-
-  const speakText = useCallback((text) => {
+  const speakText = useCallback((text, startIndex = 0, muted = isSpeechMuted) => {
     if (!speechSynthRef.current) return;
-    // Remember the last spoken text so it can be replayed if the user mutes/unmutes.
-    lastSpokenTextRef.current = text;
-    if (!isSpeechEnabled) return;
+    const textToSpeak = text.slice(startIndex);
+    if (!textToSpeak) return;
+    utteranceRef.current = null;
     speechSynthRef.current.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
+    activeSpeechTextRef.current = text;
+    speechOffsetRef.current = startIndex;
+    setIsSpeechPaused(false);
+    const utterance = new SpeechSynthesisUtterance(textToSpeak);
     utterance.rate = 1.0;
     utterance.pitch = 1.0;
-    utterance.volume = 1.0;
-const voices = speechSynthRef.current.getVoices();
+    utterance.volume = muted ? 0 : 1;
+    const voices = speechSynthRef.current.getVoices();
     const femaleVoice = voices.find(v => v.name.includes('Female') || v.name.includes('Zira'));
     if (femaleVoice) utterance.voice = femaleVoice;
-    speechSynthRef.current.speak(utterance);
-  }, [isSpeechEnabled]);
-
-  // Toggle voice output: muting cancels the current speech instantly so the
-  // speaker stops immediately (speechSynthesis.pause() is delayed in browsers).
-  const toggleSpeech = useCallback(() => {
-    setIsSpeechEnabled((prev) => {
-      const next = !prev;
-      if (!next) {
-        // Muting -> stop the ongoing voice output instantly
-        speechSynthRef.current?.cancel();
-      } else {
-        // Unmuting -> resume speaking the last bot message from the start
-        const text = lastSpokenTextRef.current;
-        if (text && speechSynthRef.current) {
-          speechSynthRef.current.cancel();
-          const utterance = new SpeechSynthesisUtterance(text);
-          utterance.rate = 1.0;
-          utterance.pitch = 1.0;
-          utterance.volume = 1.0;
-          const voices = speechSynthRef.current.getVoices();
-          const femaleVoice = voices.find(v => v.name.includes('Female') || v.name.includes('Zira'));
-          if (femaleVoice) utterance.voice = femaleVoice;
-          speechSynthRef.current.speak(utterance);
-        }
+    utterance.onboundary = (event) => {
+      if (utteranceRef.current === utterance && typeof event.charIndex === 'number') {
+        speechOffsetRef.current = startIndex + event.charIndex;
       }
-      return next;
-    });
-  }, []);
+    };
+    utterance.onstart = () => {
+      if (utteranceRef.current === utterance) setIsSpeechPlaying(true);
+    };
+    utterance.onend = () => {
+      if (utteranceRef.current === utterance) {
+        utteranceRef.current = null;
+        setIsSpeechPlaying(false);
+        setIsSpeechPaused(false);
+        activeSpeechTextRef.current = '';
+        speechOffsetRef.current = 0;
+      }
+    };
+    utterance.onerror = () => {
+      if (utteranceRef.current === utterance) {
+        utteranceRef.current = null;
+        setIsSpeechPlaying(false);
+        setIsSpeechPaused(false);
+        activeSpeechTextRef.current = '';
+        speechOffsetRef.current = 0;
+      }
+    };
+    utteranceRef.current = utterance;
+    speechSynthRef.current.speak(utterance);
+    setIsSpeechPlaying(true);
+  }, [isSpeechMuted]);
+
+  const toggleSpeech = useCallback(() => {
+    const nextMuted = !isSpeechMuted;
+    setIsSpeechMuted(nextMuted);
+
+    if (utteranceRef.current && speechSynthRef.current) {
+      const text = activeSpeechTextRef.current;
+      const offset = speechOffsetRef.current;
+      const wasPaused = speechSynthRef.current.paused;
+      speakText(text, offset, nextMuted);
+      if (wasPaused) {
+        speechSynthRef.current.pause();
+        setIsSpeechPaused(true);
+      }
+    }
+  }, [isSpeechMuted, speakText]);
+
+  const pauseSpeech = () => {
+    if (!utteranceRef.current || !speechSynthRef.current || isSpeechPaused) return;
+    utteranceRef.current = null;
+    speechSynthRef.current.cancel();
+    setIsSpeechPaused(true);
+  };
+
+  const resumeSpeech = () => {
+    if (!isSpeechPaused || !activeSpeechTextRef.current || !speechSynthRef.current) return;
+    speakText(activeSpeechTextRef.current, speechOffsetRef.current, isSpeechMuted);
+  };
+
+  const playSpeech = () => {
+    const latestBotMessage = [...messages].reverse().find((message) => message.sender === 'bot' && message.text);
+    if (!latestBotMessage) return;
+    speakText(latestBotMessage.text, 0, isSpeechMuted);
+  };
+
+  const stopSpeech = () => {
+    speechSynthRef.current?.cancel();
+    utteranceRef.current = null;
+    activeSpeechTextRef.current = '';
+    speechOffsetRef.current = 0;
+    setIsSpeechPlaying(false);
+    setIsSpeechPaused(false);
+  };
 
   useEffect(() => {
     // Load messages from localStorage on mount
@@ -416,7 +480,7 @@ const voices = speechSynthRef.current.getVoices();
   };
 
   return (
-    <div className={`flex flex-col h-full bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) ${isFloating ? '' : 'border border-(--color-border) dark:border-(--color-border-dark) rounded-lg shadow-sm'}`}>
+    <div ref={chatRootRef} className={`flex flex-col h-full bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) ${isFloating ? '' : 'border border-(--color-border) dark:border-(--color-border-dark) rounded-lg shadow-sm'}`}>
       <div className="p-3.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border-b border-(--color-border) dark:border-(--color-border-dark)">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -444,23 +508,56 @@ const voices = speechSynthRef.current.getVoices();
         {isFloating && (
           <div className="w-full border-t border-(--color-border) dark:border-(--color-border-dark) mt-3" />
         )}
-        <div className="flex items-center justify-end mt-3">
+        <div className="flex items-center justify-between gap-2 mt-3">
+          <button
+            type="button"
+            onClick={handleClearChat}
+            className="px-2.5 py-2 rounded-md border text-(--color-text-muted) hover:text-red-500 dark:hover:text-red-400 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border-(--color-border) dark:border-(--color-border-dark) hover:border-red-200 dark:hover:border-red-700 transition-all flex items-center gap-1.5 text-[11px] font-medium"
+            title="Clear Chat History"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            <span>Clear Chat</span>
+          </button>
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={handleClearChat}
-              className="p-2 rounded-md border text-(--color-text-muted) hover:text-red-500 dark:hover:text-red-400 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border-(--color-border) dark:border-(--color-border-dark) hover:border-red-200 dark:hover:border-red-700 transition-all"
-              title="Clear Chat History"
+              onClick={pauseSpeech}
+              disabled={!isSpeechPlaying || isSpeechPaused}
+              className="p-2 rounded-md border text-(--color-text-muted) hover:text-indigo-600 dark:hover:text-indigo-400 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border-(--color-border) dark:border-(--color-border-dark) transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              title="Pause voice output"
+              aria-label="Pause voice output"
             >
-              <Trash2 className="w-3.5 h-3.5" />
+              <Pause className="w-3.5 h-3.5" />
             </button>
-<button
+            <button
+              type="button"
+              onClick={isSpeechPaused ? resumeSpeech : playSpeech}
+              disabled={!isSpeechPaused && !messages.some((message) => message.sender === 'bot' && message.text)}
+              className="p-2 rounded-md border text-(--color-text-muted) hover:text-indigo-600 dark:hover:text-indigo-400 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border-(--color-border) dark:border-(--color-border-dark) transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              title={isSpeechPaused ? 'Resume voice output' : 'Play latest assistant response'}
+              aria-label={isSpeechPaused ? 'Resume voice output' : 'Play latest assistant response'}
+            >
+              <Play className="w-3.5 h-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={stopSpeech}
+              disabled={!isSpeechPlaying}
+              className="p-2 rounded-md border text-(--color-text-muted) hover:text-red-600 dark:hover:text-red-400 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border-(--color-border) dark:border-(--color-border-dark) transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              title="Stop voice output"
+              aria-label="Stop voice output"
+            >
+              <Square className="w-3.5 h-3.5" />
+            </button>
+            <button
               type="button"
               onClick={toggleSpeech}
-              className={`p-1.5 rounded-lg border text-xs transition-all cursor-pointer ${isSpeechEnabled ? 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-950/60 dark:text-blue-400 dark:border-blue-800' : 'bg-slate-100 text-(--color-text-muted) border-slate-200 dark:bg-(--color-bg-card-dark) dark:border-(--color-border-dark)'}`}
-              title={isSpeechEnabled ? "Voice Output Active" : "Voice Output Muted"}
+              className={`p-2 rounded-md border text-xs transition-all cursor-pointer ${isSpeechMuted ? 'bg-(--color-bg-subtle) text-(--color-text-muted) border-(--color-border) dark:bg-(--color-bg-card-dark) dark:border-(--color-border-dark)' : 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-950/60 dark:text-blue-400 dark:border-blue-800'}`}
+              title={isSpeechMuted ? 'Unmute voice output' : 'Mute voice output'}
+              aria-label={isSpeechMuted ? 'Unmute voice output' : 'Mute voice output'}
+              aria-pressed={isSpeechMuted}
             >
-              <Volume2 className="w-3.5 h-3.5" />
+              {isSpeechMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
             </button>
           </div>
         </div>
