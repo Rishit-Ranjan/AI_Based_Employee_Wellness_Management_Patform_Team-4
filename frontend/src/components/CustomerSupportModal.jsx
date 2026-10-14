@@ -68,10 +68,10 @@ export default function CustomerSupportModal({ user, onClose }) {
   };
 
   const tabButtonClass = (tab) =>
-    `px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 border ${
+    `px-4 py-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-2 border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-(--color-bg-card-dark) ${
       activeTab === tab
-        ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-        : 'bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) text-(--color-text-muted) dark:text-(--color-text-muted-dark) border-transparent hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark)'
+        ? 'bg-indigo-600 dark:bg-indigo-500 text-white border-indigo-600 dark:border-indigo-500 shadow-sm shadow-indigo-600/20'
+        : 'bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) text-(--color-text-secondary) dark:text-(--color-text-secondary-dark) border-transparent hover:border-(--color-border-strong) dark:hover:border-(--color-border-strong-dark) hover:bg-(--color-bg-card) dark:hover:bg-(--color-bg-card-dark)'
     }`;
 
   const quickActions = [
@@ -96,28 +96,36 @@ export default function CustomerSupportModal({ user, onClose }) {
   ];
 
   return (
-    <div className="fixed inset-0 z-[200] bg-slate-900/60 flex items-center justify-center p-4 animate-fadeIn">
+    <div
+      className="fixed inset-0 z-[200] bg-slate-900/60 dark:bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn"
+      onClick={onClose}
+    >
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         transition={{ type: 'spring', damping: 26, stiffness: 300 }}
-        className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl w-full max-w-2xl shadow-2xl border border-(--color-border) dark:border-(--color-border-dark) max-h-[90vh] flex flex-col overflow-hidden"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="customer-support-title"
+        onClick={(e) => e.stopPropagation()}
+        className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) rounded-2xl w-full max-w-3xl shadow-2xl border border-(--color-border) dark:border-(--color-border-dark) max-h-[90vh] flex flex-col overflow-hidden"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-(--color-border) dark:border-(--color-border-dark) bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) shrink-0">
+        <div className="flex items-center justify-between p-5 sm:px-6 border-b border-(--color-border) dark:border-(--color-border-dark) bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 dark:bg-blue-950/50 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400">
+            <div className="w-11 h-11 bg-indigo-100 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 rounded-xl flex items-center justify-center text-indigo-600 dark:text-indigo-400">
               <LifeBuoy className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-display font-semibold text-lg leading-tight text-(--color-text-primary) dark:text-(--color-text-primary-dark)">Customer Support</h3>
-              <p className="text-[11px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono mt-0.5">How can we help you today?</p>
+              <h3 id="customer-support-title" className="font-display font-semibold text-lg leading-tight text-(--color-text-primary) dark:text-(--color-text-primary-dark)">Customer Support</h3>
+              <p className="text-[11px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) mt-1">How can we help you today?</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full text-(--color-text-muted) hover:bg-(--color-bg-subtle) dark:hover:bg-(--color-bg-subtle-dark) transition-colors"
+            aria-label="Close customer support"
+            className="p-2 rounded-lg text-(--color-text-muted) hover:text-(--color-text-primary) dark:hover:text-(--color-text-primary-dark) hover:bg-(--color-bg-card) dark:hover:bg-(--color-bg-card-dark) transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
             title="Close Support"
           >
             <X className="w-4 h-4" />
@@ -125,7 +133,7 @@ export default function CustomerSupportModal({ user, onClose }) {
         </div>
 
         {/* Tabs */}
-        <div className="px-6 pt-4 flex items-center gap-2 shrink-0">
+        <div className="px-5 sm:px-6 pt-5 flex items-center gap-2 shrink-0 overflow-x-auto">
           <button onClick={() => setActiveTab('contact')} className={tabButtonClass('contact')} >
             <Headphones className="w-3.5 h-3.5" /> Contact
           </button>
@@ -138,7 +146,7 @@ export default function CustomerSupportModal({ user, onClose }) {
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 min-h-0 overflow-y-auto p-5 sm:p-6">
           {activeTab === 'chat' ? (
             <LoginSupportChat onEscalate={() => setActiveTab('contact')} />
           ) : activeTab === 'faq' ? (
@@ -148,11 +156,13 @@ export default function CustomerSupportModal({ user, onClose }) {
                 return (
                   <div
                     key={i}
-                    className="border border-(--color-border) dark:border-(--color-border-dark) rounded-xl overflow-hidden bg-slate-50/50 dark:bg-(--color-bg-dark)/40"
+                    className="border border-(--color-border) dark:border-(--color-border-dark) rounded-xl overflow-hidden bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) shadow-sm transition-colors hover:border-indigo-200 dark:hover:border-indigo-900"
                   >
                     <button
+                      type="button"
                       onClick={() => setOpenFaq(isOpen ? -1 : i)}
-                      className="w-full flex items-center justify-between gap-3 px-4 py-3.5 text-left cursor-pointer"
+                      aria-expanded={isOpen}
+                      className="w-full flex items-center justify-between gap-3 px-4 py-4 text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-500"
                     >
                       <span className="text-xs font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{faq.q}</span>
                       <ChevronDown
@@ -187,10 +197,11 @@ export default function CustomerSupportModal({ user, onClose }) {
                   return (
                     <button
                       key={i}
+                      type="button"
                       onClick={action.onClick}
-                      className="group p-4 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl text-left hover:border-blue-400 dark:hover:border-blue-700 hover:shadow-md transition-all cursor-pointer"
+                      className="group p-4 sm:p-5 bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl text-left hover:border-indigo-300 dark:hover:border-indigo-800 hover:shadow-md transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                     >
-                      <div className="p-2 bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-lg text-blue-600 dark:text-blue-400 w-fit group-hover:bg-blue-50 dark:group-hover:bg-blue-950/40 transition-colors">
+                      <div className="p-2.5 bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-400 w-fit group-hover:bg-indigo-100 dark:group-hover:bg-indigo-950/80 transition-colors">
                         <Icon className="w-4 h-4" />
                       </div>
                       <div className="mt-3 text-sm font-semibold text-(--color-text-primary) dark:text-(--color-text-primary-dark)">{action.title}</div>
@@ -201,9 +212,9 @@ export default function CustomerSupportModal({ user, onClose }) {
               </div>
 
               {/* Submit ticket form */}
-              <div className="border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-5 space-y-4">
+              <div className="bg-(--color-bg-card) dark:bg-(--color-bg-card-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl p-5 sm:p-6 space-y-5 shadow-sm">
                 <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-(--color-text-muted)" />
+                  <Clock className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
                   <h4 className="text-xs font-bold text-(--color-text-secondary) dark:text-(--color-text-primary-dark) uppercase tracking-wider">
                     Submit a Support Ticket
                   </h4>
@@ -220,7 +231,7 @@ export default function CustomerSupportModal({ user, onClose }) {
                     </p>
                   </div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="space-y-5">
+                  <form onSubmit={handleSubmit} className="space-y-4">
                     {error && (
                       <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-lg text-xs text-red-700 dark:text-red-300 flex items-start gap-2">
                         <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
@@ -236,7 +247,7 @@ export default function CustomerSupportModal({ user, onClose }) {
                         value={form.subject}
                         onChange={(e) => setForm({ ...form, subject: e.target.value })}
                         placeholder="e.g. Trouble scheduling a checkup"
-                        className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-blue-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark) placeholder-slate-400 outline-none transition-all"
+                        className="w-full px-3.5 py-3 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark) placeholder:text-(--color-text-muted) dark:placeholder:text-(--color-text-muted-dark) outline-none transition-all"
                       />
                     </div>
                     <div>
@@ -248,13 +259,13 @@ export default function CustomerSupportModal({ user, onClose }) {
                         value={form.message}
                         onChange={(e) => setForm({ ...form, message: e.target.value })}
                         placeholder="Describe the issue you're facing..."
-                        className="w-full px-3.5 py-2.5 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-blue-500 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark) placeholder-slate-400 outline-none transition-all resize-none"
+                        className="w-full px-3.5 py-3 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 focus:bg-(--color-bg-card) dark:focus:bg-(--color-bg-card-dark) rounded-lg text-sm text-(--color-text-primary) dark:text-(--color-text-primary-dark) placeholder:text-(--color-text-muted) dark:placeholder:text-(--color-text-muted-dark) outline-none transition-all resize-y min-h-28"
                       />
                     </div>
                     <button
                       type="submit"
                       disabled={submitting}
-                      className="w-full px-5 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white text-xs font-semibold rounded-xl transition-all cursor-pointer shadow-sm flex items-center justify-center gap-2"
+                      className="w-full px-5 py-3 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white text-xs font-semibold rounded-lg transition-all cursor-pointer shadow-sm shadow-indigo-600/20 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-(--color-bg-card-dark)"
                     >
                       <Send className="w-3.5 h-3.5" />
                       {submitting ? 'Submitting...' : 'Submit Ticket'}
@@ -265,7 +276,7 @@ export default function CustomerSupportModal({ user, onClose }) {
 
               <div className="p-4 bg-(--color-bg-subtle) dark:bg-(--color-bg-subtle-dark) border border-(--color-border) dark:border-(--color-border-dark) rounded-xl text-center">
                 <p className="text-[10px] text-(--color-text-muted) dark:text-(--color-text-muted-dark) font-mono">
-                  Prefer email? Write to <span className="font-bold text-blue-600 dark:text-blue-400">{SUPPORT_EMAIL}</span>
+                  Prefer email? Write to <span className="font-bold text-indigo-600 dark:text-indigo-400">{SUPPORT_EMAIL}</span>
                 </p>
               </div>
             </div>
