@@ -140,9 +140,9 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
   }
 
   return (
-    <div id="signup-container" className="min-h-screen flex bg-slate-50 text-slate-800">
+    <div id="signup-container" className="min-h-screen lg:h-screen lg:overflow-hidden flex bg-slate-50 text-slate-800">
       {/* Left panel: Info Panel */}
-      <div id="signup-hero-panel" className="hidden lg:flex lg:w-1/2 bg-slate-900 text-white p-12 flex-col justify-between relative overflow-hidden border-r border-slate-800">
+      <div id="signup-hero-panel" className="hidden lg:flex lg:w-1/2 bg-slate-900 text-white p-12 flex-col justify-between relative overflow-hidden lg:overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden border-r border-slate-800">
         <div className="absolute inset-0 opacity-10 pointer-events-none">
           <div className="absolute top-[-10%] left-[-10%] w-[120%] h-[120%] bg-[radial-gradient(circle_at_50%_50%,#fff_0%,transparent_50%)]"></div>
           <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-slate-800 to-transparent"></div>
@@ -189,7 +189,7 @@ export default function SignUp({ onNavigate, onSignUpSuccess }) {
       </div>
 
       {/* Right side: Signup Form */}
-      <div id="signup-form-panel" className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12 relative overflow-hidden bg-(--color-bg)">
+      <div id="signup-form-panel" className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12 relative overflow-hidden lg:overflow-y-auto bg-(--color-bg)">
         {/* Soft light wellness backdrop — subtle, non-obstructive */}
         <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1600&q=60" alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover opacity-700" />
         <div className="absolute inset-0 bg-gradient-to-b from-white/75 via-white/55 to-white/90" />

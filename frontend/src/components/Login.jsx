@@ -161,11 +161,11 @@ export default function Login({ onNavigate, onLoginSuccess }) {
   };
 
   return (
-    <div id="login-container" className="min-h-screen flex bg-slate-50 text-slate-800">
+    <div id="login-container" className="min-h-screen lg:h-screen lg:overflow-hidden flex bg-slate-50 text-slate-800">
       {/* Left side panel: Decorative/Info panel */}
       <div
         id="login-hero-panel"
-        className="hidden lg:flex lg:w-1/2 bg-slate-900 text-white p-12 flex-col justify-between relative overflow-hidden border-r border-slate-800"
+        className="hidden lg:flex lg:w-1/2 bg-slate-900 text-white p-12 flex-col justify-between relative overflow-hidden lg:overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden border-r border-slate-800"
       >
         {/* Abstract background graphics */}
         <div className="absolute inset-0 opacity-9 pointer-events-none">
@@ -235,7 +235,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
       </div>
 
       {/* Right side: Interactive Login form */}
-      <div id="login-form-panel" className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12 relative overflow-hidden bg-(--color-bg)">
+      <div id="login-form-panel" className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12 relative overflow-hidden lg:overflow-y-auto bg-(--color-bg)">
         {/* Soft light wellness backdrop — subtle, non-obstructive */}
         <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1600&q=60" alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover opacity-800" />
         <div className="absolute inset-0 bg-gradient-to-b from-white/75 via-white/55 to-white/90" />
