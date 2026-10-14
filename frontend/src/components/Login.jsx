@@ -237,7 +237,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
       <div id="login-form-panel" className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12 relative overflow-hidden lg:overflow-y-auto bg-(--color-bg)">
         {/* Soft light wellness backdrop — subtle, non-obstructive */}
         <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1600&q=60" alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover opacity-800" />
-        <div className="absolute inset-0 bg-gradient-to-b from-white/75 via-white/55 to-white/90" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/45 via-white/25 to-white/60" />
         <button
           type="button"
           onClick={() => onNavigate('welcome')}
@@ -247,7 +247,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
           <ArrowLeft className="h-4 w-4 transition-transform duration-200 group-hover:-translate-x-0.5" />
           <span>Back</span>
         </button>
-        <div className="relative w-full max-w-md rounded-2xl border border-slate-200/80 bg-white/85 p-8 shadow-xl backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-2xl hover:shadow-slate-900/15">
+        <div className="relative w-full max-w-md rounded-2xl border border-white/80 bg-white/65 p-8 shadow-2xl shadow-slate-900/15 ring-1 ring-slate-900/5 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-indigo-200/90 hover:shadow-slate-900/20">
           <div className="mb-8">
             <div className="lg:hidden flex items-center gap-2 mb-6">
               <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center">
@@ -348,7 +348,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
                     value={entityId}
                     onChange={(e) => setEntityId(e.target.value)}
                     placeholder={role === 'Admin' ? 'e.g. ADM001' : 'e.g. EMP101'}
-                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 outline-none hover:border-slate-300 hover:bg-white focus:border-indigo-500 focus:bg-white transition-all"
+                    className="w-full pl-10 pr-4 py-3 bg-white/55 border border-slate-300/80 rounded-lg text-sm text-slate-900 placeholder-slate-500 outline-none backdrop-blur-sm hover:border-slate-400 hover:bg-white/75 focus:border-indigo-500 focus:bg-white/90 transition-all"
                   />
                 </div>
                 {fieldErrors.entityId && (
@@ -377,7 +377,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
                       setEmail(e.target.value);
                     }}
                     placeholder="name@company.com"
-                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 outline-none hover:border-slate-300 hover:bg-white focus:border-indigo-500 focus:bg-white transition-all"
+                    className="w-full pl-10 pr-4 py-3 bg-white/55 border border-slate-300/80 rounded-lg text-sm text-slate-900 placeholder-slate-500 outline-none backdrop-blur-sm hover:border-slate-400 hover:bg-white/75 focus:border-indigo-500 focus:bg-white/90 transition-all"
                   />
                 </div>
                 {fieldErrors.email && (
@@ -412,7 +412,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••••••"
-                    className="w-full pl-10 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 outline-none hover:border-slate-300 hover:bg-white focus:border-indigo-500 focus:bg-white transition-all"
+                    className="w-full pl-10 pr-10 py-3 bg-white/55 border border-slate-300/80 rounded-lg text-sm text-slate-900 placeholder-slate-500 outline-none backdrop-blur-sm hover:border-slate-400 hover:bg-white/75 focus:border-indigo-500 focus:bg-white/90 transition-all"
                   />
                   <button
                     type="button"
